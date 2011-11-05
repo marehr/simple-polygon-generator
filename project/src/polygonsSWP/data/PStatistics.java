@@ -1,7 +1,7 @@
 package polygonsSWP.data;
 
 /**
- * First scratch of needed data.
+ * First scratch of needed data. This is NOT(!) the final implementation.
  * 
  * @author bigzed
  */
