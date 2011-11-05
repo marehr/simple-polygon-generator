@@ -1,5 +1,9 @@
 *.out
 *.aux
 *.log
+*.toc
+*.nav
+*.snm
+*.toc
 project/.classpath
 project/.project
