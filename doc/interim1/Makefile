@@ -1,7 +1,7 @@
 all: compile removetemporaries
 
 compile: removeartifacts
-	latex presentation.tex
+	pdflatex presentation.tex
 
 clean: removeartifacts
 
