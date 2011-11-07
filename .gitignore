@@ -7,3 +7,5 @@
 *.toc
 project/.classpath
 project/.project
+project/bin
+*.class
