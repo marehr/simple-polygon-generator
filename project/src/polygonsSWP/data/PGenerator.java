@@ -16,7 +16,7 @@ public interface PGenerator
    * 
    * @param params the generator's parameters. Known parameters are:
    *          'n'->Integer: Number of vertices of the polygon 
-   *          'points'->Point[]: Set of points to construct the 
+   *          'points'->List<Point>: Set of points to construct the 
    *                             polygon of 
    *          'runs'->Integer: Number of iterations a generator should 
    *                           do to construct the polygon
