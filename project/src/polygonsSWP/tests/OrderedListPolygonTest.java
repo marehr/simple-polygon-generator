@@ -4,15 +4,15 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import polygonsSWP.data.OrderedListPolygon;
 import polygonsSWP.data.Point;
-import polygonsSWP.data.Polygon;
 
-public class PolygonTest
+public class OrderedListPolygonTest
 {
   @Test
   public void testIsSimple() {
     // Simple polygon
-    Polygon p = new Polygon();
+    OrderedListPolygon p = new OrderedListPolygon();
     p.addPoint(new Point(0, 0));
     p.addPoint(new Point(10, 0));
     p.addPoint(new Point(0, 10));

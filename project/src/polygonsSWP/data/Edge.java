@@ -10,6 +10,22 @@ public class Edge
   }
   
   /**
+   * Equality check.
+   * 
+   * @return true, if the edges are the same, regardless of their direction
+   *         false, otherwise
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if(!(obj instanceof Edge))
+      return false;
+    
+    Edge e = (Edge) obj;
+    
+    return ((e.a == a) && (e.b == b)) || ((e.a == b) && (e.b == a));
+  }
+  
+  /**
    * Stolen from
    * http://paulbourke.net/geometry/lineline2d/
    * 

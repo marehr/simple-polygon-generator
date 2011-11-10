@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import polygonsSWP.data.*;
@@ -11,6 +12,7 @@ import polygonsSWP.data.*;
 import javax.swing.*;
 
 import polygonsSWP.generators.PermuteAndReject;
+import polygonsSWP.generators.TwoOptMoves;
 
 class PaintPanel extends JPanel{
     
@@ -27,20 +29,21 @@ class PaintPanel extends JPanel{
 	public void paintComponent(Graphics g) {
     	g.clearRect(0, 0, 1000, 1000);
     	
-    	PermuteAndReject polygen = new PermuteAndReject();
+    	PGenerator polygen = new TwoOptMoves();
     	Map<String,Object> params = new HashMap<String,Object>();
     	params.put("size", SIZE);
     	params.put("n", n);
     	Polygon p = polygen.run(params,null);
+    	List<Point> ps = p.getPoints();
     	
-    	int [] xcoords = new int[p.getPoints().size()];
-    	int [] ycoords = new int[p.getPoints().size()];
+    	int [] xcoords = new int[ps.size()];
+    	int [] ycoords = new int[ps.size()];
     	
-    	for (int i = 0; i < p.getPoints().size(); i++) {
-			xcoords[i] = p.getPoints().get(i).x;
-			ycoords[i] = p.getPoints().get(i).y;
+    	for (int i = 0; i < ps.size(); i++) {
+			xcoords[i] = ps.get(i).x;
+			ycoords[i] = ps.get(i).y;
 		}
-    	g.drawPolygon(xcoords,ycoords,p.getPoints().size());
+    	g.drawPolygon(xcoords,ycoords,ps.size());
     	
     }
     

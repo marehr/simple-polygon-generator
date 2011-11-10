@@ -13,6 +13,22 @@ import polygonsSWP.data.Point;
  */
 public class MathUtils
 {
+  
+  /**
+   * Creates a random permutation of list p.
+   */
+  public static List<Point> permute(List<Point> p) {
+    Random r = new Random(System.currentTimeMillis());
+    List<Point> s = new ArrayList<Point>(p);
+    List<Point> ret = new ArrayList<Point>();
+    
+    while(!s.isEmpty()) {
+      ret.add(s.remove(r.nextInt(s.size())));
+    }
+    
+    return ret;
+  }
+  
   /**
    * Randomly creates a set of n points in a square defined by edge length s,
    * where each point holds 0 <= x < s && 0 <= y < s and no point equals
