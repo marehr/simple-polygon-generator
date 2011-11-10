@@ -1,6 +1,7 @@
 package polygonsSWP.data;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -13,41 +14,57 @@ import java.util.ArrayList;
  */
 public class Polygon
 {
-  ArrayList<Point> _coords = new ArrayList<Point>();
+  List<Point> _coords = new ArrayList<Point>();
   PStatistics _stats = null;
-  PHistory _history = null;
 
   /**
    * Generates an empty polygon object which will contain no statistics or
    * history.
    */
   public Polygon() {
-
+    this(new ArrayList<Point>(), null);
   }
 
   /**
-   * Generates an empty polygons object which will contain his statistics and
-   * history.
+   * Generates an polygon object which consists of the given points,
+   * carrying no statistics object.
+   */
+  public Polygon(List<Point> coords) {
+    this(coords, null);
+  }
+  
+  /**
+   * Generates an empty polygons object which will contain its statistics.
    * 
-   * @param history The history object which shall be used.
    * @param stats The statistics object which shall be used.
    */
-  public Polygon(PHistory history, PStatistics stats) {
+  public Polygon(PStatistics stats) {
+    this(new ArrayList<Point>(), stats);
+  }
+  
+  /**
+   * Generates an empty polygons object which will contain its statistics
+   * and the given list of points.
+   * 
+   * @param stats The statistics object the Polygon should carry
+   * @param points The list of points the polygon consists of
+   */
+  public Polygon(List<Point> coords, PStatistics stats) {
+    _coords = coords;
     _stats = stats;
-    _history = history;
   }
 
   /**
    * @return Returns the ordered list of points associated with the polygon.
    */
-  public ArrayList<Point> getPoints() {
+  public List<Point> getPoints() {
     return _coords;
   }
 
   /**
    * @param coords Sets a new list of ordered points.
    */
-  public void setPoints(ArrayList<Point> coords) {
+  public void setPoints(List<Point> coords) {
     _coords = coords;
   }
 
@@ -57,14 +74,6 @@ public class Polygon
    */
   public PStatistics getStatictics() {
     return _stats;
-  }
-
-  /**
-   * @return Returns the history object associated. If none is present it
-   *         returns null.
-   */
-  public PHistory getHistory() {
-    return _history;
   }
 
   /**
@@ -89,9 +98,46 @@ public class Polygon
   /**
    * Deletes the given point.
    * 
-   * @param p Point to delet.
+   * @param p Point to delete.
    */
   public void deletePoint(Point p) {
     _coords.remove(p);
+  }
+
+  /**
+   * Determines whether a given ordered list of points
+   * forms a simple polygon.
+   * 
+   * @return true, if the polygon is simple, otherwise false.
+   */
+  public boolean isSimple() {
+    /* Remark: The approach used here is very naive. As
+     * Held writes in his paper, "The simplicity test for a polygon
+     * is not done in linear time; rather we implemented a
+     * straightforward quadratic approach. (As we will see later this
+     * has no influence on the test results.)", I also decided to let
+     * alone [Cha91] for now and simply check for crossing lines.
+     * 
+     * However, since we're going to implement polygon triangulation
+     * anyway, we should definitely come back here later and improve this.
+     * 
+     * Maybe, instead of the proposed [Cha91], we could also use
+     * the Bentley-Ottmann algorithm, see
+     * http://en.wikipedia.org/wiki/Bentley%E2%80%93Ottmann_algorithm
+     * for explanation.
+     */
+    
+    int size = _coords.size();
+    for(int i = 0; i < size; i++) {
+      Edge a = new Edge(_coords.get(i), _coords.get((i+1) % size));
+      for(int j = i + 1; j < i + size; j++) {
+        Edge b = new Edge(_coords.get(j % size), _coords.get((j + 1) % size));
+        
+        if(a.isIntersecting(b))
+          return false;
+      }
+    }
+    
+    return true;
   }
 }
