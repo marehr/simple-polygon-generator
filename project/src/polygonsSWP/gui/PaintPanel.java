@@ -16,6 +16,7 @@ class PaintPanel extends JPanel{
     
 	private static final long serialVersionUID = 503199267086439422L;
 	private static final int SIZE = 600;
+	private int n = 10;
     
     public PaintPanel() {
         setPreferredSize(new Dimension(SIZE, SIZE));
@@ -29,7 +30,7 @@ class PaintPanel extends JPanel{
     	PermuteAndReject polygen = new PermuteAndReject();
     	Map<String,Object> params = new HashMap<String,Object>();
     	params.put("size", SIZE);
-    	params.put("n", 10);
+    	params.put("n", n);
     	Polygon p = polygen.run(params,null);
     	
     	int [] xcoords = new int[p.getPoints().size()];
@@ -42,5 +43,7 @@ class PaintPanel extends JPanel{
     	g.drawPolygon(xcoords,ycoords,p.getPoints().size());
     	
     }
+    
+    public void setN(int n){this.n = n;}
 
 }

@@ -115,14 +115,14 @@ public class MainFrame extends JFrame {
 		public void mouseDragged(MouseEvent arg0) 
 		{
 			l_edge_count.setText("Edges: " + sl_edges.getValue());
-			//_canvas.setN(sl_edges.getValue());
+			_canvas.setN(sl_edges.getValue());
 		}
 		public void mouseMoved(MouseEvent arg0) {}		
 	  });
 	  sl_edges.addMouseListener(new MouseListener(){
 		public void mouseClicked(MouseEvent e) {
 			l_edge_count.setText("Edges: " + sl_edges.getValue());
-			//_canvas.setN(sl_edges.getValue());
+			_canvas.setN(sl_edges.getValue());
 		}
 		public void mouseEntered(MouseEvent e) {}
 		public void mouseExited(MouseEvent e) {}
