@@ -97,7 +97,6 @@ public class MathUtils
   public static boolean checkIfPointIsInPolygon(Polygon polygon, Point p) {
     List<Point> pList = polygon.getPoints();
     boolean  isInside = false;
-    boolean isOnLine = false;
     int nPoints = pList.size();
     Point first = pList.get(pList.size()-1);
     
