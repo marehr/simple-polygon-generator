@@ -87,24 +87,51 @@ public class MathUtils
   }
 
   /**
-   * Tests if p is inside the given Polygon Uses Jordans Point in Polygon Test 
-   * @param triangle Polygon to check if point is in it.
+   * Tests if p is inside the given Polygon Uses Jordans Point in Polygon Test
+   * 
+   * @param polygon Polygon to check if point is in it.
    * @param p Point to be checked if it is in polygon
-   * @return True if p is in polygon, otherwise false
+   * @return 1 if P is in Polygon, -1 if P is not in Polygon, 0 if P is on
+   *         Polygon
    */
-  public static boolean checkIfPointIsInPolygon(Polygon polygon, Point p) {
+  public static int checkIfPointIsInPolygon(Polygon polygon, Point p) {
     List<Point> pList = polygon.getPoints();
     int t = -1;
     // Get last point of list.
-    Point first = pList.get(pList.size()-1);
-    for(int i = 0; i <pList.size()-1; ++i) {
+    Point first = pList.get(pList.size() - 1);
+    for (int i = 0; i < pList.size() - 1; ++i) {
       t = t * crossProduktTest(p, first, pList.get(i));
       first = pList.get(i);
     }
-    return (t == 1) ? true : false;
+    return t;
   }
-  
+
+  /**
+   * Tests whether the ray from P crosses the line formed by Poly1 and Poly 2.
+   * 
+   * @param p
+   * @param poly1
+   * @param poly2
+   * @return -1 if ray crosses Poly1 Poly2, 0 if A on Poly1 Poly2, otherwise -1
+   */
   private static int crossProduktTest(Point p, Point poly1, Point poly2) {
-    return 0;
+    if (p.y == poly1.y && p.y == poly2.y) {
+      if ((poly1.x <= p.x && p.x <= poly2.x) ||
+          (poly2.x <= p.x && p.x <= poly1.x)) {
+        return 0;
+      }
+      else return 1;
+    }
+    if (poly1.y > poly2.y) {
+      long tmp = poly1.y;
+      poly1.y = poly2.y;
+      poly2.y = tmp;
+    }
+    if (p.y <= poly1.y || p.y > poly2.y) return 1;
+    long delta =
+        (poly1.x - p.x) * (poly2.y - p.y) - (poly1.y - p.y) * (poly2.x - p.x);
+    if (delta > 0) return 1;
+    else if (delta < 0) return -1;
+    else return 0;
   }
 }
