@@ -87,52 +87,36 @@ public class MathUtils
   }
 
   /**
-   * Tests if p is inside the given Polygon Uses Jordans Point in Polygon Test
-   * <http://de.wikipedia.org/wiki/Punkt-in-Polygon-Test_nach_Jordan>
-   * 
+   * Tests if p is inside the given Polygon.
+   * <http://geosoft.no/software/geometry/Geometry.java.html>
+   * Added a test to check if Point is on line.
    * @param polygon Polygon to check if point is in it.
    * @param p Point to be checked if it is in polygon
-   * @return 1 if P is in Polygon, -1 if P is not in Polygon, 0 if P is on
-   *         Polygon
+   * @return True if Point is in/on Polygon, otherwise false
    */
-  public static int checkIfPointIsInPolygon(Polygon polygon, Point p) {
+  public static boolean checkIfPointIsInPolygon(Polygon polygon, Point p) {
     List<Point> pList = polygon.getPoints();
-    int t = -1;
-    // Get last point of list.
-    Point first = pList.get(pList.size() - 1);
-    for (int i = 0; i < pList.size() - 1; ++i) {
-      t = t * crossProduktTest(p, first, pList.get(i));
+    boolean  isInside = false;
+    boolean isOnLine = false;
+    int nPoints = pList.size();
+    Point first = pList.get(pList.size()-1);
+    
+    int j = 0;
+    for (int i = 0; i < nPoints; i++) {
+      j++;
+      if (j == nPoints) j = 0;
+      
+      if (pList.get(i).y < p.y && pList.get(j).y >= p.y || pList.get(j).y < p.y && pList.get(i).y >= p.y) {
+        if (pList.get(i).x + (double) (p.y - pList.get(i).y) / (double) (pList.get(j).y - pList.get(i).y) *
+            (pList.get(j).x - pList.get(i).x) < p.y) {
+          isInside = !isInside;
+        }
+      }
+      if(checkOrientation(first, pList.get(i), p) == 0) {
+        return true;
+      }
       first = pList.get(i);
     }
-    return t;
-  }
-
-  /**
-   * Tests whether the ray from P crosses the line formed by Poly1 and Poly 2.
-   * 
-   * @param p Point to check rays from
-   * @param poly1 Begining point of line
-   * @param poly2 Ending point of line
-   * @return -1 if ray crosses Poly1 Poly2, 0 if A on Poly1 Poly2, otherwise -1
-   */
-  private static int crossProduktTest(Point p, Point poly1, Point poly2) {
-    if (p.y == poly1.y && p.y == poly2.y) {
-      if ((poly1.x <= p.x && p.x <= poly2.x) ||
-          (poly2.x <= p.x && p.x <= poly1.x)) {
-        return 0;
-      }
-      else return 1;
-    }
-    if (poly1.y > poly2.y) {
-      long tmp = poly1.y;
-      poly1.y = poly2.y;
-      poly2.y = tmp;
-    }
-    if (p.y <= poly1.y || p.y > poly2.y) return 1;
-    long delta =
-        (poly1.x - p.x) * (poly2.y - p.y) - (poly1.y - p.y) * (poly2.x - p.x);
-    if (delta > 0) return 1;
-    else if (delta < 0) return -1;
-    else return 0;
+    return isInside;
   }
 }
