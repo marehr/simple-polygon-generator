@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import polygonsSWP.data.Point;
+import polygonsSWP.data.Polygon;
 
 
 /**
@@ -73,9 +74,8 @@ public class MathUtils
    * @param p1 Starting point of the orientated segment (orientated line)
    * @param p2 End point of the orientated segment (orientated line)
    * @param p3 Point to test orientation for
-   * @return if 1 => p is on the left side if 
-   *            -1 => p is on the right side if
-   *             0 => p is on the segment
+   * @return if 1 => p is on the left side if -1 => p is on the right side if 0
+   *         => p is on the segment
    */
   public static int checkOrientation(Point begin, Point end, Point p) {
     long result =
@@ -84,5 +84,27 @@ public class MathUtils
     if (result > 0) return 1;
     else if (result < 0) return -1;
     else return 0;
+  }
+
+  /**
+   * Tests if p is inside the given Polygon Uses Jordans Point in Polygon Test 
+   * @param triangle Polygon to check if point is in it.
+   * @param p Point to be checked if it is in polygon
+   * @return True if p is in polygon, otherwise false
+   */
+  public static boolean checkIfPointIsInPolygon(Polygon polygon, Point p) {
+    List<Point> pList = polygon.getPoints();
+    int t = -1;
+    // Get last point of list.
+    Point first = pList.get(pList.size()-1);
+    for(int i = 0; i <pList.size()-1; ++i) {
+      t = t * crossProduktTest(p, first, pList.get(i));
+      first = pList.get(i);
+    }
+    return (t == 1) ? true : false;
+  }
+  
+  private static int crossProduktTest(Point p, Point poly1, Point poly2) {
+    return 0;
   }
 }
