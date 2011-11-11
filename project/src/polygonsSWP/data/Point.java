@@ -4,14 +4,14 @@ package polygonsSWP.data;
  * Implementation of point object. Just abstracts x and y coordinates to one
  * object.
  * 
- * @author bigzed
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
  */
 public class Point
 {
-  public int x;
-  public int y;
+  public long x;
+  public long y;
 
-  public Point(int _x, int _y) {
+  public Point(long _x, long _y) {
     x = _x;
     y = _y;
   }

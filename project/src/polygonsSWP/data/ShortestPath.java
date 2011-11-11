@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * no the start, end and every point on the path. So the path is saved in an
  * ordered list starting with start and always ending on the end point.
  * 
- * @author bigzed
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
  */
 public class ShortestPath
 {

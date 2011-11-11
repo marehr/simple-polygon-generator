@@ -12,7 +12,7 @@ import polygonsSWP.util.MathUtils;
  * from point one to point two to .. to point n to point 1. So be sure your self
  * added point list meets the assumption otherwise it won't work.
  * 
- * @author bigzed
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
  */
 public class OrderedListPolygon
   implements Polygon
