@@ -150,7 +150,7 @@ public class GraphPolygon implements Polygon
     if(!edges.contains(e))
       edges.add(e);
     else {
-      System.out.println("HAE?");
+      System.out.println("Polygon already contains given edge.");
     }
   }
   

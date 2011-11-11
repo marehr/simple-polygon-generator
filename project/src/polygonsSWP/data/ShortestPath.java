@@ -15,8 +15,7 @@ public class ShortestPath
 {
   private ArrayList<Point> _path = new ArrayList<Point>();
   private Polygon _polygon;
-  private SPStatistics _stats = null;
-  private SPHistory _history = null;
+
 
   /**
    * Generates an empty shortest path for polygon.
@@ -27,24 +26,6 @@ public class ShortestPath
    */
   public ShortestPath(Polygon polygon, Point start, Point end) {
     _polygon = polygon;
-    _path.add(start);
-    _path.add(end);
-  }
-
-  /**
-   * Generates an empty shortest path for polygon with history and statistics.
-   * 
-   * @param polygon Polygon in which is shortest path.
-   * @param start Start point of path.
-   * @param end End point of path.
-   * @param stats Statistic object for statistics.
-   * @param history History object for history.
-   */
-  public ShortestPath(Polygon polygon, Point start, Point end,
-      SPStatistics stats, SPHistory history) {
-    _polygon = polygon;
-    _stats = stats;
-    _history = history;
     _path.add(start);
     _path.add(end);
   }
@@ -93,23 +74,5 @@ public class ShortestPath
    */
   public Polygon getPolygon() {
     return _polygon;
-  }
-
-  /**
-   * Returns statistics.
-   * 
-   * @return Statisctics.
-   */
-  public SPStatistics getStatistics() {
-    return _stats;
-  }
-
-  /**
-   * Returns History.
-   * 
-   * @return History.
-   */
-  public SPHistory getHistory() {
-    return _history;
   }
 }
