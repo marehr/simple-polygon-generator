@@ -15,4 +15,13 @@ public class Point
     x = _x;
     y = _y;
   }
+  
+  @Override
+  public boolean equals(Object obj) {
+    if(!(obj instanceof Point))
+      return false;
+    
+    Point p = (Point) obj;
+    return (p.x == x) && (p.y == y);
+  }
 }
