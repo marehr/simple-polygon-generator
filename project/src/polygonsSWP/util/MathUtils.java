@@ -88,6 +88,7 @@ public class MathUtils
 
   /**
    * Tests if p is inside the given Polygon Uses Jordans Point in Polygon Test
+   * <http://de.wikipedia.org/wiki/Punkt-in-Polygon-Test_nach_Jordan>
    * 
    * @param polygon Polygon to check if point is in it.
    * @param p Point to be checked if it is in polygon
@@ -109,9 +110,9 @@ public class MathUtils
   /**
    * Tests whether the ray from P crosses the line formed by Poly1 and Poly 2.
    * 
-   * @param p
-   * @param poly1
-   * @param poly2
+   * @param p Point to check rays from
+   * @param poly1 Begining point of line
+   * @param poly2 Ending point of line
    * @return -1 if ray crosses Poly1 Poly2, 0 if A on Poly1 Poly2, otherwise -1
    */
   private static int crossProduktTest(Point p, Point poly1, Point poly2) {
