@@ -1,0 +1,79 @@
+\documentclass[10pt,a4paper,fleqn]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[left=3.5cm,right=3cm,top=3cm,bottom=3cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage[ngerman]{babel}
+\usepackage{amsfonts,amsmath}
+\usepackage{cmbright}
+\usepackage{qtree}
+\usepackage{amssymb}
+
+\begin{document}
+
+  % Set defaults. (See docs/latex/templates/settings.tex)
+  \renewcommand{\labelenumi}{(\alph{enumi})}
+  \renewcommand\headrule{\vspace{+2pt}\hrule}
+  \newcommand{\solved}{\[\hfill\Box\]}
+  \newcommand{\ableitung}{\mapsto}
+  \setlength{\headheight}{2.5\baselineskip}
+  \pagestyle{fancyplain}
+  \pagenumbering{Roman}
+
+  % Document header. (See docs/latex/templates/header.tex)
+  \rhead{\emph{An: Günter Rote}\\ \today}
+  \lhead{{\Large SWP: Ziele und Zwischenziele}\\ Gruppe 3: zufällige Polygone
+  und kürzeste Wege}
+  
+  \section*{Ziele}
+    
+    \begin{itemize}
+    
+	    \item generate random polygons via 6 different algorithms
+	    \item run shortest path algorithm on polygon
+	    \item step-by-step visualisation of generation processes
+	    \item statistical analysis on higher numer of polygons and shortest paths
+	   
+	   \end{itemize}
+    
+  \section*{Zwischenziele}
+    \begin{itemize}
+    \item 08.11.2011
+      \begin{itemize}
+        \item interface polygon generator
+        \item data structures scratch (except history objects)
+        \item GUI scratch
+      \end{itemize}
+      \item 15.11.2011
+      \begin{itemize}
+        \item first polygon algorithm
+        \item interface shortest path generator
+        \item data structures (except history objects)
+      \end{itemize}
+      \item 06.12. - 12.12.2011
+        \begin{itemize}
+          \item all polygon algotithms
+          \item shortest path generator
+          \item GUI basic version\\\\
+          Zu diesem Zeitpukt würden wir eine weitere Zwischenpräsentation geben
+        wollen. (Wenn dies möglich ist, da der Termin von dem auf der
+        Verastalungseite gegebenen abweicht.)
+        \end{itemize}
+      \item 10.01. - 17.01.2012
+        \begin{itemize}
+          \item history data structure
+          \item step-by-step visualisation
+          \item backend for statistics
+        \end{itemize}
+      \item 31.01.2012
+        \begin{itemize}
+          \item improved GUI
+          \item visualisation for long term statistics
+        \end{itemize}
+      \item 07.02.2012\\\\
+        Zu diesem Termin würden wir gerne die
+        Abschlusspräsentation zu unserem Projekt halten.
+  \end{itemize}
+    
+    
+\end{document}
