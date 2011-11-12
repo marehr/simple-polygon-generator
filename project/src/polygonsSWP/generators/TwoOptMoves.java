@@ -4,7 +4,6 @@ import java.util.Map;
 
 import polygonsSWP.data.Edge;
 import polygonsSWP.data.GraphPolygon;
-import polygonsSWP.data.PGenerator;
 import polygonsSWP.data.PHistory;
 import polygonsSWP.data.Polygon;
 import polygonsSWP.util.GeneratorUtils;

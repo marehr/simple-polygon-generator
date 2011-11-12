@@ -11,6 +11,7 @@ import polygonsSWP.data.*;
 
 import javax.swing.*;
 
+import polygonsSWP.generators.PGenerator;
 import polygonsSWP.generators.PermuteAndReject;
 import polygonsSWP.generators.TwoOptMoves;
 

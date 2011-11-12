@@ -1,6 +1,9 @@
-package polygonsSWP.data;
+package polygonsSWP.generators;
 
 import java.util.Map;
+
+import polygonsSWP.data.PHistory;
+import polygonsSWP.data.Polygon;
 
 
 public interface PGenerator
