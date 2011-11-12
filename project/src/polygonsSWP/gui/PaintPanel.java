@@ -6,13 +6,12 @@ import java.awt.Graphics;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import polygonsSWP.data.*;
 
-import javax.swing.*;
+import javax.swing.JPanel;
 
+import polygonsSWP.data.Point;
+import polygonsSWP.data.Polygon;
 import polygonsSWP.generators.PGenerator;
-import polygonsSWP.generators.PermuteAndReject;
 import polygonsSWP.generators.TwoOptMoves;
 
 class PaintPanel extends JPanel{
@@ -26,8 +25,7 @@ class PaintPanel extends JPanel{
         setBackground(Color.white);
     }
     
-    @SuppressWarnings("unchecked")
-	public void paintComponent(Graphics g) {
+  public void paintComponent(Graphics g) {
     	g.clearRect(0, 0, 1000, 1000);
     	
     	PGenerator polygen = new TwoOptMoves();
@@ -41,8 +39,8 @@ class PaintPanel extends JPanel{
     	int [] ycoords = new int[ps.size()];
     	
     	for (int i = 0; i < ps.size(); i++) {
-			xcoords[i] = ps.get(i).x;
-			ycoords[i] = ps.get(i).y;
+			xcoords[i] = (int) ps.get(i).x;
+			ycoords[i] = (int) ps.get(i).y;
 		}
     	g.drawPolygon(xcoords,ycoords,ps.size());
     	
