@@ -88,26 +88,36 @@ public class MathUtils
   }
 
   /**
-   * Tests if p is inside the given Polygon Uses Jordans Point in Polygon Test
-   * 
-   * @param triangle Polygon to check if point is in it.
+   * Tests if p is inside the given Polygon.
+   * <http://geosoft.no/software/geometry/Geometry.java.html>
+   * Added a test to check if Point is on line.
+   * @param polygon Polygon to check if point is in it.
    * @param p Point to be checked if it is in polygon
-   * @return True if p is in polygon, otherwise false
+   * @return True if Point is in/on Polygon, otherwise false
    */
   public static boolean checkIfPointIsInPolygon(Polygon polygon, Point p) {
     List<Point> pList = polygon.getPoints();
-    int t = -1;
-    // Get last point of list.
-    Point first = pList.get(pList.size() - 1);
-    for (int i = 0; i < pList.size() - 1; ++i) {
-      t = t * crossProduktTest(p, first, pList.get(i));
+    boolean  isInside = false;
+    int nPoints = pList.size();
+    Point first = pList.get(pList.size()-1);
+    
+    int j = 0;
+    for (int i = 0; i < nPoints; i++) {
+      j++;
+      if (j == nPoints) j = 0;
+      
+      if (pList.get(i).y < p.y && pList.get(j).y >= p.y || pList.get(j).y < p.y && pList.get(i).y >= p.y) {
+        if (pList.get(i).x + (double) (p.y - pList.get(i).y) / (double) (pList.get(j).y - pList.get(i).y) *
+            (pList.get(j).x - pList.get(i).x) < p.y) {
+          isInside = !isInside;
+        }
+      }
+      if(checkOrientation(first, pList.get(i), p) == 0) {
+        return true;
+      }
       first = pList.get(i);
     }
-    return (t == 1) ? true : false;
-  }
-
-  private static int crossProduktTest(Point p, Point poly1, Point poly2) {
-    return 0;
+    return isInside;
   }
 
   /**
