@@ -5,7 +5,7 @@ package polygonsSWP.data;
  * 
  * @author bigzed
  */
-public class PStatistics
+public class PolygonStatistics
 {
   public int number_of_points;
   public double flaecheninhalt;

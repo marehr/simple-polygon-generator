@@ -4,11 +4,11 @@ import java.util.Map;
 
 import polygonsSWP.data.Edge;
 import polygonsSWP.data.GraphPolygon;
-import polygonsSWP.data.PHistory;
+import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.data.Polygon;
 import polygonsSWP.util.GeneratorUtils;
 
-public class TwoOptMoves implements PGenerator 
+public class TwoOptMoves implements PolygonGenerator 
 {
 
   @Override
@@ -17,7 +17,7 @@ public class TwoOptMoves implements PGenerator
   }
 
   @Override
-  public Polygon run(Map<String, Object> params, PHistory steps) {
+  public Polygon generate(Map<String, Object> params, PolygonHistory steps) {
     
     // Step 1: Generate n points in the plane or use the given set of points.
     GraphPolygon p = new GraphPolygon(GeneratorUtils.createOrUsePoints(params));

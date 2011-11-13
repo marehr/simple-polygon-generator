@@ -2,11 +2,11 @@ package polygonsSWP.generators;
 
 import java.util.Map;
 
-import polygonsSWP.data.PHistory;
+import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.data.Polygon;
 
 
-public interface PGenerator
+public interface PolygonGenerator
 {
 
   /**
@@ -31,5 +31,5 @@ public interface PGenerator
    *          null, in which case the algorithm obviously should not use it.
    * @return a Polygon
    */
-  public Polygon run(Map<String, Object> params, PHistory steps);
+  public Polygon generate(Map<String, Object> params, PolygonHistory steps);
 }

@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 
 import polygonsSWP.data.Point;
 import polygonsSWP.data.Polygon;
-import polygonsSWP.generators.PGenerator;
+import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.TwoOptMoves;
 
 class PaintPanel extends JPanel{
@@ -28,11 +28,11 @@ class PaintPanel extends JPanel{
   public void paintComponent(Graphics g) {
     	g.clearRect(0, 0, 1000, 1000);
     	
-    	PGenerator polygen = new TwoOptMoves();
+    	PolygonGenerator polygen = new TwoOptMoves();
     	Map<String,Object> params = new HashMap<String,Object>();
     	params.put("size", SIZE);
     	params.put("n", n);
-    	Polygon p = polygen.run(params,null);
+    	Polygon p = polygen.generate(params,null);
     	List<Point> ps = p.getPoints();
     	
     	int [] xcoords = new int[ps.size()];

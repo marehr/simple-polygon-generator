@@ -3,12 +3,12 @@ package polygonsSWP.generators;
 import java.util.Map;
 
 import polygonsSWP.data.OrderedListPolygon;
-import polygonsSWP.data.PHistory;
+import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.data.Polygon;
 import polygonsSWP.util.GeneratorUtils;
 
 public class PermuteAndReject
-  implements PGenerator
+  implements PolygonGenerator
 {
 
   @Override
@@ -17,7 +17,7 @@ public class PermuteAndReject
   }
 
   @Override
-  public Polygon run(Map<String, Object> params, PHistory steps) {
+  public Polygon generate(Map<String, Object> params, PolygonHistory steps) {
 
     // Step 1: Generate n points in the plane or use the given set of points
     OrderedListPolygon p = new OrderedListPolygon(GeneratorUtils.createOrUsePoints(params));

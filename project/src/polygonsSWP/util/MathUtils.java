@@ -72,6 +72,9 @@ public class MathUtils
    * Tests if p is on the orientated segment given by 'begin' and 'end' or even
    * on the right or left side of the segment.
    * 
+   * @see www-ma2.upc.es/~geoc/mat1q1112/OrientationTests.pdf
+   * @see http://www.mochima.com/articles/cuj_geometry_article/cuj_geometry_article.html
+   * 
    * @param p1 Starting point of the orientated segment (orientated line)
    * @param p2 End point of the orientated segment (orientated line)
    * @param p3 Point to test orientation for
