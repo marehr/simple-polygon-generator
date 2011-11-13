@@ -21,6 +21,8 @@ public class MathUtils
    * Creates a random permutation of list p.
    */
   public static List<Point> permute(List<Point> p) {
+    // marcel@2011-11-13 FIXME:
+    // maybe using Collections.shuffle(ret); ?
     Random r = new Random(System.currentTimeMillis());
     List<Point> s = new ArrayList<Point>(p);
     List<Point> ret = new ArrayList<Point>();
