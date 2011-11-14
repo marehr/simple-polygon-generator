@@ -1,11 +1,9 @@
 package polygonsSWP.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-
-import polygonsSWP.util.MathUtils;
-
 
 /**
  * Implementation of Polygon using ordered list. The assumption is, that the
@@ -75,7 +73,7 @@ public class OrderedListPolygon
   }
 
   public void permute() {
-    _coords = MathUtils.permute(_coords);
+    Collections.shuffle(_coords);
   }
 
   /**
