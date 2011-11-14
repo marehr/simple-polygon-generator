@@ -149,9 +149,6 @@ public class GraphPolygon implements Polygon
   public void addEdge(Edge e) {
     if(!edges.contains(e))
       edges.add(e);
-    else {
-      System.out.println("Polygon already contains given edge.");
-    }
   }
   
   
