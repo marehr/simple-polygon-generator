@@ -1,11 +1,10 @@
 package polygonsSWP.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 import java.util.List;
-
-import polygonsSWP.util.MathUtils;
 
 /**
  * GraphPolygon is another Polygon implementation which uses
@@ -63,7 +62,7 @@ public class GraphPolygon implements Polygon
    * list.
    */
   public void permute() {
-    vertices = MathUtils.permute(vertices);
+    Collections.shuffle(vertices);
     roundtripEdges();
   }
   
@@ -149,9 +148,6 @@ public class GraphPolygon implements Polygon
   public void addEdge(Edge e) {
     if(!edges.contains(e))
       edges.add(e);
-    else {
-      System.out.println("Polygon already contains given edge.");
-    }
   }
   
   

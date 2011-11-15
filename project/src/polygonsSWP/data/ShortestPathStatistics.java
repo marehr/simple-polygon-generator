@@ -6,7 +6,7 @@ package polygonsSWP.data;
  * @author bigzed
  */
 
-public class SPStatistics
+public class ShortestPathStatistics
 {
   public int number_of_vertices;
   public double length;
