@@ -106,6 +106,16 @@ public class MathUtils
     }
     return isInside;
   }
+  
+  /**
+   * Triangulate Polygon with O(n^2) algorithm
+   * TODO: implement at least O(n log n ) algorithm
+   * @param poly Polygon to triangulate
+   * @return List of triangulars
+   */
+  public static List<Polygon> triangulatePolygon(Polygon poly) {
+    return null;
+  }
 
   /**
    * Creates a random Point in Polygon. Uses Triangularization, randomly chooses

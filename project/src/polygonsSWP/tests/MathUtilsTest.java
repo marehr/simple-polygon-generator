@@ -40,6 +40,10 @@ public class MathUtilsTest
     assertEquals(MathUtils.checkOrientation(begin, end, toCheck), -1);
   }
 
+  /**
+   * Just test for triangle 
+   * TODO: further testing
+   */
   @Test
   public void testCheckIfPointIsInPolygon() {
     // Create Triangle
