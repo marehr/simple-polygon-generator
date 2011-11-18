@@ -5,18 +5,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+
 /**
- * Implementation of Polygon using ordered list. The assumption is, that the
- * list of polygons is ordered in order of appearance. So the polygon is drawn
- * from point one to point two to .. to point n to point 1. So be sure your self
- * added point list meets the assumption otherwise it won't work.
+ * Implementation of Polygon using ordered counter-clockwise list. The
+ * assumption is, that the list of polygons is ordered in order of appearance.
+ * So the polygon is drawn from point one to point two to .. to point n to point
+ * 1. So be sure your self added point list meets the assumption otherwise it
+ * won't work.
  * 
  * @author Steve Dierker <dierker.steve@fu-berlin.de>
  */
 public class OrderedListPolygon
   implements Polygon
 {
-  List<Point> _coords = new ArrayList<Point>();
+  List<Point> _coords;
 
   /**
    * Generates an empty polygon object which will contain no statistics or
@@ -44,6 +46,7 @@ public class OrderedListPolygon
   public void setPoints(List<Point> coords) {
     _coords = coords;
   }
+
   /**
    * Adds a point to the end of the list.
    * 
@@ -84,13 +87,13 @@ public class OrderedListPolygon
   public boolean isSimple() {
     return findIntersections().size() == 0;
   }
-  
+
   /**
    * Calculates the set of all intersections found in the polygon.
    * 
    * @return a list of intersections, where each item is an array of the two
-   *         indices defining an intersection. 
-   *         [x,y] --> edge(x,x+1) intersects edge(y,y+1)
+   *         indices defining an intersection. [x,y] --> edge(x,x+1) intersects
+   *         edge(y,y+1)
    */
   public List<Integer[]> findIntersections() {
     /*
@@ -113,33 +116,70 @@ public class OrderedListPolygon
       for (int j = i + 1; j < size; j++) {
         Edge b = new Edge(_coords.get(j), _coords.get((j + 1) % size));
 
-        if (a.isIntersecting(b))
-          retval.add(new Integer[] {i, j});
+        if (a.isIntersecting(b)) retval.add(new Integer[] { i, j });
       }
     }
 
     return retval;
   }
-  
+
   /**
    * Returns a randomly chosen intersection of the polygon.
    * 
-   * @return 2-element array determining the intersection (see above)
-   *         null, if there is no intersection
+   * @return 2-element array determining the intersection (see above) null, if
+   *         there is no intersection
    */
   public Integer[] findRandomIntersection() {
     List<Integer[]> is = findIntersections();
-    if(is.size() == 0)
-      return null;
-    
+    if (is.size() == 0) return null;
+
     return is.get(new Random(System.currentTimeMillis()).nextInt(is.size()));
   }
-
 
   /**
    * @return the number of vertices in the polygon
    */
   public int size() {
     return _coords.size();
+  }
+
+  /**
+   * Simple test for equality. Should be improved if we introduce other
+   * implementations of polygon.
+   */
+  @Override
+  public boolean equals(Object obj) {
+    // Is Object a Polygon?
+    if (!(obj instanceof OrderedListPolygon)) return false;
+    OrderedListPolygon oP = (OrderedListPolygon) obj;
+    // Get starting point and compare clockwise whole polygon
+    if (_coords.size() == oP.size()) {
+      Point thisPoint = _coords.get(0);
+      int index = oP.getPoints().indexOf(thisPoint);
+      if (index == -1) return false;
+      for (int i = 1; i < _coords.size(); ++i)
+        if (!_coords.get(i).equals(
+            oP.getPoints().get(oP.getIndexInRange(index + i)))) return false;
+      return true;
+    }
+    else return false;
+  }
+
+  /**
+   * Create an index via module which is always in range
+   * 
+   * @param index index to be modified
+   * @return
+   */
+  public int getIndexInRange(final int index) {
+    int result = index % _coords.size();
+    return result < 0 ? result + _coords.size() : result;
+  }
+  
+  @Override
+  public Polygon clone() {
+    List<Point> nList = new ArrayList<Point>();
+    nList.addAll(_coords);
+    return new OrderedListPolygon(nList);
   }
 }

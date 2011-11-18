@@ -41,8 +41,7 @@ public class MathUtilsTest
   }
 
   /**
-   * Just test for triangle 
-   * TODO: further testing
+   * Just test for triangle TODO: further testing
    */
   @Test
   public void testCheckIfPointIsInPolygon() {
@@ -53,10 +52,37 @@ public class MathUtilsTest
     list.add(new Point(0, 10));
     Polygon poly = new OrderedListPolygon(list);
     // Point is on poly
-    assertTrue(MathUtils.checkIfPointIsInPolygon(poly, new Point(0, 0)));
+    assertFalse(MathUtils.checkIfPointIsInPolygon(poly, new Point(0, 0), false));
     // Point is in poly
-    assertTrue(MathUtils.checkIfPointIsInPolygon(poly, new Point(1, 1)));
+    assertTrue(MathUtils.checkIfPointIsInPolygon(poly, new Point(1, 1), true));
     // Point is out of poly
-    assertFalse(MathUtils.checkIfPointIsInPolygon(poly, new Point(50, 50)));
+    assertFalse(MathUtils.checkIfPointIsInPolygon(poly, new Point(50, 50), true));
+  }
+
+  /**
+   * Test for triangulatePolygon
+   */
+  @Test
+  public void testTriangulatePolygon() {
+    // Create a triangle
+    List<Point> pPoints = new ArrayList<Point>();
+    pPoints.add(new Point(0, 2));
+    pPoints.add(new Point(0, 0));
+    pPoints.add(new Point(2, 0));
+    OrderedListPolygon triangle = new OrderedListPolygon(pPoints);
+    List<Polygon> result = MathUtils.triangulatePolygon(triangle);
+    Polygon poly = result.get(0);
+    assertEquals(result.size(), 1);
+    assertTrue(poly.equals(triangle));
+    triangle.addPoint(new Point(2, 2));
+    result = MathUtils.triangulatePolygon(triangle);
+    assertEquals(2, result.size());
+    triangle.addPoint(new Point(1, 3));
+    result = MathUtils.triangulatePolygon(triangle);
+    assertEquals(3, result.size());
+    triangle.deletePoint(new Point(1,3));
+    triangle.addPoint(new Point(1, 1));
+    result = MathUtils.triangulatePolygon(triangle);
+    assertEquals(3, result.size());
   }
 }

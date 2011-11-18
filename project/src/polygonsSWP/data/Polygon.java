@@ -15,4 +15,15 @@ public interface Polygon
    * with an implicit edge between ret[ret.size()] and ret[0].
    */
   public List<Point> getPoints();
+  
+  
+  /**
+   * @return Returns a copy of the polygon instance.
+   */
+  public Polygon clone();
+  
+  /**
+   * @return True if object equals polygon, false otherwise
+   */
+  public boolean equals(Object obj);
 }
