@@ -1,6 +1,7 @@
 package polygonsSWP.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -57,8 +58,9 @@ public class MathUtils
    * on the right or left side of the segment.
    * 
    * @see www-ma2.upc.es/~geoc/mat1q1112/OrientationTests.pdf
-   * @see http://www.mochima.com/articles/cuj_geometry_article/cuj_geometry_article.html
-   * 
+   * @see http 
+   *      ://www.mochima.com/articles/cuj_geometry_article/cuj_geometry_article
+   *      .html
    * @param p1 Starting point of the orientated segment (orientated line)
    * @param p2 End point of the orientated segment (orientated line)
    * @param p3 Point to test orientation for
@@ -76,40 +78,42 @@ public class MathUtils
 
   /**
    * Tests if p is inside the given Polygon.
-   * <http://geosoft.no/software/geometry/Geometry.java.html>
-   * Added a test to check if Point is on line.
+   * <http://geosoft.no/software/geometry/Geometry.java.html> Added a test to
+   * check if Point is on line.
+   * 
    * @param polygon Polygon to check if point is in it.
    * @param p Point to be checked if it is in polygon
    * @return True if Point is in/on Polygon, otherwise false
    */
   public static boolean checkIfPointIsInPolygon(Polygon polygon, Point p) {
     List<Point> pList = polygon.getPoints();
-    boolean  isInside = false;
+    boolean isInside = false;
     int nPoints = pList.size();
-    Point first = pList.get(pList.size()-1);
-    
+    Point first = pList.get(pList.size() - 1);
+
     int j = 0;
     for (int i = 0; i < nPoints; i++) {
       j++;
       if (j == nPoints) j = 0;
-      
-      if (pList.get(i).y < p.y && pList.get(j).y >= p.y || pList.get(j).y < p.y && pList.get(i).y >= p.y) {
-        if (pList.get(i).x + (double) (p.y - pList.get(i).y) / (double) (pList.get(j).y - pList.get(i).y) *
+
+      if (pList.get(i).y < p.y && pList.get(j).y >= p.y ||
+          pList.get(j).y < p.y && pList.get(i).y >= p.y) {
+        if (pList.get(i).x + (double) (p.y - pList.get(i).y) /
+            (double) (pList.get(j).y - pList.get(i).y) *
             (pList.get(j).x - pList.get(i).x) < p.y) {
           isInside = !isInside;
         }
       }
-      if(checkOrientation(first, pList.get(i), p) == 0) {
-        return true;
-      }
+      if (checkOrientation(first, pList.get(i), p) == 0) { return true; }
       first = pList.get(i);
     }
     return isInside;
   }
-  
+
   /**
-   * Triangulate Polygon with O(n^2) algorithm
-   * TODO: implement at least O(n log n ) algorithm
+   * Triangulate Polygon with O(n^2) algorithm TODO: implement at least O(n log
+   * n ) algorithm
+   * 
    * @param poly Polygon to triangulate
    * @return List of triangulars
    */
@@ -119,28 +123,62 @@ public class MathUtils
 
   /**
    * Creates a random Point in Polygon. Uses Triangularization, randomly chooses
-   * triangle, creates random Point in triangle.
+   * Triangle, creates random Point in Triangle.
    * 
    * @param polygon Polygon to create random point in
    * @return random Point in given Polygon
    */
   public static Point createRandomPointInPolygon(Polygon polygon) {
-    // TODO: use Triangularization, randomly choose triangle, use
-    // createRandomPointInTriangle
-    Point point = new Point(0, 0);
-    return point;
+    //Triangulate given Polygon.
+    List<Polygon> triangularization = triangulatePolygon(polygon);
+    //Randomly choose one Triangle of Triangularization weighted by their
+    //Surface Area.
+    Polygon chosenPolygon = selectRandomPolygonBySize(triangularization);
+    //Randomly choose Point in choosen Triangle.
+    Point randomPoint = createRandomPointInTriangle(chosenPolygon);
+    return randomPoint;
+  }
+
+  /**
+   * Randomly selects a Polygon from a list of Polygons weighted by its Surface
+   * Area.
+   * 
+   * @param polygons
+   * @return
+   */
+  private static Polygon selectRandomPolygonBySize(List<Polygon> polygons) {
+    // This algorithm works as follows:
+    // 1. sum the weights (totalSurfaceArea)
+    // 2. select a uniform random value (randomValue) u 0 <= u < sum of weights
+    // 3. iterate through the items, keeping a running total (runnigTotal) of
+    // the weights of the items you've examined
+    // 4. as soon as running total >= random value, select the item you're
+    // currently looking at (the one whose weight you just added).
+    Random random = new Random();
+    random.setSeed(System.currentTimeMillis());
+    HashMap<Polygon, Long> surfaceAreaTriangles = new HashMap<Polygon, Long>();
+    long totalSurfaceArea = 0;
+    for (Polygon polygon2 : polygons) {
+      surfaceAreaTriangles.put(polygon2,
+          calcualteSurfaceAreaOfTriangle(polygon2));
+    }
+    long randomValue = Math.round(random.nextDouble() * totalSurfaceArea);
+    long runningTotal = 0;
+    for (Polygon polygon2 : polygons) {
+      runningTotal += surfaceAreaTriangles.get(polygon2);
+      if (runningTotal >= randomValue) { return polygon2; }
+    }
+    //This case should never occur! Bad style?
+    assert(false);
+    return null;
   }
 
   /**
    * Creates a random Point in given Triangle. Mirror Triangle to create
    * Parallelogram. Chooses random Point in Parallelogram, then checks if Point
    * is in original Triangle. Chooses new Point, if that is not the case, until
-   * true.
-   * 
-   * TODO: Invert created Point if not in original Triangle instead of
-   * simply rejecting it.
-   * 
-   * Used for createRandomPointInPolygon.
+   * true. TODO: Invert created Point if not in original Triangle instead of
+   * simply rejecting it. Testing! Used for createRandomPointInPolygon.
    * 
    * @param polygon Triangle point is created in. It is assumed, that Polygon is
    *          Triangle.
@@ -168,5 +206,44 @@ public class MathUtils
       point = createRandomPointInTriangle(polygon);
     }
     return point;
+  }
+
+  /**
+   * Calculates the Surface Area of a given Polygon. TODO: currently uses the
+   * Triangularization of the given Polygon to calculate and add resulting
+   * Triangles. Gaussian Formula should be more effective.
+   * 
+   * @param polygon Polygon to calculate Size of.
+   * @return Surface Area of given Polygon2
+   */
+  public static long calculateSurfaceAreaOfPolygon(Polygon polygon) {
+    List<Point> polygonPoints = polygon.getPoints();
+    if (polygonPoints.size() == 3) {
+      return calcualteSurfaceAreaOfTriangle(polygon);
+    }
+    else {
+      long surfaceArea = 0;
+      List<Polygon> triangularization = triangulatePolygon(polygon);
+      for (Polygon polygon2 : triangularization) {
+        surfaceArea += calcualteSurfaceAreaOfTriangle(polygon2);
+      }
+      return surfaceArea;
+    }
+  }
+
+  /**
+   * Calculates the Surface Area of a given Triangle by using two of its side
+   * vectors.
+   * 
+   * @param polygon Triangle to calculate Surface Area for. It is assumed, that
+   *          Polygon is a Triangle.
+   * @return Surface Area
+   */
+  private static long calcualteSurfaceAreaOfTriangle(Polygon polygon) {
+    List<Point> trianglePoints = polygon.getPoints();
+    assert (trianglePoints.size() == 3);
+    Vector u = new Vector(trianglePoints.get(9), trianglePoints.get(1));
+    Vector v = new Vector(trianglePoints.get(0), trianglePoints.get(2));
+    return (Math.abs(u.v1 * v.v2 - u.v2 * v.v1)) / 2;
   }
 }
