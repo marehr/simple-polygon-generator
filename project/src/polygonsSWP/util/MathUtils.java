@@ -231,22 +231,23 @@ public class MathUtils
     // 4. as soon as running total >= random value, select the item you're
     // currently looking at (the one whose weight you just added).
     Random random = new Random(System.currentTimeMillis());
-    HashMap<Polygon, Long> surfaceAreaTriangles =
-        new HashMap<Polygon, Long>();
+    HashMap<Polygon, Long> surfaceAreaTriangles = new HashMap<Polygon, Long>();
     long totalSurfaceArea = 0;
     for (Polygon polygon2 : polygons) {
-      long polygon2SurfaceArea = Math.round(Math.ceil(calcualteSurfaceAreaOfTriangle(polygon2)));
+      long polygon2SurfaceArea =
+          Math.round(Math.ceil(calcualteSurfaceAreaOfTriangle(polygon2)));
       totalSurfaceArea += polygon2SurfaceArea;
       surfaceAreaTriangles.put(polygon2, polygon2SurfaceArea);
     }
-    long randomValue = Math.round(Math.ceil(random.nextDouble() * totalSurfaceArea));
+    long randomValue =
+        Math.round(Math.ceil(random.nextDouble() * totalSurfaceArea));
     long runningTotal = 0;
     for (Polygon polygon2 : polygons) {
       runningTotal += surfaceAreaTriangles.get(polygon2);
       if (runningTotal >= randomValue) { return polygon2; }
     }
     // This case should never occur!
-    assert(false);
+    assert (false);
     return null;
   }
 
