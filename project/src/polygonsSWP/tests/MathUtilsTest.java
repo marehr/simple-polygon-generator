@@ -6,15 +6,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.swing.text.PlainDocument;
-
 import org.junit.Test;
-
-import com.sun.org.apache.bcel.internal.generic.Select;
 
 import polygonsSWP.data.OrderedListPolygon;
 import polygonsSWP.data.Point;
 import polygonsSWP.data.Polygon;
+import polygonsSWP.generators.PermuteAndReject;
 import polygonsSWP.util.MathUtils;
 import polygonsSWP.generators.PermuteAndReject;
 import polygonsSWP.generators.PolygonGenerator;
@@ -90,6 +87,16 @@ public class MathUtilsTest
     triangle.addPoint(new Point(1, 1));
     result = MathUtils.triangulatePolygon(triangle);
     assertEquals(3, result.size());
+    // Test with random polygons:
+    for(int i = 6; i < 15; ++i) {
+      HashMap<String,Object> map = new HashMap<String,Object>();
+      map.put("n", i);
+      map.put("size", 100);
+      PermuteAndReject pAR = new PermuteAndReject();
+      Polygon rPoly = pAR.generate(map, null);
+      result = MathUtils.triangulatePolygon(rPoly);
+      System.out.println(result.size() + " " + i);
+    }
   }
 
   /**
@@ -180,5 +187,19 @@ public class MathUtilsTest
     Point randomPoint = MathUtils.createRandomPointInPolygon(polygon);
     System.out.println(randomPoint);
     assertTrue(MathUtils.checkIfPointIsInPolygon(polygon, randomPoint, true));
+  }
+  
+  @Test
+  public void testIntersectWithPolygon() {
+    // Create a triangle
+    List<Point> pPoints = new ArrayList<Point>();
+    pPoints.add(new Point(0, 100));
+    pPoints.add(new Point(0, 0));
+    pPoints.add(new Point(50, 10));
+    pPoints.add(new Point(100, 0));
+    pPoints.add(new Point(100, 100));
+    OrderedListPolygon poly = new OrderedListPolygon(pPoints);
+    List<Point> result = MathUtils.getIntersectingPointsWithPolygon(poly, new Point(100,0), new Point(50,10));
+    System.out.println(result);
   }
 }
