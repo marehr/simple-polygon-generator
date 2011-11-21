@@ -8,7 +8,6 @@ import polygonsSWP.data.OrderedListPolygon;
 import polygonsSWP.data.Point;
 import polygonsSWP.data.Polygon;
 import polygonsSWP.data.PolygonHistory;
-import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 
 

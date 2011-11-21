@@ -131,16 +131,23 @@ public class GeneratorUtils
 
     return new OrderedListPolygon(hull);
   }
+
   /**
-   * TODO: implement
+   * This function calculates the visible region of a line segment of the
+   * polygon poly determined by p1 and p2 and returns a polygon representing the
+   * region. TODO: implement
+   * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
-   *
-   * @param polygon
+   * @param poly
    * @param p1
    * @param p2
    * @return
    */
-  public static Polygon visiblePolygonRegionFromLineSegment(Polygon polygon, Point p1, Point p2){
-    return polygon;
+  public static Polygon visiblePolygonRegionFromLineSegment(Polygon poly,
+      Point p1, Point p2) {
+    // Set p' with polygon poly
+    Polygon p_ = poly.clone();
+    // Extend line from p1 and p2 and check for intersection.
+    return p_;
   }
 }
