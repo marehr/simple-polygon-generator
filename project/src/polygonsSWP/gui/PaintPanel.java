@@ -3,6 +3,7 @@ package polygonsSWP.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,7 @@ class PaintPanel extends JPanel{
 	private static final long serialVersionUID = 503199267086439422L;
 	private static final int SIZE = 600;
 	private int n = 10;
-	private boolean useGivenPoints = false;
+	private ArrayList<polygonsSWP.data.Point> pointList = new ArrayList<polygonsSWP.data.Point>();
 	private String generator;
     
     public PaintPanel() {
@@ -74,5 +75,6 @@ class PaintPanel extends JPanel{
     
     public void setN(int n){this.n = n;}
     public void setGenerator(String gen){this.generator = gen;}
+    public void setPoints(ArrayList<polygonsSWP.data.Point> pl){this.pointList = pl;};
 
 }
