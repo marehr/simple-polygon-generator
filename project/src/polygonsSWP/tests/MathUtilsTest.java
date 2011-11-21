@@ -3,9 +3,14 @@ package polygonsSWP.tests;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.text.PlainDocument;
+
 import org.junit.Test;
+
+import com.sun.org.apache.bcel.internal.generic.Select;
 
 import polygonsSWP.data.OrderedListPolygon;
 import polygonsSWP.data.Point;
@@ -80,9 +85,73 @@ public class MathUtilsTest
     triangle.addPoint(new Point(1, 3));
     result = MathUtils.triangulatePolygon(triangle);
     assertEquals(3, result.size());
-    triangle.deletePoint(new Point(1,3));
+    triangle.deletePoint(new Point(1, 3));
     triangle.addPoint(new Point(1, 1));
     result = MathUtils.triangulatePolygon(triangle);
     assertEquals(3, result.size());
+  }
+
+  /**
+   * Test for calculateSurfaceAreaOfPolygon
+   */
+  @Test
+  public void testCalculateSurfaceAreaOfPolygon() {
+    // Create triangle 1
+    List<Point> pPoints = new ArrayList<Point>();
+    // Create triangle
+    pPoints = new ArrayList<Point>();
+    pPoints.add(new Point(0, 1));
+    pPoints.add(new Point(0, 0));
+    pPoints.add(new Point(3, 0));
+    Polygon polygon = new OrderedListPolygon(pPoints);
+    double result = MathUtils.calculateSurfaceAreaOfPolygon(polygon);
+    assertEquals(1.5, result, 0.0001);
+    // Create a Polygon
+    pPoints = new ArrayList<Point>();
+    pPoints.add(new Point(0, 0));
+    pPoints.add(new Point(2, 0));
+    pPoints.add(new Point(1, 3));
+    pPoints.add(new Point(0, 3));
+    polygon = new OrderedListPolygon(pPoints);
+    result = MathUtils.calculateSurfaceAreaOfPolygon(polygon);
+    assertEquals(4.5, result, 0.0001);
+  }
+  /**
+   * test for selcetRandomPolygonBySize
+   * TODO: work around the problem with the random seed while testing
+   */
+  @Test
+  public void testSelectRandomPolygonBySize() {
+    // Create a Polygon
+    List<Point> pPoints = new ArrayList<Point>();
+    pPoints = new ArrayList<Point>();
+    pPoints.add(new Point(0, 0));
+    pPoints.add(new Point(2, 0));
+    pPoints.add(new Point(2, 2));
+    pPoints.add(new Point(1, 10));
+    pPoints.add(new Point(0, 10));
+    Polygon polygon = new OrderedListPolygon(pPoints);
+    // triangulate Polygon, result consists of 3 Polygons
+    List<Polygon> triangularization = MathUtils.triangulatePolygon(polygon);
+    // use method representative times and store which polygon was picked
+    HashMap<Polygon, Integer> amountsPolygonsChosen = new HashMap<Polygon, Integer>();
+    for (Polygon polygon2 : triangularization) {
+      amountsPolygonsChosen.put(polygon2, 0);
+    }
+    for (int i = 0; i < 10000000; i++) {
+      Polygon selectedPolygon = MathUtils.selectRandomPolygonBySize(triangularization);
+      assertTrue(triangularization.contains(selectedPolygon));
+      amountsPolygonsChosen.put(selectedPolygon, amountsPolygonsChosen.get(selectedPolygon) +1);
+    }
+    // print out statistics for selectRandomPolygon
+    System.out.println("--- test selectRandomPolygonBySize: ---");
+    System.out.println("size of Triangularization: " + triangularization.size());
+    for (int i = 0; i < triangularization.size(); i++) {
+      System.out.println("surface area of triangle " + i + " :" +
+          MathUtils.calculateSurfaceAreaOfPolygon(triangularization.get(i)));
+    }
+    for (Polygon polygon2 : triangularization) {
+      System.out.println(polygon2 + " :" + amountsPolygonsChosen.get(polygon2));
+    }    
   }
 }

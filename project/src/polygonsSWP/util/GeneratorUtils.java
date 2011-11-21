@@ -8,6 +8,7 @@ import java.util.Map;
 
 import polygonsSWP.data.OrderedListPolygon;
 import polygonsSWP.data.Point;
+import polygonsSWP.data.Polygon;
 
 
 public class GeneratorUtils
@@ -129,5 +130,17 @@ public class GeneratorUtils
     }
 
     return new OrderedListPolygon(hull);
+  }
+  /**
+   * TODO: implement
+   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   *
+   * @param polygon
+   * @param p1
+   * @param p2
+   * @return
+   */
+  public static Polygon visiblePolygonRegionFromLineSegment(Polygon polygon, Point p1, Point p2){
+    return polygon;
   }
 }

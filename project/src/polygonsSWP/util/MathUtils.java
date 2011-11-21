@@ -83,10 +83,7 @@ public class MathUtils
    * <http://geosoft.no/software/geometry/Geometry.java.html> Added a test to
    * check if Point is on line.
    * 
-<<<<<<< HEAD
-=======
    * @author Steve Dierker <dierker.steve@fu-berlin.de>
->>>>>>> 269bf8a196722577a654685328f364bd4b009101
    * @param polygon Polygon to check if point is in it.
    * @param p Point to be checked if it is in polygon
    * @param onLine whether a point lying on an edge is counted as in or out of
@@ -202,28 +199,30 @@ public class MathUtils
    * Creates a random Point in Polygon. Uses Triangularization, randomly chooses
    * Triangle, creates random Point in Triangle.
    * 
+   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @param polygon Polygon to create random point in
    * @return random Point in given Polygon
    */
   public static Point createRandomPointInPolygon(Polygon polygon) {
-    //Triangulate given Polygon.
+    // Triangulate given Polygon.
     List<Polygon> triangularization = triangulatePolygon(polygon);
-    //Randomly choose one Triangle of Triangularization weighted by their
-    //Surface Area.
+    // Randomly choose one Triangle of Triangularization weighted by their
+    // Surface Area.
     Polygon chosenPolygon = selectRandomPolygonBySize(triangularization);
-    //Randomly choose Point in choosen Triangle.
+    // Randomly choose Point in choosen Triangle.
     Point randomPoint = createRandomPointInTriangle(chosenPolygon);
     return randomPoint;
   }
 
   /**
    * Randomly selects a Polygon from a list of Polygons weighted by its Surface
-   * Area.
+   * Area. TODO: still safe although surface areas calculated as doubles?
    * 
+   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @param polygons
    * @return
    */
-  private static Polygon selectRandomPolygonBySize(List<Polygon> polygons) {
+  public static Polygon selectRandomPolygonBySize(List<Polygon> polygons) {
     // This algorithm works as follows:
     // 1. sum the weights (totalSurfaceArea)
     // 2. select a uniform random value (randomValue) u 0 <= u < sum of weights
@@ -231,21 +230,22 @@ public class MathUtils
     // the weights of the items you've examined
     // 4. as soon as running total >= random value, select the item you're
     // currently looking at (the one whose weight you just added).
-    Random random = new Random();
-    random.setSeed(System.currentTimeMillis());
-    HashMap<Polygon, Long> surfaceAreaTriangles = new HashMap<Polygon, Long>();
+    Random random = new Random(System.currentTimeMillis());
+    HashMap<Polygon, Long> surfaceAreaTriangles =
+        new HashMap<Polygon, Long>();
     long totalSurfaceArea = 0;
     for (Polygon polygon2 : polygons) {
-      surfaceAreaTriangles.put(polygon2,
-          calcualteSurfaceAreaOfTriangle(polygon2));
+      long polygon2SurfaceArea = Math.round(Math.ceil(calcualteSurfaceAreaOfTriangle(polygon2)));
+      totalSurfaceArea += polygon2SurfaceArea;
+      surfaceAreaTriangles.put(polygon2, polygon2SurfaceArea);
     }
-    long randomValue = Math.round(random.nextDouble() * totalSurfaceArea);
+    long randomValue = Math.round(Math.ceil(random.nextDouble() * totalSurfaceArea));
     long runningTotal = 0;
     for (Polygon polygon2 : polygons) {
       runningTotal += surfaceAreaTriangles.get(polygon2);
       if (runningTotal >= randomValue) { return polygon2; }
     }
-    //This case should never occur! Bad style?
+    // This case should never occur!
     assert(false);
     return null;
   }
@@ -255,12 +255,9 @@ public class MathUtils
    * Parallelogram. Chooses random Point in Parallelogram, then checks if Point
    * is in original Triangle. Chooses new Point, if that is not the case, until
    * true. TODO: Invert created Point if not in original Triangle instead of
-<<<<<<< HEAD
    * simply rejecting it. Testing! Used for createRandomPointInPolygon.
-=======
-   * simply rejecting it. Used for createRandomPointInPolygon.
->>>>>>> 269bf8a196722577a654685328f364bd4b009101
    * 
+   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @param polygon Triangle point is created in. It is assumed, that Polygon is
    *          Triangle.
    * @return Point inside Triangle, randomly chosen.
@@ -294,16 +291,17 @@ public class MathUtils
    * Triangularization of the given Polygon to calculate and add resulting
    * Triangles. Gaussian Formula should be more effective.
    * 
+   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @param polygon Polygon to calculate Size of.
    * @return Surface Area of given Polygon2
    */
-  public static long calculateSurfaceAreaOfPolygon(Polygon polygon) {
+  public static double calculateSurfaceAreaOfPolygon(Polygon polygon) {
     List<Point> polygonPoints = polygon.getPoints();
     if (polygonPoints.size() == 3) {
       return calcualteSurfaceAreaOfTriangle(polygon);
     }
     else {
-      long surfaceArea = 0;
+      double surfaceArea = 0;
       List<Polygon> triangularization = triangulatePolygon(polygon);
       for (Polygon polygon2 : triangularization) {
         surfaceArea += calcualteSurfaceAreaOfTriangle(polygon2);
@@ -316,15 +314,16 @@ public class MathUtils
    * Calculates the Surface Area of a given Triangle by using two of its side
    * vectors.
    * 
+   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @param polygon Triangle to calculate Surface Area for. It is assumed, that
    *          Polygon is a Triangle.
    * @return Surface Area
    */
-  private static long calcualteSurfaceAreaOfTriangle(Polygon polygon) {
+  private static double calcualteSurfaceAreaOfTriangle(Polygon polygon) {
     List<Point> trianglePoints = polygon.getPoints();
     assert (trianglePoints.size() == 3);
-    Vector u = new Vector(trianglePoints.get(9), trianglePoints.get(1));
+    Vector u = new Vector(trianglePoints.get(0), trianglePoints.get(1));
     Vector v = new Vector(trianglePoints.get(0), trianglePoints.get(2));
-    return (Math.abs(u.v1 * v.v2 - u.v2 * v.v1)) / 2;
+    return (Math.abs(u.v1 * v.v2 - u.v2 * v.v1)) / 2.0;
   }
 }
