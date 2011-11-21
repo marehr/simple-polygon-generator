@@ -41,11 +41,13 @@ public class RandomPolygonAlgorithm
       Point Va = polygonPoints.get(randomIndex);
       Point Vb = polygonPoints.get(randomIndex+1);
       // 2.b determine visible region to VaVb -> P'
+      Polygon visibleRegion = GeneratorUtils.visiblePolygonRegionFromLineSegment(polygon, Va, Vb);
       // 2.c randomly select point Vc in P'
-      // 2.d add line segments VaVc and VbVc
-      // 2.e P' -> P
+      Point randomPoint = MathUtils.createRandomPointInPolygon(visibleRegion);
+      // 2.d add line segments VaVc and VcVb (delete line segment VaVb)
+      polygonPoints.add(randomIndex, randomPoint);
     }
     
-    return null;
+    return polygon;
   }
 }
