@@ -22,6 +22,25 @@ public class OrderedListPolygonTest
     // Complex polygon
     p.addPoint(new Point(10, 10));
     assertFalse(p.isSimple());
+    
+    // point a of edge ab lying on edge cd
+    p = new OrderedListPolygon();
+    p.addPoint(new Point(0, 0));
+    p.addPoint(new Point(10, 0));
+    p.addPoint(new Point(10, 10));
+    p.addPoint(new Point(5, 0));
+    p.addPoint(new Point(0, 10));
+    assertFalse(p.isSimple());
+    
+    // edge ab lying on edge cd
+    p = new OrderedListPolygon();
+    p.addPoint(new Point(0, 0));
+    p.addPoint(new Point(10, 0));
+    p.addPoint(new Point(10, 10));
+    p.addPoint(new Point(7, 0));
+    p.addPoint(new Point(3, 0));
+    p.addPoint(new Point(0, 10));
+    assertFalse(p.isSimple());
   }
 
   @Test

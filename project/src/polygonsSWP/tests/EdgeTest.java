@@ -29,9 +29,15 @@ public class EdgeTest
     b = new LineSegment(new Point(2, 2), new Point(8, 8));
     assertTrue(a.isIntersecting(b));
     
+    // Endpoint of a lying on b (intersecting!)
+    a = new LineSegment(new Point(0, 0), new Point(10, 0));
+    b = new LineSegment(new Point(5, 0), new Point(2, 10));
+    assertTrue(a.isIntersecting(b));
+    
+    // Sharing a point (intersecting!)
     a = new LineSegment(new Point(0, 0), new Point(10, 0));
     b = new LineSegment(new Point(10, 0), new Point(0, 10));
-    assertFalse(a.isIntersecting(b));
+    assertTrue(a.isIntersecting(b));
   }
 
 }
