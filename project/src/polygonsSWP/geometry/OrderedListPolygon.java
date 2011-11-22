@@ -114,9 +114,9 @@ public class OrderedListPolygon
     List<Integer[]> retval = new ArrayList<Integer[]>();
     int size = _coords.size();
     for (int i = 0; i < size - 1; i++) {
-      Edge a = new Edge(_coords.get(i), _coords.get(i + 1));
+      LineSegment a = new LineSegment(_coords.get(i), _coords.get(i + 1));
       for (int j = i + 1; j < size; j++) {
-        Edge b = new Edge(_coords.get(j), _coords.get((j + 1) % size));
+        LineSegment b = new LineSegment(_coords.get(j), _coords.get((j + 1) % size));
 
         if (a.isIntersecting(b)) retval.add(new Integer[] { i, j });
       }

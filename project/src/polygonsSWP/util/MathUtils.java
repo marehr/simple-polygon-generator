@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import polygonsSWP.geometry.Edge;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 
@@ -96,7 +95,7 @@ public class MathUtils
     for (Point item : poly.getPoints()) {
       // If it is not the same line, test for intersection.
       if (!((last.equals(begin) || item.equals(begin)) || (last.equals(end) || item.equals(end)))) {
-        Point tmp = Edge.intersetingPointOfTwoLines(begin, end, last, item);
+        Point tmp = MathUtils.intersetingPointOfTwoLines(begin, end, last, item);
         if (tmp != null) {
           if (tmp.isBetween(last, item)) {
             if (!intPoints.contains(tmp)) {
@@ -110,5 +109,53 @@ public class MathUtils
       last = item;
     }
     return intPoints;
+  }
+
+  public static Point intersetingPointOfTwoLines(Point aBegin, Point aEnd,
+      Point bBegin, Point bEnd) {
+    double aN = 0, bN = 0;
+    double aGrow = 0, bGrow = 0;
+    boolean ax = false, bx = false;
+    // Check if line is tilted, parallel to x or y
+    if (aBegin.x - aEnd.x == 0) ax = true;
+    else if (aBegin.y - aEnd.y == 0) {
+      aGrow = 0;
+      aN = aBegin.y;
+    }
+    else {
+      aGrow = (aEnd.y - aBegin.y) / (aEnd.x - (double) aBegin.x);
+      aN = aBegin.y - aGrow * aBegin.x;
+    }
+    // Check if line is tilted, parallel to x or y
+    if (bBegin.x - bEnd.x == 0) bx = true;
+    else if (bBegin.y - bEnd.y == 0) {
+      bGrow = 0;
+      bN = bBegin.y;
+    }
+    else {
+      bGrow = (bEnd.y - bBegin.y) / (bEnd.x - (double) bBegin.x);
+      bN = bBegin.y - bGrow * bBegin.x;
+    }
+    // Both lines are parallel to x
+    if ((ax && bx)) return null;
+    // one of them is parallel to x
+    else if (ax || bx) {
+      if (ax) {
+        double y = bGrow * aBegin.x + bN;
+        return new Point(aBegin.x, (long) y);
+      }
+      else {
+        System.out.println(aN + " " + aGrow + " " + bBegin.x);
+        double y = aGrow * bBegin.x + aN;
+        return new Point(bBegin.x, (long) y);
+      }
+    }
+    // Both lines are parallel
+    else if (aGrow == bGrow) return null;
+    else {
+      double x = (aN - bN) / (bGrow - aGrow);
+      double y = aGrow * x + aN;
+      return new Point((long) x, (long) y);
+    }
   }
 }
