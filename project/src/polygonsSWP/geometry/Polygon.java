@@ -38,6 +38,8 @@ public abstract class Polygon
    * @return Surface area as double.
    */
   public abstract double getSurfaceArea();
+  
+  public abstract Point createRandomPoint();
 
   /**
    * Creates a random Point in given Triangle. Mirror Triangle to create

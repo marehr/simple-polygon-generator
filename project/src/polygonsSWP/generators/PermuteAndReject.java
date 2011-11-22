@@ -33,5 +33,10 @@ public class PermuteAndReject
     
     return p;
   }
+  
+  @Override
+  public String toString() {
+    return "Permute & Reject";
+  }
 
 }

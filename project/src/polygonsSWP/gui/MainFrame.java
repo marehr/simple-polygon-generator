@@ -1,25 +1,45 @@
 package polygonsSWP.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 
-import polygonsSWP.geometry.Point;
+import java.util.HashMap;
+import java.util.Map;
+import polygonsSWP.geometry.Polygon;
+import polygonsSWP.generators.PermuteAndReject;
+import polygonsSWP.generators.PolygonGenerator;
+import polygonsSWP.generators.TwoOptMoves;
 
-import javax.swing.*;
-import javax.swing.border.BevelBorder;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSlider;
 
 
 public class MainFrame extends JFrame {
 
 	private static final long serialVersionUID = 313119639927682997L;
 	
-	private final int DEFFAULTSIZE = 600;
+	private final int DEFAULTSIZE = 600;
 	private String generationMethod = "generate";
 	private ArrayList<polygonsSWP.geometry.Point> pointList;
 	
 	// main components
-	private PaintPanel _canvas = new PaintPanel();
+	private PaintPanel _canvas = new PaintPanel(DEFAULTSIZE);
 	private InfoFrame infoframe;
 	private MainFrame self;
 	
@@ -27,7 +47,7 @@ public class MainFrame extends JFrame {
 	private JLabel l_polygon_generation, l_shortest_path, l_edge_count;
 	private JComboBox cb_polygon_algorithm_chooser;
 	
-	private String [] polygon_algorihtm_list = {"Permute and Reject","Two Opt Moves","algo3","algo4","algo5"};
+	private PolygonGenerator[] polygon_algorithm_list = {new PermuteAndReject(), new TwoOptMoves()}; 
 	
 	private JButton b_set_points,b_generate_polygon,b_calc_shortest_path;
 	private JSlider sl_edges;
@@ -69,7 +89,7 @@ public class MainFrame extends JFrame {
 	  
 	  // init combobox
 	  
-	  cb_polygon_algorithm_chooser = new JComboBox(polygon_algorihtm_list); // init combobox with string array
+	  cb_polygon_algorithm_chooser = new JComboBox(polygon_algorithm_list);
 	  
 	  // init slider
 	  
@@ -176,10 +196,8 @@ public class MainFrame extends JFrame {
 	  
 	  cb_polygon_algorithm_chooser.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-			if (cb_polygon_algorithm_chooser.getSelectedItem().equals("Permute and Reject"))
-			{
-				
-			}
+		  // TODO react on PolygonGenerator accepted parameters
+		  // remember deactivateNonSupportedParamComponents
 		}
 
 	  });
@@ -196,7 +214,7 @@ public class MainFrame extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			if(checkParamCombination())
 			{
-				setOptions();
+				runGenerator();
 				_canvas.repaint();
 			}
 		}
@@ -208,7 +226,7 @@ public class MainFrame extends JFrame {
 			f.setTitle("Set Polygon Points");
 			f.setSize(400,300);
 			f.setLocationRelativeTo(null);
-			f.show();
+			f.setVisible(true);
 		}
 	  });
 	  
@@ -288,11 +306,17 @@ public void setPoints(ArrayList<polygonsSWP.geometry.Point> pointList)
 		
   }
   
-  private void setOptions()
+  private void runGenerator()
   {
-	  _canvas.setGenerator((String) cb_polygon_algorithm_chooser.getSelectedItem());
-	  _canvas.setN(sl_edges.getValue());
-	  _canvas.setPoints(pointList);
+    PolygonGenerator pg = (PolygonGenerator) cb_polygon_algorithm_chooser.getSelectedItem();
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("n", sl_edges.getValue());
+    params.put("size", DEFAULTSIZE);
+    
+    // TODO re-enable pointlist
+    
+    Polygon p = pg.generate(params, null);
+    _canvas.setPolygon(p);
   }
   
   private void setPanelComponentsActive(JPanel panel,boolean state)

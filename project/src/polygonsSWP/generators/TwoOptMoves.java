@@ -60,5 +60,10 @@ public class TwoOptMoves implements PolygonGenerator
     
     return p;
   }
+  
+  @Override
+  public String toString() {
+    return "2-Opt moves";
+  }
 
 }
