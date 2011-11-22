@@ -3,6 +3,7 @@ package polygonsSWP.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Random;
 
 import polygonsSWP.data.OrderedListPolygon;
@@ -231,7 +232,7 @@ public class MathUtils
     // the weights of the items you've examined
     // 4. as soon as running total >= random value, select the item you're
     // currently looking at (the one whose weight you just added).
-    
+
     Random random = new Random(System.currentTimeMillis());
     HashMap<Polygon, Long> surfaceAreaTriangles = new HashMap<Polygon, Long>();
     long totalSurfaceArea = 0;
@@ -280,6 +281,8 @@ public class MathUtils
     double y = u.v2 * randomPoint1 + v.v2 * randomPoint2;
 
     Point point = new Point((long) x, (long) y);
+
+    // TODO: drehmatrix^-1 * spiegelungsmatrix * drehmatrix
 
     if (!checkIfPointIsInPolygon(polygon, point, true)) {
       point = createRandomPointInTriangle(polygon);
@@ -338,7 +341,7 @@ public class MathUtils
    * @param end
    * @return
    */
-  public static List<Point> getIntersectingPointsWithPolygon(Polygon poly,
+  public static List<Point> getIntersectionsPolygonLine(Polygon poly,
       Point begin, Point end) {
     List<Point> intPoints = new ArrayList<Point>();
     // Get last element of list and test implicit edge first.
@@ -346,9 +349,9 @@ public class MathUtils
     for (Point item : poly.getPoints()) {
       // If it is not the same line, test for intersection.
       if (!((last.equals(begin) || item.equals(begin)) || (last.equals(end) || item.equals(end)))) {
-        Point tmp = intersetingPointOfTwoLines(begin, end, last, item);
+        Point tmp = getIntersectionLineLine(begin, end, last, item);
         if (tmp != null) {
-          if (checkIfPointIsBetweenTwoPoints(last, item, tmp)) {
+          if (checkIfPointOnLineSegment(last, item, tmp)) {
             if (!intPoints.contains(tmp)) intPoints.add(tmp);
           }
         }
@@ -359,7 +362,7 @@ public class MathUtils
     return intPoints;
   }
 
-  public static Point intersetingPointOfTwoLines(Point aBegin, Point aEnd,
+  public static Point getIntersectionLineLine(Point aBegin, Point aEnd,
       Point bBegin, Point bEnd) {
     double aN = 0, bN = 0;
     double aGrow = 0, bGrow = 0;
@@ -371,7 +374,7 @@ public class MathUtils
       aN = aBegin.y;
     }
     else {
-      aGrow = (aEnd.y - aBegin.y) / (aEnd.x - (double)aBegin.x);
+      aGrow = (aEnd.y - aBegin.y) / (aEnd.x - (double) aBegin.x);
       aN = aBegin.y - aGrow * aBegin.x;
     }
     // Check if line is tilted, parallel to x or y
@@ -381,7 +384,7 @@ public class MathUtils
       bN = bBegin.y;
     }
     else {
-      bGrow = (bEnd.y - bBegin.y) / (bEnd.x - (double)bBegin.x);
+      bGrow = (bEnd.y - bBegin.y) / (bEnd.x - (double) bBegin.x);
       bN = bBegin.y - bGrow * bBegin.x;
     }
     // Both lines are parallel to x
@@ -415,13 +418,13 @@ public class MathUtils
    * @param end
    * @return
    */
-  private static double distanceOfTwoPoints(Point begin, Point end) {
+  public static double distanceBetweenTwoPoints(Point begin, Point end) {
     return Math.sqrt(Math.pow(begin.x - end.x, 2) +
         Math.pow(begin.y - end.y, 2));
   }
 
   /**
-   * Test if point is between two other points.
+   * Test if point is on line segment and therefore between two other points.
    * 
    * @author Steve Dierker <dierker.steve@fu-berlin.de>
    * @param begin
@@ -429,9 +432,47 @@ public class MathUtils
    * @param p
    * @return
    */
-  private static boolean checkIfPointIsBetweenTwoPoints(Point begin, Point end,
+  public static boolean checkIfPointOnLineSegment(Point begin, Point end,
       Point p) {
-    return distanceOfTwoPoints(begin, p) + distanceOfTwoPoints(p, end) == distanceOfTwoPoints(
-        begin, end);
+    return distanceBetweenTwoPoints(begin, p) +
+        distanceBetweenTwoPoints(p, end) == distanceBetweenTwoPoints(begin, end);
+  }
+
+  /**
+   * Returns the intersection point of Ray [p1p2 with Polygon that is next to
+   * p1. Returns null if there is no Intersection!
+   * 
+   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   * @param polygon
+   * @param p1
+   * @param p2
+   * @return
+   */
+  public static Point getFirstIntersectionPolygonRay(Polygon polygon, Point p1,
+      Point p2) {
+    List<Point[]> intersections = getIntersectionsPolygonLine(polygon, p1, p2);
+    Point firstIntersection = null;
+    double distance = Long.MAX_VALUE;
+    for (Point[] pointTriple : intersections) {
+      double newDistance = distanceBetweenTwoPoints(p1, pointTriple[0]);
+      if (checkIfPointOnLineSegment(p1, p2, pointTriple[0]) ||
+          newDistance > distanceBetweenTwoPoints(p2, pointTriple[0])) {
+        if (distance > newDistance) {
+          firstIntersection = pointTriple[0];
+          distance = newDistance;
+        }
+      }
+    }
+    return firstIntersection;
+  }
+  
+  public static List<Point[]> getIntersectionsPolygonLineSegment(Polygon polygon, Point p1, Point p2){
+    List<Point[]> intersections = getIntersectionsPolygonLine(polygon, p1, p2);
+    for (Point[] pointTriple : intersections) {
+      if(!checkIfPointOnLineSegment(p1, p2, pointTriple[0])){
+        intersections.remove(pointTriple);
+      }
+    }
+    return intersections;
   }
 }

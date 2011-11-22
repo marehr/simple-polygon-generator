@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
+
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 import polygonsSWP.data.OrderedListPolygon;
 import polygonsSWP.data.Point;
@@ -134,20 +137,102 @@ public class GeneratorUtils
 
   /**
    * This function calculates the visible region of a line segment of the
-   * polygon poly determined by p1 and p2 and returns a polygon representing the
-   * region. TODO: implement
+   * polygon determined by the Points pBegin and pEnd and returns a polygon
+   * representing the region. It is assumed, that the points in polygon are
+   * ordered counterclockwise. In this order, Vb is left from Va (Assume to
+   * continue from the beginning if reached the end of the list.)
    * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
-   * @param poly
+   * @param polygon
    * @param p1
    * @param p2
    * @return
    */
-  public static Polygon visiblePolygonRegionFromLineSegment(Polygon poly,
-      Point p1, Point p2) {
-    // Set p' with polygon poly
-    Polygon p_ = poly.clone();
-    // Extend line from p1 and p2 and check for intersection.
-    return p_;
+  public static Polygon visiblePolygonRegionFromLineSegment(Polygon polygon,
+      Point Va, Point Vb) {
+    // a. Set clonedPolygon with polygon
+    Polygon cPolygon = polygon.clone();
+    List<Point> cPolygonPoints = cPolygon.getPoints();
+    // b. Extend line from Va and Vb and check for intersection.
+    List<Point[]> intersectionsVaVb =
+        MathUtils.getIntersectingPointsWithPolygon(polygon, Va, Vb);
+    // get first intersecting Point on side of pEnd and pBegin
+    PriorityQueue<Point[]> nextToVa = new PriorityQueue<Point[]>();
+    PriorityQueue<Point[]> nextToVb = new PriorityQueue<Point[]>();
+    for (Point[] pointTriple : intersectionsVaVb) {
+      double distancePointVa =
+          MathUtils.distanceBetweenTwoPoints(Va, pointTriple[0]);
+      double distancePointVb =
+          MathUtils.distanceBetweenTwoPoints(Vb, pointTriple[0]);
+      if (distancePointVa < distancePointVb) {
+        nextToVa.add(pointTriple);
+      }
+      else if (distancePointVa > distancePointVb) {
+        nextToVb.add(pointTriple);
+      }
+      // distancePointPBegin == distacePointPEnd
+      else {
+        if (MathUtils.checkIfPointIsBetweenTwoPoints(Va, pointTriple[0],
+            Vb)) {
+          nextToVb.add(pointTriple);
+        }
+        else {
+          nextToVa.add(pointTriple);
+        }
+      }
+    }
+    // add those Points to clonedPolygon
+    Point[] firstTriple = nextToVa.remove();
+    cPolygonPoints.add(cPolygonPoints.indexOf(firstTriple[2]),
+        firstTriple[0]);
+    firstTriple = nextToVb.remove();
+    cPolygonPoints.add(cPolygonPoints.indexOf(firstTriple[2]),
+        firstTriple[0]);
+    return cPolygon;
+
+    // c. for all vertices in polygon, determine if visible from Va and Vb
+    Point lastVisible = Va;
+    int cPolygonSize = cPolygonPoints.size();
+    int i = cPolygonPoints.indexOf(Va) +1;
+    int indexVb = cPolygonPoints.indexOf(Va);
+    
+    while (i != indexVb){
+      
+      // currently checked point Vi
+      Point Vi = cPolygonPoints.get(i%cPolygonSize);
+      
+      boolean isViVisibleFromVa = true;
+      boolean isViVisibleFromVb = true;
+      
+      // test if Vi is visible from Va
+      List<Point[]> intersectionsVaVi = MathUtils.getIntersectingPointsWithPolygon(cPolygon, Va, Vi);
+      // delete intersections outside of polygon
+      for (Point[] pointTriple : intersectionsVaVi) {
+        if (!MathUtils.checkIfPointIsBetweenTwoPoints(Va, Vi, pointTriple[0])){
+          intersectionsVaVi.remove(pointTriple);
+        }
+      }
+      if (intersectionsVaVi.size() > 0){
+        isViVisibleFromVa = false;
+      }
+      // test if Vi is visible from Vb
+      List<Point[]> intersectionsVbVi = MathUtils.getIntersectingPointsWithPolygon(cPolygon, Vb, Vi);
+      // delete intersections outside of polygon
+      for (Point[] pointTriple : intersectionsVbVi) {
+        if (!MathUtils.checkIfPointIsBetweenTwoPoints(Vb, Vi, pointTriple[0])){
+          intersectionsVbVi.remove(pointTriple);
+        }
+      }
+      if (intersectionsVbVi.size() > 0){
+        isViVisibleFromVb = false;
+      }
+      // if visible form one of Va or Vb, check if only visible from outside
+      //TODO: implement check
+      
+      // Case1: Vi is neither visible from Va or Vb -> delete Vi from cPolygon
+      if (){
+        
+      }
+    }
   }
 }

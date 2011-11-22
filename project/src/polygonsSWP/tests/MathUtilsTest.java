@@ -199,7 +199,7 @@ public class MathUtilsTest
     pPoints.add(new Point(100, 0));
     pPoints.add(new Point(100, 100));
     OrderedListPolygon poly = new OrderedListPolygon(pPoints);
-    List<Point> result = MathUtils.getIntersectingPointsWithPolygon(poly, new Point(100,0), new Point(50,10));
+    List<Point> result = MathUtils.getIntersectionsPolygonLine(poly, new Point(100,0), new Point(50,10));
     System.out.println(result);
   }
 }
