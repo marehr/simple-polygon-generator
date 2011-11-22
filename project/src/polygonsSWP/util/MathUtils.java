@@ -235,7 +235,7 @@ public class MathUtils
     // the weights of the items you've examined
     // 4. as soon as running total >= random value, select the item you're
     // currently looking at (the one whose weight you just added).
-    
+
     Random random = new Random(System.currentTimeMillis());
     HashMap<Polygon, Long> surfaceAreaTriangles = new HashMap<Polygon, Long>();
     long totalSurfaceArea = 0;
@@ -344,9 +344,9 @@ public class MathUtils
    *         intersected in the form: list.get(a) => intersecting Point,
    *         list.get(a+1) => begin of line, list.get(a+2) => end of line
    */
-  public static List<Point> getIntersectingPointsWithPolygon(Polygon poly,
+  public static List<Point[]> getIntersectingPointsWithPolygon(Polygon poly,
       Point begin, Point end) {
-    List<Point> intPoints = new ArrayList<Point>();
+    List<Point[]> intPoints = new ArrayList<Point[]>();
     // Get last element of list and test implicit edge first.
     Point last = poly.getPoints().get(poly.getPoints().size() - 1);
     for (Point item : poly.getPoints()) {
@@ -356,9 +356,8 @@ public class MathUtils
         if (tmp != null) {
           if (checkIfPointIsBetweenTwoPoints(last, item, tmp)) {
             if (!intPoints.contains(tmp)) {
-              intPoints.add(tmp);
-              intPoints.add(last);
-              intPoints.add(item);
+              Point[] t = { tmp, last, item };
+              intPoints.add(t);
             }
           }
         }
