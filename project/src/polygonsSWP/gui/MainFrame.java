@@ -3,7 +3,8 @@ package polygonsSWP.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import polygonsSWP.data.Point;
+
+import polygonsSWP.geometry.Point;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -15,7 +16,7 @@ public class MainFrame extends JFrame {
 	
 	private final int DEFFAULTSIZE = 600;
 	private String generationMethod = "generate";
-	private ArrayList<polygonsSWP.data.Point> pointList;
+	private ArrayList<polygonsSWP.geometry.Point> pointList;
 	
 	// main components
 	private PaintPanel _canvas = new PaintPanel();
@@ -276,7 +277,7 @@ public class MainFrame extends JFrame {
 	return true;
 }
 
-public void setPoints(ArrayList<polygonsSWP.data.Point> pointList)
+public void setPoints(ArrayList<polygonsSWP.geometry.Point> pointList)
   {
 	  b_generate_polygon.setEnabled(true);
 	  this.pointList = pointList;

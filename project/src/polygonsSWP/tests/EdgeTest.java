@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import polygonsSWP.data.Edge;
-import polygonsSWP.data.Point;
+import polygonsSWP.geometry.Edge;
+import polygonsSWP.geometry.Point;
 
 public class EdgeTest
 {

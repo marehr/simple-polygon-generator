@@ -4,9 +4,9 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import polygonsSWP.data.OrderedListPolygon;
-import polygonsSWP.data.Point;
-import polygonsSWP.data.Polygon;
+import polygonsSWP.geometry.OrderedListPolygon;
+import polygonsSWP.geometry.Point;
+import polygonsSWP.geometry.Polygon;
 import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 

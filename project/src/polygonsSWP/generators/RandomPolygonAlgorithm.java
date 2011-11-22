@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import polygonsSWP.data.OrderedListPolygon;
-import polygonsSWP.data.Point;
-import polygonsSWP.data.Polygon;
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.geometry.OrderedListPolygon;
+import polygonsSWP.geometry.Point;
+import polygonsSWP.geometry.Polygon;
 import polygonsSWP.util.MathUtils;
 
 
@@ -42,7 +42,7 @@ public class RandomPolygonAlgorithm
       // 2.b determine visible region to VaVb -> P'
       Polygon visibleRegion = GeneratorUtils.visiblePolygonRegionFromLineSegment(polygon, Va, Vb);
       // 2.c randomly select point Vc in P'
-      Point randomPoint = MathUtils.createRandomPointInPolygon(visibleRegion);
+      Point randomPoint = OrderedListPolygon.createRandomPointInPolygon(visibleRegion);
       // 2.d add line segments VaVc and VcVb (delete line segment VaVb)
       polygonPoints.add(randomIndex, randomPoint);
     }

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import polygonsSWP.data.OrderedListPolygon;
-import polygonsSWP.data.Point;
 import polygonsSWP.data.PolygonHistory;
-import polygonsSWP.data.Polygon;
+import polygonsSWP.geometry.OrderedListPolygon;
+import polygonsSWP.geometry.Point;
+import polygonsSWP.geometry.Polygon;
 import polygonsSWP.util.GeneratorUtils;
 
 public class TwoOptMoves implements PolygonGenerator 

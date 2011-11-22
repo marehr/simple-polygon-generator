@@ -51,13 +51,13 @@ public class PolygonPointFrame extends JFrame{
 		
 		okbutton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ArrayList<polygonsSWP.data.Point> pointList = new ArrayList<polygonsSWP.data.Point>();
+				ArrayList<polygonsSWP.geometry.Point> pointList = new ArrayList<polygonsSWP.geometry.Point>();
 				String pointString = textArea.getText();
 				String [] a = pointString.split("\n");
 				for (int i = 0; i < a.length; i++) {
 					x = Integer.valueOf(a[i].split(" ")[0]);
 					y = Integer.valueOf(a[i].split(" ")[1]);
-					pointList.add(new polygonsSWP.data.Point(x,y));
+					pointList.add(new polygonsSWP.geometry.Point(x,y));
 				}
 				main.setPoints(pointList);
 				

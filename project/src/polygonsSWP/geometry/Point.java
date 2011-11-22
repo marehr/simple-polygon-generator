@@ -1,4 +1,4 @@
-package polygonsSWP.data;
+package polygonsSWP.geometry;
 
 /**
  * Implementation of point object. Just abstracts x and y coordinates to one
