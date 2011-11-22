@@ -3,7 +3,6 @@ package polygonsSWP.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Random;
 
 import polygonsSWP.data.OrderedListPolygon;
@@ -134,65 +133,60 @@ public class MathUtils
     if ((poly instanceof OrderedListPolygon)) triPo =
         (OrderedListPolygon) poly.clone();
     else return null;
+    System.out.println("Polygon: " + triPo.getPoints());
     List<Polygon> triangles = new ArrayList<Polygon>();
-    java.util.Collections.reverse(triPo.getPoints());
-
-    int i = 0, lastEar = -1;
-    do {
-      ++lastEar;
+    int i = 0, orientation = -1;
+    boolean isConvex;
+    while (triPo.size() != 3) {
       // Search three neighbors in polygon list
       Point pR = triPo.getPoints().get(triPo.getIndexInRange(i - 1)), pM =
           triPo.getPoints().get(triPo.getIndexInRange(i)), pL =
           triPo.getPoints().get(triPo.getIndexInRange(i + 1));
       // Check if convex or concave
-      boolean isConvex = checkOrientation(pR, pL, pM) == 1 ? true : false;
+      if (checkOrientation(pR, pL, pM) == orientation) {
+        isConvex = true;
+        if (orientation == 1) orientation = -1;
+      }
+      else isConvex = false;
       if (isConvex) {
         // Check if any point of the polygon intersects with the chosen
         // triangle.
         boolean inTriangle = false;
-        for (int j = 2; j <= triPo.getPoints().size() - 2; ++j) {
-          // Create Triangle
-          List<Point> triPoint = new ArrayList<Point>();
-          triPoint.add(pL);
-          triPoint.add(pM);
-          triPoint.add(pR);
-          OrderedListPolygon triangle = new OrderedListPolygon(triPoint);
-          if (checkIfPointIsInPolygon(triangle,
-              triPo.getPoints().get(triPo.getIndexInRange(i + j)), false)) {
+        // Create Triangle
+        List<Point> triPoint = new ArrayList<Point>();
+        triPoint.add(pR);
+        triPoint.add(pM);
+        triPoint.add(pL);
+        OrderedListPolygon triangle = new OrderedListPolygon(triPoint);
+        for (Point item : triPo.getPoints()) {
+          if (triPoint.contains(item)) continue;
+          if (checkIfPointIsInPolygon(triangle, item, false)) {
             inTriangle = true;
             break;
           }
         }
         // If no point is in Triangle
         if (!inTriangle) {
-          // Create Triangle and add to triangle list
-          List<Point> triPoint = new ArrayList<Point>();
-          triPoint.add(pL);
-          triPoint.add(pM);
-          triPoint.add(pR);
           triangles.add(new OrderedListPolygon(triPoint));
           // Delete middle vertex
           triPo.getPoints().remove(pM);
-          lastEar = 0;
           --i;
         }
       }
-      if (++i > triPo.getPoints().size() - 1) i = 0;
+      if (++i > triPo.getPoints().size()) {
+        i = 0;
+        orientation = 1;
+      }
     }
-    while ((lastEar <= (triPo.getPoints().size() * 2)) &&
-        (triPo.getPoints().size() != 3));
-
     // If only 3 points are left add them to triangle list
-    if (triPo.getPoints().size() == 3) {
-      Point pR = triPo.getPoints().get(triPo.getIndexInRange(0)), pM =
-          triPo.getPoints().get(triPo.getIndexInRange(1)), pL =
-          triPo.getPoints().get(triPo.getIndexInRange(2));
-      List<Point> triPoint = new ArrayList<Point>();
-      triPoint.add(pL);
-      triPoint.add(pM);
-      triPoint.add(pR);
-      triangles.add(new OrderedListPolygon(triPoint));
-    }
+    Point pR = triPo.getPoints().get(triPo.getIndexInRange(0)), pM =
+        triPo.getPoints().get(triPo.getIndexInRange(1)), pL =
+        triPo.getPoints().get(triPo.getIndexInRange(2));
+    List<Point> triPoint = new ArrayList<Point>();
+    triPoint.add(pR);
+    triPoint.add(pM);
+    triPoint.add(pL);
+    triangles.add(new OrderedListPolygon(triPoint));
     return triangles;
   }
 
@@ -339,11 +333,13 @@ public class MathUtils
    * @param poly
    * @param begin
    * @param end
-   * @return
+   * @return Is a list containing the intersecting point and the line which is
+   *         intersected in the form: list.get(a) => intersecting Point,
+   *         list.get(a+1) => begin of line, list.get(a+2) => end of line
    */
-  public static List<Point> getIntersectionsPolygonLine(Polygon poly,
+  public static List<Point[]> getIntersectionsPolygonLine(Polygon poly,
       Point begin, Point end) {
-    List<Point> intPoints = new ArrayList<Point>();
+    List<Point[]> intPoints = new ArrayList<Point[]>();
     // Get last element of list and test implicit edge first.
     Point last = poly.getPoints().get(poly.getPoints().size() - 1);
     for (Point item : poly.getPoints()) {
@@ -352,7 +348,10 @@ public class MathUtils
         Point tmp = getIntersectionLineLine(begin, end, last, item);
         if (tmp != null) {
           if (checkIfPointOnLineSegment(last, item, tmp)) {
-            if (!intPoints.contains(tmp)) intPoints.add(tmp);
+            if (!intPoints.contains(tmp)) {
+              Point[] t = { tmp, last, item };
+              intPoints.add(t);
+            }
           }
         }
       }
