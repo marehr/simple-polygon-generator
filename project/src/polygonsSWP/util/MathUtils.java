@@ -135,16 +135,20 @@ public class MathUtils
     else return null;
     List<Polygon> triangles = new ArrayList<Polygon>();
     java.util.Collections.reverse(triPo.getPoints());
-
+    System.out.println("Polygon for Triangulisation: " + poly.getPoints());
     int i = 0, lastEar = -1;
-    do {
+    while ((lastEar <= (triPo.getPoints().size() * 2)) &&
+        (triPo.getPoints().size() != 3)) {
       ++lastEar;
       // Search three neighbors in polygon list
       Point pR = triPo.getPoints().get(triPo.getIndexInRange(i - 1)), pM =
           triPo.getPoints().get(triPo.getIndexInRange(i)), pL =
           triPo.getPoints().get(triPo.getIndexInRange(i + 1));
+      System.out.println("Triangle: " + pR + ", " + pM + ", " + pL);
       // Check if convex or concave
       boolean isConvex = checkOrientation(pR, pL, pM) == 1 ? true : false;
+      System.out.println("Triangle: " + pR + ", " + pM + ", " + pL +
+          " is convex " + isConvex);
       if (isConvex) {
         // Check if any point of the polygon intersects with the chosen
         // triangle.
@@ -156,6 +160,8 @@ public class MathUtils
           triPoint.add(pM);
           triPoint.add(pR);
           OrderedListPolygon triangle = new OrderedListPolygon(triPoint);
+          System.out.println("Triangle for Intersection check: " +
+              triangle.getPoints());
           if (checkIfPointIsInPolygon(triangle,
               triPo.getPoints().get(triPo.getIndexInRange(i + j)), false)) {
             inTriangle = true;
@@ -178,8 +184,6 @@ public class MathUtils
       }
       if (++i > triPo.getPoints().size() - 1) i = 0;
     }
-    while ((lastEar <= (triPo.getPoints().size() * 2)) &&
-        (triPo.getPoints().size() != 3));
 
     // If only 3 points are left add them to triangle list
     if (triPo.getPoints().size() == 3) {
@@ -336,7 +340,9 @@ public class MathUtils
    * @param poly
    * @param begin
    * @param end
-   * @return
+   * @return Is a list containing the intersecting point and the line which is
+   *         intersected in the form: list.get(a) => intersecting Point,
+   *         list.get(a+1) => begin of line, list.get(a+2) => end of line
    */
   public static List<Point> getIntersectingPointsWithPolygon(Polygon poly,
       Point begin, Point end) {
@@ -349,7 +355,11 @@ public class MathUtils
         Point tmp = intersetingPointOfTwoLines(begin, end, last, item);
         if (tmp != null) {
           if (checkIfPointIsBetweenTwoPoints(last, item, tmp)) {
-            if (!intPoints.contains(tmp)) intPoints.add(tmp);
+            if (!intPoints.contains(tmp)) {
+              intPoints.add(tmp);
+              intPoints.add(last);
+              intPoints.add(item);
+            }
           }
         }
       }
@@ -371,7 +381,7 @@ public class MathUtils
       aN = aBegin.y;
     }
     else {
-      aGrow = (aEnd.y - aBegin.y) / (aEnd.x - (double)aBegin.x);
+      aGrow = (aEnd.y - aBegin.y) / (aEnd.x - (double) aBegin.x);
       aN = aBegin.y - aGrow * aBegin.x;
     }
     // Check if line is tilted, parallel to x or y
@@ -381,7 +391,7 @@ public class MathUtils
       bN = bBegin.y;
     }
     else {
-      bGrow = (bEnd.y - bBegin.y) / (bEnd.x - (double)bBegin.x);
+      bGrow = (bEnd.y - bBegin.y) / (bEnd.x - (double) bBegin.x);
       bN = bBegin.y - bGrow * bBegin.x;
     }
     // Both lines are parallel to x
