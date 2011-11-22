@@ -212,21 +212,22 @@ public class MathUtils
     List<Polygon> triangularization = triangulatePolygon(polygon);
     // Randomly choose one Triangle of Triangularization weighted by their
     // Surface Area.
-    Polygon chosenPolygon = selectRandomPolygonBySize(triangularization);
+    Polygon chosenPolygon = selectRandomTriangleBySize(triangularization);
     // Randomly choose Point in choosen Triangle.
     Point randomPoint = createRandomPointInTriangle(chosenPolygon);
     return randomPoint;
   }
 
   /**
-   * Randomly selects a Polygon from a list of Polygons weighted by its Surface
-   * Area. TODO: still safe although surface areas calculated as doubles?
+   * Randomly selects a Triangle from a list of Triangles weighted by its
+   * Surface Area. It is assumed, that the given List of Polygons only contains
+   * Triangles. TODO: still safe although surface areas calculated as doubles?
    * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @param polygons
    * @return
    */
-  public static Polygon selectRandomPolygonBySize(List<Polygon> polygons) {
+  public static Polygon selectRandomTriangleBySize(List<Polygon> polygons) {
     // This algorithm works as follows:
     // 1. sum the weights (totalSurfaceArea)
     // 2. select a uniform random value (randomValue) u 0 <= u < sum of weights
@@ -234,6 +235,7 @@ public class MathUtils
     // the weights of the items you've examined
     // 4. as soon as running total >= random value, select the item you're
     // currently looking at (the one whose weight you just added).
+    
     Random random = new Random(System.currentTimeMillis());
     HashMap<Polygon, Long> surfaceAreaTriangles = new HashMap<Polygon, Long>();
     long totalSurfaceArea = 0;
@@ -250,8 +252,6 @@ public class MathUtils
       runningTotal += surfaceAreaTriangles.get(polygon2);
       if (runningTotal >= randomValue) { return polygon2; }
     }
-    // This case should never occur!
-    assert (false);
     return null;
   }
 
@@ -263,13 +263,13 @@ public class MathUtils
    * simply rejecting it. Testing! Used for createRandomPointInPolygon.
    * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   * @see
    * @param polygon Triangle point is created in. It is assumed, that Polygon is
    *          Triangle.
    * @return Point inside Triangle, randomly chosen.
    */
   private static Point createRandomPointInTriangle(Polygon polygon) {
-    Random random = new Random();
-    random.setSeed(System.currentTimeMillis());
+    Random random = new Random(System.currentTimeMillis());
     List<Point> polygonPoints = polygon.getPoints();
 
     assert (polygonPoints.size() == 3);
@@ -278,10 +278,10 @@ public class MathUtils
     // of vector. Then scale Point to actual Point in Parallelogram.
     Vector u = new Vector(polygonPoints.get(0), polygonPoints.get(1));
     Vector v = new Vector(polygonPoints.get(0), polygonPoints.get(2));
-    double xUnscaled = random.nextDouble() * u.length();
-    double yUnscaled = random.nextDouble() * v.length();
-    double x = u.v1 * xUnscaled + v.v1 * yUnscaled;
-    double y = u.v2 * xUnscaled + v.v2 * yUnscaled;
+    double randomPoint1 = random.nextDouble();
+    double randomPoint2 = random.nextDouble();
+    double x = u.v1 * randomPoint1 + v.v1 * randomPoint2;
+    double y = u.v2 * randomPoint1 + v.v2 * randomPoint2;
 
     Point point = new Point((long) x, (long) y);
 

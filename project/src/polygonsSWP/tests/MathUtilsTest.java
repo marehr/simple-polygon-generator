@@ -13,9 +13,10 @@ import polygonsSWP.data.Point;
 import polygonsSWP.data.Polygon;
 import polygonsSWP.generators.PermuteAndReject;
 import polygonsSWP.util.MathUtils;
-
-
-;
+import polygonsSWP.generators.PermuteAndReject;
+import polygonsSWP.generators.PolygonGenerator;
+import polygonsSWP.generators.TwoOptMoves;
+import sun.font.CreatedFontTracker;
 
 /**
  * Test environment for MathUtils.
@@ -127,8 +128,8 @@ public class MathUtilsTest
    * test for selcetRandomPolygonBySize
    * TODO: work around the problem with the random seed while testing
    */
-  //@Test
-  public void testSelectRandomPolygonBySize() {
+  @Test
+  public void testSelectRandomTriangleBySize() {
     // Create a Polygon
     List<Point> pPoints = new ArrayList<Point>();
     pPoints = new ArrayList<Point>();
@@ -145,21 +146,47 @@ public class MathUtilsTest
     for (Polygon polygon2 : triangularization) {
       amountsPolygonsChosen.put(polygon2, 0);
     }
-    for (int i = 0; i < 10000000; i++) {
-      Polygon selectedPolygon = MathUtils.selectRandomPolygonBySize(triangularization);
+    int timesTested = 1000;
+    for (int i = 0; i < timesTested; i++) {
+      Polygon selectedPolygon = MathUtils.selectRandomTriangleBySize(triangularization);
       assertTrue(triangularization.contains(selectedPolygon));
       amountsPolygonsChosen.put(selectedPolygon, amountsPolygonsChosen.get(selectedPolygon) +1);
     }
     // print out statistics for selectRandomPolygon
     System.out.println("--- test selectRandomPolygonBySize: ---");
     System.out.println("size of Triangularization: " + triangularization.size());
+    System.out.println("times tested: " + timesTested);
     for (int i = 0; i < triangularization.size(); i++) {
       System.out.println("surface area of triangle " + i + " :" +
           MathUtils.calculateSurfaceAreaOfPolygon(triangularization.get(i)));
     }
+    int polygonsReturned = 0;
     for (Polygon polygon2 : triangularization) {
-      System.out.println(polygon2 + " :" + amountsPolygonsChosen.get(polygon2));
-    }    
+      int returnedThisPolygon = amountsPolygonsChosen.get(polygon2);
+      System.out.println(polygon2 + " :" + returnedThisPolygon);
+      polygonsReturned += returnedThisPolygon;
+    }
+    System.out.println("returned polygons: " + polygonsReturned);
+    System.out.println("\n");
+  }
+  
+  @Test
+  public void testCreateRandomPointInPolygon(){
+    PolygonGenerator generator = new PermuteAndReject();
+    HashMap<String, Object> parameter = new HashMap<String, Object>();
+    parameter.put("n", 4);
+    parameter.put("size", 10);
+    Polygon polygon = generator.generate(parameter, null);
+    List<Point> polygonPoints = polygon.getPoints();
+    // TODO: malte auf list order ansprechen !!!
+    java.util.Collections.reverse(polygonPoints);
+    assertNotNull(polygonPoints);
+    System.out.println("--- test createRandomPointInPolygon ---");
+    System.out.println(polygonPoints.toString());
+    assertTrue(MathUtils.triangulatePolygon(polygon).size() != 0);
+    Point randomPoint = MathUtils.createRandomPointInPolygon(polygon);
+    System.out.println(randomPoint);
+    assertTrue(MathUtils.checkIfPointIsInPolygon(polygon, randomPoint, true));
   }
   
   @Test
