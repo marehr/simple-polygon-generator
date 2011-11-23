@@ -8,14 +8,14 @@ import java.util.List;
 
 import org.junit.Test;
 
-import polygonsSWP.data.OrderedListPolygon;
-import polygonsSWP.data.Point;
-import polygonsSWP.data.Polygon;
 import polygonsSWP.generators.PermuteAndReject;
 import polygonsSWP.util.MathUtils;
 import polygonsSWP.generators.PermuteAndReject;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.TwoOptMoves;
+import polygonsSWP.geometry.OrderedListPolygon;
+import polygonsSWP.geometry.Point;
+import polygonsSWP.geometry.Polygon;
 import sun.font.CreatedFontTracker;
 
 
@@ -56,11 +56,11 @@ public class MathUtilsTest
     list.add(new Point(0, 10));
     Polygon poly = new OrderedListPolygon(list);
     // Point is on poly
-    assertFalse(MathUtils.checkIfPointIsInPolygon(poly, new Point(0, 0), false));
+    assertFalse(poly.containsPoint(new Point(0, 0), false));
     // Point is in poly
-    assertTrue(MathUtils.checkIfPointIsInPolygon(poly, new Point(1, 1), true));
+    assertTrue(poly.containsPoint(new Point(1, 1), true));
     // Point is out of poly
-    assertFalse(MathUtils.checkIfPointIsInPolygon(poly, new Point(50, 50), true));
+    assertFalse(poly.containsPoint(new Point(50, 50), true));
   }
 
   /*
@@ -92,8 +92,8 @@ public class MathUtilsTest
   }
 
   /**
-   * Test for triangulatePolygon
-   * TODO: needs to be verified with ONLY counter-clockwise ordered polygons.
+   * Test for triangulatePolygon TODO: needs to be verified with ONLY
+   * counter-clockwise ordered polygons.
    */
   @Test
   public void testTriangulatePolygon() {
@@ -103,19 +103,19 @@ public class MathUtilsTest
     pPoints.add(new Point(0, 0));
     pPoints.add(new Point(2, 0));
     OrderedListPolygon triangle = new OrderedListPolygon(pPoints);
-    List<Polygon> result = MathUtils.triangulatePolygon(triangle);
+    List<Polygon> result = OrderedListPolygon.triangulatePolygon(triangle);
     Polygon poly = result.get(0);
     assertEquals(result.size(), 1);
     assertTrue(poly.equals(triangle));
     triangle.addPoint(new Point(2, 2));
-    result = MathUtils.triangulatePolygon(triangle);
+    result = OrderedListPolygon.triangulatePolygon(triangle);
     assertEquals(2, result.size());
     triangle.addPoint(new Point(1, 3));
-    result = MathUtils.triangulatePolygon(triangle);
+    result = OrderedListPolygon.triangulatePolygon(triangle);
     assertEquals(3, result.size());
     triangle.deletePoint(new Point(1, 3));
     triangle.addPoint(new Point(1, 1));
-    result = MathUtils.triangulatePolygon(triangle);
+    result = OrderedListPolygon.triangulatePolygon(triangle);
     assertEquals(3, result.size());
     // Test with random polygons:
     for (int i = 6; i < 16; ++i) {
@@ -129,14 +129,15 @@ public class MathUtilsTest
       if (ClockWise(tP) == 1) {
         for (Point item : rPoly.getPoints())
           tP.add(0, item);
-        result = MathUtils.triangulatePolygon(new OrderedListPolygon(tP));
-      } else {
-        result = MathUtils.triangulatePolygon(rPoly);
+        result = OrderedListPolygon.triangulatePolygon(new OrderedListPolygon(tP));
+      }
+      else {
+        result = OrderedListPolygon.triangulatePolygon(rPoly);
       }
       System.out.println(result.size() + " " + i);
       for (Polygon item : result)
         System.out.println(item.getPoints());
-      assert(result.size() >= i-2);
+      assert (result.size() >= i - 2);
     }
   }
 
@@ -153,7 +154,7 @@ public class MathUtilsTest
     pPoints.add(new Point(0, 0));
     pPoints.add(new Point(3, 0));
     Polygon polygon = new OrderedListPolygon(pPoints);
-    double result = MathUtils.calculateSurfaceAreaOfPolygon(polygon);
+    double result = polygon.getSurfaceArea();
     assertEquals(1.5, result, 0.0001);
     // Create a Polygon
     pPoints = new ArrayList<Point>();
@@ -162,7 +163,7 @@ public class MathUtilsTest
     pPoints.add(new Point(1, 3));
     pPoints.add(new Point(0, 3));
     polygon = new OrderedListPolygon(pPoints);
-    result = MathUtils.calculateSurfaceAreaOfPolygon(polygon);
+    result = polygon.getSurfaceArea();
     assertEquals(4.5, result, 0.0001);
   }
 
@@ -182,7 +183,7 @@ public class MathUtilsTest
     pPoints.add(new Point(0, 10));
     Polygon polygon = new OrderedListPolygon(pPoints);
     // triangulate Polygon, result consists of 3 Polygons
-    List<Polygon> triangularization = MathUtils.triangulatePolygon(polygon);
+    List<Polygon> triangularization = OrderedListPolygon.triangulatePolygon(polygon);
     // use method representative times and store which polygon was picked
     HashMap<Polygon, Integer> amountsPolygonsChosen =
         new HashMap<Polygon, Integer>();
@@ -192,7 +193,7 @@ public class MathUtilsTest
     int timesTested = 1000;
     for (int i = 0; i < timesTested; i++) {
       Polygon selectedPolygon =
-          MathUtils.selectRandomTriangleBySize(triangularization);
+          Polygon.selectRandomTriangleBySize(triangularization);
       assertTrue(triangularization.contains(selectedPolygon));
       amountsPolygonsChosen.put(selectedPolygon,
           amountsPolygonsChosen.get(selectedPolygon) + 1);
@@ -203,7 +204,7 @@ public class MathUtilsTest
     System.out.println("times tested: " + timesTested);
     for (int i = 0; i < triangularization.size(); i++) {
       System.out.println("surface area of triangle " + i + " :" +
-          MathUtils.calculateSurfaceAreaOfPolygon(triangularization.get(i)));
+          triangularization.get(i).getSurfaceArea());
     }
     int polygonsReturned = 0;
     for (Polygon polygon2 : triangularization) {
@@ -228,10 +229,10 @@ public class MathUtilsTest
     assertNotNull(polygonPoints);
     System.out.println("--- test createRandomPointInPolygon ---");
     System.out.println(polygonPoints.toString());
-    assertTrue(MathUtils.triangulatePolygon(polygon).size() != 0);
-    Point randomPoint = MathUtils.createRandomPointInPolygon(polygon);
+    assertTrue(OrderedListPolygon.triangulatePolygon(polygon).size() != 0);
+    Point randomPoint = OrderedListPolygon.createRandomPointInPolygon(polygon);
     System.out.println(randomPoint);
-    assertTrue(MathUtils.checkIfPointIsInPolygon(polygon, randomPoint, true));
+    assertTrue(polygon.containsPoint(randomPoint, true));
   }
 
   @Test

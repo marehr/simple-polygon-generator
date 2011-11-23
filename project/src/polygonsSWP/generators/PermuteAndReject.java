@@ -2,9 +2,9 @@ package polygonsSWP.generators;
 
 import java.util.Map;
 
-import polygonsSWP.data.OrderedListPolygon;
 import polygonsSWP.data.PolygonHistory;
-import polygonsSWP.data.Polygon;
+import polygonsSWP.geometry.OrderedListPolygon;
+import polygonsSWP.geometry.Polygon;
 import polygonsSWP.util.GeneratorUtils;
 
 public class PermuteAndReject
@@ -32,6 +32,11 @@ public class PermuteAndReject
     }
     
     return p;
+  }
+  
+  @Override
+  public String toString() {
+    return "Permute & Reject";
   }
 
 }
