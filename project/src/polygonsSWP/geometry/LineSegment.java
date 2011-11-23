@@ -72,8 +72,8 @@ public class LineSegment
     mub = (double) numerb / (double) denom;
     
     if(mua >= 0 && mua <= 1 && mub >= 0 && mub <= 1) {
-      int isx = (int) Math.round(this.a.x + mua * (this.b.x - this.a.x));
-      int isy = (int) Math.round(this.a.y + mua * (this.b.y - this.a.y));
+      long isx = Math.round(this.a.x + mua * (this.b.x - this.a.x));
+      long isy = Math.round(this.a.y + mua * (this.b.y - this.a.y));
       isect[0] = new Point(isx, isy);
       return true;
     }
