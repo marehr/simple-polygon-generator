@@ -29,17 +29,23 @@ public class LineSegment
   }
   
   /**
-   * Stolen from
+   * Stolen from:
    * http://paulbourke.net/geometry/lineline2d/
+   * Good explanation is also here:
+   * http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
    * 
-   * Tests whether two edges (line segments) intersect
-   * or whether they are coincident.
+   * Tests whether two line segments intersect or whether they are coincident.
    * 
    * @param e another edge
-   * @return true, if the edges cross each other or are coincident
+   * @param isect array of Points of length >= 1. isect[0] is used as out parameter.
+   *        If it is null, the line segments are coincident.
+   * @return true, if the line segments cross each other or are coincident
    */
-  public boolean isIntersecting(LineSegment e) {
+  public boolean isIntersecting(LineSegment e, Point[] isect) {
        
+    // TODO remove
+    assert(isect != null && isect.length >= 1);
+    
     double mua, mub;
     long denom, numera, numerb;
 
@@ -52,12 +58,13 @@ public class LineSegment
 
     /* Are the lines coincident? */
     if(numera == 0 && numerb == 0 && denom == 0) {
-       return true;
+      isect[0] = null;
+      return true;
     }
 
     /* Are the lines parallel? */
     if(denom == 0) {
-       return false;
+      return false;
     }
 
     /* Is the intersection along the segments? */
@@ -65,7 +72,10 @@ public class LineSegment
     mub = (double) numerb / (double) denom;
     
     if(mua >= 0 && mua <= 1 && mub >= 0 && mub <= 1) {
-       return true;
+      int isx = (int) Math.round(this.a.x + mua * (this.b.x - this.a.x));
+      int isy = (int) Math.round(this.a.y + mua * (this.b.y - this.a.y));
+      isect[0] = new Point(isx, isy);
+      return true;
     }
     
     return false;

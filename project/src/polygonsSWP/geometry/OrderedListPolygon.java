@@ -118,35 +118,33 @@ public class OrderedListPolygon
 
     List<Integer[]> retval = new ArrayList<Integer[]>();
     int size = _coords.size();
+    Point[] isect = new Point[1];
     for (int i = 0; i < size - 1; i++) {
       LineSegment a = new LineSegment(_coords.get(i), _coords.get(i + 1));
-      
-      // First test whether the next edge lies on the current edge
-      // because they always share a point.
-      LineSegment b = new LineSegment(_coords.get(i + 1), _coords.get((i + 2) % size));
-      float sa = a.getSlope();
-      float sb = b.getSlope();
-      if ((sa == -sb) || ((sa == Float.NaN) && (sb == Float.NaN)))
-          retval.add(new Integer[] {i, i + 1});
-      
+           
       // Then test the remaining line segments for intersections
-      for (int j = i + 2; j < size; j++) {
-        LineSegment c = new LineSegment(_coords.get(j), _coords.get((j + 1) % size));
+      for (int j = i + 1; j < size; j++) {
+        LineSegment b = new LineSegment(_coords.get(j), _coords.get((j + 1) % size));
 
-        if (a.isIntersecting(c)) {
+        if (a.isIntersecting(b, isect)) {
           
-          // Special case: the last one and the first one also share a point
-          if(i == 0 && j == (size - 1)) {
-            
-            // Same as above: Check the slopes
-            float sc = c.getSlope();
-            if ((sa == -sc) || ((sa == Float.NaN) && (sc == Float.NaN)))
-              retval.add(new Integer[] {i, i + 1});
-            
-          } else 
-            
-            retval.add(new Integer[] { i, j });
+          boolean coincident;
+          boolean ab = false;
+          boolean ba = false;
           
+          // Check for coincidence (--> intersection)
+          if(!(coincident = (isect[0] == null))) {
+            
+            // Check whether the intersection is a shared endpoint (--> no intersection)
+            ab = isect[0].equals(_coords.get(i)) 
+                && _coords.get(i).equals(_coords.get((j + 1)% size));
+            ba = isect[0].equals(_coords.get(j))
+                && _coords.get(j).equals(_coords.get(i + 1));
+            
+          }
+          
+          if(coincident || !(ab || ba))
+            retval.add(new Integer[] {i, j});
         }
       }
     }
