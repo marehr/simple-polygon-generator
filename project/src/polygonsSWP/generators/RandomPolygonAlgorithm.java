@@ -50,4 +50,9 @@ public class RandomPolygonAlgorithm
     
     return polygon;
   }
+  
+  @Override
+  public String toString() {
+    return "RandomPolygonAlgorithm";
+  }
 }

@@ -1,6 +1,9 @@
 package polygonsSWP.tests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,14 +12,11 @@ import java.util.List;
 import org.junit.Test;
 
 import polygonsSWP.generators.PermuteAndReject;
-import polygonsSWP.util.MathUtils;
-import polygonsSWP.generators.PermuteAndReject;
 import polygonsSWP.generators.PolygonGenerator;
-import polygonsSWP.generators.TwoOptMoves;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
-import sun.font.CreatedFontTracker;
+import polygonsSWP.util.MathUtils;
 
 
 /**
@@ -63,34 +63,6 @@ public class MathUtilsTest
     assertFalse(poly.containsPoint(new Point(50, 50), true));
   }
 
-  /*
-   * Return the clockwise status of a curve, clockwise or counterclockwise n
-   * vertices making up curve p return 0 for incomputables eg: colinear points
-   * CLOCKWISE == 1 COUNTERCLOCKWISE == -1 It is assumed that - the polygon is
-   * closed - the last point is not repeated. - the polygon is simple (does not
-   * intersect itself or have holes)
-   */
-  public int ClockWise(List<Point> p) {
-    int i, j, k;
-    int count = 0;
-    double z;
-    int n = p.size();
-
-    if (n < 3) return (0);
-
-    for (i = 0; i < n; i++) {
-      j = (i + 1) % n;
-      k = (i + 2) % n;
-      z = (p.get(i).x - p.get(i).x) * (p.get(k).y - p.get(j).y);
-      z -= (p.get(j).y - p.get(i).y) * (p.get(k).x - p.get(j).x);
-      if (z < 0) count--;
-      else if (z > 0) count++;
-    }
-    if (count > 0) return -1;
-    else if (count < 0) return 1;
-    else return 0;
-  }
-
   /**
    * Test for triangulatePolygon TODO: needs to be verified with ONLY
    * counter-clockwise ordered polygons.
@@ -103,19 +75,19 @@ public class MathUtilsTest
     pPoints.add(new Point(0, 0));
     pPoints.add(new Point(2, 0));
     OrderedListPolygon triangle = new OrderedListPolygon(pPoints);
-    List<Polygon> result = OrderedListPolygon.triangulatePolygon(triangle);
-    Polygon poly = result.get(0);
+    List<OrderedListPolygon> result = triangle.triangulate();
+    OrderedListPolygon poly = result.get(0);
     assertEquals(result.size(), 1);
     assertTrue(poly.equals(triangle));
     triangle.addPoint(new Point(2, 2));
-    result = OrderedListPolygon.triangulatePolygon(triangle);
+    result = triangle.triangulate();
     assertEquals(2, result.size());
     triangle.addPoint(new Point(1, 3));
-    result = OrderedListPolygon.triangulatePolygon(triangle);
+    result = triangle.triangulate();
     assertEquals(3, result.size());
     triangle.deletePoint(new Point(1, 3));
     triangle.addPoint(new Point(1, 1));
-    result = OrderedListPolygon.triangulatePolygon(triangle);
+    result = triangle.triangulate();
     assertEquals(3, result.size());
     // Test with random polygons:
     for (int i = 6; i < 16; ++i) {
@@ -123,17 +95,9 @@ public class MathUtilsTest
       map.put("n", i);
       map.put("size", 100);
       PermuteAndReject pAR = new PermuteAndReject();
-      Polygon rPoly = pAR.generate(map, null);
-      // Reverse Polygon.
-      List<Point> tP = new ArrayList<Point>();
-      if (ClockWise(tP) == 1) {
-        for (Point item : rPoly.getPoints())
-          tP.add(0, item);
-        result = OrderedListPolygon.triangulatePolygon(new OrderedListPolygon(tP));
-      }
-      else {
-        result = OrderedListPolygon.triangulatePolygon(rPoly);
-      }
+      // We know P&R returns an OrderedListPolygon in counterclockwise orientation.
+      OrderedListPolygon rPoly = (OrderedListPolygon) pAR.generate(map, null);
+      result = rPoly.triangulate();
       System.out.println(result.size() + " " + i);
       for (Polygon item : result)
         System.out.println(item.getPoints());
@@ -181,9 +145,9 @@ public class MathUtilsTest
     pPoints.add(new Point(2, 2));
     pPoints.add(new Point(1, 10));
     pPoints.add(new Point(0, 10));
-    Polygon polygon = new OrderedListPolygon(pPoints);
+    OrderedListPolygon polygon = new OrderedListPolygon(pPoints);
     // triangulate Polygon, result consists of 3 Polygons
-    List<Polygon> triangularization = OrderedListPolygon.triangulatePolygon(polygon);
+    List<OrderedListPolygon> triangularization = polygon.triangulate();
     // use method representative times and store which polygon was picked
     HashMap<Polygon, Integer> amountsPolygonsChosen =
         new HashMap<Polygon, Integer>();
@@ -193,7 +157,7 @@ public class MathUtilsTest
     int timesTested = 1000;
     for (int i = 0; i < timesTested; i++) {
       Polygon selectedPolygon =
-          Polygon.selectRandomTriangleBySize(triangularization);
+          MathUtils.selectRandomTriangleBySize(triangularization);
       assertTrue(triangularization.contains(selectedPolygon));
       amountsPolygonsChosen.put(selectedPolygon,
           amountsPolygonsChosen.get(selectedPolygon) + 1);
@@ -215,22 +179,24 @@ public class MathUtilsTest
     System.out.println("returned polygons: " + polygonsReturned);
     System.out.println("\n");
   }
-
+  
+  // TODO: Was testet dieser Test?
   @Test
   public void testCreateRandomPointInPolygon() {
     PolygonGenerator generator = new PermuteAndReject();
     HashMap<String, Object> parameter = new HashMap<String, Object>();
     parameter.put("n", 4);
     parameter.put("size", 10);
-    Polygon polygon = generator.generate(parameter, null);
+    // We know P&R returns an OrderedListPolygon
+    OrderedListPolygon polygon = (OrderedListPolygon) generator.generate(parameter, null);
     List<Point> polygonPoints = polygon.getPoints();
     // TODO: malte auf list order ansprechen !!!
     java.util.Collections.reverse(polygonPoints);
     assertNotNull(polygonPoints);
     System.out.println("--- test createRandomPointInPolygon ---");
     System.out.println(polygonPoints.toString());
-    assertTrue(OrderedListPolygon.triangulatePolygon(polygon).size() != 0);
-    Point randomPoint = OrderedListPolygon.createRandomPointInPolygon(polygon);
+    assertTrue(polygon.triangulate().size() != 0);
+    Point randomPoint = polygon.createRandomPoint();
     System.out.println(randomPoint);
     assertTrue(polygon.containsPoint(randomPoint, true));
   }

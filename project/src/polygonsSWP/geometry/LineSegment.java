@@ -80,13 +80,4 @@ public class LineSegment
     
     return false;
   }
-
-  public float getSlope() {
-    if(a.x < b.x)
-      return (b.y - a.y) / (b.x - a.x);
-    else if(a.x > b.x)
-      return (a.y - b.y) / (a.x - b.x);
-    else
-      return Float.NaN;
-  }
 }

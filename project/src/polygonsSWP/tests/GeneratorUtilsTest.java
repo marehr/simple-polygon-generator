@@ -1,19 +1,16 @@
 package polygonsSWP.tests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.junit.Test;
 
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
-import polygonsSWP.geometry.Polygon;
 import polygonsSWP.util.GeneratorUtils;
-import polygonsSWP.util.MathUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 
 public class GeneratorUtilsTest

@@ -94,7 +94,43 @@ public class OrderedListPolygon
   public boolean isSimple() {
     return findIntersections().size() == 0;
   }
+  
+  /**
+   * Determines whether this polygon is in clockwise orientation.
+   * 
+   * @return -1 if counterclockwise, 1 if clockwise, or 0 if this is not decidable
+   */
+  public int isClockwise() {
+    int n = size();
+    int i, j, k;
+    int count = 0;
+    double z;
+       
+    if (n < 3)
+      return 0;
 
+    for (i = 0; i < n; i++) {
+      j = (i + 1) % n;
+      k = (i + 2) % n;
+      z = (_coords.get(i).x - _coords.get(i).x) 
+          * (_coords.get(k).y - _coords.get(j).y);
+      z -= (_coords.get(j).y - _coords.get(i).y) 
+          * (_coords.get(k).x - _coords.get(j).x);
+      if (z < 0) 
+        count--;
+      else if (z > 0) 
+        count++;
+    }
+    
+    if (count > 0) 
+      return -1;
+    else if (count < 0) 
+      return 1;
+    else 
+      return 0;
+  }
+  
+  
   /**
    * Calculates the set of all intersections found in the polygon.
    * 
@@ -250,30 +286,6 @@ public class OrderedListPolygon
   }
 
   /**
-   * Calculates the Surface Area of a given Polygon. TODO: currently uses the
-   * Triangularization of the given Polygon to calculate and add resulting
-   * Triangles. Gaussian Formula should be more effective.
-   * 
-   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
-   * @param polygon Polygon to calculate Size of.
-   * @return Surface Area of given Polygon2
-   */
-  public double getSurfaceArea() {
-    List<Point> polygonPoints = this.getPoints();
-    if (polygonPoints.size() == 3) {
-      return this.calcualteSurfaceAreaOfTriangle(this);
-    }
-    else {
-      double surfaceArea = 0;
-      List<Polygon> triangularization = this.triangulate();
-      for (Polygon polygon2 : triangularization) {
-        surfaceArea += this.calcualteSurfaceAreaOfTriangle(polygon2);
-      }
-      return surfaceArea;
-    }
-  }
-
-  /**
    * Triangulate Polygon with O(n^2) algorithm TODO: implement at least O(n log
    * n ) algorithm The algorithm assumes that the polygon is ordered clockwise.
    * Since our assumption is counter-clockwise I reverse the order first.
@@ -284,10 +296,10 @@ public class OrderedListPolygon
    * @param poly Polygon to triangulate
    * @return List of triangulars
    */
-  public List<Polygon> triangulate() {
+  public List<OrderedListPolygon> triangulate() {
     OrderedListPolygon triPo = (OrderedListPolygon) this.clone();
     System.out.println("Polygon: " + triPo.getPoints());
-    List<Polygon> triangles = new ArrayList<Polygon>();
+    List<OrderedListPolygon> triangles = new ArrayList<OrderedListPolygon>();
     int i = 0, orientation = -1;
     boolean isConvex;
     while (triPo.size() != 3) {
@@ -353,13 +365,77 @@ public class OrderedListPolygon
    * @return random Point in given Polygon
    */
   public Point createRandomPoint() {
-    // Triangulate given Polygon.
-    List<Polygon> triangularization = this.triangulate();
-    // Randomly choose one Triangle of Triangularization weighted by their
-    // Surface Area.
-    Polygon chosenPolygon = this.selectRandomTriangleBySize(triangularization);
-    // Randomly choose Point in choosen Triangle.
-    Point randomPoint = this.createRandomPointInTriangle(chosenPolygon);
-    return randomPoint;
+    assert (size() >= 3);
+    
+    Point retval;
+    
+    // If polygon is a triangle, choose random point.
+    if (size() == 3) {
+      
+      Random random = new Random(System.currentTimeMillis());
+      
+      do {
+        
+        // Choose random Point in rectangle with length of edges according to length
+        // of vector. Then scale Point to actual Point in Parallelogram.
+        Vector u = new Vector(_coords.get(0), _coords.get(1));
+        Vector v = new Vector(_coords.get(0), _coords.get(2));
+        double randomPoint1 = random.nextDouble();
+        double randomPoint2 = random.nextDouble();
+        double x = u.v1 * randomPoint1 + v.v1 * randomPoint2;
+        double y = u.v2 * randomPoint1 + v.v2 * randomPoint2;
+        
+        retval = new Point((long) x, (long) y);
+        
+      } while (!containsPoint(retval, true));
+
+    } else {
+      
+      // Triangulate given Polygon.
+      List<OrderedListPolygon> triangularization = this.triangulate();
+      
+      // Choose one triangle of triangularization randomly weighted by their
+      // Surface Area.
+      OrderedListPolygon chosenPolygon = MathUtils.selectRandomTriangleBySize(triangularization);
+      
+      // Return randomly chosen Point in chosen Triangle.
+      retval = chosenPolygon.createRandomPoint();
+    }
+    
+    return retval;
+  }
+  
+  /**
+   * Calculates the Surface Area of a given Polygon. TODO: currently uses the
+   * Triangularization of the given Polygon to calculate and add resulting
+   * Triangles. Gaussian Formula should be more effective.
+   * 
+   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   * @param polygon Polygon to calculate Size of.
+   * @return Surface Area of given Polygon2
+   */
+  public double getSurfaceArea() {
+    assert(size() >= 3);
+    
+    double area = 0;
+    
+    if(size() == 3) {
+      
+      // Calculate triangle area
+      List<Point> trianglePoints = this.getPoints();
+      Vector u = new Vector(trianglePoints.get(0), trianglePoints.get(1));
+      Vector v = new Vector(trianglePoints.get(0), trianglePoints.get(2));
+      area = Math.abs(u.v1 * v.v2 - u.v2 * v.v1) / 2.0;
+      
+    } else {
+      // Triangulate polygon
+      List<OrderedListPolygon> triangles = this.triangulate();
+      
+      // Sum up the areas
+      for(OrderedListPolygon t : triangles)
+        area += t.getSurfaceArea();
+    }
+    
+    return area;
   }
 }

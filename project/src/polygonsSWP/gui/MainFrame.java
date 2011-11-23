@@ -18,6 +18,7 @@ import java.util.Map;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.generators.PermuteAndReject;
 import polygonsSWP.generators.PolygonGenerator;
+import polygonsSWP.generators.RandomPolygonAlgorithm;
 import polygonsSWP.generators.TwoOptMoves;
 
 import javax.swing.ButtonGroup;
@@ -47,7 +48,11 @@ public class MainFrame extends JFrame {
 	private JLabel l_polygon_generation, l_shortest_path, l_edge_count;
 	private JComboBox cb_polygon_algorithm_chooser;
 	
-	private PolygonGenerator[] polygon_algorithm_list = {new PermuteAndReject(), new TwoOptMoves()}; 
+	private PolygonGenerator[] polygon_algorithm_list = {
+	    new PermuteAndReject(), 
+	    new TwoOptMoves(),
+	    new RandomPolygonAlgorithm()
+	  }; 
 	
 	private JButton b_set_points,b_generate_polygon,b_calc_shortest_path;
 	private JSlider sl_edges;
