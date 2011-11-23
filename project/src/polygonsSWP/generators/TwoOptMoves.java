@@ -35,7 +35,7 @@ public class TwoOptMoves implements PolygonGenerator
       // TODO need to understand Helds code completely and handle all
       // his special cases (eg. edge j lying on top of edge i, one vertex
       // lying on the other edge, or vertex vj+1 being the same as vi). 
-      // Do we have to consider wrap-arounds?
+      // Right now, this loop doesn't stop.
       
       int vi = intersection[0];
       int vj = intersection[1];

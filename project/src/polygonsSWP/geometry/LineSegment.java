@@ -7,6 +7,9 @@ public class LineSegment
   public LineSegment(Point _a, Point _b) {
     a = _a;
     b = _b;
+    
+    // TODO remove
+    assert(!a.equals(b));
   }
   
   /**
@@ -61,19 +64,19 @@ public class LineSegment
     mua = (double) numera / (double) denom;
     mub = (double) numerb / (double) denom;
     
-    /* 
-     * REMARK: In the original version of this algorithm,
-     * mua & mub were tested for greater than (less than) _or equal_ to
-     * 0 (1). I removed this 'equal to' because I guess mua&mub are 0 (1) when
-     * the line segments share the same start or end point.
-     * This is often the case when we check our polygons for intersecting lines.
-     * Still, I'm not really confident whether this didn't break the whole algorithm.
-     * Need to investigate this.
-     */
-    if(mua > 0 && mua < 1 && mub > 0 && mub < 1) {
+    if(mua >= 0 && mua <= 1 && mub >= 0 && mub <= 1) {
        return true;
     }
     
     return false;
+  }
+
+  public float getSlope() {
+    if(a.x < b.x)
+      return (b.y - a.y) / (b.x - a.x);
+    else if(a.x > b.x)
+      return (a.y - b.y) / (a.x - b.x);
+    else
+      return Float.NaN;
   }
 }

@@ -77,6 +77,11 @@ public class OrderedListPolygon
     _coords.remove(p);
   }
 
+  /**
+   * Creates a new polygon of the same set of points by creating
+   * a random permutation of the points and linking them in order.
+   * The resulting polygon is very likely to be complex.
+   */
   public void permute() {
     Collections.shuffle(_coords);
   }
@@ -115,10 +120,34 @@ public class OrderedListPolygon
     int size = _coords.size();
     for (int i = 0; i < size - 1; i++) {
       LineSegment a = new LineSegment(_coords.get(i), _coords.get(i + 1));
-      for (int j = i + 1; j < size; j++) {
-        LineSegment b = new LineSegment(_coords.get(j), _coords.get((j + 1) % size));
+      
+      // First test whether the next edge lies on the current edge
+      // because they always share a point.
+      LineSegment b = new LineSegment(_coords.get(i + 1), _coords.get((i + 2) % size));
+      float sa = a.getSlope();
+      float sb = b.getSlope();
+      if ((sa == -sb) || ((sa == Float.NaN) && (sb == Float.NaN)))
+          retval.add(new Integer[] {i, i + 1});
+      
+      // Then test the remaining line segments for intersections
+      for (int j = i + 2; j < size; j++) {
+        LineSegment c = new LineSegment(_coords.get(j), _coords.get((j + 1) % size));
 
-        if (a.isIntersecting(b)) retval.add(new Integer[] { i, j });
+        if (a.isIntersecting(c)) {
+          
+          // Special case: the last one and the first one also share a point
+          if(i == 0 && j == (size - 1)) {
+            
+            // Same as above: Check the slopes
+            float sc = c.getSlope();
+            if ((sa == -sc) || ((sa == Float.NaN) && (sc == Float.NaN)))
+              retval.add(new Integer[] {i, i + 1});
+            
+          } else 
+            
+            retval.add(new Integer[] { i, j });
+          
+        }
       }
     }
 
