@@ -42,7 +42,7 @@ public class PolygonPointFrame extends JFrame{
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				FileDialog fd = new FileDialog(new Frame(),"Choose File",FileDialog.LOAD);
-				fd.show();
+				fd.setVisible(true);
 				
 				// TODO: OS dependent file reading
 				//FileReader fr = new FileReader(new File(fd.getDirectory() + fd.getFile()));

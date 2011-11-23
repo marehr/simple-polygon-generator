@@ -207,7 +207,7 @@ public class MainFrame extends JFrame {
 			f.setTitle("Set Polygon Points");
 			f.setSize(400,300);
 			f.setLocationRelativeTo(null);
-			f.show();
+			f.setVisible(true);
 		}
 	  });
 	  
