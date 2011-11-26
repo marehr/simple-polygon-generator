@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import polygonsSWP.generators.PolygonGenerator.Parameters;
 import polygonsSWP.geometry.OrderedListPolygon;
@@ -14,6 +15,8 @@ import polygonsSWP.geometry.Polygon;
 
 public class GeneratorUtils
 {
+  private static Random rand_ = new Random();
+
   /**
    * Tests whether a given set of points is in general position, which
    * means that no points are coincident, no 3 points are colinear and
@@ -62,6 +65,7 @@ public class GeneratorUtils
    * @return either the given set of points or a randomly
    *         created set if size n.
    */
+
   @SuppressWarnings("unchecked")
   public static List<Point> createOrUsePoints(Map<Parameters, Object> params, boolean ensureGeneralPosition) {
     Integer n = (Integer) params.get(Parameters.n);
@@ -115,6 +119,16 @@ public class GeneratorUtils
       }
 
     });
+  }
+
+  /**
+   * picks point at random and removes it
+   * 
+   * @param points set of points
+   * @return random removed point
+   */
+  public static Point removeRandomPoint(List<Point> points){
+    return points.remove(rand_.nextInt(points.size()));
   }
 
   /**
