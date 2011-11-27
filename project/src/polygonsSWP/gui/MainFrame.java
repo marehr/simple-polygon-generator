@@ -27,6 +27,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
@@ -68,8 +69,6 @@ public class MainFrame extends JFrame {
 	
 	// class variables
 	
-	private boolean pointsSet = false;
-	
   public static void main(String[] args) {
     JFrame frame = new MainFrame();    
     frame.setTitle("PolygonGen");
@@ -100,7 +99,7 @@ public class MainFrame extends JFrame {
 	  
 	  // init slider
 	  
-	  sl_edges = new JSlider(1,100,10);
+	  sl_edges = new JSlider(3,100,10);
 	  
 	  // init buttons
 	  
@@ -229,6 +228,7 @@ public class MainFrame extends JFrame {
 	  
 	  b_set_points.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
+			cb_polygon_algorithm_chooser.getSelectedItem();
 			JFrame f = new PolygonPointFrame(self);
 			f.setTitle("Set Polygon Points");
 			f.setSize(400,300);
@@ -245,15 +245,13 @@ public class MainFrame extends JFrame {
 		public void mouseExited(MouseEvent arg0) {}
 		public void mouseEntered(MouseEvent arg0) {}
 		public void mouseClicked(MouseEvent arg0) {
-			if(!generationMethod.equals("generate"))
-			{
-				generationMethod = "generate";
-				b_set_points.setEnabled(false);
-				sl_edges.setEnabled(true);
-				l_edge_count.setEnabled(true);
-				cb_polygon_algorithm_chooser.setEnabled(true);
-				b_generate_polygon.setEnabled(true);
-			}
+			generationMethod = "generate";
+			b_set_points.setEnabled(false);
+			sl_edges.setEnabled(true);
+			l_edge_count.setEnabled(true);
+			cb_polygon_algorithm_chooser.setEnabled(true);
+			b_generate_polygon.setEnabled(true);
+			pointList = null;
 		}
 	  });
 	  
@@ -263,16 +261,12 @@ public class MainFrame extends JFrame {
 		public void mouseExited(MouseEvent arg0) {}
 		public void mouseEntered(MouseEvent arg0) {}
 		public void mouseClicked(MouseEvent arg0) {
-			if(!generationMethod.equals("points"))
-			{
-				generationMethod = "points";
-				//TODO: dont allow polygen algos which cannot handle points
-				b_set_points.setEnabled(true);
-				sl_edges.setEnabled(false);
-				l_edge_count.setEnabled(false);
-				cb_polygon_algorithm_chooser.setEnabled(true);
-				b_generate_polygon.setEnabled(false);
-			}
+			generationMethod = "points";
+			b_set_points.setEnabled(true);
+			sl_edges.setEnabled(false);
+			l_edge_count.setEnabled(false);
+			cb_polygon_algorithm_chooser.setEnabled(true);
+			b_generate_polygon.setEnabled(false);
 		}
 	  });
 	  
@@ -282,48 +276,79 @@ public class MainFrame extends JFrame {
 		public void mouseExited(MouseEvent arg0) {}
 		public void mouseEntered(MouseEvent arg0) {}
 		public void mouseClicked(MouseEvent arg0) {
-			if(!generationMethod.equals("draw"))
-			{
-				generationMethod = "draw";
-				b_set_points.setEnabled(false);
-				cb_polygon_algorithm_chooser.setEnabled(false);
-				sl_edges.setEnabled(false);
-				l_edge_count.setEnabled(false);
-				b_generate_polygon.setEnabled(false);
-			}
+			generationMethod = "draw";
+			b_set_points.setEnabled(false);
+			cb_polygon_algorithm_chooser.setEnabled(false);
+			sl_edges.setEnabled(false);
+			l_edge_count.setEnabled(false);
+			b_generate_polygon.setEnabled(false);
+			pointList = null;
 		}
 	  });
 	  
 
   }
   
+  // we may dont need this method
   protected boolean checkParamCombination() {
-	// TODO Auto-generated method stub
 	return true;
-}
+  }
 
 public void setPoints(ArrayList<polygonsSWP.geometry.Point> pointList)
   {
 	  b_generate_polygon.setEnabled(true);
 	  this.pointList = pointList;
-	  pointsSet = true;
+	  if (checkParamCombination())
+		  runGenerator();
   }
-  
-  private void deactivateNonSupportedParamComponents(String [] params) {
-		
-  }
-  
+    
   private void runGenerator()
   {
     PolygonGenerator pg = (PolygonGenerator) cb_polygon_algorithm_chooser.getSelectedItem();
+    String[] availableParams = pg.getAcceptedParameters();
     Map<String, Object> params = new HashMap<String, Object>();
-    params.put("n", sl_edges.getValue());
+    
+    // TODO: remove this hard code
     params.put("size", DEFAULTSIZE);
     
-    // TODO re-enable pointlist
-    
-    Polygon p = pg.generate(params, null);
-    _canvas.setPolygon(p);
+    if(rb_polygonByGenerator.isSelected())
+    {
+    	for (int i = 0; i < availableParams.length; i++) {
+    		if(availableParams[i].equals("n"))
+    		{
+    			params.put("n", sl_edges.getValue());
+    			Polygon p = pg.generate(params, null);
+    		    _canvas.setPolygon(p);
+    		}
+    	}
+    }
+    else if(rb_polygonByPoints.isSelected())
+    {
+    	for (int i = 0; i < availableParams.length; i++) {
+    		if(availableParams[i].equals("points"))
+    		{
+    			if(pointList.size() >= 3)
+    			{
+    				params.put("points",pointList);
+    				Polygon p = pg.generate(params, null);
+        		    _canvas.setPolygon(p);
+    			}
+    		}
+    	}
+    	// TODO: refactor or move this validation to another place
+    	if (params.get("points") == null)
+    		JOptionPane.showMessageDialog (null, "The selected polygon generation algorithm do not support the \"Set Points\" option", "Error", JOptionPane.ERROR_MESSAGE);
+    	
+    }
+    else if(rb_polygonByUser.isSelected())
+    {
+    	// check if user has created a valid polygon
+    }
+    else
+    {
+    	JOptionPane.showMessageDialog (null, "A strange error occured :(", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
   }
   
   private void setPanelComponentsActive(JPanel panel,boolean state)
