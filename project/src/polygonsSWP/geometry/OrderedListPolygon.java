@@ -95,6 +95,13 @@ public class OrderedListPolygon
   public void permute() {
     Collections.shuffle(_coords);
   }
+  
+  /**
+   * Reverses the polygon's order. Polygon keeps its simplicity.
+   */
+  public void reverse() {
+    Collections.reverse(_coords);
+  }
 
   /**
    * Determines whether a given ordered list of points forms a simple polygon.
@@ -250,12 +257,29 @@ public class OrderedListPolygon
     int result = index % _coords.size();
     return result < 0 ? result + _coords.size() : result;
   }
+  
+  /**
+   * Return point with safe index.
+   */
+  public Point getPointInRange(final int index) {
+    return getPoint(getIndexInRange(index));
+  }
 
   @Override
   public Polygon clone() {
     List<Point> nList = new ArrayList<Point>();
     nList.addAll(_coords);
     return new OrderedListPolygon(nList);
+  }
+  
+  /**
+   * Tests if p is vertex of the given Polygon.
+   * 
+   * @param p point
+   * @return true, if p is a vertex of the given Polygon
+   */
+  public boolean containsVertex(Point p) {
+    return getPoints().contains(p);
   }
 
   /**

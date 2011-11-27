@@ -20,10 +20,18 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
   public String[] getAcceptedParameters() {
     return new String[] {"n", "points", "size"};
   }
+  
+  @Override
+  public String toString() {
+    return "Incremental Construction & Backtracking";
+  }
 
   @Override
   public Polygon generate(Map<String, Object> params, PolygonHistory steps) {
     List<Point> points = GeneratorUtils.createOrUsePoints(params);
+    
+    // Precalculate the convex hull of points
+    OrderedListPolygon ch = GeneratorUtils.convexHull(points);
     
     Random r = new Random(System.currentTimeMillis());  
     
@@ -54,7 +62,7 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       // Recursively create polygon
       List<Integer> pp = new ArrayList<Integer>();
       pp.add(fp);
-      polygon = recursivelyAddPoint(ue, pp, idx);
+      polygon = recursivelyAddPoint(ue, pp, idx, ch, points);
       
       // If no success -> add back fp
       if(polygon == null)
@@ -75,7 +83,9 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
   
   private List<Integer> recursivelyAddPoint(EdgeSet unusable, 
       List<Integer> chain, 
-      List<Integer> remaining) {
+      List<Integer> remaining,
+      final OrderedListPolygon convexHull,
+      final List<Point> points) {
     
     Random r = new Random(System.currentTimeMillis());
     
@@ -94,10 +104,8 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       
       // Clone everything for a fresh start
       EdgeSet ue = unusable.clone();
-      List<Integer> rem = new ArrayList<Integer>();
-      Collections.copy(remaining, rem);
-      List<Integer> pp =  new ArrayList<Integer>();
-      Collections.copy(chain, pp);
+      List<Integer> rem = new ArrayList<Integer>(remaining);
+      List<Integer> pp =  new ArrayList<Integer>(chain);
       
       // Remove point from remaining points
       Integer np = rem.remove(idx);
@@ -122,27 +130,73 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       // Each point that does not yet belong to the polygo-
       // nal chain under construction has at least two inci-
       // dent unmarked edges. 
-      do_backtracking = !ue.test1stCond(rem);
+      do_backtracking = !ue.condition1(rem);
       
       // Second condition:
       // At most one point adjacent to the point last added
       // has only two incident unmarked edges.
-      do_backtracking = do_backtracking || !ue.test2ndCond(np);
+      do_backtracking = do_backtracking || !ue.condition2(np);
       
       // Third condition:
       // Points that lie on the boundary of CH(S) appear
       // in the polygonal chain in the same relative order
-      // as on the hull.
-      do_backtracking = do_backtracking || !ue.test3rdCond();
+      // as on the hull.    
+      do_backtracking = do_backtracking || !condition3(pp, convexHull, points);
       
       // TODO Fourth condition: connect last point to first point?
       
       // Now, if all conditions are satisfied, try to add another point.
       if(!do_backtracking)
-        polygon = recursivelyAddPoint(ue, pp, rem);
+        polygon = recursivelyAddPoint(ue, pp, rem, convexHull, points);
     }
     
     return polygon;    
+  }
+  
+  private boolean condition3(List<Integer> polygon, 
+                             OrderedListPolygon convexHull, 
+                             List<Point> points) {
+    // Points that lie on the boundary of CH(S) appear
+    // in the polygonal chain in the same relative order
+    // as on the hull.   
+    boolean oneway = testOrderOnHull(polygon, convexHull, points);
+    convexHull.reverse();
+    boolean oranother = oneway || testOrderOnHull(polygon, convexHull, points);
+    return oranother;
+  }
+  
+  private boolean testOrderOnHull(List<Integer> polygon, 
+                             OrderedListPolygon convexHull, 
+                             List<Point> points) {
+    int lastchidx = 0;
+    int chidx = 0;
+    int roundtrip = -1;
+    for(Integer idx : polygon) {
+      Point p = points.get(idx);
+      if(convexHull.containsVertex(p)) {
+        
+        boolean ok = false;
+        while(!ok && roundtrip < convexHull.size()) {
+          if(convexHull.getPointInRange(chidx).equals(p)) {
+            ok = true;
+            
+            if(roundtrip == -1)
+              roundtrip = 0;
+            else
+              roundtrip += chidx - lastchidx;
+              
+            lastchidx = chidx;
+          }
+          
+          chidx++;
+        }
+        
+        if(!ok || roundtrip > convexHull.size())
+          return false;
+      }
+    }
+    
+    return true;
   }
   
   private static class EdgeSet {
@@ -188,7 +242,7 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       // TODO Auto-generated method stub
     }
     
-    boolean test1stCond(List<Integer> rem) {
+    boolean condition1(List<Integer> rem) {
       // Each point that does not yet belong to the polygo-
       // nal chain under construction has at least two inci-
       // dent unmarked edges.     
@@ -206,7 +260,7 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       
       return true;
     }
-    boolean test2ndCond(int np) {
+    boolean condition2(int np) {
       // At most one point adjacent to the point last added
       // has only two incident unmarked edges.
       boolean found_one = false;
@@ -240,11 +294,6 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       }
       
       return true;
-    }
-
-    boolean test3rdCond() {
-      // TODO Auto-generated method stub
-      return false;
     }
     
     private boolean isMarked(int i, int j) {
