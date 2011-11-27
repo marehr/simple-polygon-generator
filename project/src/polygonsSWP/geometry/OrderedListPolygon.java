@@ -41,6 +41,16 @@ public class OrderedListPolygon
   public List<Point> getPoints() {
     return _coords;
   }
+  
+  /**
+   * Gives Point at Position "pos"
+   * @param pos
+   * @return
+   */
+  public Point getPoint(int pos)
+  {
+	  return _coords.get(pos);
+  }
 
   /**
    * @param coords Sets a new list of ordered points.
