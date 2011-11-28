@@ -1,4 +1,4 @@
-package polygonsSWP.data;
+package polygonsSWP.geometry;
 
 public class Vector
 {

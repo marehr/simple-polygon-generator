@@ -2,6 +2,9 @@ package polygonsSWP.data;
 
 import java.util.ArrayList;
 
+import polygonsSWP.geometry.Point;
+import polygonsSWP.geometry.Polygon;
+
 
 /**
  * Implementation of the shortest path object. Assumption is, that every

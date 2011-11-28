@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import polygonsSWP.data.OrderedListPolygon;
-import polygonsSWP.data.Point;
+import polygonsSWP.geometry.OrderedListPolygon;
+import polygonsSWP.geometry.Point;
 
 
 public class OrderedListPolygonTest

@@ -5,9 +5,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import polygonsSWP.data.OrderedListPolygon;
-import polygonsSWP.data.Point;
-import polygonsSWP.data.Polygon;
+
+import polygonsSWP.geometry.OrderedListPolygon;
+import polygonsSWP.geometry.Point;
+import polygonsSWP.geometry.Polygon;
 
 
 public class GeneratorUtils

@@ -1,10 +1,10 @@
-package polygonsSWP.data;
+package polygonsSWP.geometry;
 
-public class Edge
+public class LineSegment
 {
   public Point a;
   public Point b;
-  public Edge(Point _a, Point _b) {
+  public LineSegment(Point _a, Point _b) {
     a = _a;
     b = _b;
   }
@@ -17,10 +17,10 @@ public class Edge
    */
   @Override
   public boolean equals(Object obj) {
-    if(!(obj instanceof Edge))
+    if(!(obj instanceof LineSegment))
       return false;
     
-    Edge e = (Edge) obj;
+    LineSegment e = (LineSegment) obj;
     
     return ((e.a == a) && (e.b == b)) || ((e.a == b) && (e.b == a));
   }
@@ -35,7 +35,7 @@ public class Edge
    * @param e another edge
    * @return true, if the edges cross each other or are coincident
    */
-  public boolean isIntersecting(Edge e) {
+  public boolean isIntersecting(LineSegment e) {
        
     double mua, mub;
     long denom, numera, numerb;
