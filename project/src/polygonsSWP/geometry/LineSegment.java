@@ -7,6 +7,9 @@ public class LineSegment
   public LineSegment(Point _a, Point _b) {
     a = _a;
     b = _b;
+    
+    // TODO remove
+    assert(!a.equals(b));
   }
   
   /**
@@ -26,17 +29,33 @@ public class LineSegment
   }
   
   /**
-   * Stolen from
+   * Convenience function. Will find shared endpoints, too.
+   */
+  public boolean isIntersecting(LineSegment e, Point[] isect)
+  {
+    return isIntersecting(e, isect, false);
+  }
+  
+  /**
+   * Stolen from:
    * http://paulbourke.net/geometry/lineline2d/
+   * Good explanation is also here:
+   * http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
    * 
-   * Tests whether two edges (line segments) intersect
-   * or whether they are coincident.
+   * Tests whether two line segments intersect or whether they are coincident.
    * 
    * @param e another edge
-   * @return true, if the edges cross each other or are coincident
+   * @param isect array of Points of length >= 1. isect[0] is used as out parameter.
+   *        If it is null, the line segments are coincident.
+   * @param ignoreSharedEndpoints if set, shared endpoints will not be treated
+   *                              as an intersection.
+   * @return true, if the line segments cross each other or are coincident
    */
-  public boolean isIntersecting(LineSegment e) {
+  public boolean isIntersecting(LineSegment e, Point[] isect, boolean ignoreSharedEndpoints) {
        
+    // TODO remove
+    assert(isect != null && isect.length >= 1);
+    
     double mua, mub;
     long denom, numera, numerb;
 
@@ -49,29 +68,27 @@ public class LineSegment
 
     /* Are the lines coincident? */
     if(numera == 0 && numerb == 0 && denom == 0) {
-       return true;
+      isect[0] = null;
+      return true;
     }
 
     /* Are the lines parallel? */
     if(denom == 0) {
-       return false;
+      return false;
     }
 
     /* Is the intersection along the segments? */
     mua = (double) numera / (double) denom;
     mub = (double) numerb / (double) denom;
     
-    /* 
-     * REMARK: In the original version of this algorithm,
-     * mua & mub were tested for greater than (less than) _or equal_ to
-     * 0 (1). I removed this 'equal to' because I guess mua&mub are 0 (1) when
-     * the line segments share the same start or end point.
-     * This is often the case when we check our polygons for intersecting lines.
-     * Still, I'm not really confident whether this didn't break the whole algorithm.
-     * Need to investigate this.
-     */
-    if(mua > 0 && mua < 1 && mub > 0 && mub < 1) {
-       return true;
+    if((ignoreSharedEndpoints &&
+       (mua > 0 && mua < 1 && mub > 0 && mub < 1)) ||
+       (!ignoreSharedEndpoints && 
+       (mua >= 0 && mua <= 1 && mub >= 0 && mub <= 1))) {
+      long isx = Math.round(this.a.x + mua * (this.b.x - this.a.x));
+      long isy = Math.round(this.a.y + mua * (this.b.y - this.a.y));
+      isect[0] = new Point(isx, isy);
+      return true;
     }
     
     return false;

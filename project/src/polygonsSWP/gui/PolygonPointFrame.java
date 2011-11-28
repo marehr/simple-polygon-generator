@@ -2,7 +2,10 @@ package polygonsSWP.gui;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.BufferedReader;
 import java.util.ArrayList;
 
 import javax.swing.*;
@@ -17,6 +20,7 @@ public class PolygonPointFrame extends JFrame{
 	private JButton button;
 	private int x,y;
 	private MainFrame main;
+	private JOptionPane notification;
 	
 	public PolygonPointFrame(MainFrame frame)
 	{
@@ -41,35 +45,68 @@ public class PolygonPointFrame extends JFrame{
 		
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				clearText();
 				FileDialog fd = new FileDialog(new Frame(),"Choose File",FileDialog.LOAD);
-				fd.show();
+				fd.setVisible(true);
 				
-				// TODO: OS dependent file reading
-				//FileReader fr = new FileReader(new File(fd.getDirectory() + fd.getFile()));
+				File f = new File(fd.getDirectory() + File.separator + fd.getFile());
+				try {
+					BufferedReader br = new BufferedReader(new FileReader(f));
+					String line = null;
+					while((line = br.readLine()) != null)
+					{			
+						x = Integer.valueOf(line.split(" ")[0]);
+						y = Integer.valueOf(line.split(" ")[1]);
+						addLine(x + " " + y);
+					}
+				} catch (Exception e1) {
+					JOptionPane.showMessageDialog (null, "An error occured while reading the file.\nYou may should check the point format.", "Error", JOptionPane.ERROR_MESSAGE);
+					e1.printStackTrace();
+				}
 			}
 		});
 		
 		okbutton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ArrayList<polygonsSWP.geometry.Point> pointList = new ArrayList<polygonsSWP.geometry.Point>();
-				String pointString = textArea.getText();
-				String [] a = pointString.split("\n");
-				for (int i = 0; i < a.length; i++) {
-					x = Integer.valueOf(a[i].split(" ")[0]);
-					y = Integer.valueOf(a[i].split(" ")[1]);
-					pointList.add(new polygonsSWP.geometry.Point(x,y));
-				}
-				main.setPoints(pointList);
-				
+				try
+				{
+					ArrayList<polygonsSWP.geometry.Point> pointList = new ArrayList<polygonsSWP.geometry.Point>();
+					String pointString = textArea.getText();
+					String [] a = pointString.split("\n");
+					for (int i = 0; i < a.length; i++) {
+						x = Integer.valueOf(a[i].split(" ")[0]);
+						y = Integer.valueOf(a[i].split(" ")[1]);
+						pointList.add(new polygonsSWP.geometry.Point(x,y));
+					}
+					if(pointList.size() >= 3)
+					{
+						main.setPoints(pointList);
+						JOptionPane.showMessageDialog (null, "Points have been set successfully", "Notification", JOptionPane.PLAIN_MESSAGE);
+						hide_self();
+					}
+					else
+					{
+						//TODO: dirty
+						throw new Exception();
+					}
+				}catch(Exception e1)
+				{
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog (null, "An error occured while parsing the points.\nYou may should check the point format.", "Error", JOptionPane.ERROR_MESSAGE);
+				}				
 			}
 		});
 		
 	}
 	
+	private void hide_self() {
+		this.setVisible(false);
+	}
+	
 	public void addLine(String text)
 	{
 		String tmp = textArea.getText();
-		textArea.setText(tmp +"\n"+text);
+		textArea.setText(tmp + text + "\n");
 	}
 	
 	public void clearText()

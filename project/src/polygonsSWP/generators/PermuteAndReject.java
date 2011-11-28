@@ -26,8 +26,8 @@ public class PermuteAndReject
       // Step 2: Permute those n points to construct a Polygon
       p.permute();
       
-      // Step 3: Accept or reject
-      if(p.isSimple())
+      // Step 3: Accept only simple polygons in counterclockwise orientation.
+      if(p.isSimple() && (p.isClockwise() == -1))
         break;
     }
     

@@ -1,9 +1,11 @@
 package polygonsSWP.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 
@@ -160,4 +162,41 @@ public class MathUtils
       return new Point((long) x, (long) y);
     }
   }
+  
+  /**
+   * Randomly selects a Triangle from a list of Triangles weighted by its
+   * Surface Area. It is assumed, that the given List of Polygons only contains
+   * Triangles. TODO: still safe although surface areas calculated as doubles?
+   * 
+   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   * @param polygons
+   * @return
+   */
+  public static OrderedListPolygon selectRandomTriangleBySize(List<OrderedListPolygon> polygons) {
+    // This algorithm works as follows:
+    // 1. sum the weights (totalSurfaceArea)
+    // 2. select a uniform random value (randomValue) u 0 <= u < sum of weights
+    // 3. iterate through the items, keeping a running total (runnigTotal) of
+    // the weights of the items you've examined
+    // 4. as soon as running total >= random value, select the item you're
+    // currently looking at (the one whose weight you just added).
+  
+    Random random = new Random(System.currentTimeMillis());
+    HashMap<OrderedListPolygon, Long> surfaceAreaTriangles = new HashMap<OrderedListPolygon, Long>();
+    long totalSurfaceArea = 0;
+    for (OrderedListPolygon polygon2 : polygons) {
+      long polygon2SurfaceArea =
+          Math.round(Math.ceil(polygon2.getSurfaceArea()));
+      totalSurfaceArea += polygon2SurfaceArea;
+      surfaceAreaTriangles.put(polygon2, polygon2SurfaceArea);
+    }
+    long randomValue =
+        Math.round(Math.ceil(random.nextDouble() * totalSurfaceArea));
+    long runningTotal = 0;
+    for (OrderedListPolygon polygon2 : polygons) {
+      runningTotal += surfaceAreaTriangles.get(polygon2);
+      if (runningTotal >= randomValue) { return polygon2; }
+    }
+    return null;
+  }  
 }
