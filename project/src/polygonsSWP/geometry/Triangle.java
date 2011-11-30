@@ -9,7 +9,10 @@ import polygonsSWP.util.MathUtils;
 
 
 /**
- * This class just represents the smallest kind of polygon, a triangle.
+ * This class just represents the smallest kind of polygon, a triangle. It
+ * contains a list of points, which are forming the polygon. They are assumed to
+ * be ordered counter clockwise. Every method is implemented according to the
+ * interface and documentation of OrderedListPolygon.
  * 
  * @author Steve Dierker <dierker.steve@fu-berlin.de>
  */
@@ -28,6 +31,7 @@ public class Triangle
   }
 
   public Triangle(Point a, Point b, Point c) {
+    _coords = new ArrayList<Point>();
     _coords.add(a);
     _coords.add(b);
     _coords.add(c);
@@ -62,34 +66,29 @@ public class Triangle
     }
   }
 
+  /**
+   * @param onLine: whether on the edge is counted as inor outside the polygon.
+   * @return Checks whether the triangle contains the given point.
+   */
   @Override
-  public boolean containsPoint(Point p, boolean onLine) {
-    // TODO: check if there is a faster algorithm for triangles.
-    List<Point> pList = this.getPoints();
-    boolean isInside = false;
-    int nPoints = pList.size();
-    Point first = pList.get(pList.size() - 1);
-
-    int j = 0;
-    for (int i = 0; i < nPoints; i++) {
-      j++;
-      if (j == nPoints) j = 0;
-
-      if (pList.get(i).y < p.y && pList.get(j).y >= p.y ||
-          pList.get(j).y < p.y && pList.get(i).y >= p.y) {
-        if (pList.get(i).x + (double) (p.y - pList.get(i).y) /
-            (double) (pList.get(j).y - pList.get(i).y) *
-            (pList.get(j).x - pList.get(i).x) < p.y) {
-          isInside = !isInside;
-        }
-      }
-      if (onLine)
-        if (MathUtils.checkOrientation(first, pList.get(i), p) == 0) { return true; }
-      first = pList.get(i);
+  public boolean containsPoint(final Point p, final boolean onLine) {
+    boolean isInside = true;
+    boolean isOnLine = false;
+    Point first = _coords.get(2);
+    for (int i = 0; i < _coords.size(); ++i) {
+      if (!(MathUtils.checkOrientation(first, _coords.get(i), p) == 1))
+        isInside = false;
+      first = _coords.get(i);
+      if (p.isBetween(first, _coords.get(i))) isOnLine = true;
+      first = _coords.get(i);
     }
-    return isInside;
+    if (onLine) return isInside || isOnLine;
+    else return isInside;
   }
 
+  /**
+   * @return Returns the surface area of the triangle.
+   */
   @Override
   public double getSurfaceArea() {
     List<Point> trianglePoints = this.getPoints();
@@ -98,6 +97,9 @@ public class Triangle
     return Math.abs(u.v1 * v.v2 - u.v2 * v.v1) / 2.0;
   }
 
+  /**
+   * @return Returns random point within the triangle.
+   */
   @Override
   public Point createRandomPoint() {
     Point retval;
@@ -131,7 +133,7 @@ public class Triangle
   public OrderedListPolygon getOrderedListPolygon() {
     return new OrderedListPolygon(_coords);
   }
-  
+
   /**
    * Randomly selects a Triangle from a list of Triangles weighted by its
    * Surface Area. It is assumed, that the given List of Polygons only contains
@@ -149,9 +151,10 @@ public class Triangle
     // the weights of the items you've examined
     // 4. as soon as running total >= random value, select the item you're
     // currently looking at (the one whose weight you just added).
-  
+
     Random random = new Random(System.currentTimeMillis());
-    HashMap<Triangle, Long> surfaceAreaTriangles = new HashMap<Triangle, Long>();
+    HashMap<Triangle, Long> surfaceAreaTriangles =
+        new HashMap<Triangle, Long>();
     long totalSurfaceArea = 0;
     for (Triangle polygon2 : polygons) {
       long polygon2SurfaceArea =

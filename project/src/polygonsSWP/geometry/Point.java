@@ -39,6 +39,7 @@ public class Point
    * @return
    */
   public boolean isBetween(Point begin, Point end) {
+    if (this.equals(begin) || this.equals(end)) return true;
     return this.distanceTo(begin) + this.distanceTo(end) == begin.distanceTo(end);
   }
 
