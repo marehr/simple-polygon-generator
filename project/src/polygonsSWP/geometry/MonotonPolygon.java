@@ -7,10 +7,17 @@ import java.util.List;
 import polygonsSWP.util.MathUtils;
 
 
+/**
+ * This Polygon is meant to be just a monoton polygon. THe polygon is stored in
+ * a counter clock-wise ordered list of line segments.
+ * TODO: needs to get optimization!
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ */
+
 public class MonotonPolygon
   extends Polygon
 {
-  private List<LineSegment> _edges;
+  protected List<LineSegment> _edges;
   private List<LineSegment> _innerEdges;
   private boolean isTriangulized = false;
 
@@ -23,8 +30,7 @@ public class MonotonPolygon
   }
 
   @SuppressWarnings("unchecked")
-  @Override
-  public List<Point> getPoints() {
+  public List<Point> getSortedPoints() {
     List<Point> pointList = new ArrayList<Point>();
     for (LineSegment item : _edges) {
       if (!pointList.contains(item.a)) pointList.add(item.a);
@@ -32,6 +38,10 @@ public class MonotonPolygon
     }
     Collections.sort(pointList);
     return pointList;
+  }
+
+  public List<Point> getPoints() {
+    return null;
   }
 
   public List<LineSegment> getEdges() {
@@ -57,7 +67,11 @@ public class MonotonPolygon
 
   @Override
   public boolean containsPoint(Point p, boolean onLine) {
-    return true;
+    //TODO: Check for faster method.
+    if(!isTriangulized) this.triangulate();
+    for(Triangle item : this.getTriangles())
+      if(item.containsPoint(p, onLine)) return true;
+    return false;
   }
 
   public boolean areNeighbours(Point a, Point b) {
@@ -84,19 +98,29 @@ public class MonotonPolygon
 
   @Override
   public double getSurfaceArea() {
-    // TODO Auto-generated method stub
-    return 0;
+    if(!isTriangulized) this.triangulate();
+    double area = 0;
+    for(Triangle item : this.getTriangles())
+      area+=item.getSurfaceArea();
+    return area;
   }
 
   @Override
   public Point createRandomPoint() {
-    // TODO Auto-generated method stub
-    return null;
+    if(!isTriangulized) this.triangulate();
+    List<Triangle> triangularization = this.getTriangles();
+    // Choose one triangle of triangularization randomly weighted by their
+    // Surface Area.
+    Triangle chosenPolygon =
+        Triangle.selectRandomTriangleBySize(triangularization);
+
+    // Return randomly chosen Point in chosen Triangle.
+    return chosenPolygon.createRandomPoint();
   }
 
   public Point getNext(Point p) {
-    return this.getPoints().get(
-        (this.getPoints().indexOf(p) + 1) % this.getPoints().size());
+    return this.getSortedPoints().get(
+        (this.getSortedPoints().indexOf(p) + 1) % this.getSortedPoints().size());
   }
 
   public boolean isConvex(Point a, Point b, Point c) {
@@ -110,10 +134,10 @@ public class MonotonPolygon
     /* Every List of Points is sorted by asc X-Coordinate */
     List<Point> stack = new ArrayList<Point>();
     // Add first wo points to stack
-    stack.add(this.getPoints().get(0));
-    stack.add(this.getPoints().get(1));
+    stack.add(this.getSortedPoints().get(0));
+    stack.add(this.getSortedPoints().get(1));
     // Sort one is current point
-    Point tmp = this.getPoints().get(2);
+    Point tmp = this.getSortedPoints().get(2);
     while (!(this.areNeighbours(tmp, stack.get(0)) && this.areNeighbours(tmp,
         stack.get(stack.size() - 1)))) {
       if (this.areNeighbours(tmp, stack.get(0)) &&
@@ -150,9 +174,9 @@ public class MonotonPolygon
     isTriangulized = true;
   }
 
-  public List<Polygon> getTriangles() {
+  public List<Triangle> getTriangles() {
     if (!isTriangulized) this.triangulate();
-    List<Polygon> tmpList = new ArrayList<Polygon>();
+    List<Triangle> tmpList = new ArrayList<Triangle>();
     for (LineSegment item : _edges) {
       List<LineSegment> left = new ArrayList<LineSegment>();
       List<LineSegment> right = new ArrayList<LineSegment>();
@@ -172,10 +196,7 @@ public class MonotonPolygon
         for (LineSegment r : left) {
           if (l.a == item.a) {
             if (r.contains(l.b)) {
-              OrderedListPolygon poly = new OrderedListPolygon();
-              poly.addPoint(item.a);
-              poly.addPoint(item.b);
-              poly.addPoint(l.b);
+              Triangle poly = new Triangle(item.a, item.b, l.b);
               tmpList.add(poly);
               found = true;
               break;
@@ -183,10 +204,7 @@ public class MonotonPolygon
           }
           else {
             if (r.contains(l.a)) {
-              OrderedListPolygon poly = new OrderedListPolygon();
-              poly.addPoint(item.a);
-              poly.addPoint(item.b);
-              poly.addPoint(l.a);
+              Triangle poly = new Triangle(item.a, item.b, l.a);
               tmpList.add(poly);
               found = true;
               break;

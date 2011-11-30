@@ -7,6 +7,7 @@ package polygonsSWP.geometry;
  * @author Steve Dierker <dierker.steve@fu-berlin.de>
  */
 public class Point
+  implements Comparable<Point>
 {
   public long x;
   public long y;
@@ -51,5 +52,21 @@ public class Point
    */
   public double distanceTo(Point p) {
     return Math.sqrt(Math.pow(this.x - p.x, 2) + Math.pow(this.y - p.y, 2));
+  }
+
+  /**
+   * 
+   */
+  @Override
+  public int compareTo(Point obj) {
+    if (((Point) obj).x > x) return -1;
+    else if (((Point) obj).x < x) {
+      return 1;
+    }
+    else {
+      if (((Point) obj).y > y) return -1;
+      else if (((Point) obj).y < y) return 1;
+      else return 0;
+    }
   }
 }

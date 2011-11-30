@@ -1,6 +1,7 @@
 package polygonsSWP.geometry;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -129,5 +130,42 @@ public class Triangle
 
   public OrderedListPolygon getOrderedListPolygon() {
     return new OrderedListPolygon(_coords);
+  }
+  
+  /**
+   * Randomly selects a Triangle from a list of Triangles weighted by its
+   * Surface Area. It is assumed, that the given List of Polygons only contains
+   * Triangles. TODO: still safe although surface areas calculated as doubles?
+   * 
+   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   * @param polygons
+   * @return
+   */
+  public static Triangle selectRandomTriangleBySize(List<Triangle> polygons) {
+    // This algorithm works as follows:
+    // 1. sum the weights (totalSurfaceArea)
+    // 2. select a uniform random value (randomValue) u 0 <= u < sum of weights
+    // 3. iterate through the items, keeping a running total (runnigTotal) of
+    // the weights of the items you've examined
+    // 4. as soon as running total >= random value, select the item you're
+    // currently looking at (the one whose weight you just added).
+  
+    Random random = new Random(System.currentTimeMillis());
+    HashMap<Triangle, Long> surfaceAreaTriangles = new HashMap<Triangle, Long>();
+    long totalSurfaceArea = 0;
+    for (Triangle polygon2 : polygons) {
+      long polygon2SurfaceArea =
+          Math.round(Math.ceil(polygon2.getSurfaceArea()));
+      totalSurfaceArea += polygon2SurfaceArea;
+      surfaceAreaTriangles.put(polygon2, polygon2SurfaceArea);
+    }
+    long randomValue =
+        Math.round(Math.ceil(random.nextDouble() * totalSurfaceArea));
+    long runningTotal = 0;
+    for (Triangle polygon2 : polygons) {
+      runningTotal += surfaceAreaTriangles.get(polygon2);
+      if (runningTotal >= randomValue) { return polygon2; }
+    }
+    return null;
   }
 }

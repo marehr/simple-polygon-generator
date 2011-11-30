@@ -12,6 +12,13 @@ public class LineSegment
     assert(!a.equals(b));
   }
   
+  public boolean contains(Point a_) {
+    if(a.equals(a_)||b.equals(a_))
+      return true;
+    else 
+      return false;
+  }
+  
   /**
    * Equality check.
    * 
