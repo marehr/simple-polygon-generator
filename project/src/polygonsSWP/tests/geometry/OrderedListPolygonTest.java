@@ -1,4 +1,4 @@
-package polygonsSWP.tests;
+package polygonsSWP.tests.geometry;
 
 import static org.junit.Assert.*;
 

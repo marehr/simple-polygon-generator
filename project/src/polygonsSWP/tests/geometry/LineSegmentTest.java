@@ -1,4 +1,4 @@
-package polygonsSWP.tests;
+package polygonsSWP.tests.geometry;
 
 import static org.junit.Assert.*;
 
@@ -7,7 +7,7 @@ import org.junit.Test;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.Point;
 
-public class EdgeTest
+public class LineSegmentTest
 {
 
   @Test

@@ -9,8 +9,9 @@ import polygonsSWP.util.MathUtils;
 
 /**
  * This Polygon is meant to be just a monoton polygon. THe polygon is stored in
- * a counter clock-wise ordered list of line segments.
- * TODO: needs to get optimization!
+ * a counter clock-wise ordered list of line segments. TODO: needs to get
+ * optimization!
+ * 
  * @author Steve Dierker <dierker.steve@fu-berlin.de>
  */
 
@@ -23,6 +24,7 @@ public class MonotonPolygon
 
   public MonotonPolygon(List<LineSegment> _list) {
     _edges = _list;
+    _innerEdges = new ArrayList<LineSegment>();
   }
 
   public MonotonPolygon() {
@@ -67,10 +69,10 @@ public class MonotonPolygon
 
   @Override
   public boolean containsPoint(Point p, boolean onLine) {
-    //TODO: Check for faster method.
-    if(!isTriangulized) this.triangulate();
-    for(Triangle item : this.getTriangles())
-      if(item.containsPoint(p, onLine)) return true;
+    // TODO: Check for faster method.
+    if (!isTriangulized) this.triangulate();
+    for (Triangle item : this.getTriangles())
+      if (item.containsPoint(p, onLine)) return true;
     return false;
   }
 
@@ -78,8 +80,10 @@ public class MonotonPolygon
     for (LineSegment item : this._edges) {
       if (item.equals(new LineSegment(a, b))) return true;
     }
-    for (LineSegment item : this._innerEdges) {
-      if (item.equals(new LineSegment(a, b))) return true;
+    if (!_innerEdges.isEmpty()) {
+      for (LineSegment item : this._innerEdges) {
+        if (item.equals(new LineSegment(a, b))) return true;
+      }
     }
     return false;
   }
@@ -98,16 +102,16 @@ public class MonotonPolygon
 
   @Override
   public double getSurfaceArea() {
-    if(!isTriangulized) this.triangulate();
+    if (!isTriangulized) this.triangulate();
     double area = 0;
-    for(Triangle item : this.getTriangles())
-      area+=item.getSurfaceArea();
+    for (Triangle item : this.getTriangles())
+      area += item.getSurfaceArea();
     return area;
   }
 
   @Override
   public Point createRandomPoint() {
-    if(!isTriangulized) this.triangulate();
+    if (!isTriangulized) this.triangulate();
     List<Triangle> triangularization = this.getTriangles();
     // Choose one triangle of triangularization randomly weighted by their
     // Surface Area.
