@@ -1,6 +1,7 @@
 package polygonsSWP.tests;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -16,6 +17,16 @@ import polygonsSWP.util.GeneratorUtils;
 public class GeneratorUtilsTest
 {
 
+  @Test
+  public void testConvexHullWeirdTriangle() {
+    List<Point> points = new LinkedList<Point>();
+    points.add(new Point(555, 466));
+    points.add(new Point(566, 489));
+    points.add(new Point(547, 233));
+    OrderedListPolygon assignedHull = GeneratorUtils.convexHull(points);
+    assertTrue(assignedHull.size() == 4);
+  }
+  
   @Test
   public void testConvexHull() {
     List<Point> points = new LinkedList<Point>(), expectedHull =
