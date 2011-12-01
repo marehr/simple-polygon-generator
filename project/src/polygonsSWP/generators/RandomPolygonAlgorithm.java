@@ -16,11 +16,10 @@ public class RandomPolygonAlgorithm
   implements PolygonGenerator
 {
 
-	private Parameters[][] params = new Parameters[][]
-			{
-				new Parameters[] {Parameters.n, Parameters.size},
-			};
-	
+  private Parameters[][] params = new Parameters[][] {
+    new Parameters[] {Parameters.n, Parameters.size}
+  };
+
   @Override
   public Parameters[][] getAcceptedParameters() {
     return params;

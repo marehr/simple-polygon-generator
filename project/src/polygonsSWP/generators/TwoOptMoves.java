@@ -13,12 +13,11 @@ import polygonsSWP.util.GeneratorUtils;
 public class TwoOptMoves implements PolygonGenerator 
 {
 
-	private Parameters[][] params = new Parameters[][]
-			{
-				new Parameters[] {Parameters.n, Parameters.size},
-				new Parameters[] {Parameters.points}
-			};
-	
+  private Parameters[][] params = new Parameters[][] {
+    new Parameters[] {Parameters.n, Parameters.size},
+    new Parameters[] {Parameters.points}
+  };
+
   @Override
   public Parameters[][] getAcceptedParameters() {
     return params;

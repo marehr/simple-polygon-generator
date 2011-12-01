@@ -15,11 +15,10 @@ import polygonsSWP.util.GeneratorUtils;
 public class IncrementalConstructionAndBacktracking implements PolygonGenerator
 {
 
-	private Parameters[][] params = new Parameters[][]
-			{
-				new Parameters[] {Parameters.n, Parameters.size, Parameters.points}
-			};
-	
+  private Parameters[][] params = new Parameters[][] {
+    new Parameters[] {Parameters.n, Parameters.size, Parameters.points}
+  };
+
   @Override
   public Parameters[][] getAcceptedParameters() {
     return params;
