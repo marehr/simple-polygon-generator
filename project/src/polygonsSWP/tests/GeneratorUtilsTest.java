@@ -19,12 +19,21 @@ public class GeneratorUtilsTest
 
   @Test
   public void testConvexHullWeirdTriangle() {
-    List<Point> points = new LinkedList<Point>();
+    List<Point> points = new LinkedList<Point>(),
+                expectedHull = new LinkedList<Point>();
     points.add(new Point(555, 466));
     points.add(new Point(566, 489));
     points.add(new Point(547, 233));
+    expectedHull.add(new Point(547, 233));
+    expectedHull.add(new Point(555, 466));
+    expectedHull.add(new Point(566, 489));
+
     OrderedListPolygon assignedHull = GeneratorUtils.convexHull(points);
-    assertTrue(assignedHull.size() == 4);
+    assertTrue(assignedHull.size() == 3);
+
+    Object[] expecteds = expectedHull.toArray(),
+             actuals = assignedHull.getPoints().toArray();
+    assertArrayEquals(expecteds, actuals);
   }
   
   @Test
@@ -67,8 +76,6 @@ public class GeneratorUtilsTest
     k = new Point(3, 5);
     points.add(k);
     expectedHull.add(k);
-
-    expectedHull.add(new Point(1, 3));
 
     // convex hull is always the same, independent of the order of points!
     Collections.shuffle(points);

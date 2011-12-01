@@ -68,8 +68,9 @@ public class GeneratorUtils
   /**
    * Generates the convex Hull of a given set of points note: this is just a
    * naive approach, that should/could be replaced later on time complexity:
-   * O(n^2)
-   * 
+   * O(n log n)
+   *
+   * @see http://www.ics.uci.edu/~eppstein/161/960307.html
    * @param pointSet
    * @return convexHull in counter clock wise order
    */
@@ -83,6 +84,9 @@ public class GeneratorUtils
     // NOTE: y-coordinate ordering on the same x-coordinate is crucial for
     // this algorithm, at least for the last ordered points!
     sortPointsByX(points);
+
+    if(points.size() <= 3)
+      return new OrderedListPolygon(points);
 
     // compute the lower side of the convex hull
 
@@ -128,6 +132,8 @@ public class GeneratorUtils
       hull.add(pi);
       k += 1;
     }
+
+    hull.remove(hull.size() - 1);
 
     return new OrderedListPolygon(hull);
   }

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import polygonsSWP.geometry.Polygon;
+import polygonsSWP.generators.ConvexHullGenerator;
 import polygonsSWP.generators.IncrementalConstructionAndBacktracking;
 import polygonsSWP.generators.PermuteAndReject;
 import polygonsSWP.generators.PolygonGenerator;
@@ -54,7 +55,8 @@ public class MainFrame extends JFrame {
 	    new PermuteAndReject(), 
 	    new TwoOptMoves(),
 	    new RandomPolygonAlgorithm(),
-	    new IncrementalConstructionAndBacktracking()
+	    new IncrementalConstructionAndBacktracking(),
+	    new ConvexHullGenerator()
 	  }; 
 	
 	private JButton b_set_points,b_generate_polygon,b_calc_shortest_path;
