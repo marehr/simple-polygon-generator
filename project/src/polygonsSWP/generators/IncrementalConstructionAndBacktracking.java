@@ -223,8 +223,8 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
     protected EdgeSet(List<Point> vertices, boolean[][] set) {
       v = vertices;
       s = new boolean[v.size()][v.size()];
-      for(int i = 0; i < v.size(); i++) {
-        for(int j = i + 1; j < v.size() - 1; j++) {
+      for(int i = 0; i < v.size() - 1; i++) {
+        for(int j = i + 1; j < v.size(); j++) {
           s[i][j] = set[i][j];
         }
       }
