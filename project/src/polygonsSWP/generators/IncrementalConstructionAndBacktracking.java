@@ -78,7 +78,7 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
     List<Integer> polygon = null;
     
     addPointLoop:
-    while(polygon == null && used.size() < remaining.size() ) {
+    while(polygon == null && used.size() < remaining.size()) {
       
       // Last point
       Integer lp = chain.get(chain.size() - 1);
@@ -124,41 +124,42 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       // Mark all incident unmarked edges, if there are 
       // two neighbors with only 2 unmarked edges.
       ue.markRule2(np, rem);
-      
-      // Is backtracking necessary?
-      boolean do_backtracking = false;
-      
-      // First condition:
-      // Each point that does not yet belong to the polygo-
-      // nal chain under construction has at least two inci-
-      // dent unmarked edges. 
-      do_backtracking = !ue.condition1(rem);
-      
-      // Second condition:
-      // At most one point adjacent to the point last added
-      // has only two incident unmarked edges.
-      do_backtracking = do_backtracking || !ue.condition2(np);
-      
-      // Third condition:
-      // Points that lie on the boundary of CH(S) appear
-      // in the polygonal chain in the same relative order
-      // as on the hull.    
-      do_backtracking = do_backtracking || !condition3(pp, convexHull, points);
-      
-      // Fourth condition:
+           
       // If last point, check that it connects to 1st point without intersections.
       if(rem.size() == 0) {
         Integer fp = pp.get(0);
-        do_backtracking = do_backtracking || ue.isMarked(np, fp);
         
         // Recursion ends here.
+        if(!ue.isMarked(np, fp))
+          polygon = pp;
+        
+      } else {
+        // Make sure our conditions hold.
+        
+        boolean do_backtracking = false;
+        
+        // First condition:
+        // Each point that does not yet belong to the polygo-
+        // nal chain under construction has at least two inci-
+        // dent unmarked edges. 
+        do_backtracking = !ue.condition1(rem);
+        
+        // Second condition:
+        // At most one point adjacent to the point last added
+        // has only two incident unmarked edges.
+        do_backtracking = do_backtracking || !ue.condition2(np);
+        
+        // Third condition:
+        // Points that lie on the boundary of CH(S) appear
+        // in the polygonal chain in the same relative order
+        // as on the hull.    
+        do_backtracking = do_backtracking || !condition3(pp, convexHull, points);
+        
+        // Now, if all conditions are satisfied, try to add another point.
         if(!do_backtracking)
-          return pp;
-      }
-      
-      // Now, if all conditions are satisfied, try to add another point.
-      if(!do_backtracking)
-        polygon = recursivelyAddPoint(ue, pp, rem, convexHull, points);
+          polygon = recursivelyAddPoint(ue, pp, rem, convexHull, points);
+      }    
+
     }
     
     return polygon;    
