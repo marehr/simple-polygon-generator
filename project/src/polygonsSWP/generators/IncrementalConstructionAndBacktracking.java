@@ -84,6 +84,7 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       List<Integer> remaining,
       final OrderedListPolygon convexHull,
       final List<Point> points) {
+    assert(remaining.size() > 0);
     
     Random r = new Random(System.currentTimeMillis());
     
@@ -91,6 +92,8 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
     List<Integer> used = new ArrayList<Integer>();
     
     List<Integer> polygon = null;
+    
+    addPointLoop:
     while(polygon == null && used.size() < remaining.size() ) {
       
       // Last point
@@ -98,12 +101,26 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       
       // Grab next unused index
       int idx = -1;
+      List<Integer> remtmp = new ArrayList<Integer>(remaining);
       do {
-        idx = r.nextInt(remaining.size());
-      } while(
-          used.contains(remaining.get(idx))
-          || unusable.isMarked(lp, remaining.get(idx)));
+        idx = r.nextInt(remtmp.size());
+        Integer i = remtmp.remove(idx);
+        
+        if(used.contains(i) || unusable.isMarked(lp, i))
+          idx = -1;
+        
+      } while((idx == -1) && (remtmp.size() > 0));
+      
+      // We couldn't find an usable index.
+      if(idx == -1)
+        break addPointLoop;
+      
+      // Remember that we already tried idx.
       used.add(remaining.get(idx));
+      
+      
+      // **********************************
+      // Ok, this iteration: Use point idx.
       
       // Clone everything for a fresh start
       EdgeSet ue = unusable.clone();
