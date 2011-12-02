@@ -45,31 +45,15 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
     for(int i = 0; i < points.size(); i++)
       idx.add(new Integer(i));
     
-    // Remember which points we've already used
-    List<Integer> used = new ArrayList<Integer>();
-    do {
-    
-      // Choose initial point and remember choice
-      int i = 0;
-      do {
-        i = r.nextInt(idx.size());
-      } while(used.contains(idx.get(i)));
-        
-      Integer fp = idx.remove(i);
-      used.add(fp);
+    // Choose random starting point.
+    Integer fp = idx.remove(r.nextInt(idx.size()));
       
-      // Recursively create polygon
-      List<Integer> pp = new ArrayList<Integer>();
-      pp.add(fp);
-      polygon = recursivelyAddPoint(ue, pp, idx, ch, points);
-      
-      // If no success -> add back fp
-      if(polygon == null)
-        idx.add(fp);
-      
-      assert(used.size() < idx.size());
-    
-    } while(polygon == null);
+    // Recursively create polygon
+    List<Integer> pp = new ArrayList<Integer>();
+    pp.add(fp);
+    polygon = recursivelyAddPoint(ue, pp, idx, ch, points);
+
+    assert(polygon != null);
     
     // Create polygon from index list.
     OrderedListPolygon olp = new OrderedListPolygon();
@@ -101,23 +85,24 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       
       // Grab next unused index
       int idx = -1;
-      List<Integer> remtmp = new ArrayList<Integer>(remaining);
       do {
-        idx = r.nextInt(remtmp.size());
-        Integer i = remtmp.remove(idx);
+        idx = r.nextInt(remaining.size());
         
-        if(used.contains(i) || unusable.isMarked(lp, i))
+        if(used.contains(remaining.get(idx))) {
           idx = -1;
-        
-      } while((idx == -1) && (remtmp.size() > 0));
+        } else {
+          // Remember that we already tried idx.
+          used.add(remaining.get(idx));
+          
+          if(unusable.isMarked(lp, remaining.get(idx))) {
+            idx = -1;
+          }
+        }
+      } while((idx == -1) && (used.size() < remaining.size()));
       
       // We couldn't find an usable index.
       if(idx == -1)
-        break addPointLoop;
-      
-      // Remember that we already tried idx.
-      used.add(remaining.get(idx));
-      
+        break addPointLoop;     
       
       // **********************************
       // Ok, this iteration: Use point idx.
@@ -281,7 +266,8 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
           // Has only two incident unmarked edges?
           if(degree(j) == 2) {
             count++;
-                       
+                  
+            // TODO Fail here.
             assert(count < 3);
             n[count - 1] = j;
           }
