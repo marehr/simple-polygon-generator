@@ -43,8 +43,12 @@ public class SpacePartitioning implements PolygonGenerator {
     Polygon leftPolygon = spacePartitioning(left, first, last),
             rightPolygon = spacePartitioning(right, last, first);
 
+    System.out.println("\n\n");
+    System.out.println("result in generate");
+    System.out.println("first: " + first);
+    System.out.println("last: "+ last);
     System.out.println("left: " + leftPolygon.getPoints());
-    System.out.println("right: " + leftPolygon.getPoints());
+    System.out.println("right: " + rightPolygon.getPoints());
     OrderedListPolygon merge =(OrderedListPolygon) merge(leftPolygon, rightPolygon);
     System.out.println("merge: " + merge.getPoints());
 
@@ -76,9 +80,6 @@ public class SpacePartitioning implements PolygonGenerator {
   private String partionateIn(List<Point> left, List<Point> right,
       List<Point> points, Point first, Point last) {
 
-    assert right != null && left != null && points != null;
-    assert first != null && last != null;
-
     String output = "";
     for(Point point: points){
 
@@ -102,39 +103,32 @@ public class SpacePartitioning implements PolygonGenerator {
   }
 
   private Polygon spacePartitioning(List<Point> points, Point first, Point last) {
-    boolean intialside = true;
-    //System.out.println("\npoints: " + points + ", ordered: " + (intialside ? "RIGHT" :"LEFT"));
-    //System.out.println("first: " + first + ", last: "+ last);
-
-    if(points.size() == 1) {
-      //Point a = first.x < last.x ? first : last,
-      //      b = a == first? last : first;
-      Point a = intialside ? first : last, b =  intialside ? last : first;
-
+    // base size == 0
+    if(points.size() == 0) {
       ArrayList<Point> list = new ArrayList<Point>();
-      list.add(a);
-      list.add(points.get(0));
-      list.add(b);
+      list.add(first);
+      list.add(last);
 
-      System.out.println("\n\n\npoints: " + points + ", ordered: " + (intialside ? "RIGHT" :"LEFT"));
-      System.out.println("first: " + first + ", last: "+ last);
-      System.out.println("draw segment: " + a + " to " + points.get(0) + " to " + b);
+      System.out.println("\n\n---size == 0---\npoints: " + points);
+      System.out.println("first: " + first);
+      System.out.println("last: "+ last);
+      System.out.println("draw segment: " + first + " to " + last);
+      System.out.println("------");
       return new OrderedListPolygon(list);
     }
 
-    // base
-    if(points.size() == 0) {
-      //Point a = first.x < last.x ? first : last,
-      //      b = a == first? last : first;
-      Point a = intialside ? first : last, b =  intialside ? last : first;
-
+    // base size == 1
+    if(points.size() == 1) {
       ArrayList<Point> list = new ArrayList<Point>();
-      list.add(a);
-      list.add(b);
+      list.add(first);
+      list.add(points.get(0));
+      list.add(last);
 
-      System.out.println("\n\n\npoints: " + points + ", ordered: " + (intialside ? "RIGHT" :"LEFT"));
-      System.out.println("first: " + first + ", last: "+ last);
-      System.out.println("draw segment: " + a + " to " + b);
+      System.out.println("\n\n---size == 1---\npoints: " + points);
+      System.out.println("first: " + first);
+      System.out.println("last: "+ last);
+      System.out.println("draw segment: " + first + " to " + points.get(0) + " to " + last);
+      System.out.println("------");
       return new OrderedListPolygon(list);
     }
 
@@ -145,20 +139,22 @@ public class SpacePartitioning implements PolygonGenerator {
 
     String output = partionateIn(left, right, points, first, middle);
 
-    Polygon leftPolygon = spacePartitioning(left, first, middle),
-            rightPolygon = spacePartitioning(right, middle, last),
-            a = intialside ? leftPolygon : rightPolygon,
-            b = intialside ? rightPolygon : leftPolygon;
+    boolean onLeftSide = MathUtils.checkOrientation(first, last, middle) == -1;
 
-    System.out.println("\n\n\npoints: " + points + ", ordered: " + (intialside ? "RIGHT" :"LEFT"));
-    System.out.println("first: " + first + ", last: "+ last);
+    Polygon leftPolygon = spacePartitioning(onLeftSide ? left : right, first, middle),
+            rightPolygon = spacePartitioning(onLeftSide ? right : left, middle, last);
+
+    System.out.println("\n\n---general---\npoints: " + points + ", ordered: " + (onLeftSide ? "LEFT" : "RIGHT"));
+    System.out.println("first: " + first);
+    System.out.println("last: "+ last);
     System.out.println("middle: " + middle);
     System.out.println(output);
 
     System.out.println("left: " + leftPolygon.getPoints());
     System.out.println("right: " + rightPolygon.getPoints());
-    Polygon merge = merge(a, b);
+    Polygon merge = merge(leftPolygon, rightPolygon);
     System.out.println("merge: " + merge.getPoints());
+    System.out.println("------");
 
     return merge;
   }
