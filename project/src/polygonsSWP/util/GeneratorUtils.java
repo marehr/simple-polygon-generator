@@ -83,8 +83,11 @@ public class GeneratorUtils
         throw new RuntimeException("user-defined set of points not in GP.");
       
     }
-
-    return  s;
+    
+    // Note: We're creating a copy of the list here to avoid having
+    // the same list object in several containers (eg in the GUI and
+    // in the computed Polygon).
+    return new ArrayList<Point>(s);
   }
   
   /**

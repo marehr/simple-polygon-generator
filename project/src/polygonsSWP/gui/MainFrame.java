@@ -41,17 +41,16 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 
-
+// TODO: rewrite.
 public class MainFrame extends JFrame {
 
 	private static final long serialVersionUID = 313119639927682997L;
 	
 	private final int DEFAULTSIZE = 600;
-	private String generationMethod = "generate";
 	private ArrayList<polygonsSWP.geometry.Point> pointList;
 	
 	// main components
-	private PaintPanel _canvas = new PaintPanel(DEFAULTSIZE);
+	private PaintPanel _canvas = new PaintPanel();
 	private InfoFrame infoframe;
 	private MainFrame self;
 	
@@ -236,7 +235,6 @@ public class MainFrame extends JFrame {
 			if(checkParamCombination())
 			{
 				runGenerator();
-				_canvas.repaint();
 			}
 		}
 	  });
@@ -275,7 +273,6 @@ public class MainFrame extends JFrame {
 		public void mouseEntered(MouseEvent arg0) {}
 		public void mouseClicked(MouseEvent arg0) {
 			_canvas.setDrawMode(false);
-			generationMethod = "generate";
 			b_set_points.setEnabled(false);
 			sl_edges.setEnabled(true);
 			l_edge_count.setEnabled(true);
@@ -291,7 +288,6 @@ public class MainFrame extends JFrame {
 		public void mouseExited(MouseEvent arg0) {}
 		public void mouseEntered(MouseEvent arg0) {}
 		public void mouseClicked(MouseEvent arg0) {
-			generationMethod = "points";
 			_canvas.setDrawMode(false);
 			b_set_points.setEnabled(true);
 			sl_edges.setEnabled(false);
@@ -307,13 +303,13 @@ public class MainFrame extends JFrame {
 		public void mouseExited(MouseEvent arg0) {}
 		public void mouseEntered(MouseEvent arg0) {}
 		public void mouseClicked(MouseEvent arg0) {
-			generationMethod = "draw";
+			_canvas.setPoints(new ArrayList<Point>());
 			_canvas.setDrawMode(true);
 			b_set_points.setEnabled(false);
-			cb_polygon_algorithm_chooser.setEnabled(false);
+			cb_polygon_algorithm_chooser.setEnabled(true);
 			sl_edges.setEnabled(false);
 			l_edge_count.setEnabled(false);
-			b_generate_polygon.setEnabled(false);
+			b_generate_polygon.setEnabled(true);
 			pointList = null;
 		}
 	  });
@@ -363,18 +359,33 @@ public void setPoints(ArrayList<polygonsSWP.geometry.Point> pointList)
     			{
     				params.put("points",pointList);
     				Polygon p = pg.generate(params, null);
-        		    _canvas.setPolygon(p);
+        		_canvas.setPolygon(p);
     			}
     		}
     	}
-    	// TODO: refactor or move this validation to another place
+
     	if (params.get("points") == null)
     		JOptionPane.showMessageDialog (null, "The selected polygon generation algorithm do not support the \"Set Points\" option", "Error", JOptionPane.ERROR_MESSAGE);
     	
     }
     else if(rb_polygonByUser.isSelected())
     {
-    	// check if user has created a valid polygon
+      for (int i = 0; i < availableParams.length; i++) {
+        if(availableParams[i].equals("points"))
+        {
+          List<Point> points = _canvas.getPoints();
+          if(points.size() >= 3)
+          {
+            params.put("points", points);
+            Polygon p = pg.generate(params, null);
+            _canvas.setPolygon(p);
+          }
+        }
+      }
+      
+      if (params.get("points") == null)
+        JOptionPane.showMessageDialog (null, "The selected polygon generation algorithm do not support the \"Set Points\" option", "Error", JOptionPane.ERROR_MESSAGE);
+
     }
     else
     {
@@ -388,7 +399,7 @@ public void setPoints(ArrayList<polygonsSWP.geometry.Point> pointList)
 	  File f = new File(filePath);
 	  try {
 		  BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-		  List<Point> plist = _canvas.getPolygon();
+		  List<Point> plist = _canvas.getPolygon().getPoints();
 		  for (int i = 0; i < plist.size(); i++) {
 			  Point p = plist.get(i);
 			  bw.write(p.x + " " + p.y + "\n");
