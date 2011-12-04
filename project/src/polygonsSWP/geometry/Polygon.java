@@ -41,4 +41,5 @@ public abstract class Polygon
    * @return a random point in the polygon area (including on the edges).
    */
   public abstract Point createRandomPoint();
+  
 }

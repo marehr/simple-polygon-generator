@@ -179,7 +179,7 @@ public class OrderedListPolygon
       for (int j = i + 1; j < size; j++) {
         LineSegment b = new LineSegment(_coords.get(j), _coords.get((j + 1) % size));
 
-        if (a.isIntersecting(b, isect)) {
+        if (a.intersect(b, isect)) {
           
           boolean coincident;
           boolean ab = false;

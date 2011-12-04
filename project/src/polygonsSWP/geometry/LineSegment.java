@@ -2,14 +2,14 @@ package polygonsSWP.geometry;
 
 public class LineSegment
 {
-  public Point a;
-  public Point b;
-  public LineSegment(Point _a, Point _b) {
-    a = _a;
-    b = _b;
+  public Point _a;
+  public Point _b;
+  public LineSegment(Point a, Point b) {
+    _a = a;
+    _b = b;
     
     // TODO remove
-    assert(!a.equals(b));
+    assert(!_a.equals(_b));
   }
   
   /**
@@ -25,15 +25,28 @@ public class LineSegment
     
     LineSegment e = (LineSegment) obj;
     
-    return ((e.a == a) && (e.b == b)) || ((e.a == b) && (e.b == a));
+    return ((e._a == _a) && (e._b == _b)) || ((e._a == _b) && (e._b == _a));
+  }
+  
+
+  /**
+   * Test if Point is in this LineSegment.
+   * 
+   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   *
+   * @param p Point that may be on this LineSegment.
+   * @return true if p is in this LineSegment, else false.
+   */
+  public boolean containsPoint(Point p) {
+    return _a.distanceTo(p) + _b.distanceTo(p) == _a.distanceTo(_b);
   }
   
   /**
    * Convenience function. Will find shared endpoints, too.
    */
-  public boolean isIntersecting(LineSegment e, Point[] isect)
+  public Point[] intersect(LineSegment e)
   {
-    return isIntersecting(e, isect, false);
+    return intersect(e, false);
   }
   
   /**
@@ -44,37 +57,38 @@ public class LineSegment
    * 
    * Tests whether two line segments intersect or whether they are coincident.
    * 
+   * @author malte, jannis
+   * 
    * @param e another edge
    * @param isect array of Points of length >= 1. isect[0] is used as out parameter.
    *        If it is null, the line segments are coincident.
    * @param ignoreSharedEndpoints if set, shared endpoints will not be treated
    *                              as an intersection.
-   * @return true, if the line segments cross each other or are coincident
+   * @return null if line segments do not intersect, array of length 0 if
+   *         both are coincident, array containing intersection Point else.
+   *         TODO: change in using methods
    */
-  public boolean isIntersecting(LineSegment e, Point[] isect, boolean ignoreSharedEndpoints) {
-       
-    // TODO remove
-    assert(isect != null && isect.length >= 1);
+  public Point[] intersect(LineSegment e, boolean ignoreSharedEndpoints) {
     
     double mua, mub;
     long denom, numera, numerb;
 
-    denom  = (e.b.y - e.a.y) * (this.b.x - this.a.x) 
-        - (e.b.x - e.a.x) * (this.b.y - this.a.y);
-    numera = (e.b.x - e.a.x) * (this.a.y - e.a.y) 
-        - (e.b.y - e.a.y) * (this.a.x - e.a.x);
-    numerb = (this.b.x - this.a.x) * (this.a.y - e.a.y) 
-        - (this.b.y - this.a.y) * (this.a.x - e.a.x);
+    denom  = (e._b.y - e._a.y) * (this._b.x - this._a.x) 
+        - (e._b.x - e._a.x) * (this._b.y - this._a.y);
+    numera = (e._b.x - e._a.x) * (this._a.y - e._a.y) 
+        - (e._b.y - e._a.y) * (this._a.x - e._a.x);
+    numerb = (this._b.x - this._a.x) * (this._a.y - e._a.y) 
+        - (this._b.y - this._a.y) * (this._a.x - e._a.x);
 
     /* Are the lines coincident? */
     if(numera == 0 && numerb == 0 && denom == 0) {
-      isect[0] = null;
-      return true;
+      Point[] intersection = {};
+      return intersection;
     }
 
     /* Are the lines parallel? */
     if(denom == 0) {
-      return false;
+      return null;
     }
 
     /* Is the intersection along the segments? */
@@ -85,12 +99,24 @@ public class LineSegment
        (mua > 0 && mua < 1 && mub > 0 && mub < 1)) ||
        (!ignoreSharedEndpoints && 
        (mua >= 0 && mua <= 1 && mub >= 0 && mub <= 1))) {
-      long isx = Math.round(this.a.x + mua * (this.b.x - this.a.x));
-      long isy = Math.round(this.a.y + mua * (this.b.y - this.a.y));
-      isect[0] = new Point(isx, isy);
-      return true;
+      long isx = Math.round(this._a.x + mua * (this._b.x - this._a.x));
+      long isy = Math.round(this._a.y + mua * (this._b.y - this._a.y));
+      Point[] intersection = {new Point(isx, isy)};
+      return intersection;
     }
     
-    return false;
+    return null;
+  }
+  
+  public Ray extendToASide(){
+    return new Ray(_b, _a);
+  }
+  
+  public Ray extendToBSide(){
+    return new Ray(_a, _b);
+  }
+  
+  public Line extendToLine() {
+    return new Line(_a, _b);
   }
 }

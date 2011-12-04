@@ -29,19 +29,6 @@ public class Point
   }
 
   /**
-   * Test if point is between two other points.
-   * 
-   * @author Steve Dierker <dierker.steve@fu-berlin.de>
-   * @param begin
-   * @param end
-   * @param p
-   * @return
-   */
-  public boolean isBetween(Point begin, Point end) {
-    return this.distanceTo(begin) + this.distanceTo(end) == begin.distanceTo(end);
-  }
-
-  /**
    * Calculates distance between two points.
    * 
    * @author Steve Dierker <dierker.steve@fu-berlin.de>
