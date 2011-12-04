@@ -3,6 +3,8 @@ package polygonsSWP.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.FileDialog;
+import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,10 +13,16 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.generators.ConvexHullGenerator;
 import polygonsSWP.generators.IncrementalConstructionAndBacktracking;
@@ -59,7 +67,7 @@ public class MainFrame extends JFrame {
 	    new ConvexHullGenerator()
 	  }; 
 	
-	private JButton b_set_points,b_generate_polygon,b_calc_shortest_path;
+	private JButton b_set_points,b_generate_polygon,b_calc_shortest_path,b_save_polygon;
 	private JSlider sl_edges;
 	
 	private ButtonGroup bg_shortest_path, polygon_menu;
@@ -67,12 +75,12 @@ public class MainFrame extends JFrame {
 	
 	//panels
 	private JPanel p_polygon_generation,p_shortest_path,p_menu,p_polygon_settings,
-	p_button_group,p_polygon_menu,p_wrapper;
+	p_button_group,p_polygon_menu,p_wrapper,p_generate_save_polygon;
 	
 	// class variables
 	
   public static void main(String[] args) {
-    JFrame frame = new MainFrame();    
+    JFrame frame = new MainFrame();
     frame.setTitle("PolygonGen");
     frame.setSize(1000, 650);
     frame.setBackground(Color.white);
@@ -109,6 +117,7 @@ public class MainFrame extends JFrame {
 	  b_set_points = new JButton("Set Polygon Points");
 	  b_set_points.setEnabled(false);
 	  b_generate_polygon = new JButton("Generate Polygon");
+	  b_save_polygon = new JButton("Save Polygon");
 	  
 	  //init RadioButtons and Groups
 	  polygon_menu = new ButtonGroup();
@@ -151,7 +160,11 @@ public class MainFrame extends JFrame {
 	  p_wrapper.add(p_polygon_menu);
 	  p_wrapper.add(p_polygon_settings);
 	  p_polygon_generation.add(p_wrapper, BorderLayout.CENTER);
-	  p_polygon_generation.add(b_generate_polygon, BorderLayout.SOUTH);
+	  p_generate_save_polygon = new JPanel();
+	  p_generate_save_polygon.setLayout(new GridLayout(1,2));
+	  p_generate_save_polygon.add(b_generate_polygon);
+	  p_generate_save_polygon.add(b_save_polygon);
+	  p_polygon_generation.add(p_generate_save_polygon, BorderLayout.SOUTH);
 	  
 	  p_shortest_path = new JPanel();
 	  p_shortest_path.setLayout(new BorderLayout(5,5));
@@ -239,6 +252,20 @@ public class MainFrame extends JFrame {
 		}
 	  });
 	  
+	  b_save_polygon.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent arg0) {
+			if(_canvas.getPolygon() != null)
+			{
+				FileDialog fd = new FileDialog(new Frame(),"Save Polygon To",FileDialog.SAVE);
+				fd.setVisible(true);
+				if(fd.getDirectory() != null)
+					savePolygonToFile(fd.getDirectory() + File.separator + fd.getFile());
+			}else{
+				JOptionPane.showMessageDialog (null, "There is no polygon to save", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	  });
+	  
 	  // RadioButtons
 	  
 	  rb_polygonByGenerator.addMouseListener(new MouseListener() {
@@ -247,6 +274,7 @@ public class MainFrame extends JFrame {
 		public void mouseExited(MouseEvent arg0) {}
 		public void mouseEntered(MouseEvent arg0) {}
 		public void mouseClicked(MouseEvent arg0) {
+			_canvas.setDrawMode(false);
 			generationMethod = "generate";
 			b_set_points.setEnabled(false);
 			sl_edges.setEnabled(true);
@@ -264,6 +292,7 @@ public class MainFrame extends JFrame {
 		public void mouseEntered(MouseEvent arg0) {}
 		public void mouseClicked(MouseEvent arg0) {
 			generationMethod = "points";
+			_canvas.setDrawMode(false);
 			b_set_points.setEnabled(true);
 			sl_edges.setEnabled(false);
 			l_edge_count.setEnabled(false);
@@ -279,6 +308,7 @@ public class MainFrame extends JFrame {
 		public void mouseEntered(MouseEvent arg0) {}
 		public void mouseClicked(MouseEvent arg0) {
 			generationMethod = "draw";
+			_canvas.setDrawMode(true);
 			b_set_points.setEnabled(false);
 			cb_polygon_algorithm_chooser.setEnabled(false);
 			sl_edges.setEnabled(false);
@@ -351,6 +381,20 @@ public void setPoints(ArrayList<polygonsSWP.geometry.Point> pointList)
     	JOptionPane.showMessageDialog (null, "A strange error occured :(", "Error", JOptionPane.ERROR_MESSAGE);
     }
 
+  }
+  
+  private void savePolygonToFile(String filePath)
+  {
+	  File f = new File(filePath);
+	  try {
+		  BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+		  List<Point> plist = _canvas.getPolygon();
+		  for (int i = 0; i < plist.size(); i++) {
+			  Point p = plist.get(i);
+			  bw.write(p.x + " " + p.y + "\n");
+		  }
+		  bw.close();
+	  } catch (Exception e) {e.printStackTrace();}
   }
   
   private void setPanelComponentsActive(JPanel panel,boolean state)

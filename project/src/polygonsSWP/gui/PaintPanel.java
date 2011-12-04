@@ -3,6 +3,8 @@ package polygonsSWP.gui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,12 +24,45 @@ class PaintPanel extends JPanel{
 	private ArrayList<Point> pointList = new ArrayList<Point>();
 	private String generator;
 	private final int size;
-  private Polygon polygon = null;
+	private Polygon polygon = null;
+	private boolean drawMode = false;
     
     public PaintPanel(int size) {
         this.size = size;
         setSize(new Dimension(this.size, this.size));
         setBackground(Color.white);
+        addMouseListener(new MouseListener() {
+			public void mouseReleased(MouseEvent arg0) {
+				if(drawMode)
+				{
+					
+				}
+			}
+			public void mousePressed(MouseEvent arg0) {
+				if(drawMode)
+				{
+					
+				}
+			}
+			public void mouseExited(MouseEvent arg0) {
+				if(drawMode)
+				{
+					
+				}
+			}
+			public void mouseEntered(MouseEvent arg0) {
+				if(drawMode)
+				{
+					
+				}
+			}
+			public void mouseClicked(MouseEvent arg0) {
+				if(drawMode)
+				{
+					
+				}
+			}
+		});
     }
     
   public void paintComponent(Graphics g) {
@@ -49,6 +84,16 @@ class PaintPanel extends JPanel{
     
     public void setN(int n){this.n = n;}
     public void setGenerator(String gen){this.generator = gen;}
+    
+  public List<Point> getPolygon()
+  {
+	  if(polygon != null)
+		  return polygon.getPoints();
+	  else
+		  return null;
+  }
+  
+  public void setDrawMode(boolean flag){this.drawMode = flag;}
 
   public void setPoints(ArrayList<polygonsSWP.geometry.Point> pl) {
     this.pointList = pl;
@@ -57,4 +102,5 @@ class PaintPanel extends JPanel{
   public void setPolygon(Polygon p) {
     this.polygon = p;
   }
+
 }

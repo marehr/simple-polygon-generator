@@ -20,7 +20,6 @@ public class PolygonPointFrame extends JFrame{
 	private JButton button;
 	private int x,y;
 	private MainFrame main;
-	private JOptionPane notification;
 	
 	public PolygonPointFrame(MainFrame frame)
 	{
