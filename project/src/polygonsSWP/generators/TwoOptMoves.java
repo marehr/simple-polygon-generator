@@ -22,7 +22,7 @@ public class TwoOptMoves implements PolygonGenerator
   public Polygon generate(Map<String, Object> params, PolygonHistory steps) {
     
     // Step 1: Generate n points in the plane or use the given set of points.
-    OrderedListPolygon p = new OrderedListPolygon(GeneratorUtils.createOrUsePoints(params));
+    OrderedListPolygon p = new OrderedListPolygon(GeneratorUtils.createOrUsePoints(params, true));
     
     // Step 2: Generate random permutation in case given set was ordered somehow.
     p.permute();

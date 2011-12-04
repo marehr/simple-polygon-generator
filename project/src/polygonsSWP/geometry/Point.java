@@ -56,7 +56,16 @@ public class Point
   }
 
   /**
+   * Compares a point to another one first by x- then by
+   * y-values.
    * 
+   * @param obj other point
+   * @return -1 if point is more to the left than the other point
+   *         or if they have the same x-values and the other point
+   *         is more to the bottom (has greater y-value).
+   *         0 if the points are equal.
+   *         1 if point is more to the right or if they have the same
+   *         x-values and point is more to the bottom.
    */
   @Override
   public int compareTo(Point obj) {

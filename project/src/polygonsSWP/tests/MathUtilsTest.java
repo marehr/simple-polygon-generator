@@ -43,6 +43,10 @@ public class MathUtilsTest
     // Point is on the right side
     toCheck.y = -1;
     assertEquals(MathUtils.checkOrientation(begin, end, toCheck), -1);
+    
+    // Point is on the line
+    toCheck = new Point(15, 0);
+    assertEquals(MathUtils.checkOrientation(begin, end, toCheck), 0);
   }
 
   /**

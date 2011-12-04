@@ -54,7 +54,9 @@ public class PolygonPointFrame extends JFrame{
 					String line = null;
 					while((line = br.readLine()) != null)
 					{			
-						x = Integer.valueOf(line.split(" ")[0]);
+						if(line.equals(""))
+						  continue;
+					  x = Integer.valueOf(line.split(" ")[0]);
 						y = Integer.valueOf(line.split(" ")[1]);
 						addLine(x + " " + y);
 					}
