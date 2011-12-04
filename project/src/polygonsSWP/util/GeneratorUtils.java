@@ -13,18 +13,85 @@ import polygonsSWP.geometry.Polygon;
 
 public class GeneratorUtils
 {
+  /**
+   * Tests whether a given set of points is in general position, which
+   * means that no points are coincident, no 3 points are colinear and
+   * no 4 points lie on a circle.
+   * 
+   * @param pointSet the set of points
+   * @return true, if in general position, false otherwise.
+   */
+  public static boolean isInGeneralPosition(List<Point> pointSet) {
+    // TODO optimize
+    
+    // First condition: No points are coincident.
+    for(int i = 0; i < pointSet.size(); i++) {
+      for(int j = 0; j < pointSet.size(); j++) {
+        if((i != j) && pointSet.get(i).equals(pointSet.get(j)))
+          return false;
+      }
+    }
+    
+    // Second condition: No 3 points are colinear.
+    for(int i = 0; i < pointSet.size() - 2; i++) {
+      for(int j = i + 1; j < pointSet.size() - 1; j++) {
+        for(int k = j + 1; k < pointSet.size(); k++) {
+          if(MathUtils.checkOrientation(pointSet.get(i), 
+              pointSet.get(j), pointSet.get(k)) == 0)
+            return false;
+        }
+      }
+    }
+    
+    // Third condition: No 4 points lie on a circle.
+    // TODO implement
+    
+    return true;
+  }
+  
+  /**
+   * Convenience method for Generators able to use random
+   * or pre-defined points.
+   * 
+   * @param params params as handled over to the Generator
+   * @param ensureGeneralPosition
+   *        if set, this methods makes sure that the returned set
+   *        of points is in general position. If it was a user-supplied
+   *        set of points, an exception is thrown.
+   * @return either the given set of points or a randomly
+   *         created set if size n.
+   */
   @SuppressWarnings("unchecked")
-  public static List<Point> createOrUsePoints(Map<String, Object> params) {
+  public static List<Point> createOrUsePoints(Map<String, Object> params, boolean ensureGeneralPosition) {
     Integer n = (Integer) params.get("n");
     Integer size = (Integer) params.get("size");
-    List<?> s = (List<?>) params.get("points");
+    List<Point> s = (List<Point>) params.get("points");
 
     // TODO remove
     assert (s != null || (n != null && size != null));
 
-    if (s == null) s = MathUtils.createRandomSetOfPointsInSquare(n, size);
+    if (s == null) {
+      
+      do {
+        s = MathUtils.createRandomSetOfPointsInSquare(n, size);
+      } while(ensureGeneralPosition && !isInGeneralPosition(s));
+      
+    } else {
+      
+      if(ensureGeneralPosition && !isInGeneralPosition(s))
+        // TODO throw sth proper
+        throw new RuntimeException("user-defined set of points not in GP.");
+      
+    }
 
-    return (List<Point>) s;
+    return  s;
+  }
+  
+  /**
+   * Compatibility method for above.
+   */
+  public static List<Point> createOrUsePoints(Map<String, Object> params) {
+    return createOrUsePoints(params, false);    
   }
 
   /**
