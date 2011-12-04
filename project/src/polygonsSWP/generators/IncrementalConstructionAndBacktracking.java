@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Random;
 
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.generators.PolygonGenerator.Parameters;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
@@ -15,9 +16,14 @@ import polygonsSWP.util.GeneratorUtils;
 public class IncrementalConstructionAndBacktracking implements PolygonGenerator
 {
 
+	private Parameters[][] params = new Parameters[][]
+			{
+				new Parameters[] {Parameters.n, Parameters.size, Parameters.points}
+			};
+	
   @Override
-  public String[] getAcceptedParameters() {
-    return new String[] {"n", "points", "size"};
+  public Parameters[][] getAcceptedParameters() {
+    return params;
   }
   
   @Override
@@ -26,7 +32,7 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
   }
 
   @Override
-  public Polygon generate(Map<String, Object> params, PolygonHistory steps) {
+  public Polygon generate(Map<Parameters, Object> params, PolygonHistory steps) {
     List<Point> points = GeneratorUtils.createOrUsePoints(params);
     
     // Precalculate the convex hull of points

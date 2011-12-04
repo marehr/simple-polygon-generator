@@ -62,10 +62,10 @@ public class GeneratorUtils
    *         created set if size n.
    */
   @SuppressWarnings("unchecked")
-  public static List<Point> createOrUsePoints(Map<String, Object> params, boolean ensureGeneralPosition) {
-    Integer n = (Integer) params.get("n");
-    Integer size = (Integer) params.get("size");
-    List<Point> s = (List<Point>) params.get("points");
+  public static List<Point> createOrUsePoints(Map<Parameters, Object> params, boolean ensureGeneralPosition) {
+    Integer n = (Integer) params.get(Parameters.n);
+    Integer size = (Integer) params.get(Parameters.size);
+    List<Point> s = (List<Point>) params.get(Parameters.points);
 
     // TODO remove
     assert (s != null || (n != null && size != null));

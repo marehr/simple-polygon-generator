@@ -15,7 +15,7 @@ public interface PolygonGenerator
    * 
    * @return list of parameters the generator accepts.
    */
-  public String[] getAcceptedParameters();
+  public Parameters[][] getAcceptedParameters();
 
   /**
    * Generates a simply polygon.
@@ -31,5 +31,9 @@ public interface PolygonGenerator
    *          null, in which case the algorithm obviously should not use it.
    * @return a Polygon
    */
-  public Polygon generate(Map<String, Object> params, PolygonHistory steps);
+  public Polygon generate(Map<Parameters, Object> params, PolygonHistory steps);
+  
+  public enum Parameters{
+	  n, points, runs, size, radius, velocity
+  }
 }

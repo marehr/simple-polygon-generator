@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Random;
 
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.generators.PolygonGenerator.Parameters;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -16,13 +17,18 @@ public class RandomPolygonAlgorithm
   implements PolygonGenerator
 {
 
+	private Parameters[][] params = new Parameters[][]
+			{
+				new Parameters[] {Parameters.n, Parameters.size},
+			};
+	
   @Override
-  public String[] getAcceptedParameters() {
-    return new String[] { "n", "size" };
+  public Parameters[][] getAcceptedParameters() {
+    return params;
   }
 
   @Override
-  public Polygon generate(Map<String, Object> params, PolygonHistory steps) {
+  public Polygon generate(Map<Parameters, Object> params, PolygonHistory steps) {
     
     Random random = new Random(System.currentTimeMillis());
 
