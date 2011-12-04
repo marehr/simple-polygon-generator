@@ -3,7 +3,6 @@ package polygonsSWP.generators;
 import java.util.Map;
 
 import polygonsSWP.data.PolygonHistory;
-import polygonsSWP.generators.PolygonGenerator.Parameters;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.util.GeneratorUtils;

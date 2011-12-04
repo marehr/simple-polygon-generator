@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Random;
 
 import polygonsSWP.data.PolygonHistory;
-import polygonsSWP.generators.PolygonGenerator.Parameters;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -35,12 +34,12 @@ public class RandomPolygonAlgorithm
     // 1. generate 3 rand points -> polygon P
     OrderedListPolygon polygon =
         new OrderedListPolygon(MathUtils.createRandomSetOfPointsInSquare(3,
-            (Integer) params.get("size")));
+            (Integer) params.get(Parameters.size)));
     
     List<Point> polygonPoints = polygon.getPoints();
     
     // 2. n-3 times:
-    for (int i = 0; i < (Integer) params.get("n") - 3;) {
+    for (int i = 0; i < (Integer) params.get(Parameters.n) - 3;) {
       // 2.a select random line segment VaVb
       // (assumed that there will be less than 2^31-1 points)
       int randomIndex = random.nextInt(polygonPoints.size());

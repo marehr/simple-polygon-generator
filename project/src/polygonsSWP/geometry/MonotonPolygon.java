@@ -31,7 +31,6 @@ public class MonotonPolygon
     this(new ArrayList<LineSegment>());
   }
 
-  @SuppressWarnings("unchecked")
   public List<Point> getSortedPoints() {
     List<Point> pointList = new ArrayList<Point>();
     for (LineSegment item : _edges) {

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import polygonsSWP.generators.PolygonGenerator.Parameters;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -93,7 +94,7 @@ public class GeneratorUtils
   /**
    * Compatibility method for above.
    */
-  public static List<Point> createOrUsePoints(Map<String, Object> params) {
+  public static List<Point> createOrUsePoints(Map<Parameters, Object> params) {
     return createOrUsePoints(params, false);    
   }
 

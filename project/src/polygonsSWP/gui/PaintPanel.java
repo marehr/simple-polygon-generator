@@ -85,11 +85,13 @@ public class PaintPanel
     }
     
     // Paint the points
-    if(points != null) {
+    if(drawMode) {
+      assert(points != null);
+      
       g.setColor(Color.GREEN);
       for(Point p : points) {
-        g.drawOval((int) (p.x * zoom + offsetX),
-            (int) (p.y * zoom + offsetY), 3, 3);
+        g.drawOval((int) (p.x * zoom + offsetX) - 1,
+            (int) (p.y * zoom + offsetY) - 1, 3, 3);
       }
     }
   }
