@@ -176,15 +176,15 @@ public class OrderedListPolygon
         LineSegment b =
             new LineSegment(_coords.get(j), _coords.get((j + 1) % size));
         
-        Point[] inter = a.intersect(b);
-        if (inter != null) {
+        isect = a.intersect(b);
+        if (isect != null) {
 
           boolean coincident;
           boolean ab = false;
           boolean ba = false;
 
           // Check for coincidence (--> intersection)
-          if (!(coincident = (inter.length == 0))) {
+          if (!(coincident = (isect.length == 0))) {
 
             // Check whether the intersection is a shared endpoint (--> no
             // intersection)
