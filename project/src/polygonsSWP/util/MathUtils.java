@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import polygonsSWP.geometry.Line;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 
@@ -98,7 +99,8 @@ public class MathUtils
       if (!((last.equals(begin) || item.equals(begin)) || (last.equals(end) || item.equals(end)))) {
         Point tmp = getIntersectionLineLine(begin, end, last, item);
         if (tmp != null) {
-          if (checkIfPointOnLineSegment(last, item, tmp)) {
+          Line l = new Line(last, item);
+          if (l.containsPoint(tmp)) {
 
             if (!intPoints.contains(tmp)) {
               Point[] t = { tmp, last, item };

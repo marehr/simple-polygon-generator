@@ -20,7 +20,7 @@ public class PermuteAndReject
   public Polygon generate(Map<String, Object> params, PolygonHistory steps) {
 
     // Step 1: Generate n points in the plane or use the given set of points
-    OrderedListPolygon p = new OrderedListPolygon(GeneratorUtils.createOrUsePoints(params));
+    OrderedListPolygon p = new OrderedListPolygon(GeneratorUtils.createOrUsePoints(params, true));
 
     while(true) {
       // Step 2: Permute those n points to construct a Polygon

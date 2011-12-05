@@ -1,7 +1,6 @@
 package polygonsSWP.generators;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -46,32 +45,15 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
     for(int i = 0; i < points.size(); i++)
       idx.add(new Integer(i));
     
-    // Remember which points we've already used
-    List<Integer> used = new ArrayList<Integer>();
-    do {
-    
-      // Choose initial point and remember choice
-      int i = 0;
-      do {
-        i = r.nextInt(idx.size());
-      } while(used.contains(idx.get(i)));
-        
-      Integer fp = idx.remove(i);
-      used.add(fp);
+    // Choose random starting point.
+    Integer fp = idx.remove(r.nextInt(idx.size()));
       
-      // Recursively create polygon
-      List<Integer> pp = new ArrayList<Integer>();
-      pp.add(fp);
-      polygon = recursivelyAddPoint(ue, pp, idx, ch, points);
-      
-      // If no success -> add back fp
-      if(polygon == null)
-        idx.add(fp);
-      
-      // TODO remove
-      assert(used.size() < idx.size());
-    
-    } while(polygon == null);
+    // Recursively create polygon
+    List<Integer> pp = new ArrayList<Integer>();
+    pp.add(fp);
+    polygon = recursivelyAddPoint(ue, pp, idx, ch, points);
+
+    assert(polygon != null);
     
     // Create polygon from index list.
     OrderedListPolygon olp = new OrderedListPolygon();
@@ -81,11 +63,12 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
     return olp;
   }
   
-  private List<Integer> recursivelyAddPoint(EdgeSet unusable, 
+  protected List<Integer> recursivelyAddPoint(EdgeSet unusable, 
       List<Integer> chain, 
       List<Integer> remaining,
       final OrderedListPolygon convexHull,
       final List<Point> points) {
+    assert(remaining.size() > 0);
     
     Random r = new Random(System.currentTimeMillis());
     
@@ -93,14 +76,36 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
     List<Integer> used = new ArrayList<Integer>();
     
     List<Integer> polygon = null;
-    while(polygon == null && used.size() < remaining.size() ) {
+    
+    addPointLoop:
+    while(polygon == null && used.size() < remaining.size()) {
+      
+      // Last point
+      Integer lp = chain.get(chain.size() - 1);
       
       // Grab next unused index
       int idx = -1;
       do {
         idx = r.nextInt(remaining.size());
-      } while(used.contains(remaining.get(idx)));
-      used.add(remaining.get(idx));
+        
+        if(used.contains(remaining.get(idx))) {
+          idx = -1;
+        } else {
+          // Remember that we already tried idx.
+          used.add(remaining.get(idx));
+          
+          if(unusable.isMarked(lp, remaining.get(idx))) {
+            idx = -1;
+          }
+        }
+      } while((idx == -1) && (used.size() < remaining.size()));
+      
+      // We couldn't find an usable index.
+      if(idx == -1)
+        break addPointLoop;     
+      
+      // **********************************
+      // Ok, this iteration: Use point idx.
       
       // Clone everything for a fresh start
       EdgeSet ue = unusable.clone();
@@ -109,9 +114,6 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       
       // Remove point from remaining points
       Integer np = rem.remove(idx);
-
-      // Last point
-      Integer lp = pp.get(pp.size() - 1);
       
       // Add point to polygon chain
       pp.add(np);
@@ -121,39 +123,49 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       
       // Mark all incident unmarked edges, if there are 
       // two neighbors with only 2 unmarked edges.
-      ue.markRule2(np);
-      
-      // Is backtracking necessary?
-      boolean do_backtracking = false;
-      
-      // First condition:
-      // Each point that does not yet belong to the polygo-
-      // nal chain under construction has at least two inci-
-      // dent unmarked edges. 
-      do_backtracking = !ue.condition1(rem);
-      
-      // Second condition:
-      // At most one point adjacent to the point last added
-      // has only two incident unmarked edges.
-      do_backtracking = do_backtracking || !ue.condition2(np);
-      
-      // Third condition:
-      // Points that lie on the boundary of CH(S) appear
-      // in the polygonal chain in the same relative order
-      // as on the hull.    
-      do_backtracking = do_backtracking || !condition3(pp, convexHull, points);
-      
-      // TODO Fourth condition: connect last point to first point?
-      
-      // Now, if all conditions are satisfied, try to add another point.
-      if(!do_backtracking)
-        polygon = recursivelyAddPoint(ue, pp, rem, convexHull, points);
+      ue.markRule2(np, rem);
+           
+      // If last point, check that it connects to 1st point without intersections.
+      if(rem.size() == 0) {
+        Integer fp = pp.get(0);
+        
+        // Recursion ends here.
+        if(!ue.isMarked(np, fp))
+          polygon = pp;
+        
+      } else {
+        // Make sure our conditions hold.
+        
+        boolean do_backtracking = false;
+        
+        // First condition:
+        // Each point that does not yet belong to the polygo-
+        // nal chain under construction has at least two inci-
+        // dent unmarked edges. 
+        do_backtracking = !ue.condition1(rem);
+        
+        // Second condition:
+        // At most one point adjacent to the point last added
+        // has only two incident unmarked edges.
+        do_backtracking = do_backtracking || !ue.condition2(np);
+        
+        // Third condition:
+        // Points that lie on the boundary of CH(S) appear
+        // in the polygonal chain in the same relative order
+        // as on the hull.    
+        do_backtracking = do_backtracking || !condition3(pp, convexHull, points);
+        
+        // Now, if all conditions are satisfied, try to add another point.
+        if(!do_backtracking)
+          polygon = recursivelyAddPoint(ue, pp, rem, convexHull, points);
+      }    
+
     }
     
     return polygon;    
   }
   
-  private boolean condition3(List<Integer> polygon, 
+  protected boolean condition3(List<Integer> polygon, 
                              OrderedListPolygon convexHull, 
                              List<Point> points) {
     // Points that lie on the boundary of CH(S) appear
@@ -165,7 +177,7 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
     return oranother;
   }
   
-  private boolean testOrderOnHull(List<Integer> polygon, 
+  protected boolean testOrderOnHull(List<Integer> polygon, 
                              OrderedListPolygon convexHull, 
                              List<Point> points) {
     int lastchidx = 0;
@@ -199,7 +211,7 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
     return true;
   }
   
-  private static class EdgeSet {
+  protected static class EdgeSet {
     boolean s[][];
     List<Point> v;
     
@@ -208,11 +220,11 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       s = new boolean[v.size()][v.size()];
     }
     
-    private EdgeSet(List<Point> vertices, boolean[][] set) {
+    protected EdgeSet(List<Point> vertices, boolean[][] set) {
       v = vertices;
       s = new boolean[v.size()][v.size()];
-      for(int i = 0; i < v.size(); i++) {
-        for(int j = i + 1; j < v.size() - 1; j++) {
+      for(int i = 0; i < v.size() - 1; i++) {
+        for(int j = i + 1; j < v.size(); j++) {
           s[i][j] = set[i][j];
         }
       }
@@ -231,78 +243,96 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
                   
           LineSegment ls2 = new LineSegment(v.get(m), v.get(n));
           
-          if(ls.isIntersectingLineSegment(ls2, isect, true)) {
+          if(ls.intersect(ls2, true) != null) {
             markEdge(m, n);
           }
         }
       }
     }
     
-    void markRule2(int i) {
-      // TODO Auto-generated method stub
+    void markRule2(int i, List<Integer> points) {
+      // Furthermore, if a point is adjacent
+      // to two other points that both have only two incident
+      // unmarked edges, we mark all the other edges incident
+      // upon that point.
+
+                 
+      int[] n = new int[2];
+      int count = 0;
+
+      // Iterate through all neighbors j of point i  
+      for(Integer j : points) {
+        if(i != j && !isMarked(i, j)) {
+          
+          // Has only two incident unmarked edges?
+          if(degree(j) == 2) {
+            count++;
+                  
+            // TODO Fail here.
+            assert(count < 3);
+            n[count - 1] = j;
+          }
+        }
+      }
+        
+      // Mark all edges apart from those leading to n[0] & n[1].
+      if(count == 2) {
+        for(int j = 0; j < v.size(); j++) {
+          if(j != i && j != n[0] && j != n[1])
+            markEdge(i, j);
+        }
+      }
     }
     
-    boolean condition1(List<Integer> rem) {
+    protected boolean condition1(List<Integer> rem) {
       // Each point that does not yet belong to the polygo-
       // nal chain under construction has at least two inci-
       // dent unmarked edges.     
       for(Integer point : rem) {
-        
-        int count = 0;
-        for(int i = 0; i < v.size(); i++) {
-          if(i != point && !isMarked(point, i))
-            count++;
-        }
-        
-        if(count < 2)
+        if(degree(point) < 2)
           return false;
       }
       
       return true;
     }
-    boolean condition2(int np) {
+    protected boolean condition2(int np) {
       // At most one point adjacent to the point last added
-      // has only two incident unmarked edges.
-      boolean found_one = false;
-      
+      // has only two incident unmarked edges.      
       // Iterate through all points adjacent to np.
+      
+      int count = 0;
       for(int i = 0; i < v.size(); i++) {
         if(i != np && !isMarked(i, np)) {
-            
-          // Count incident unmarked edges of point i
-          int count = 0;
-          for(int j = 0; j < v.size(); j++) {
-            if(i != j) {
-              if(!isMarked(i, j)) {
-                count++;
-                
-                // Small optimization: 3 is enough.
-                if(count > 2)
-                  break;
-              }
-            }
-          }
-          
+                     
           // If only two unmarked edges
-          if(count <= 2) {
-            if(!found_one)
-              found_one = true;
-            else
-              return false;
-          }
+          if(degree(i) <= 2)
+            count++;
         }
       }
       
-      return true;
+      return count <= 1;
     }
     
-    private boolean isMarked(int i, int j) {
-      assert(i != j); // TODO remove
+    protected boolean isMarked(int i, int j) {
+      assert(i != j);
       return (i < j) ? s[i][j] : s[j][i];
     }
     
-    private void markEdge(int i, int j) {
-      assert(i != j); // TODO remove
+    /**
+     * @param i index of point
+     * @return number of unmarked edges
+     */
+    protected int degree(int i) {
+      int count = 0;
+      for(int j = 0; j < v.size(); j++) {
+        if(i != j && !isMarked(i, j))
+          count++;
+      }
+      return count;
+    }
+    
+    protected void markEdge(int i, int j) {
+      assert(i != j);
       if(i < j)
         s[i][j] = true;
       else

@@ -11,18 +11,17 @@ public class LineSegment
     // TODO remove
     assert(!_a.equals(_b));
   }
-  
+
   /**
    * Equality check.
    * 
    * @return true, if the edges are the same, regardless of their direction
-   *         false, otherwise
+   *         false, otherwise false if edge only consists of one point but twice
+   *         in edge
    */
   @Override
   public boolean equals(Object obj) {
-    if(!(obj instanceof LineSegment))
-      return false;
-    
+    if (!(obj instanceof LineSegment)) return false;
     LineSegment e = (LineSegment) obj;
     
     return ((e._a == _a) && (e._b == _b)) || ((e._a == _b) && (e._b == _a));
@@ -40,28 +39,28 @@ public class LineSegment
   public boolean containsPoint(Point p) {
     return _a.distanceTo(p) + _b.distanceTo(p) == _a.distanceTo(_b);
   }
-  
+
   /**
    * Convenience function. Will find shared endpoints, too.
    */
+
   public Point[] intersect(LineSegment e)
   {
     return intersect(e, false);
   }
-  
+
   /**
-   * Stolen from:
-   * http://paulbourke.net/geometry/lineline2d/
-   * Good explanation is also here:
-   * http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
-   * 
-   * Tests whether two line segments intersect or whether they are coincident.
+   * Stolen from: http://paulbourke.net/geometry/lineline2d/ Good explanation is
+   * also here:
+   * http://stackoverflow.com/questions/563198/how-do-you-detect-where
+   * -two-line-segments-intersect Tests whether two line segments intersect or
+   * whether they are coincident.
    * 
    * @author malte, jannis
    * 
    * @param e another edge
-   * @param isect array of Points of length >= 1. isect[0] is used as out parameter.
-   *        If it is null, the line segments are coincident.
+   * @param isect array of Points of length >= 1. isect[0] is used as out
+   *          parameter. If it is null, the line segments are coincident.
    * @param ignoreSharedEndpoints if set, shared endpoints will not be treated
    *                              as an intersection.
    * @return null if line segments do not intersect, array of length 0 if

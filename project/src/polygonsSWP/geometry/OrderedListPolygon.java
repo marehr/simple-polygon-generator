@@ -41,15 +41,15 @@ public class OrderedListPolygon
   public List<Point> getPoints() {
     return _coords;
   }
-  
+
   /**
    * Gives Point at Position "pos"
+   * 
    * @param pos
    * @return
    */
-  public Point getPoint(int pos)
-  {
-	  return _coords.get(pos);
+  public Point getPoint(int pos) {
+    return _coords.get(pos);
   }
 
   /**
@@ -88,9 +88,9 @@ public class OrderedListPolygon
   }
 
   /**
-   * Creates a new polygon of the same set of points by creating
-   * a random permutation of the points and linking them in order.
-   * The resulting polygon is very likely to be complex.
+   * Creates a new polygon of the same set of points by creating a random
+   * permutation of the points and linking them in order. The resulting polygon
+   * is very likely to be complex.
    */
   public void permute() {
     Collections.shuffle(_coords);
@@ -111,43 +111,39 @@ public class OrderedListPolygon
   public boolean isSimple() {
     return findIntersections().size() == 0;
   }
-  
+
   /**
    * Determines whether this polygon is in clockwise orientation.
    * 
-   * @return -1 if counterclockwise, 1 if clockwise, or 0 if this is not decidable
+   * @return -1 if counterclockwise, 1 if clockwise, or 0 if this is not
+   *         decidable
    */
   public int isClockwise() {
     int n = size();
     int i, j, k;
     int count = 0;
     double z;
-       
-    if (n < 3)
-      return 0;
+
+    if (n < 3) return 0;
 
     for (i = 0; i < n; i++) {
       j = (i + 1) % n;
       k = (i + 2) % n;
-      z = (_coords.get(i).x - _coords.get(i).x) 
-          * (_coords.get(k).y - _coords.get(j).y);
-      z -= (_coords.get(j).y - _coords.get(i).y) 
-          * (_coords.get(k).x - _coords.get(j).x);
-      if (z < 0) 
-        count--;
-      else if (z > 0) 
-        count++;
+      z =
+          (_coords.get(i).x - _coords.get(i).x) *
+              (_coords.get(k).y - _coords.get(j).y);
+      z -=
+          (_coords.get(j).y - _coords.get(i).y) *
+              (_coords.get(k).x - _coords.get(j).x);
+      if (z < 0) count--;
+      else if (z > 0) count++;
     }
-    
-    if (count > 0) 
-      return -1;
-    else if (count < 0) 
-      return 1;
-    else 
-      return 0;
+
+    if (count > 0) return -1;
+    else if (count < 0) return 1;
+    else return 0;
   }
-  
-  
+
   /**
    * Calculates the set of all intersections found in the polygon.
    * 
@@ -174,30 +170,34 @@ public class OrderedListPolygon
     Point[] isect = new Point[1];
     for (int i = 0; i < size - 1; i++) {
       LineSegment a = new LineSegment(_coords.get(i), _coords.get(i + 1));
-           
+
       // Then test the remaining line segments for intersections
       for (int j = i + 1; j < size; j++) {
-        LineSegment b = new LineSegment(_coords.get(j), _coords.get((j + 1) % size));
+        LineSegment b =
+            new LineSegment(_coords.get(j), _coords.get((j + 1) % size));
+        
+        Point[] inter = a.intersect(b);
+        if (inter != null) {
 
-        if (a.intersect(b, isect)) {
-          
           boolean coincident;
           boolean ab = false;
           boolean ba = false;
-          
+
           // Check for coincidence (--> intersection)
-          if(!(coincident = (isect[0] == null))) {
-            
-            // Check whether the intersection is a shared endpoint (--> no intersection)
-            ab = isect[0].equals(_coords.get(i)) 
-                && _coords.get(i).equals(_coords.get((j + 1)% size));
-            ba = isect[0].equals(_coords.get(j))
-                && _coords.get(j).equals(_coords.get(i + 1));
-            
+          if (!(coincident = (inter.length == 0))) {
+
+            // Check whether the intersection is a shared endpoint (--> no
+            // intersection)
+            ab =
+                isect[0].equals(_coords.get(i)) &&
+                    _coords.get(i).equals(_coords.get((j + 1) % size));
+            ba =
+                isect[0].equals(_coords.get(j)) &&
+                    _coords.get(j).equals(_coords.get(i + 1));
+
           }
-          
-          if(coincident || !(ab || ba))
-            retval.add(new Integer[] {i, j});
+
+          if (coincident || !(ab || ba)) retval.add(new Integer[] { i, j });
         }
       }
     }
@@ -330,10 +330,10 @@ public class OrderedListPolygon
    * @param poly Polygon to triangulate
    * @return List of triangulars
    */
-  public List<OrderedListPolygon> triangulate() {
+  public List<Triangle> triangulate() {
     OrderedListPolygon triPo = (OrderedListPolygon) this.clone();
     System.out.println("Polygon: " + triPo.getPoints());
-    List<OrderedListPolygon> triangles = new ArrayList<OrderedListPolygon>();
+    List<Triangle> triangles = new ArrayList<Triangle>();
     int i = 0, orientation = -1;
     boolean isConvex;
     while (triPo.size() != 3) {
@@ -356,7 +356,7 @@ public class OrderedListPolygon
         triPoint.add(pR);
         triPoint.add(pM);
         triPoint.add(pL);
-        OrderedListPolygon triangle = new OrderedListPolygon(triPoint);
+        Triangle triangle = new Triangle(triPoint);
         for (Point item : triPo.getPoints()) {
           if (triPoint.contains(item)) continue;
           if (triangle.containsPoint(item, false)) {
@@ -366,7 +366,7 @@ public class OrderedListPolygon
         }
         // If no point is in Triangle
         if (!inTriangle) {
-          triangles.add(new OrderedListPolygon(triPoint));
+          triangles.add(new Triangle(triPoint));
           // Delete middle vertex
           triPo.getPoints().remove(pM);
           --i;
@@ -385,11 +385,10 @@ public class OrderedListPolygon
     triPoint.add(pR);
     triPoint.add(pM);
     triPoint.add(pL);
-    triangles.add(new OrderedListPolygon(triPoint));
+    triangles.add(new Triangle(triPoint));
     return triangles;
   }
 
- 
   /**
    * Creates a random Point in Polygon. Uses Triangularization, randomly chooses
    * Triangle, creates random Point in Triangle.
@@ -400,17 +399,18 @@ public class OrderedListPolygon
    */
   public Point createRandomPoint() {
     assert (size() >= 3);
-    
+
     Point retval;
-    
+
     // If polygon is a triangle, choose random point.
     if (size() == 3) {
-      
+
       Random random = new Random(System.currentTimeMillis());
-      
+
       do {
-        
-        // Choose random Point in rectangle with length of edges according to length
+
+        // Choose random Point in rectangle with length of edges according to
+        // length
         // of vector. Then scale Point to actual Point in Parallelogram.
         Vector u = new Vector(_coords.get(0), _coords.get(1));
         Vector v = new Vector(_coords.get(0), _coords.get(2));
@@ -418,27 +418,30 @@ public class OrderedListPolygon
         double randomPoint2 = random.nextDouble();
         double x = u.v1 * randomPoint1 + v.v1 * randomPoint2;
         double y = u.v2 * randomPoint1 + v.v2 * randomPoint2;
-        
-        retval = new Point((long) x, (long) y);
-        
-      } while (!containsPoint(retval, true));
 
-    } else {
-      
+        retval = new Point((long) x, (long) y);
+
+      }
+      while (!containsPoint(retval, true));
+
+    }
+    else {
+
       // Triangulate given Polygon.
-      List<OrderedListPolygon> triangularization = this.triangulate();
-      
+      List<Triangle> triangularization = this.triangulate();
+
       // Choose one triangle of triangularization randomly weighted by their
       // Surface Area.
-      OrderedListPolygon chosenPolygon = MathUtils.selectRandomTriangleBySize(triangularization);
-      
+      Triangle chosenTriangle =
+          Triangle.selectRandomTriangleBySize(triangularization);
+
       // Return randomly chosen Point in chosen Triangle.
-      retval = chosenPolygon.createRandomPoint();
+      retval = chosenTriangle.createRandomPoint();
     }
-    
+
     return retval;
   }
-  
+
   /**
    * Calculates the Surface Area of a given Polygon. TODO: currently uses the
    * Triangularization of the given Polygon to calculate and add resulting
@@ -449,27 +452,38 @@ public class OrderedListPolygon
    * @return Surface Area of given Polygon2
    */
   public double getSurfaceArea() {
-    assert(size() >= 3);
-    
+    assert (size() >= 3);
+
     double area = 0;
-    
-    if(size() == 3) {
-      
+
+    if (size() == 3) {
+
       // Calculate triangle area
       List<Point> trianglePoints = this.getPoints();
       Vector u = new Vector(trianglePoints.get(0), trianglePoints.get(1));
       Vector v = new Vector(trianglePoints.get(0), trianglePoints.get(2));
       area = Math.abs(u.v1 * v.v2 - u.v2 * v.v1) / 2.0;
-      
-    } else {
+
+    }
+    else {
       // Triangulate polygon
-      List<OrderedListPolygon> triangles = this.triangulate();
-      
+      List<Triangle> triangles = this.triangulate();
+
       // Sum up the areas
-      for(OrderedListPolygon t : triangles)
+      for (Triangle t : triangles)
         area += t.getSurfaceArea();
     }
-    
+
     return area;
+  }
+
+
+  public boolean areNeighbours(Point a, Point b) {
+    if (_coords.contains(a)) {
+      if (_coords.get(this.getIndexInRange(_coords.indexOf(a) + 1)).equals(b) ||
+          _coords.get(this.getIndexInRange(_coords.indexOf(a) - 1)).equals(b)) return true;
+      else return false;
+    }
+    return false;
   }
 }
