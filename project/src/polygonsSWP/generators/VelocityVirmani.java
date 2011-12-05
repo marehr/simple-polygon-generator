@@ -3,8 +3,6 @@ package polygonsSWP.generators;
 import java.util.Map;
 import java.util.Random;
 
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.RegularExpression;
-
 import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.generators.PolygonGenerator.Parameters;
 import polygonsSWP.geometry.OrderedListPolygon;
@@ -38,11 +36,11 @@ public class VelocityVirmani implements PolygonGenerator {
 			throw new RuntimeException("Unsufficient Paramters");
 		}
 
-		long radius = (long) params.get(Parameters.radius);
-		int n = (int) params.get(Parameters.n);
-		int runs = (int) params.get(Parameters.runs);
-		long bound = (long) params.get(Parameters.size);
-		int maxVelo = (int) params.get(Parameters.velocity);
+		long radius = (Long) params.get(Parameters.radius);
+		int n = (Integer) params.get(Parameters.n);
+		int runs = (Integer) params.get(Parameters.runs);
+		long bound = (Long) params.get(Parameters.size);
+		int maxVelo = (Integer) params.get(Parameters.velocity);
 		if (radius * 2 > bound) {
 			throw new RuntimeException(
 					"Radius must be smaller than the Bounds allow. (Pre: Radius * 2 < bound)");

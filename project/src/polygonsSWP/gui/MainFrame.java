@@ -25,13 +25,8 @@ import java.util.Map;
 
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
-import polygonsSWP.generators.ConvexHullGenerator;
-import polygonsSWP.generators.IncrementalConstructionAndBacktracking;
-import polygonsSWP.generators.PermuteAndReject;
-import polygonsSWP.generators.PolygonGenerator;
+import polygonsSWP.generators.*;
 import polygonsSWP.generators.PolygonGenerator.Parameters;
-import polygonsSWP.generators.RandomPolygonAlgorithm;
-import polygonsSWP.generators.TwoOptMoves;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -61,7 +56,7 @@ public class MainFrame
   private GeneratorChooser cb_polygon_algorithm_chooser;
 
   private PolygonGenerator[] polygon_algorithm_list = { new PermuteAndReject(),
-      new TwoOptMoves(), new RandomPolygonAlgorithm(),
+      new TwoOptMoves(), new RandomPolygonAlgorithm(), new SpacePartitioning(),
       new IncrementalConstructionAndBacktracking(), new ConvexHullGenerator() };
 
   private JButton b_load_points, b_generate_polygon, b_calc_shortest_path,

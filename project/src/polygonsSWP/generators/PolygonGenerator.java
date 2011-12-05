@@ -34,6 +34,6 @@ public interface PolygonGenerator
   public Polygon generate(Map<Parameters, Object> params, PolygonHistory steps);
   
   public enum Parameters{
-	  n, points, runs, size, radius, velocity
+    n, points, runs, size, radius, velocity
   }
 }
