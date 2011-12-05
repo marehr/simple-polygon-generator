@@ -76,14 +76,11 @@ public class MonotonPolygon
   }
 
   public boolean areNeighbours(Point a, Point b) {
-    for (LineSegment item : this._edges) {
+    for (LineSegment item : this._edges)
+      if (item.equals(new LineSegment(a, b))) { return true; }
+    if (!_innerEdges.isEmpty()) for (LineSegment item : this._innerEdges)
       if (item.equals(new LineSegment(a, b))) return true;
-    }
-    if (!_innerEdges.isEmpty()) {
-      for (LineSegment item : this._innerEdges) {
-        if (item.equals(new LineSegment(a, b))) return true;
-      }
-    }
+
     return false;
   }
 
@@ -181,38 +178,79 @@ public class MonotonPolygon
     if (!isTriangulized) this.triangulate();
     List<Triangle> tmpList = new ArrayList<Triangle>();
     for (LineSegment item : _edges) {
+      // for every outer edge
       List<LineSegment> left = new ArrayList<LineSegment>();
       List<LineSegment> right = new ArrayList<LineSegment>();
+      List<LineSegment> used = new ArrayList<LineSegment>();
       for (LineSegment inner : _innerEdges) {
-        if (inner.containsPoint(item._a) && !inner.containsPoint(item._b)) left.add(inner);
+        if (inner.containsPoint(item._a) && !inner.containsPoint(item._b))
+          left.add(inner);
         if (!inner.containsPoint(item._a) && inner.containsPoint(item._b))
           right.add(inner);
       }
       for (LineSegment outer : _edges) {
-        if (outer.containsPoint(item._a) && !outer.containsPoint(item._b)) left.add(outer);
+        if (used.contains(outer)) continue;
+        if (outer.containsPoint(item._a) && !outer.containsPoint(item._b))
+          left.add(outer);
         if (!outer.containsPoint(item._a) && outer.containsPoint(item._b))
           right.add(outer);
       }
       boolean found = false;
-      for (LineSegment l : left) {
-        if (found) break;
-        for (LineSegment r : left) {
-          if (l._a == item._a) {
-            if (r.containsPoint(l._b)) {
-              Triangle poly = new Triangle(item._a, item._b, l._b);
-              tmpList.add(poly);
-              found = true;
-              break;
-            }
+      for (int i = 0; i < left.size() - 1; ++i) {
+        if (Triangle.formsTriangle(item, left.get(i),
+            right.get(right.size() - 1))) {
+          if (item._b == right.get(right.size() - 1)._b) {
+            Triangle tmp =
+                new Triangle(item._a, item._b, right.get(right.size() - 1)._a);
+            if (!tmpList.contains(tmp)) tmpList.add(tmp);
           }
           else {
-            if (r.containsPoint(l._a)) {
-              Triangle poly = new Triangle(item._a, item._b, l._a);
-              tmpList.add(poly);
-              found = true;
-              break;
-            }
+            Triangle tmp =
+                new Triangle(item._a, item._b, right.get(right.size() - 1)._b);
+            if (!tmpList.contains(tmp)) tmpList.add(tmp);
           }
+          used.add(item);
+          used.add(right.get(right.size() - 1));
+          found = true;
+          break;
+        }
+      }
+      if (found) continue;
+      for (int i = 0; i < right.size() - 1; ++i) {
+        if (Triangle.formsTriangle(item, left.get(left.size() - 1),
+            right.get(i))) {
+          if (item._a == left.get(left.size() - 1)._a) {
+            Triangle tmp =
+                new Triangle(item._a, item._b, left.get(left.size() - 1)._a);
+            if (!tmpList.contains(tmp)) tmpList.add(tmp);
+          }
+          else {
+            Triangle tmp =
+                new Triangle(item._a, item._b, left.get(left.size() - 1)._a);
+            if (!tmpList.contains(tmp)) tmpList.add(tmp);
+          }
+          used.add(item);
+          used.add(left.get(left.size() - 1));
+          found = true;
+          break;
+        }
+      }
+      if (found) continue;
+      for (int i = 0; i < left.size() - 1; ++i) {
+        for (int j = 0; j < right.size() - 1; ++j) {
+          if (Triangle.formsTriangle(item, left.get(i), right.get(j))) {
+            if (item._a == left.get(i)._a) {
+              Triangle tmp = new Triangle(item._a, item._b, left.get(i)._b);
+              if (!tmpList.contains(tmp)) tmpList.add(tmp);
+            }
+            else {
+              Triangle tmp = new Triangle(item._a, item._b, left.get(i)._a);
+              if (!tmpList.contains(tmp)) tmpList.add(tmp);
+            }
+            found = true;
+            break;
+          }
+          if (found) break;
         }
       }
     }
