@@ -79,7 +79,8 @@ public class Triangle
       if (!(MathUtils.checkOrientation(first, _coords.get(i), p) == 1))
         isInside = false;
       first = _coords.get(i);
-      if (p.isBetween(first, _coords.get(i))) isOnLine = true;
+      LineSegment tmpLine = new LineSegment(first, _coords.get(i));
+      if (tmpLine.containsPoint(p)) isOnLine = true;
       first = _coords.get(i);
     }
     if (onLine) return isInside || isOnLine;
@@ -135,6 +136,36 @@ public class Triangle
   }
 
   /**
+   * @author Steve Dierker <dierker.steve@fu-berlin.de>
+   * @param middle
+   * @param left
+   * @param right
+   * @return
+   */
+  public static boolean formsTriangle(LineSegment middle, LineSegment left,
+      LineSegment right) {
+    if (middle.equals(right) || middle.equals(left) || right.equals(left))
+      return false;
+    if (middle._a.equals(right._a)) {
+      if (middle._b.equals(left._a)) if (left._b.equals(right._b)) return true;
+      if (middle._b.equals(left._b)) if (left._a.equals(right._b)) return true;
+    }
+    if (middle._a.equals(right._b)) {
+      if (middle._b.equals(left._a)) if (left._b.equals(right._a)) return true;
+      if (middle._b.equals(left._b)) if (left._a.equals(right._a)) return true;
+    }
+    if (middle._b.equals(right._a)) {
+      if (middle._a.equals(left._a)) if (left._b.equals(right._b)) return true;
+      if (middle._a.equals(left._b)) if (left._a.equals(right._b)) return true;
+    }
+    if (middle._b.equals(right._b)) {
+      if (middle._a.equals(left._a)) if (left._b.equals(right._a)) return true;
+      if (middle._a.equals(left._b)) if (left._a.equals(right._a)) return true;
+    }
+    return false;
+  }
+
+  /**
    * Randomly selects a Triangle from a list of Triangles weighted by its
    * Surface Area. It is assumed, that the given List of Polygons only contains
    * Triangles. TODO: still safe although surface areas calculated as doubles?
@@ -170,5 +201,12 @@ public class Triangle
       if (runningTotal >= randomValue) { return polygon2; }
     }
     return null;
+  }
+  
+  public String toString() {
+    String result = "[";
+    for(Point item : _coords)
+      result += item+" ";
+    return result.trim() + "]";
   }
 }

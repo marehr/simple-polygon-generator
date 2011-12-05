@@ -95,7 +95,7 @@ public class OrderedListPolygon
   public void permute() {
     Collections.shuffle(_coords);
   }
-  
+
   /**
    * Reverses the polygon's order. Polygon keeps its simplicity.
    */
@@ -175,7 +175,7 @@ public class OrderedListPolygon
       for (int j = i + 1; j < size; j++) {
         LineSegment b =
             new LineSegment(_coords.get(j), _coords.get((j + 1) % size));
-        
+
         Point[] inter = a.intersect(b);
         if (inter != null) {
 
@@ -257,7 +257,7 @@ public class OrderedListPolygon
     int result = index % _coords.size();
     return result < 0 ? result + _coords.size() : result;
   }
-  
+
   /**
    * Return point with safe index.
    */
@@ -271,7 +271,7 @@ public class OrderedListPolygon
     nList.addAll(_coords);
     return new OrderedListPolygon(nList);
   }
-  
+
   /**
    * Tests if p is vertex of the given Polygon.
    * 
@@ -320,73 +320,104 @@ public class OrderedListPolygon
   }
 
   /**
-   * Triangulate Polygon with O(n^2) algorithm TODO: implement at least O(n log
-   * n ) algorithm The algorithm assumes that the polygon is ordered clockwise.
-   * Since our assumption is counter-clockwise I reverse the order first.
+   * This algorithm is an implementation of Seidel's Sweep-Line-Algorithm O(n
+   * log* n). All three methods need to be reviewed!
    * 
    * @author Steve Dierker <dierker.steve@fu-berlin.de>
-   * @see http://wiki.delphigl.com/index.php/Ear_Clipping_Triangulierung
+   * @see http://www.flipcode.com/archives/Efficient_Polygon_Triangulation.shtml
    * @category Ear-Clipping-Algorithm
    * @param poly Polygon to triangulate
    * @return List of triangulars
    */
   public List<Triangle> triangulate() {
-    OrderedListPolygon triPo = (OrderedListPolygon) this.clone();
-    System.out.println("Polygon: " + triPo.getPoints());
-    List<Triangle> triangles = new ArrayList<Triangle>();
-    int i = 0, orientation = -1;
-    boolean isConvex;
-    while (triPo.size() != 3) {
-      // Search three neighbors in polygon list
-      Point pR = triPo.getPoints().get(triPo.getIndexInRange(i - 1)), pM =
-          triPo.getPoints().get(triPo.getIndexInRange(i)), pL =
-          triPo.getPoints().get(triPo.getIndexInRange(i + 1));
-      // Check if convex or concave
-      if (MathUtils.checkOrientation(pR, pL, pM) == orientation) {
-        isConvex = true;
-        if (orientation == 1) orientation = -1;
-      }
-      else isConvex = false;
-      if (isConvex) {
-        // Check if any point of the polygon intersects with the chosen
-        // triangle.
-        boolean inTriangle = false;
-        // Create Triangle
-        List<Point> triPoint = new ArrayList<Point>();
-        triPoint.add(pR);
-        triPoint.add(pM);
-        triPoint.add(pL);
-        Triangle triangle = new Triangle(triPoint);
-        for (Point item : triPo.getPoints()) {
-          if (triPoint.contains(item)) continue;
-          if (triangle.containsPoint(item, false)) {
-            inTriangle = true;
-            break;
-          }
-        }
-        // If no point is in Triangle
-        if (!inTriangle) {
-          triangles.add(new Triangle(triPoint));
-          // Delete middle vertex
-          triPo.getPoints().remove(pM);
-          --i;
-        }
-      }
-      if (++i > triPo.getPoints().size()) {
-        i = 0;
-        orientation = 1;
+    List<Triangle> returnList = new ArrayList<Triangle>();
+    int n = _coords.size();
+    int[] V = new int[n];
+    if (0.0 < this.getArea()) for (int v = 0; v < n; v++)
+      V[v] = v;
+    else for (int v = 0; v < n; v++)
+      V[v] = (n - 1) - v;
+    int nv = n;
+    int count = 2 * nv;
+    for (int m = 0, v = nv - 1; nv > 2;) {
+      /* if we loop, it is probably a non-simple polygon */
+      if (0 >= (count--)) return null;
+
+      /* three consecutive vertices in current polygon, <u,v,w> */
+      int u = v;
+      if (nv <= u) u = 0; /* previous */
+      v = u + 1;
+      if (nv <= v) v = 0; /* new v */
+      int w = v + 1;
+      if (nv <= w) w = 0; /* next */
+
+      if (this.isASnip(u, v, w, count, V)) ;
+      {
+        int a, b, c, s, t;
+        /* output Triangle */
+        returnList.add(new Triangle(_coords.get(V[u]), _coords.get(V[v]),
+            _coords.get(V[w])));
+        m++;
+        /* remove v from remaining polygon */
+        for (s = v, t = v + 1; t < nv; s++, t++)
+          V[s] = V[t];
+        nv--;
+        /* resest error detection counter */
+        count = 2 * nv;
       }
     }
-    // If only 3 points are left add them to triangle list
-    Point pR = triPo.getPoints().get(triPo.getIndexInRange(0)), pM =
-        triPo.getPoints().get(triPo.getIndexInRange(1)), pL =
-        triPo.getPoints().get(triPo.getIndexInRange(2));
-    List<Point> triPoint = new ArrayList<Point>();
-    triPoint.add(pR);
-    triPoint.add(pM);
-    triPoint.add(pL);
-    triangles.add(new Triangle(triPoint));
-    return triangles;
+    return returnList;
+  }
+
+  /**
+   * Needs to be reviewed!
+   * 
+   * @author Steve Dierker <dierker.steve@fu-berlin.de>
+   * @return
+   */
+  public double getArea() {
+    double result = 0;
+    for (int p = _coords.size(), q = 0; q < _coords.size(); p = q++)
+      result +=
+          _coords.get(p).x * _coords.get(q).y - _coords.get(q).x *
+              _coords.get(p).y;
+    return result;
+  }
+
+  /**
+   * Needs to be reviewed!
+   * 
+   * @author Steve Dierker <dierker.steve@fu-berlin.de>
+   * @param u
+   * @param v
+   * @param w
+   * @param n
+   * @param V
+   * @return
+   */
+  public boolean isASnip(int u, int v, int w, int n, int[] V) {
+    int p;
+    long Ax, Ay, Bx, By, Cx, Cy, Px, Py;
+
+    Ax = _coords.get(V[u]).x;
+    Ay = _coords.get(V[u]).y;
+
+    Bx = _coords.get(V[v]).x;
+    By = _coords.get(V[v]).y;
+
+    Cx = _coords.get(V[w]).x;
+    Cy = _coords.get(V[w]).y;
+
+    for (p = 0; p < n; p++) {
+      if ((p == u) || (p == v) || (p == w)) continue;
+      Px = _coords.get(V[p]).x;
+      Py = _coords.get(V[p]).y;
+      Triangle tmpT =
+          new Triangle(new Point(Ax, Ay), new Point(Bx, By), new Point(Cx, Cy));
+      if (tmpT.containsPoint(new Point(Px, Py), true)) return false;
+    }
+
+    return true;
   }
 
   /**
@@ -476,7 +507,6 @@ public class OrderedListPolygon
 
     return area;
   }
-
 
   public boolean areNeighbours(Point a, Point b) {
     if (_coords.contains(a)) {

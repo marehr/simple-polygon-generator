@@ -50,8 +50,12 @@ public class MonotonPolygonTest
     assertFalse(testPoly.areNeighbours(new Point(0,0), new Point(20,0)));
   }
   
+  /**
+   * Is tested further through OrderedListPolygonTriangulateTest
+   */
   @Test
   public void triangulationTest() {
-
+    testPoly.triangulate();
+    System.out.println(testPoly.getTriangles());
   }
 }

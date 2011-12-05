@@ -75,47 +75,4 @@ public class MathUtils
     else if (result < 0) return -1;
     else return 0;
   }
-  
-  
-
-  /**
-
-   * Returns a list of points, with all intersection Points of the line and the
-   * polygon, where all the points are on the polygon.
-   * 
-   * @author Steve Dierker <dierker.steve@fu-berlin.de>
-   * @param poly
-   * @param begin
-   * @param end
-   * @return Is a list containing the intersecting point and the line which is
-   *         intersected in the form: list.get(a) => intersecting Point,
-   *         list.get(a+1) => begin of line, list.get(a+2) => end of line
-   */
-  public static List<Point[]> getIntersectionsPolygonLine(Polygon poly,
-      Point begin, Point end) {
-    List<Point[]> intPoints = new ArrayList<Point[]>();
-    // Get last element of list and test implicit edge first.
-    Point last = poly.getPoints().get(poly.getPoints().size() - 1);
-    for (Point item : poly.getPoints()) {
-      // If it is not the same line, test for intersection.
-      if (!((last.equals(begin) || item.equals(begin)) || (last.equals(end) || item.equals(end)))) {
-        Point tmp = getIntersectionLineLine(begin, end, last, item);
-        if (tmp != null) {
-          Line l = new Line(last, item);
-          if (l.containsPoint(tmp)) {
-
-            if (!intPoints.contains(tmp)) {
-              Point[] t = { tmp, last, item };
-              intPoints.add(t);
-            }
-          }
-        }
-      }
-      // Move one segment forward
-      last = item;
-    }
-    return intPoints;
-  }
-  
-  public static 
 }

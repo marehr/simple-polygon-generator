@@ -8,6 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Triangle;
 
@@ -25,6 +26,32 @@ public class TriangleTest
   @After
   public void tearDown() {
     testTriangle = null;
+  }
+
+  @Test
+  public void formsTriangleTest() {
+    // Real Triangle:
+    assertTrue(Triangle.formsTriangle(new LineSegment(new Point(0, 0),
+        new Point(10, 0)),
+        new LineSegment(new Point(10, 10), new Point(10, 0)), new LineSegment(
+            new Point(0, 0), new Point(10, 10))));
+    // False Triangle
+    assertFalse(Triangle.formsTriangle(new LineSegment(new Point(0, 0),
+        new Point(10, 0)),
+        new LineSegment(new Point(10, 11), new Point(10, 0)), new LineSegment(
+            new Point(0, 0), new Point(10, 10))));
+    // Identical Lines
+    assertFalse(Triangle.formsTriangle(new LineSegment(new Point(0, 0),
+        new Point(10, 0)), new LineSegment(new Point(10, 0), new Point(0, 0)),
+        new LineSegment(new Point(10, 10), new Point(10, 10))));
+    // Identical Points
+    // assertFalse(Triangle.formsTriangle(new LineSegment(new Point(0, 0), new
+    // Point(0, 0)),
+    // new LineSegment(new Point(0, 0), new Point(0, 0)), new LineSegment(
+    // new Point(0, 0), new Point(0, 0))));
+    /**
+     * Necessary assertion is in LineSegment
+     */
   }
 
   @Test
