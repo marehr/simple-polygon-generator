@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import polygonsSWP.generators.PolygonGenerator.Parameters;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.OrderedListPolygon;
@@ -13,13 +14,19 @@ import polygonsSWP.util.MathUtils;
 
 public class SpacePartitioning implements PolygonGenerator {
 
+  private Parameters[][] params = new Parameters[][] {
+    new Parameters[] {Parameters.n, Parameters.size},
+    new Parameters[] {Parameters.points}
+  };
+
+
   @Override
-  public String[] getAcceptedParameters() {
-    return new String[] { "n", "size", "points" };
+  public Parameters[][] getAcceptedParameters() {
+    return params;
   }
 
   @Override
-  public Polygon generate(Map<String, Object> params, PolygonHistory steps) {
+  public Polygon generate(Map<Parameters, Object> params, PolygonHistory steps) {
     // System.out.println("<------------------------- NEW GENERATE ------------------------->");
 
     List<Point> points = GeneratorUtils.createOrUsePoints(params);
