@@ -35,7 +35,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 
 
 // TODO: rewrite.
@@ -61,7 +62,7 @@ public class MainFrame
 
   private JButton b_load_points, b_generate_polygon, b_calc_shortest_path,
       b_save_polygon;
-  private JSlider sl_edges;
+  private JSpinner sl_edges;
 
   private ButtonGroup bg_shortest_path, polygon_menu;
   private JRadioButton rb_set_points, rb_generate_points, rb_polygonByUser,
@@ -94,11 +95,7 @@ public class MainFrame
 
     // init slider
 
-    sl_edges = new JSlider(3, 50, 10);
-    sl_edges.setMajorTickSpacing(10);
-    sl_edges.setMinorTickSpacing(1);
-    sl_edges.setPaintTicks(true);
-    sl_edges.setPaintLabels(true);
+    sl_edges = new JSpinner(new SpinnerNumberModel(5, 3, 1000, 1));
 
     // init buttons
 
