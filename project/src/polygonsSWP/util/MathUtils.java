@@ -1,11 +1,10 @@
 package polygonsSWP.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import polygonsSWP.geometry.OrderedListPolygon;
+import polygonsSWP.geometry.Line;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 
@@ -76,6 +75,8 @@ public class MathUtils
     else if (result < 0) return -1;
     else return 0;
   }
+  
+  
 
   /**
 
@@ -100,7 +101,8 @@ public class MathUtils
       if (!((last.equals(begin) || item.equals(begin)) || (last.equals(end) || item.equals(end)))) {
         Point tmp = getIntersectionLineLine(begin, end, last, item);
         if (tmp != null) {
-          if (checkIfPointOnLineSegment(last, item, tmp)) {
+          Line l = new Line(last, item);
+          if (l.containsPoint(tmp)) {
 
             if (!intPoints.contains(tmp)) {
               Point[] t = { tmp, last, item };
@@ -114,89 +116,6 @@ public class MathUtils
     }
     return intPoints;
   }
-
-  public static Point getIntersectionLineLine(Point aBegin, Point aEnd,
-      Point bBegin, Point bEnd) {
-    double aN = 0, bN = 0;
-    double aGrow = 0, bGrow = 0;
-    boolean ax = false, bx = false;
-    // Check if line is tilted, parallel to x or y
-    if (aBegin.x - aEnd.x == 0) ax = true;
-    else if (aBegin.y - aEnd.y == 0) {
-      aGrow = 0;
-      aN = aBegin.y;
-    }
-    else {
-      aGrow = (aEnd.y - aBegin.y) / (aEnd.x - (double) aBegin.x);
-      aN = aBegin.y - aGrow * aBegin.x;
-    }
-    // Check if line is tilted, parallel to x or y
-    if (bBegin.x - bEnd.x == 0) bx = true;
-    else if (bBegin.y - bEnd.y == 0) {
-      bGrow = 0;
-      bN = bBegin.y;
-    }
-    else {
-      bGrow = (bEnd.y - bBegin.y) / (bEnd.x - (double) bBegin.x);
-      bN = bBegin.y - bGrow * bBegin.x;
-    }
-    // Both lines are parallel to x
-    if ((ax && bx)) return null;
-    // one of them is parallel to x
-    else if (ax || bx) {
-      if (ax) {
-        double y = bGrow * aBegin.x + bN;
-        return new Point(aBegin.x, (long) y);
-      }
-      else {
-        System.out.println(aN + " " + aGrow + " " + bBegin.x);
-        double y = aGrow * bBegin.x + aN;
-        return new Point(bBegin.x, (long) y);
-      }
-    }
-    // Both lines are parallel
-    else if (aGrow == bGrow) return null;
-    else {
-      double x = (aN - bN) / (bGrow - aGrow);
-      double y = aGrow * x + aN;
-      return new Point((long) x, (long) y);
-    }
-  }
   
-  /**
-   * Randomly selects a Triangle from a list of Triangles weighted by its
-   * Surface Area. It is assumed, that the given List of Polygons only contains
-   * Triangles. TODO: still safe although surface areas calculated as doubles?
-   * 
-   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
-   * @param polygons
-   * @return
-   */
-  public static OrderedListPolygon selectRandomTriangleBySize(List<OrderedListPolygon> polygons) {
-    // This algorithm works as follows:
-    // 1. sum the weights (totalSurfaceArea)
-    // 2. select a uniform random value (randomValue) u 0 <= u < sum of weights
-    // 3. iterate through the items, keeping a running total (runnigTotal) of
-    // the weights of the items you've examined
-    // 4. as soon as running total >= random value, select the item you're
-    // currently looking at (the one whose weight you just added).
-  
-    Random random = new Random(System.currentTimeMillis());
-    HashMap<OrderedListPolygon, Long> surfaceAreaTriangles = new HashMap<OrderedListPolygon, Long>();
-    long totalSurfaceArea = 0;
-    for (OrderedListPolygon polygon2 : polygons) {
-      long polygon2SurfaceArea =
-          Math.round(Math.ceil(polygon2.getSurfaceArea()));
-      totalSurfaceArea += polygon2SurfaceArea;
-      surfaceAreaTriangles.put(polygon2, polygon2SurfaceArea);
-    }
-    long randomValue =
-        Math.round(Math.ceil(random.nextDouble() * totalSurfaceArea));
-    long runningTotal = 0;
-    for (OrderedListPolygon polygon2 : polygons) {
-      runningTotal += surfaceAreaTriangles.get(polygon2);
-      if (runningTotal >= randomValue) { return polygon2; }
-    }
-    return null;
-  }  
+  public static 
 }

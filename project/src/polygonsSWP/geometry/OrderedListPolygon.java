@@ -175,15 +175,16 @@ public class OrderedListPolygon
       for (int j = i + 1; j < size; j++) {
         LineSegment b =
             new LineSegment(_coords.get(j), _coords.get((j + 1) % size));
-
-        if (a.isIntersecting(b, isect)) {
+        
+        Point[] inter = a.intersect(b);
+        if (inter != null) {
 
           boolean coincident;
           boolean ab = false;
           boolean ba = false;
 
           // Check for coincidence (--> intersection)
-          if (!(coincident = (isect[0] == null))) {
+          if (!(coincident = (inter.length == 0))) {
 
             // Check whether the intersection is a shared endpoint (--> no
             // intersection)
@@ -329,10 +330,10 @@ public class OrderedListPolygon
    * @param poly Polygon to triangulate
    * @return List of triangulars
    */
-  public List<OrderedListPolygon> triangulate() {
+  public List<Triangle> triangulate() {
     OrderedListPolygon triPo = (OrderedListPolygon) this.clone();
     System.out.println("Polygon: " + triPo.getPoints());
-    List<OrderedListPolygon> triangles = new ArrayList<OrderedListPolygon>();
+    List<Triangle> triangles = new ArrayList<Triangle>();
     int i = 0, orientation = -1;
     boolean isConvex;
     while (triPo.size() != 3) {
@@ -355,7 +356,7 @@ public class OrderedListPolygon
         triPoint.add(pR);
         triPoint.add(pM);
         triPoint.add(pL);
-        OrderedListPolygon triangle = new OrderedListPolygon(triPoint);
+        Triangle triangle = new Triangle(triPoint);
         for (Point item : triPo.getPoints()) {
           if (triPoint.contains(item)) continue;
           if (triangle.containsPoint(item, false)) {
@@ -365,7 +366,7 @@ public class OrderedListPolygon
         }
         // If no point is in Triangle
         if (!inTriangle) {
-          triangles.add(new OrderedListPolygon(triPoint));
+          triangles.add(new Triangle(triPoint));
           // Delete middle vertex
           triPo.getPoints().remove(pM);
           --i;
@@ -384,7 +385,7 @@ public class OrderedListPolygon
     triPoint.add(pR);
     triPoint.add(pM);
     triPoint.add(pL);
-    triangles.add(new OrderedListPolygon(triPoint));
+    triangles.add(new Triangle(triPoint));
     return triangles;
   }
 
@@ -427,15 +428,15 @@ public class OrderedListPolygon
     else {
 
       // Triangulate given Polygon.
-      List<OrderedListPolygon> triangularization = this.triangulate();
+      List<Triangle> triangularization = this.triangulate();
 
       // Choose one triangle of triangularization randomly weighted by their
       // Surface Area.
-      OrderedListPolygon chosenPolygon =
-          MathUtils.selectRandomTriangleBySize(triangularization);
+      Triangle chosenTriangle =
+          Triangle.selectRandomTriangleBySize(triangularization);
 
       // Return randomly chosen Point in chosen Triangle.
-      retval = chosenPolygon.createRandomPoint();
+      retval = chosenTriangle.createRandomPoint();
     }
 
     return retval;
@@ -466,10 +467,10 @@ public class OrderedListPolygon
     }
     else {
       // Triangulate polygon
-      List<OrderedListPolygon> triangles = this.triangulate();
+      List<Triangle> triangles = this.triangulate();
 
       // Sum up the areas
-      for (OrderedListPolygon t : triangles)
+      for (Triangle t : triangles)
         area += t.getSurfaceArea();
     }
 

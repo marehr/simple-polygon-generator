@@ -247,7 +247,7 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
                   
           LineSegment ls2 = new LineSegment(v.get(m), v.get(n));
           
-          if(ls.isIntersecting(ls2, isect, true)) {
+          if(ls.intersect(ls2, true) != null) {
             markEdge(m, n);
           }
         }

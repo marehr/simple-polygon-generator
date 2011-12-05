@@ -34,8 +34,8 @@ public class MonotonPolygon
   public List<Point> getSortedPoints() {
     List<Point> pointList = new ArrayList<Point>();
     for (LineSegment item : _edges) {
-      if (!pointList.contains(item.a)) pointList.add(item.a);
-      if (!pointList.contains(item.b)) pointList.add(item.b);
+      if (!pointList.contains(item._a)) pointList.add(item._a);
+      if (!pointList.contains(item._b)) pointList.add(item._b);
     }
     Collections.sort(pointList);
     return pointList;
@@ -184,30 +184,30 @@ public class MonotonPolygon
       List<LineSegment> left = new ArrayList<LineSegment>();
       List<LineSegment> right = new ArrayList<LineSegment>();
       for (LineSegment inner : _innerEdges) {
-        if (inner.contains(item.a) && !inner.contains(item.b)) left.add(inner);
-        if (!inner.contains(item.a) && inner.contains(item.b))
+        if (inner.containsPoint(item._a) && !inner.containsPoint(item._b)) left.add(inner);
+        if (!inner.containsPoint(item._a) && inner.containsPoint(item._b))
           right.add(inner);
       }
       for (LineSegment outer : _edges) {
-        if (outer.contains(item.a) && !outer.contains(item.b)) left.add(outer);
-        if (!outer.contains(item.a) && outer.contains(item.b))
+        if (outer.containsPoint(item._a) && !outer.containsPoint(item._b)) left.add(outer);
+        if (!outer.containsPoint(item._a) && outer.containsPoint(item._b))
           right.add(outer);
       }
       boolean found = false;
       for (LineSegment l : left) {
         if (found) break;
         for (LineSegment r : left) {
-          if (l.a == item.a) {
-            if (r.contains(l.b)) {
-              Triangle poly = new Triangle(item.a, item.b, l.b);
+          if (l._a == item._a) {
+            if (r.containsPoint(l._b)) {
+              Triangle poly = new Triangle(item._a, item._b, l._b);
               tmpList.add(poly);
               found = true;
               break;
             }
           }
           else {
-            if (r.contains(l.a)) {
-              Triangle poly = new Triangle(item.a, item.b, l.a);
+            if (r.containsPoint(l._a)) {
+              Triangle poly = new Triangle(item._a, item._b, l._a);
               tmpList.add(poly);
               found = true;
               break;

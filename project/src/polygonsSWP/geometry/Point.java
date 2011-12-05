@@ -30,6 +30,8 @@ public class Point
   }
 
   /**
+<<<<<<< HEAD
+=======
    * Test if point is between two other points.
    * 
    * @author Steve Dierker <dierker.steve@fu-berlin.de>
@@ -44,6 +46,7 @@ public class Point
   }
 
   /**
+>>>>>>> 4a29b68278d9eca412acd4bcea1d2546a226d382
    * Calculates distance between two points.
    * 
    * @author Steve Dierker <dierker.steve@fu-berlin.de>

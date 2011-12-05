@@ -3,14 +3,17 @@ package polygonsSWP.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.generators.PolygonGenerator.Parameters;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
+import polygonsSWP.geometry.Ray;
 
 
 public class GeneratorUtils
@@ -18,55 +21,51 @@ public class GeneratorUtils
   private static Random rand_ = new Random();
 
   /**
-   * Tests whether a given set of points is in general position, which
-   * means that no points are coincident, no 3 points are colinear and
-   * no 4 points lie on a circle.
+   * Tests whether a given set of points is in general position, which means
+   * that no points are coincident, no 3 points are colinear and no 4 points lie
+   * on a circle.
    * 
    * @param pointSet the set of points
    * @return true, if in general position, false otherwise.
    */
   public static boolean isInGeneralPosition(List<Point> pointSet) {
     // TODO optimize
-    
+
     // First condition: No points are coincident.
-    for(int i = 0; i < pointSet.size(); i++) {
-      for(int j = 0; j < pointSet.size(); j++) {
-        if((i != j) && pointSet.get(i).equals(pointSet.get(j)))
-          return false;
+    for (int i = 0; i < pointSet.size(); i++) {
+      for (int j = 0; j < pointSet.size(); j++) {
+        if ((i != j) && pointSet.get(i).equals(pointSet.get(j))) return false;
       }
     }
-    
+
     // Second condition: No 3 points are colinear.
-    for(int i = 0; i < pointSet.size() - 2; i++) {
-      for(int j = i + 1; j < pointSet.size() - 1; j++) {
-        for(int k = j + 1; k < pointSet.size(); k++) {
-          if(MathUtils.checkOrientation(pointSet.get(i), 
-              pointSet.get(j), pointSet.get(k)) == 0)
-            return false;
+    for (int i = 0; i < pointSet.size() - 2; i++) {
+      for (int j = i + 1; j < pointSet.size() - 1; j++) {
+        for (int k = j + 1; k < pointSet.size(); k++) {
+          if (MathUtils.checkOrientation(pointSet.get(i), pointSet.get(j),
+              pointSet.get(k)) == 0) return false;
         }
       }
     }
-    
+
     // Third condition: No 4 points lie on a circle.
     // TODO implement
-    
+
     return true;
   }
-  
+
   /**
-   * Convenience method for Generators able to use random
-   * or pre-defined points.
+   * Convenience method for Generators able to use random or pre-defined points.
    * 
    * @param params params as handled over to the Generator
-   * @param ensureGeneralPosition
-   *        if set, this methods makes sure that the returned set
-   *        of points is in general position. If it was a user-supplied
-   *        set of points, an exception is thrown.
-   * @return either the given set of points or a randomly
-   *         created set if size n.
+   * @param ensureGeneralPosition if set, this methods makes sure that the
+   *          returned set of points is in general position. If it was a
+   *          user-supplied set of points, an exception is thrown.
+   * @return either the given set of points or a randomly created set if size n.
    */
 
   @SuppressWarnings("unchecked")
+
   public static List<Point> createOrUsePoints(Map<Parameters, Object> params, boolean ensureGeneralPosition) {
     Integer n = (Integer) params.get(Parameters.n);
     Integer size = (Integer) params.get(Parameters.size);
@@ -76,17 +75,19 @@ public class GeneratorUtils
     assert (s != null || (n != null && size != null));
 
     if (s == null) {
-      
+
       do {
         s = MathUtils.createRandomSetOfPointsInSquare(n, size);
-      } while(ensureGeneralPosition && !isInGeneralPosition(s));
-      
-    } else {
-      
-      if(ensureGeneralPosition && !isInGeneralPosition(s))
-        // TODO throw sth proper
+      }
+      while (ensureGeneralPosition && !isInGeneralPosition(s));
+
+    }
+    else {
+
+      if (ensureGeneralPosition && !isInGeneralPosition(s))
+      // TODO throw sth proper
         throw new RuntimeException("user-defined set of points not in GP.");
-      
+
     }
     
     // Note: We're creating a copy of the list here to avoid having
@@ -94,10 +95,11 @@ public class GeneratorUtils
     // in the computed Polygon).
     return new ArrayList<Point>(s);
   }
-  
+
   /**
    * Compatibility method for above.
    */
+
   public static List<Point> createOrUsePoints(Map<Parameters, Object> params) {
     return createOrUsePoints(params, false);    
   }
@@ -141,9 +143,9 @@ public class GeneratorUtils
 
   /**
    * Generates the convex Hull of a given set of points note: this is just a
-   * naive approach, that should/could be replaced later on time complexity:
-   * O(n log n)
-   *
+   * naive approach, that should/could be replaced later on time complexity: O(n
+   * log n)
+   * 
    * @see http://www.ics.uci.edu/~eppstein/161/960307.html
    * @param pointSet
    * @return convexHull in counter clock wise order
@@ -159,8 +161,7 @@ public class GeneratorUtils
     // this algorithm, at least for the last ordered points!
     sortPointsByX(points);
 
-    if(points.size() <= 3)
-      return new OrderedListPolygon(points);
+    if (points.size() <= 3) return new OrderedListPolygon(points);
 
     // compute the lower side of the convex hull
 
@@ -227,8 +228,20 @@ public class GeneratorUtils
    */
   public static Polygon visiblePolygonRegionFromLineSegment(Polygon polygon,
       Point Va, Point Vb) {
-        return polygon;
-    // a. Set clonedPolygon with polygon
-    
+    // a. Set clone with polygon
+    Polygon clone = polygon.clone();
+    List<Point> clonePoints = clone.getPoints();
+    // b. intersect Line VaVb with clone, take first intersection on each side
+    // of line, if existent, isert them into clone
+    Ray rayVaVb = new Ray(Va, Vb);
+    Ray rayVbVa = new Ray(Vb, Va);
+    clone.intersect(rayVaVb);
+    Point[] vx = rayVaVb.getPointClosestToBase(clone.intersect(rayVaVb));
+    Point[] vy = rayVbVa.getPointClosestToBase(clone.intersect(rayVbVa));
+    clonePoints.add(clonePoints.indexOf(vx[1]), vx[0]);
+    clonePoints.add(clonePoints.indexOf(vy[2]), vy[0]);
+    // c. beginning with Va.next determine vertices(running variable vi) visible
+    // from both Va and Vb
+    return clone;
   }
 }
