@@ -159,15 +159,21 @@ public class PaintPanel
        * Remark:  We're ignoring platform default values 
        * here (e.g. e.getScrollAmount()).
        */
+      float nz = -1;
       if(e.getWheelRotation() < 0) {
         // Zoom in
-        zoom += 0.1f;
+        nz = zoom + 0.1f;
       } else {
         if(zoom > 0.1f)
-          zoom -= 0.1f;
+          nz = zoom - 0.1f;
       }
       
-      repaint();
+      if(nz != -1) {
+        offsetX = (int) (e.getX() - (e.getX() - offsetX) / zoom * nz);
+        offsetY = (int) (e.getY() - (e.getY() - offsetY) / zoom * nz);
+        zoom = nz;
+        repaint();
+      }
     }
   }
 }
