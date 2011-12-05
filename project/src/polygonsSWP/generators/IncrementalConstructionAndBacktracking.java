@@ -15,9 +15,13 @@ import polygonsSWP.util.GeneratorUtils;
 public class IncrementalConstructionAndBacktracking implements PolygonGenerator
 {
 
+  private Parameters[][] params = new Parameters[][] {
+    new Parameters[] {Parameters.n, Parameters.size, Parameters.points}
+  };
+
   @Override
-  public String[] getAcceptedParameters() {
-    return new String[] {"n", "points", "size"};
+  public Parameters[][] getAcceptedParameters() {
+    return params;
   }
   
   @Override
@@ -26,7 +30,7 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
   }
 
   @Override
-  public Polygon generate(Map<String, Object> params, PolygonHistory steps) {
+  public Polygon generate(Map<Parameters, Object> params, PolygonHistory steps) {
     List<Point> points = GeneratorUtils.createOrUsePoints(params);
     
     // Precalculate the convex hull of points

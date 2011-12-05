@@ -62,7 +62,8 @@ public class Point
    * Compares a point to another one first by x- then by
    * y-values.
    * 
-   * @param obj other point
+   * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+   * @param p2 other point
    * @return -1 if point is more to the left than the other point
    *         or if they have the same x-values and the other point
    *         is more to the bottom (has greater y-value).
@@ -71,15 +72,28 @@ public class Point
    *         x-values and point is more to the bottom.
    */
   @Override
-  public int compareTo(Point obj) {
-    if (((Point) obj).x > x) return -1;
-    else if (((Point) obj).x < x) {
-      return 1;
-    }
-    else {
-      if (((Point) obj).y > y) return -1;
-      else if (((Point) obj).y < y) return 1;
-      else return 0;
-    }
+  public int compareTo(Point p2) {
+    if (x != p2.x) return x < p2.x ? -1 : +1;
+    if (y == p2.y) return 0;
+    return y < p2.y ? -1 : +1;
+  }
+
+  /**
+   * Compares a point to another one first by y- then by
+   * x-values.
+   * 
+   * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+   * @param p2 other point
+   * @return -1 if point is more to the top than the other point
+   *         or if they have the same y-values and the other point
+   *         is more to the right (has greater x-value).
+   *         0 if the points are equal.
+   *         1 if point is more to the bottom or if they have the same
+   *         y-values and point is more to the right.
+   */
+  public int compareToByY(Point p2){
+    if (y != p2.y) return y < p2.y ? -1 : +1;
+    if (x == p2.x) return 0;
+    return x < p2.x ? -1 : +1;
   }
 }

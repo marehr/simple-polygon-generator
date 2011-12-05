@@ -1,6 +1,5 @@
 package polygonsSWP.tests.geometry;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -14,7 +13,6 @@ import org.junit.Test;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.MonotonPolygon;
 import polygonsSWP.geometry.Point;
-import polygonsSWP.geometry.Triangle;
 
 public class MonotonPolygonTest
 {

@@ -38,8 +38,8 @@ public class GeneratorUtilsTest
   
   @Test
   public void testConvexHull() {
-    List<Point> points = new LinkedList<Point>(), expectedHull =
-        new LinkedList<Point>();
+    List<Point> points = new LinkedList<Point>(),
+          expectedHull = new LinkedList<Point>();
     OrderedListPolygon assignedHull;
 
     Point k;
@@ -82,18 +82,11 @@ public class GeneratorUtilsTest
 
     assignedHull = GeneratorUtils.convexHull(points);
 
-    Object[] expecteds = expectedHull.toArray(), actuals =
-        assignedHull.getPoints().toArray();
+    Object[] expecteds = expectedHull.toArray(),
+               actuals = assignedHull.getPoints().toArray();
 
-    System.out.println("expected: ");
-    for (Object a : expecteds) {
-      System.out.println((Point) a);
-    }
-
-    System.out.println("assigned: ");
-    for (Object a : actuals) {
-      System.out.println((Point) a);
-    }
+    System.out.println("expected: " + expectedHull);
+    System.out.println("assigned: " + assignedHull.getPoints());
 
     assertArrayEquals(expecteds, actuals);
   }

@@ -13,13 +13,18 @@ import polygonsSWP.util.GeneratorUtils;
 public class TwoOptMoves implements PolygonGenerator 
 {
 
+  private Parameters[][] params = new Parameters[][] {
+    new Parameters[] {Parameters.n, Parameters.size},
+    new Parameters[] {Parameters.points}
+  };
+
   @Override
-  public String[] getAcceptedParameters() {
-    return new String[] {"n", "size", "points"};
+  public Parameters[][] getAcceptedParameters() {
+    return params;
   }
 
   @Override
-  public Polygon generate(Map<String, Object> params, PolygonHistory steps) {
+  public Polygon generate(Map<Parameters, Object> params, PolygonHistory steps) {
     
     // Step 1: Generate n points in the plane or use the given set of points.
     OrderedListPolygon p = new OrderedListPolygon(GeneratorUtils.createOrUsePoints(params, true));

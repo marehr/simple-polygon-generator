@@ -12,6 +12,7 @@ import java.util.List;
 import org.junit.Test;
 
 import polygonsSWP.generators.PermuteAndReject;
+import polygonsSWP.generators.PolygonGenerator.Parameters;
 
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.geometry.OrderedListPolygon;
@@ -96,9 +97,9 @@ public class MathUtilsTest
     assertEquals(3, result.size());
     // Test with random polygons:
     for (int i = 6; i < 16; ++i) {
-      HashMap<String, Object> map = new HashMap<String, Object>();
-      map.put("n", i);
-      map.put("size", 100);
+      HashMap<Parameters, Object> map = new HashMap<Parameters, Object>();
+      map.put(Parameters.n, i);
+      map.put(Parameters.size, 100);
       PermuteAndReject pAR = new PermuteAndReject();
       // We know P&R returns an OrderedListPolygon in counterclockwise orientation.
       OrderedListPolygon rPoly = (OrderedListPolygon) pAR.generate(map, null);
@@ -189,9 +190,9 @@ public class MathUtilsTest
   @Test
   public void testCreateRandomPointInPolygon() {
     PolygonGenerator generator = new PermuteAndReject();
-    HashMap<String, Object> parameter = new HashMap<String, Object>();
-    parameter.put("n", 4);
-    parameter.put("size", 10);
+    HashMap<Parameters, Object> parameter = new HashMap<Parameters, Object>();
+    parameter.put(Parameters.n, 4);
+    parameter.put(Parameters.size, 10);
     // We know P&R returns an OrderedListPolygon
     OrderedListPolygon polygon = (OrderedListPolygon) generator.generate(parameter, null);
     List<Point> polygonPoints = polygon.getPoints();

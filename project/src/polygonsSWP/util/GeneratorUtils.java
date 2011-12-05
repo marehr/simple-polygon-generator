@@ -6,8 +6,10 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import polygonsSWP.geometry.LineSegment;
+import polygonsSWP.generators.PolygonGenerator.Parameters;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -16,6 +18,8 @@ import polygonsSWP.geometry.Ray;
 
 public class GeneratorUtils
 {
+  private static Random rand_ = new Random();
+
   /**
    * Tests whether a given set of points is in general position, which means
    * that no points are coincident, no 3 points are colinear and no 4 points lie
@@ -59,12 +63,13 @@ public class GeneratorUtils
    *          user-supplied set of points, an exception is thrown.
    * @return either the given set of points or a randomly created set if size n.
    */
+
   @SuppressWarnings("unchecked")
-  public static List<Point> createOrUsePoints(Map<String, Object> params,
-      boolean ensureGeneralPosition) {
-    Integer n = (Integer) params.get("n");
-    Integer size = (Integer) params.get("size");
-    List<Point> s = (List<Point>) params.get("points");
+
+  public static List<Point> createOrUsePoints(Map<Parameters, Object> params, boolean ensureGeneralPosition) {
+    Integer n = (Integer) params.get(Parameters.n);
+    Integer size = (Integer) params.get(Parameters.size);
+    List<Point> s = (List<Point>) params.get(Parameters.points);
 
     // TODO remove
     assert (s != null || (n != null && size != null));
@@ -84,15 +89,19 @@ public class GeneratorUtils
         throw new RuntimeException("user-defined set of points not in GP.");
 
     }
-
-    return s;
+    
+    // Note: We're creating a copy of the list here to avoid having
+    // the same list object in several containers (eg in the GUI and
+    // in the computed Polygon).
+    return new ArrayList<Point>(s);
   }
 
   /**
    * Compatibility method for above.
    */
-  public static List<Point> createOrUsePoints(Map<String, Object> params) {
-    return createOrUsePoints(params, false);
+
+  public static List<Point> createOrUsePoints(Map<Parameters, Object> params) {
+    return createOrUsePoints(params, false);    
   }
 
   /**
@@ -106,12 +115,20 @@ public class GeneratorUtils
 
       @Override
       public int compare(Point p1, Point p2) {
-        if (p1.y != p2.y) return p1.y < p2.y ? -1 : +1;
-        if (p1.x == p2.x) return 0;
-        return p1.x < p2.x ? -1 : +1;
+        return p1.compareToByY(p2);
       }
 
     });
+  }
+
+  /**
+   * picks point at random and removes it
+   * 
+   * @param points set of points
+   * @return random removed point
+   */
+  public static Point removeRandomPoint(List<Point> points){
+    return points.remove(rand_.nextInt(points.size()));
   }
 
   /**
@@ -121,16 +138,7 @@ public class GeneratorUtils
    * @param points
    */
   public static void sortPointsByX(List<Point> points) {
-    Collections.sort(points, new Comparator<Point>() {
-
-      @Override
-      public int compare(Point p1, Point p2) {
-        if (p1.x != p2.x) return p1.x < p2.x ? -1 : +1;
-        if (p1.y == p2.y) return 0;
-        return p1.y < p2.y ? -1 : +1;
-      }
-
-    });
+    Collections.sort(points);
   }
 
   /**
