@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.Test;
 
 import polygonsSWP.generators.PolygonGenerator;
+import polygonsSWP.generators.PolygonGenerator.Parameters;
 import polygonsSWP.generators.SpacePartitioning;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
@@ -28,8 +29,8 @@ public class SpacePartitioningTest
 
     // should be simple
     for(int i = 0; i < 100; ++i){
-      HashMap<String, Object> params = new HashMap<String, Object>();
-      params.put("points", new ArrayList<Point>(points));
+      HashMap<Parameters, Object> params = new HashMap<Parameters, Object>();
+      params.put(Parameters.points, new ArrayList<Point>(points));
 
       OrderedListPolygon polygon = (OrderedListPolygon)
         new SpacePartitioning().generate(params, null);
@@ -57,8 +58,8 @@ public class SpacePartitioningTest
 
     // should be simple
     for(int i = 0; i < 100; ++i){
-      HashMap<String, Object> params = new HashMap<String, Object>();
-      params.put("points", new ArrayList<Point>(points));
+      HashMap<Parameters, Object> params = new HashMap<Parameters, Object>();
+      params.put(Parameters.points, new ArrayList<Point>(points));
 
       PolygonGenerator gen = new SpacePartitioning();
 

@@ -26,6 +26,7 @@ import java.util.Map;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.generators.*;
+import polygonsSWP.generators.PolygonGenerator.Parameters;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
