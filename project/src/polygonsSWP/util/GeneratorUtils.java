@@ -113,9 +113,7 @@ public class GeneratorUtils
 
       @Override
       public int compare(Point p1, Point p2) {
-        if (p1.y != p2.y) return p1.y < p2.y ? -1 : +1;
-        if (p1.x == p2.x) return 0;
-        return p1.x < p2.x ? -1 : +1;
+        return p1.compareToByY(p2);
       }
 
     });
@@ -138,16 +136,7 @@ public class GeneratorUtils
    * @param points
    */
   public static void sortPointsByX(List<Point> points) {
-    Collections.sort(points, new Comparator<Point>() {
-
-      @Override
-      public int compare(Point p1, Point p2) {
-        if (p1.x != p2.x) return p1.x < p2.x ? -1 : +1;
-        if (p1.y == p2.y) return 0;
-        return p1.y < p2.y ? -1 : +1;
-      }
-
-    });
+    Collections.sort(points);
   }
 
   /**
