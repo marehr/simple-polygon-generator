@@ -65,6 +65,13 @@ public class PaintPanel
     this.drawMode = drawMode;
   }
   
+  public void resetView() {
+    zoom = 1.0f;
+    offsetX = 0;
+    offsetY = 0;
+    repaint();
+  }
+  
   /* Painting */
   
   @Override
@@ -103,7 +110,7 @@ public class PaintPanel
   
   @Override
   public void mouseClicked(MouseEvent e) {  
-    // Set point if in draw mode and left mouse button clicked.
+    // Set point if in draw mode and right mouse button clicked.
     if(drawMode && e.getButton() == MouseEvent.BUTTON3) {
       assert(points != null);
       
@@ -112,6 +119,9 @@ public class PaintPanel
       points.add(new Point(x, y));
       
       repaint();
+    } else if(e.getButton() == MouseEvent.BUTTON2) {
+      // Reset view on middle button click
+      resetView();
     }
   }
 
