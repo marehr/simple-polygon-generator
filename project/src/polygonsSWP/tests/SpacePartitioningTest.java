@@ -8,8 +8,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.SpacePartitioning;
-import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 
@@ -35,6 +35,39 @@ public class SpacePartitioningTest
         new SpacePartitioning().generate(params, null);
 
       assertTrue(i + ". try is not simple", polygon.isSimple());
+    }
+  }
+
+  /**
+   * polygon that fails isSimple test, after completion of the algorithm.
+   */
+  @Test
+  public void bug0() {
+    List<Point> points = new ArrayList<Point>();
+    points.add(new Point(546,76));
+    points.add(new Point(228,51));
+    points.add(new Point(247,67));
+    points.add(new Point(589,355));
+    points.add(new Point(286,567));
+    points.add(new Point(158,243));
+    points.add(new Point(6,389));
+    points.add(new Point(69,121));
+    points.add(new Point(83,20));
+    points.add(new Point(229,4));
+
+    // should be simple
+    for(int i = 0; i < 100; ++i){
+      HashMap<String, Object> params = new HashMap<String, Object>();
+      params.put("points", new ArrayList<Point>(points));
+
+      PolygonGenerator gen = new SpacePartitioning();
+
+      try{
+        gen.generate(params, null);
+      } catch(RuntimeException e) {
+        System.err.println(i + ". try is not simple");
+        throw e;
+      }
     }
   }
 
