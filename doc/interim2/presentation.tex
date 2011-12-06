@@ -9,7 +9,7 @@
 \titleimage{polygons}
 
 \title[Random Polygons]{Random Polygons}
-\subtitle{2. interim}
+\subtitle{2. Zwischenpräsentation}
 %TODO: right?
 \institute[FU Berlin]{Freie Universität Berlin}
 \date[06.12.2011]{6th December 2011}
@@ -18,6 +18,16 @@
 
 \begin{frame}[plain]
   \titlepage
+\end{frame}
+
+
+\begin{frame}{Goals}
+	\begin{itemize}
+	\item Testing framework for algorithms related to random polygons
+	\item Generate random polygons (fair, representative)
+	\item Run shortest path algorithm on polygon
+	\item Statistical analysis
+	\end{itemize}
 \end{frame}
 
 \begin{frame}{2. Milestone}
@@ -29,8 +39,7 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Preperations}
-  Geometry Framework:
+\begin{frame}{Geometry Framework}
   \begin{itemize}
     \item needed for some polygon generation algorithms
     \item existing:
@@ -42,12 +51,6 @@
     \end{itemize}
     \item therefore small own implementation
   \end{itemize}
-  \vspace*{1em}
-  %TODO: remember
-  2nd thing i forgot:
-  \begin{itemize}
-    \item sthg
-  \end{itemize}
 \end{frame}
 
 \begin{frame}{Generation algorithms}
@@ -57,7 +60,7 @@
     \item[ ] input: size n or n points
     \item[i.] generate points, if necessary
     \item[ii.] permute points
-    \item[iii.] test if polygon simple, if continue with ii.
+    \item[iii.] test if polygon simple. if not, continue with ii.
   \end{small}\end{itemize}
   \vspace*{1em}
   \begin{itemize}\begin{small}
@@ -175,7 +178,7 @@
   \begin{itemize}\begin{small}
     \item main reason for geometry framework
     \item nontrivial problem to determine visible region P'
-    \item most komplex of all generaition algorithms
+    \item most complex of all generation algorithms
   \end{small}\end{itemize}
 \end{frame}
 
@@ -191,13 +194,13 @@
 
 \begin{frame}{Demonstration GUI}
   \begin{itemize}\begin{small}
-    \item basic verion
+    \item basic version
     \item next important step:
       better way to pass parameters
   \end{small}\end{itemize}
 \end{frame}
 
-\begin{frame}{Milestones}
+\begin{frame}{Again Milestones}
   This Milestone:
   \begin{itemize}\begin{small}
     \item 2 polygon generation algorithms missing
