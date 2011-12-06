@@ -51,7 +51,6 @@ public class MainFrame
   // main components
   private PaintPanel _canvas = new PaintPanel();
   private InfoFrame infoframe;
-  private MainFrame self;
 
   // menu components
   private GeneratorChooser cb_polygon_algorithm_chooser;
@@ -225,7 +224,7 @@ public class MainFrame
     b_load_points.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         cb_polygon_algorithm_chooser.getSelectedItem();
-        JFrame f = new PolygonPointFrame(self);
+        JFrame f = new PolygonPointFrame(MainFrame.this);
         f.setTitle("Set Polygon Points");
         f.setSize(400, 300);
         f.setLocationRelativeTo(null);
