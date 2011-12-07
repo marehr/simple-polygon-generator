@@ -16,7 +16,8 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
 {
 
   private Parameters[][] params = new Parameters[][] {
-    new Parameters[] {Parameters.n, Parameters.size, Parameters.points}
+    new Parameters[] {Parameters.n, Parameters.size},
+    new Parameters[] {Parameters.points}
   };
 
   @Override
