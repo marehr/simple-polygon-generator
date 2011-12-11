@@ -18,11 +18,9 @@ public class PolygonPointFrame extends JFrame{
 	private JButton okbutton = new JButton("OK");
 	private JButton button;
 	private int x,y;
-	private MainFrame main;
 	
-	public PolygonPointFrame(MainFrame frame)
+	public PolygonPointFrame()
 	{
-		main = frame;
 		textArea = new JTextArea();
 		textArea.setLineWrap(true);
 		scrollPane = new JScrollPane(textArea);
@@ -80,7 +78,7 @@ public class PolygonPointFrame extends JFrame{
 					}
 					if(pointList.size() >= 3)
 					{
-						main.setPoints(pointList);
+						//main.setPoints(pointList);
 						JOptionPane.showMessageDialog (null, "Points have been set successfully", "Notification", JOptionPane.PLAIN_MESSAGE);
 						hide_self();
 					}

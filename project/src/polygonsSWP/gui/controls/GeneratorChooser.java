@@ -1,4 +1,4 @@
-package polygonsSWP.gui;
+package polygonsSWP.gui.controls;
 
 import java.awt.Component;
 

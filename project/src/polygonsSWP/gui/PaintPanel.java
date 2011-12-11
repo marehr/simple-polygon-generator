@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
+import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
 
 /**
  * Component for drawing our geometry objects.
@@ -23,7 +24,7 @@ import polygonsSWP.geometry.Polygon;
  * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
  */
 public class PaintPanel
-  extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener
+  extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, PolygonGenerationPanelListener
 {
   private static final long serialVersionUID = 1L;
   private Polygon polygon;
@@ -43,29 +44,7 @@ public class PaintPanel
     addMouseWheelListener(this);
   }
   
-  public void setPolygon(Polygon polygon) {
-    this.polygon = polygon;
-    repaint();
-  }
-  
-  public Polygon getPolygon() {
-    return polygon;
-  }
-  
-  public void setPoints(List<Point> points) {
-    this.points = points;
-    repaint();
-  }
-  
-  public List<Point> getPoints() {
-    return points;
-  }
-  
-  public void setDrawMode(boolean drawMode) {
-    this.drawMode = drawMode;
-  }
-  
-  public void resetView() {
+  private void resetView() {
     zoom = 1.0f;
     offsetX = 0;
     offsetY = 0;
@@ -76,18 +55,20 @@ public class PaintPanel
   
   @Override
   public void paintComponent(Graphics g) {
-    g.clearRect(0, 0, 1000, 1000);
+    g.setColor(Color.WHITE);
+    g.fillRect(0, 0, 1000, 1000);
 
     // Paint the polygon
     if (polygon != null) {
       List<Point> p = polygon.getPoints();
-
       int[] xcoords = new int[p.size()];
       int[] ycoords = new int[p.size()];
       for (int i = 0; i < p.size(); i++) {
         xcoords[i] = (int) (p.get(i).x * zoom + offsetX);
         ycoords[i] = (int) (p.get(i).y * zoom + offsetY);
       }
+      
+      g.setColor(Color.BLACK);
       g.drawPolygon(xcoords, ycoords, p.size());
     }
     
@@ -185,5 +166,28 @@ public class PaintPanel
         repaint();
       }
     }
+  }
+  
+  /* PolygonGenerationPanelListener methods. */
+
+  @Override
+  public void onPolygonGenerationStarted() {
+    // TODO show spinning wheel
+    
+    polygon = null;
+  }
+
+  @Override
+  public void onPolygonGenerated(Polygon newPolygon) {
+    polygon = newPolygon;
+    repaint();
+  }
+
+  @Override
+  public void onPointGenerationModeSwitched(boolean randomPoints,
+      List<Point> points) {
+    drawMode = !randomPoints;
+    this.points = points;
+    repaint();
   }
 }
