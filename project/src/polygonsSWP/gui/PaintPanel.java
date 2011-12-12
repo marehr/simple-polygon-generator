@@ -190,4 +190,9 @@ public class PaintPanel
     this.points = points;
     repaint();
   }
+
+  @Override
+  public void onPolygonGenerationCancelled() {
+    // TODO Auto-generated method stub 
+  }
 }
