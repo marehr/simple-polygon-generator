@@ -6,9 +6,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,17 +18,20 @@ import java.util.Map;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.filechooser.FileFilter;
 
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGenerator.Parameters;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.gui.controls.GeneratorChooser;
+
 
 /**
  * Panel which controls the polygon generation.
@@ -35,7 +40,8 @@ import polygonsSWP.gui.controls.GeneratorChooser;
  * @author Sebastian Thobe <sebastianthobe@googlemail.com>
  */
 public class PolygonGenerationPanel
-  extends JPanel implements PolygonGenerationWorkerListener
+  extends JPanel
+  implements PolygonGenerationWorkerListener
 {
   private static final long serialVersionUID = 1L;
 
@@ -50,7 +56,7 @@ public class PolygonGenerationPanel
 
   /* the current polygon! */
   private Polygon polygon = null;
-  
+
   /* the list of user-selected points */
   private List<Point> points = null;
 
@@ -86,42 +92,35 @@ public class PolygonGenerationPanel
     // Register action listeners with buttons.
     registerListeners();
   }
-  
+
   /* API */
 
   /**
-   * Register a observer.
+   * Register an observer.
    * 
-   * @param listener Class thats interested in polygon generation
-   *        related events
+   * @param listener Class thats interested in polygon generation related events
    */
-  public void addPolygonGenerationPanelListener(PolygonGenerationPanelListener listener) {
+  public void addPolygonGenerationPanelListener(
+      PolygonGenerationPanelListener listener) {
     observers.add(listener);
   }
-  
+
   /**
-   * Retrieve list of points used to generate the next polygon
-   * of. May be manipulated by foreign classes (eg PaintPanel).
+   * Retrieve list of points used to generate the next polygon of. May be
+   * manipulated by foreign classes (e.g. PaintPanel). TODO: Remove if not used.
    * 
-   * TODO: Remove if not used.
-   * 
-   * @return List of initial points for next run or null
-   *         if point generation mode is set to random.
+   * @return List of initial points for next run or null if point generation
+   *         mode is set to random.
    */
   public List<Point> getPoints() {
-    if(rb_polygonByUser.isSelected())
-      return points;
-    else
-      return null;
+    if (rb_polygonByUser.isSelected()) return points;
+    else return null;
   }
-  
+
   /**
-   * Retrieve generated polygon.
+   * Retrieve generated polygon. TODO: Remove if not used.
    * 
-   * TODO: Remove if not used.
-   * 
-   * @return the generated polygon or null if no polygon has been
-   *         created.
+   * @return the generated polygon or null if no polygon has been created.
    */
   public Polygon getPolygon() {
     return polygon;
@@ -167,7 +166,6 @@ public class PolygonGenerationPanel
   }
 
   final private void registerListeners() {
-    // action listener
     b_generate_polygon.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         runGenerator();
@@ -181,15 +179,11 @@ public class PolygonGenerationPanel
      * f.setLocationRelativeTo(null); f.setVisible(true); } });
      */
 
-    /*
-     * b_save_polygon.addActionListener(new ActionListener() { public void
-     * actionPerformed(ActionEvent arg0) { if (_canvas.getPolygon() != null) {
-     * FileDialog fd = new FileDialog(new Frame(), "Save Polygon To",
-     * FileDialog.SAVE); fd.setVisible(true); if (fd.getDirectory() != null)
-     * savePolygonToFile(fd.getDirectory() + File.separator + fd.getFile()); }
-     * else { JOptionPane.showMessageDialog(null, "There is no polygon to save",
-     * "Error", JOptionPane.ERROR_MESSAGE); } } });
-     */
+    b_save_polygon.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent arg0) {
+        savePolygon();
+      }
+    });
 
     // RadioButtons
     rb_polygonByGenerator.addMouseListener(new MouseAdapter() {
@@ -216,9 +210,9 @@ public class PolygonGenerationPanel
       }
     });
   }
-  
+
   protected void emitPolygonGenerationStarted() {
-    for(PolygonGenerationPanelListener pgl : observers)
+    for (PolygonGenerationPanelListener pgl : observers)
       pgl.onPolygonGenerationStarted();
   }
 
@@ -227,17 +221,35 @@ public class PolygonGenerationPanel
       pgl.onPolygonGenerated(p);
   }
 
-  protected void emitPointGenerationModeSwitched(boolean randomPoints, List<Point> points) {
+  protected void emitPointGenerationModeSwitched(boolean randomPoints,
+      List<Point> points) {
     for (PolygonGenerationPanelListener pgl : observers)
       pgl.onPointGenerationModeSwitched(randomPoints, points);
   }
 
+  /**
+   * Called by polygon generation worker upon successful 
+   * polygon generation. :)
+   */
+  @Override
+  public void onFinished(Polygon polygon) {
+    // TODO enable buttons
+    b_save_polygon.setEnabled(true);
+
+    this.polygon = polygon;
+    emitPolygonGenerated(polygon);
+  }
+  
+  /**
+   * Checks parameters and starts a worker thread to generate
+   * the polygon.
+   */
   protected void runGenerator() {
     // TODO: check parameters again, but in a better way.
     // I disabled incapable algorithms in GeneratorChooser, but
     // if for example RPA was selected when "Set Points" was clicked,
     // RPA still stays selected.
-    
+
     PolygonGenerator pg =
         (PolygonGenerator) cb_polygon_algorithm_chooser.getSelectedItem();
 
@@ -252,8 +264,8 @@ public class PolygonGenerationPanel
       params.put(Parameters.n, sl_edges.getValue());
     }
     else if (rb_polygonByUser.isSelected()) {
-      assert(points != null);
-      
+      assert (points != null);
+
       if (points.size() >= 3) {
         params.put(Parameters.points, points);
       }
@@ -264,36 +276,108 @@ public class PolygonGenerationPanel
         return;
       }
     }
-    
+
     // TODO think about order and disable buttons
     Thread t = new Thread(new PolygonGenerationWorker(pg, params, this));
     emitPolygonGenerationStarted();
     t.start();
   }
   
-  protected void savePolygonToFile(String filePath) {
+  /**
+   * Takes care of user interaction through JFileChooser and writes
+   * the polygon to a file.
+   */
+  protected void savePolygon() {
     assert(polygon != null);
-    
-    File f = new File(filePath);
-    try {
-      BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-      List<Point> plist = polygon.getPoints();
-      for (int i = 0; i < plist.size(); i++) {
-        Point p = plist.get(i);
-        bw.write(p.x + " " + p.y + "\n");
-      }
-      bw.close();
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
 
-  @Override
-  public void onFinished(Polygon polygon) {
-    // TODO enable buttons
+    FileFilter svgFilter = new FileFilter() {
+      @Override
+      public boolean accept(File f) {
+        return true;
+      }
+      @Override
+      public String getDescription() {
+        return ".svg (Scalable Vector Graphics)";
+      }
+    };
+    FileFilter polygonFilter = new FileFilter() {
+      @Override
+      public boolean accept(File arg0) {
+        return true;
+      }
+      @Override
+      public String getDescription() {
+        return ".polygon (Our own custom polygon format)";
+      }
+    };
     
-    this.polygon = polygon;
-    emitPolygonGenerated(polygon);
+    JFileChooser jfc = new JFileChooser();
+    jfc.setDialogTitle("Save polygon as");
+    jfc.setAcceptAllFileFilterUsed(false);
+    jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+    jfc.setMultiSelectionEnabled(false);
+    jfc.addChoosableFileFilter(polygonFilter);
+    jfc.addChoosableFileFilter(svgFilter);
+    
+    if(jfc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
+      return;
+       
+    File f = jfc.getSelectedFile();
+    FileOutputStream fos = null;
+    OutputStreamWriter osw = null;
+    
+    if(!f.exists()) { 
+      try {
+        f.createNewFile();
+      } catch (IOException e) {
+        JOptionPane.showMessageDialog(this,
+          "Could not create \"" + f.getName() + "\".", "Error",
+          JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+    } else {
+      int retval = JOptionPane.showConfirmDialog(this,
+          "\"" + f.getName() + "\" exists. Overwrite?", "Overwrite?",
+          JOptionPane.YES_NO_OPTION);
+      if(retval == JOptionPane.NO_OPTION)
+        return;
+    }
+    
+    try {
+      fos = new FileOutputStream(f);
+    }
+    catch (FileNotFoundException e) {
+      // Should not happen, as file was created above.
+      assert(false);
+    }
+    
+    String data;
+    if(jfc.getFileFilter().equals(svgFilter))
+      data = polygon.toSVG();
+    else
+      data = polygon.toString();
+    
+    osw = new OutputStreamWriter(fos);
+    
+    try {
+      osw.write(data);
+    }
+    catch (IOException e) {
+      // Write error, most likely due to insufficient access rights.
+      JOptionPane.showMessageDialog(this,
+          "Could not write to \"" + f.getName() + "\".", "Error",
+          JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    try {
+      osw.close();
+    }
+    catch (IOException e) {
+      // Could also be a write error.
+      JOptionPane.showMessageDialog(this,
+          "Could not write to \"" + f.getName() + "\".", "Error",
+          JOptionPane.ERROR_MESSAGE);
+    }
   }
 }

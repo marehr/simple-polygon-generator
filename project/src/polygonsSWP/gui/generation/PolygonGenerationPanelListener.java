@@ -13,6 +13,12 @@ public interface PolygonGenerationPanelListener
   public void onPolygonGenerationStarted();
   
   /**
+   * Event emitted when the polygon generation was cancelled
+   * (as requested by user).
+   */
+  public void onPolygonGenerationCancelled();
+  
+  /**
    * Event emitted when the polygon generation has finished.
    * 
    * @param newPolygon the newly generated polygon
