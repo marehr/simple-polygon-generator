@@ -242,7 +242,6 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
     
     void markRule1(int i, int j) {
       LineSegment ls = new LineSegment(v.get(i), v.get(j));
-      Point[] isect = new Point[1];
       for(int m = 0; m < v.size() - 1; m++) {
         for(int n = m + 1; n < v.size(); n++) {
                   
