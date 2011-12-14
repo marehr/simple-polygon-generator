@@ -1,4 +1,4 @@
-package polygonsSWP.gui.controls;
+package polygonsSWP.gui.generation;
 
 import java.awt.Component;
 
@@ -16,13 +16,13 @@ import polygonsSWP.generators.PolygonGenerator.Parameters;
  * 
  * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
  */
-public class GeneratorChooser
+class GeneratorChooser
   extends JComboBox
 {
   private static final long serialVersionUID = 1L;
   private AlgoCellRenderer acr;
 
-  public GeneratorChooser(PolygonGenerator[] polygon_algorithm_list,
+  GeneratorChooser(PolygonGenerator[] polygon_algorithm_list,
       boolean randomPoints) {
     super(polygon_algorithm_list);
 
@@ -32,7 +32,7 @@ public class GeneratorChooser
     switchPointGenerationMode(randomPoints);
   }
 
-  public void switchPointGenerationMode(boolean randomPoints) {
+  void switchPointGenerationMode(boolean randomPoints) {
     acr.switchPointGenerationMode(randomPoints);
     validate();
     repaint();

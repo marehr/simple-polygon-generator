@@ -17,6 +17,7 @@ import polygonsSWP.generators.RandomPolygonAlgorithm;
 import polygonsSWP.generators.SpacePartitioning;
 import polygonsSWP.generators.TwoOptMoves;
 import polygonsSWP.gui.generation.PolygonGenerationPanel;
+import polygonsSWP.gui.visualisation.PolygonView;
 
 /**
  * MainFrame.
@@ -30,9 +31,9 @@ public class MainFrame
   private static final long serialVersionUID = 313119639927682997L;
 
   // gui components
-  private final PolygonGenerationPanel _generator_config;
+  private final PolygonGenerationPanel p_generator;
   private final ShortestPathPanel _sp_config;
-  private final PaintPanel _canvas;
+  private final PolygonView p_polygon_view;
 
   private PolygonGenerator[] polygon_algorithm_list = { new PermuteAndReject(),
       new TwoOptMoves(), new RandomPolygonAlgorithm(), new SpacePartitioning(),
@@ -44,12 +45,12 @@ public class MainFrame
 
   public MainFrame() {
     // init canvas
-    _canvas = new PaintPanel();
+    p_polygon_view = new PolygonView();
     
     // init generator configuration panel
-    _generator_config = new PolygonGenerationPanel(polygon_algorithm_list);
-    _generator_config.setBorder(BorderFactory.createTitledBorder("Polygon Generation"));
-    _generator_config.addPolygonGenerationPanelListener(_canvas);
+    p_generator = new PolygonGenerationPanel(polygon_algorithm_list);
+    p_generator.setBorder(BorderFactory.createTitledBorder("Polygon Generation"));
+    p_generator.addPolygonGenerationPanelListener(p_polygon_view);
     
     // init shortest path configuration panel
     _sp_config = new ShortestPathPanel();
@@ -58,13 +59,13 @@ public class MainFrame
     // Create a sidebar on the left.
     JPanel p_sidebarLeft = new JPanel();
     p_sidebarLeft.setLayout(new GridLayout(2, 1));
-    p_sidebarLeft.add(_generator_config);
+    p_sidebarLeft.add(p_generator);
     p_sidebarLeft.add(_sp_config);
 
     // Layout the main window.
     setLayout(new BorderLayout(5, 5));
     add(p_sidebarLeft, BorderLayout.WEST);
-    add(_canvas, BorderLayout.CENTER);
+    add(p_polygon_view, BorderLayout.CENTER);
 
     setTitle("PolygonGen");
     setSize(1000, 650);

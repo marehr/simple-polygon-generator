@@ -1,4 +1,4 @@
-package polygonsSWP.gui;
+package polygonsSWP.gui.visualisation;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -13,46 +13,57 @@ import javax.swing.JPanel;
 
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
-import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
 
 /**
- * Component for drawing our geometry objects.
- * This one features drawing a polygon as well as points
- * plus zooming and dragging stuff around.
+ * Component for drawing our geometry objects. This one features drawing a
+ * polygon as well as points plus zooming and dragging stuff around.
  * 
  * @author Sebastian Thobe <sebastianthobe@googlemail.com>
  * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
  */
-public class PaintPanel
-  extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, PolygonGenerationPanelListener
+class PaintPanel
+  extends JPanel
+  implements MouseListener, MouseMotionListener, MouseWheelListener
 {
   private static final long serialVersionUID = 1L;
   private Polygon polygon;
   private List<Point> points;
-  
+
   private float zoom = 1.0f;
   private int offsetX = 0;
   private int offsetY = 0;
   private int dragOffsetX = -1;
   private int dragOffsetY = -1;
-  
+
   private boolean drawMode;
-  
+
   public PaintPanel() {
     addMouseListener(this);
     addMouseMotionListener(this);
     addMouseWheelListener(this);
   }
-  
-  private void resetView() {
+
+  /* API */
+
+  void setPolygon(Polygon p) {
+    polygon = p;
+    repaint();
+  }
+
+  void setDrawMode(boolean d, List<Point> p) {
+    drawMode = d;
+    points = p;
+  }
+
+  void resetView() {
     zoom = 1.0f;
     offsetX = 0;
     offsetY = 0;
     repaint();
   }
-  
+
   /* Painting */
-  
+
   @Override
   public void paintComponent(Graphics g) {
     g.setColor(Color.WHITE);
@@ -67,51 +78,51 @@ public class PaintPanel
         xcoords[i] = (int) (p.get(i).x * zoom + offsetX);
         ycoords[i] = (int) (p.get(i).y * zoom + offsetY);
       }
-      
+
       g.setColor(Color.BLACK);
       g.drawPolygon(xcoords, ycoords, p.size());
     }
-    
+
     // Paint the points
-    if(drawMode) {
-      assert(points != null);
-      
+    if (drawMode) {
+      assert (points != null);
+
       g.setColor(Color.GREEN);
-      for(Point p : points) {
+      for (Point p : points) {
         g.drawOval((int) (p.x * zoom + offsetX) - 1,
             (int) (p.y * zoom + offsetY) - 1, 3, 3);
       }
     }
   }
-  
-  /* 
-   * MouseListener methods. Used for zooming and 
-   * manually setting points. 
+
+  /*
+   * MouseListener methods. Used for zooming and manually setting points.
    */
-  
+
   @Override
-  public void mouseClicked(MouseEvent e) {  
+  public void mouseClicked(MouseEvent e) {
     // Set point if in draw mode and right mouse button clicked.
-    if(drawMode && e.getButton() == MouseEvent.BUTTON3) {
-      assert(points != null);
-      
+    if (drawMode && e.getButton() == MouseEvent.BUTTON3) {
+      assert (points != null);
+
       long x = (long) ((e.getX() - offsetX) / zoom);
       long y = (long) ((e.getY() - offsetY) / zoom);
       points.add(new Point(x, y));
-      
+
       repaint();
-    } else if(e.getButton() == MouseEvent.BUTTON2) {
+    }
+    else if (e.getButton() == MouseEvent.BUTTON2) {
       // Reset view on middle button click
       resetView();
     }
   }
 
   @Override
-  public void mouseEntered(MouseEvent e) {    
+  public void mouseEntered(MouseEvent e) {
   }
 
   @Override
-  public void mouseExited(MouseEvent e) {    
+  public void mouseExited(MouseEvent e) {
   }
 
   @Override
@@ -125,9 +136,9 @@ public class PaintPanel
   }
 
   /*
-   *  MouseMotionListener methods. Used for dragging stuff around. 
+   * MouseMotionListener methods. Used for dragging stuff around.
    */
-  
+
   @Override
   public void mouseDragged(MouseEvent e) {
     offsetX = e.getX() + dragOffsetX;
@@ -136,63 +147,35 @@ public class PaintPanel
   }
 
   @Override
-  public void mouseMoved(MouseEvent e) {   
+  public void mouseMoved(MouseEvent e) {
   }
-  
-  /* 
-   * MouseWheelListener methods. Used for zooming. 
+
+  /*
+   * MouseWheelListener methods. Used for zooming.
    */
-  
+
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
-    if(e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+    if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
       /*
-       * Remark:  We're ignoring platform default values 
-       * here (e.g. e.getScrollAmount()).
+       * Remark: We're ignoring platform default values here (e.g.
+       * e.getScrollAmount()).
        */
       float nz = -1;
-      if(e.getWheelRotation() < 0) {
+      if (e.getWheelRotation() < 0) {
         // Zoom in
         nz = zoom + 0.1f;
-      } else {
-        if(zoom > 0.1f)
-          nz = zoom - 0.1f;
       }
-      
-      if(nz != -1) {
+      else {
+        if (zoom > 0.1f) nz = zoom - 0.1f;
+      }
+
+      if (nz != -1) {
         offsetX = (int) (e.getX() - (e.getX() - offsetX) / zoom * nz);
         offsetY = (int) (e.getY() - (e.getY() - offsetY) / zoom * nz);
         zoom = nz;
         repaint();
       }
     }
-  }
-  
-  /* PolygonGenerationPanelListener methods. */
-
-  @Override
-  public void onPolygonGenerationStarted() {
-    // TODO show spinning wheel
-    
-    polygon = null;
-  }
-
-  @Override
-  public void onPolygonGenerated(Polygon newPolygon) {
-    polygon = newPolygon;
-    repaint();
-  }
-
-  @Override
-  public void onPointGenerationModeSwitched(boolean randomPoints,
-      List<Point> points) {
-    drawMode = !randomPoints;
-    this.points = points;
-    repaint();
-  }
-
-  @Override
-  public void onPolygonGenerationCancelled() {
-    // TODO Auto-generated method stub 
   }
 }

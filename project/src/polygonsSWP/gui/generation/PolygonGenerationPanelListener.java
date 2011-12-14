@@ -1,8 +1,6 @@
 package polygonsSWP.gui.generation;
 
-import java.util.List;
-
-import polygonsSWP.geometry.Point;
+import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.geometry.Polygon;
 
 public interface PolygonGenerationPanelListener
@@ -22,18 +20,8 @@ public interface PolygonGenerationPanelListener
    * Event emitted when the polygon generation has finished.
    * 
    * @param newPolygon the newly generated polygon
+   * @param history the step-by-step visualisation of the generation.
+   * 				May be null.
    */
-  public void onPolygonGenerated(Polygon newPolygon);
-  
-  /**
-   * Event emitted when the point generation mode was switched.
-   * Modes are randomPoints == true, i.e. points are to be generated
-   * randomly at runtime, randomPoints == false, which means
-   * points are selected by user.
-   * 
-   * @param randomPoints true, if random points, false, if user-selected.
-   * @param points reference to list of user-selected points or
-   *        null in case of random points.
-   */
-  public void onPointGenerationModeSwitched(boolean randomPoints, List<Point> points);
+  public void onPolygonGenerated(Polygon newPolygon, PolygonHistory history);
 }

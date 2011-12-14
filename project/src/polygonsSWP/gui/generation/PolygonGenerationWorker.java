@@ -26,4 +26,9 @@ class PolygonGenerationWorker
     Polygon p = pg.generate(params, null);
     cb.onFinished(p);
   }
+
+  public void stop() {
+    // TODO implement
+    //    pg.stop();
+  }
 }
