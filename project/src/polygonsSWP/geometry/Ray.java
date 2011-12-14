@@ -2,6 +2,10 @@ package polygonsSWP.geometry;
 
 import java.util.List;
 
+import polygonsSWP.util.intersections.IntersectionUtils;
+import polygonsSWP.util.intersections.LineSegmentIntersectionMode;
+import polygonsSWP.util.intersections.RayIntersectionMode;
+
 
 public class Ray
 {
@@ -37,25 +41,33 @@ public class Ray
    * Get intersection between this ray and a lineSegment if existing.
    * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   * 
    * @param l LineSegment to intersect with.
-   * @return
+   * @return null, array of length 0 (if coincident), array containing
+   *         the intersection otherwise.
    */
   public Point[] intersect(LineSegment ls) {
-    Line line = this.extendToLine();
-    Point[] intersection = line.intersect(ls.extendToLine());
-    if (intersection == null || intersection.length == 0) { return intersection; }
-    if (!(this.containsPoint(intersection[0]) && ls.containsPoint(intersection[0]))) { return null; }
-    return intersection;
+    return IntersectionUtils.intersect(_base, _support, ls._a, ls._b, 
+        new RayIntersectionMode(true), new LineSegmentIntersectionMode(true));
   }
 
+  /**
+   * Get the intersection between this ray and another one.
+   * 
+   * @param r the ray to intersect with
+   * @return null, array of length 0 (if coincident), array containing
+   *         the intersection otherwise.
+   */
   public Point[] intersect(Ray r) {
-    Line line = this.extendToLine();
-    Point[] intersection = line.intersect(r.extendToLine());
-    if (intersection == null || intersection.length == 0) { return intersection; }
-    if (!(this.containsPoint(intersection[0]) && r.containsPoint(intersection[0]))) { return null; }
-    return intersection;
+    return IntersectionUtils.intersect(_base, _support, r._base, r._support, 
+        new RayIntersectionMode(true), new RayIntersectionMode(true));
   }
 
+  /**
+   * Extends this ray to a line.
+   * @return a line matching this ray and extending into the other
+   *         direction as well.
+   */
   public Line extendToLine() {
     return new Line(_base, _support);
   }
