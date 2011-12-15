@@ -87,8 +87,10 @@ class PaintPanel
     if (drawMode) {
       assert (points != null);
 
-      g.setColor(Color.GREEN);
+      g.setColor(new Color(80, 0, 90));
       for (Point p : points) {
+        g.drawOval((int) (p.x * zoom + offsetX) - 2,
+            (int) (p.y * zoom + offsetY) - 2, 5, 5);
         g.drawOval((int) (p.x * zoom + offsetX) - 1,
             (int) (p.y * zoom + offsetY) - 1, 3, 3);
       }
