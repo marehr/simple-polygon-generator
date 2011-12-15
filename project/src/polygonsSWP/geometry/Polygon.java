@@ -1,12 +1,7 @@
 package polygonsSWP.geometry;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-
 
 /**
  * Polygon interface for simple _and_ complex polygons. Subclasses should never
@@ -144,6 +139,17 @@ public abstract class Polygon
     }
   }
 
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    for(Point p : getPoints()) {
+      sb.append(p.x);
+      sb.append(" ");
+      sb.append(p.y);
+      sb.append("\n");
+    }
+    return sb.toString();
+  }
+  
   /**
    * @return a SVG representation of the polygon contained in a string
    */
@@ -166,25 +172,5 @@ public abstract class Polygon
     }
     sb.append("</svg>\n");
     return sb.toString();
-  }
-
-  /**
-   * Prints the polygon to a svg file, no questions asked. Debug method to avoid
-   * having to write too much try..catch clauses.
-   * 
-   * @param filename filename to save svg into TODO remove or change
-   */
-  public void toSVGFile(String filename) {
-    try {
-      File f = new File(filename);
-      f.createNewFile();
-      OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(f));
-      out.write(toSVG());
-      out.close();
-    }
-    catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
   }
 }

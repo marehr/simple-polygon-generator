@@ -1,5 +1,10 @@
 package polygonsSWP.geometry;
 
+import polygonsSWP.util.intersections.IntersectionUtils;
+import polygonsSWP.util.intersections.LineIntersectionMode;
+import polygonsSWP.util.intersections.LineSegmentIntersectionMode;
+import polygonsSWP.util.intersections.RayIntersectionMode;
+
 public class Line
 {
   public Point _a;
@@ -39,10 +44,8 @@ public class Line
    *         both a coincident, array containing intersection Point else.
    */
   public Point[] intersect(LineSegment ls) {
-    Point[] intersection = intersect(ls.extendToLine());
-    if (intersection == null || intersection.length == 0) { return intersection; }
-    if (!this.containsPoint(intersection[0])) { return null; }
-    return intersection;
+    return IntersectionUtils.intersect(_a, _b, ls._a, ls._b, 
+        new LineIntersectionMode(), new LineSegmentIntersectionMode(true));
   }
 
   /**
@@ -54,10 +57,8 @@ public class Line
    *         both a coincident, array containing intersection Point else.
    */
   public Point[] intersect(Ray r) {
-    Point[] intersection = intersect(r.extendToLine());
-    if (intersection == null || intersection.length == 0) { return intersection; }
-    if (!this.containsPoint(intersection[0])) { return null; }
-    return intersection;
+    return IntersectionUtils.intersect(_a, _b, r._base, r._support, 
+        new LineIntersectionMode(), new RayIntersectionMode(true));
   }
 
   /**
@@ -69,43 +70,7 @@ public class Line
    *         array containing intersection Point else.
    */
   public Point[] intersect(Line l2) {
-
-    long x1, x2, x3, x4, y1, y2, y3, y4;
-
-    x1 = this._a.x;
-    x2 = this._b.x;
-    x3 = l2._a.x;
-    x4 = l2._b.x;
-
-    y1 = this._a.y;
-    y2 = this._b.y;
-    y3 = l2._a.y;
-    y4 = l2._b.y;
-
-    long denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-    long nominator1 =
-        (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4);
-    long nominator2 =
-        (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4);
-
-    // if
-    if (denominator == 0) {
-      if (nominator1 == 0 && nominator2 == 0) {
-        Point[] intersection = { };
-        return intersection;
-      }
-      else {
-        return null;
-      }
-    }
-
-    double ua = nominator1 / (double) denominator;
-
-    double x = x1 + ua * (x2 - x1);
-    double y = y1 + ua * (y2 - y1);
-
-    Point[] intersection = { new Point((long) x, (long) y) };
-
-    return intersection;
+    return IntersectionUtils.intersect(_a, _b, l2._a, l2._b, 
+        new LineIntersectionMode(), new LineIntersectionMode());
   }
 }
