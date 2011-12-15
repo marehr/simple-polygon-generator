@@ -51,6 +51,7 @@ public class MainFrame
     p_generator = new PolygonGenerationPanel(polygon_algorithm_list);
     p_generator.setBorder(BorderFactory.createTitledBorder("Polygon Generation"));
     p_generator.addPolygonGenerationPanelListener(p_polygon_view);
+    p_generator.addPointGenerationModeListener(p_polygon_view);
     
     // init shortest path configuration panel
     _sp_config = new ShortestPathPanel();
