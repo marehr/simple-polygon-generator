@@ -3,12 +3,10 @@ package polygonsSWP.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.generators.PolygonGenerator.Parameters;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
@@ -22,19 +20,18 @@ public class GeneratorUtils
 
   /**
    * Tests whether a given set of points is in general position, which means
-   * that no points are coincident, no 3 points are colinear and no 4 points lie
+   * that no points are the same, no 3 points are colinear and no 4 points lie
    * on a circle.
    * 
    * @param pointSet the set of points
    * @return true, if in general position, false otherwise.
    */
   public static boolean isInGeneralPosition(List<Point> pointSet) {
-    // TODO optimize
-
-    // First condition: No points are coincident.
-    for (int i = 0; i < pointSet.size(); i++) {
-      for (int j = 0; j < pointSet.size(); j++) {
-        if ((i != j) && pointSet.get(i).equals(pointSet.get(j))) return false;
+    // First condition: No 2 points are the same.
+    for (int i = 0; i < pointSet.size() - 1; i++) {
+      for (int j = i + 1; j < pointSet.size(); j++) {
+        if (pointSet.get(i).equals(pointSet.get(j))) 
+          return false;
       }
     }
 
@@ -50,6 +47,9 @@ public class GeneratorUtils
 
     // Third condition: No 4 points lie on a circle.
     // TODO implement
+    // Please someone read this:
+    // http://isthe.com/chongo/tech/math/n-cluster/
+    // and tell me that they don't talk about GP there.
 
     return true;
   }
