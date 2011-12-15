@@ -29,7 +29,7 @@ class PaintPanel
   private Polygon polygon;
   private List<Point> points;
 
-  private float zoom = 1.0f;
+  private double zoom = 1.0d;
   private int offsetX = 0;
   private int offsetY = 0;
   private int dragOffsetX = -1;
@@ -153,7 +153,7 @@ class PaintPanel
   /*
    * MouseWheelListener methods. Used for zooming.
    */
-
+  
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
     if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
@@ -161,14 +161,19 @@ class PaintPanel
        * Remark: We're ignoring platform default values here (e.g.
        * e.getScrollAmount()).
        */
-      float nz = -1;
+      final double b = 0.1;
+      
+      double nz = -1;
       if (e.getWheelRotation() < 0) {
         // Zoom in
-        nz = zoom + 0.1f;
+        nz = Math.exp(b * (Math.log(zoom) / b + 1));
       }
       else {
-        if (zoom > 0.1f) nz = zoom - 0.1f;
-      }
+        nz = Math.exp(b * (Math.log(zoom) / b - 1));
+        
+        if(nz < 0.1)
+          nz = 0.1;
+      } 
 
       if (nz != -1) {
         offsetX = (int) (e.getX() - (e.getX() - offsetX) / zoom * nz);
