@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -33,8 +34,9 @@ class PolygonGenerationConfiguration
   /* Controls. */
   private final JRadioButton rb_polygonByUser, rb_polygonByGenerator;
   private final GeneratorChooser cb_polygon_algorithm_chooser;
-  private final JSpinner sl_edges;
+  private final JSpinner sp_edges, sp_size;
   private final JButton b_load_points;
+  private final JLabel lbl_size;
   
   /* the list of user-selected points */
   private List<Point> points = null;
@@ -45,13 +47,17 @@ class PolygonGenerationConfiguration
     // init combobox
     cb_polygon_algorithm_chooser = new GeneratorChooser(generators, true);
 
-    // init slider
-    sl_edges = new JSpinner(new SpinnerNumberModel(5, 3, 1000, 1));
+    // init spinners
+    sp_edges = new JSpinner(new SpinnerNumberModel(5, 3, 1000, 1));
+    sp_size = new JSpinner(new SpinnerNumberModel(600, 1, 10000, 20));
     
     // init buttons
     b_load_points = new JButton("Load Points");
     b_load_points.setEnabled(false);
    
+    // init labels
+    lbl_size = new JLabel("Bounding box size");
+    
     // init RadioButtons and Groups
     ButtonGroup polygon_menu = new ButtonGroup();
     rb_polygonByGenerator = new JRadioButton("Generate Points");
@@ -83,7 +89,7 @@ class PolygonGenerationConfiguration
 
     gbc.gridx = 1;
     gbc.gridy = 0;
-    add(sl_edges, gbc);
+    add(sp_edges, gbc);
 
     gbc.gridx = 0;
     gbc.gridy = 1;
@@ -92,9 +98,17 @@ class PolygonGenerationConfiguration
     gbc.gridx = 1;
     gbc.gridy = 1;
     add(b_load_points, gbc);
-
+    
     gbc.gridx = 0;
     gbc.gridy = 2;
+    add(lbl_size, gbc);
+    
+    gbc.gridx = 1;
+    gbc.gridy = 2;
+    add(sp_size, gbc);
+
+    gbc.gridx = 0;
+    gbc.gridy = 3;
     gbc.gridwidth = 2;
     add(cb_polygon_algorithm_chooser, gbc);
   }
@@ -112,7 +126,7 @@ class PolygonGenerationConfiguration
       @Override
       public void mouseClicked(MouseEvent arg0) {
         b_load_points.setEnabled(false);
-        sl_edges.setEnabled(true);
+        sp_edges.setEnabled(true);
         cb_polygon_algorithm_chooser.switchPointGenerationMode(true);
         points = null;
         emitPointGenerationModeSwitched(true, null);
@@ -123,7 +137,7 @@ class PolygonGenerationConfiguration
       @Override
       public void mouseClicked(MouseEvent arg0) {
         b_load_points.setEnabled(true);
-        sl_edges.setEnabled(false);
+        sp_edges.setEnabled(false);
         cb_polygon_algorithm_chooser.switchPointGenerationMode(false);
         points = new LinkedList<Point>();
         emitPointGenerationModeSwitched(false, points);
@@ -156,11 +170,21 @@ class PolygonGenerationConfiguration
     // RPA still stays selected.
     Map<Parameters, Object> params = new HashMap<Parameters, Object>();
 
-    // TODO: remove this hard code
-    params.put(Parameters.size, 600);
+    Integer size = (Integer) sp_size.getValue();
+    params.put(Parameters.size, size);
 
     if (rb_polygonByGenerator.isSelected()) {
-      params.put(Parameters.n, sl_edges.getValue());
+      Integer edges = (Integer) sp_edges.getValue();
+      params.put(Parameters.n, edges);
+      
+      // Sanity check: number of points should be far less than
+      // area of bounding box.
+      if((size * size) < (edges * 100)) {
+        JOptionPane.showMessageDialog(null,
+            "You have specified a too small bounding box. Please increase size.", "Error",
+            JOptionPane.ERROR_MESSAGE);
+        return null;
+      }
     }
     else if (rb_polygonByUser.isSelected()) {
       assert (points != null);
