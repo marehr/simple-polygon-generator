@@ -283,89 +283,78 @@ public class OrderedListPolygon
   }
 
   /**
-   * Tests if p is inside the given Polygon.
-   * <http://geosoft.no/software/geometry/Geometry.java.html> Added a test to
-   * check if Point is on line.
-   * 
-   * @author Steve Dierker <dierker.steve@fu-berlin.de>
-   * @param p Point to be checked if it is in polygon
-   * @param onLine whether a point lying on an edge is counted as in or out of
-   *          polygon
-   * @return True if Point is in/on Polygon, otherwise false
-   */
-  public boolean containsPoint(Point p, boolean onLine) {
-    List<Point> pList = this.getPoints();
-    boolean isInside = false;
-    int nPoints = pList.size();
-    Point first = pList.get(pList.size() - 1);
-
-    int j = 0;
-    for (int i = 0; i < nPoints; i++) {
-      j++;
-      if (j == nPoints) j = 0;
-
-      if (pList.get(i).y < p.y && pList.get(j).y >= p.y ||
-          pList.get(j).y < p.y && pList.get(i).y >= p.y) {
-        if (pList.get(i).x + (double) (p.y - pList.get(i).y) /
-            (double) (pList.get(j).y - pList.get(i).y) *
-            (pList.get(j).x - pList.get(i).x) < p.y) {
-          isInside = !isInside;
-        }
-      }
-      if (onLine)
-        if (MathUtils.checkOrientation(first, pList.get(i), p) == 0) { return true; }
-      first = pList.get(i);
-    }
-    return isInside;
-  }
-
-  /**
    * This algorithm is an implementation of Seidel's Sweep-Line-Algorithm O(n
    * log* n). All three methods need to be reviewed!
    * 
    * @author Steve Dierker <dierker.steve@fu-berlin.de>
    * @see http://www.flipcode.com/archives/Efficient_Polygon_Triangulation.shtml
    * @category Ear-Clipping-Algorithm
-   * @param poly Polygon to triangulate
    * @return List of triangulars
    */
   public List<Triangle> triangulate() {
+    assert(isSimple());
+    assert(isClockwise() == -1);
+    
     List<Triangle> returnList = new ArrayList<Triangle>();
-    int n = _coords.size();
-    int[] V = new int[n];
-    if (0.0 < this.getSurfaceArea()) for (int v = 0; v < n; v++)
-      V[v] = v;
-    else for (int v = 0; v < n; v++)
-      V[v] = (n - 1) - v;
-    int nv = n;
-    int count = 2 * nv;
-    for (int m = 0, v = nv - 1; nv > 2;) {
-      /* if we loop, it is probably a non-simple polygon */
-      if (0 >= (count--)) return null;
 
-      /* three consecutive vertices in current polygon, <u,v,w> */
+    /* Manage a list of indices. */
+    int[] V = new int[size()];
+    for(int v = 0; v < size(); v++)
+      V[v] = v;
+    
+    int nv = size();
+    for (int v = nv - 1; nv > 2;) {
+      /* Three consecutive vertices in current polygon, <u,v,w>. */
       int u = v;
       if (nv <= u) u = 0; /* previous */
       v = u + 1;
       if (nv <= v) v = 0; /* new v */
       int w = v + 1;
       if (nv <= w) w = 0; /* next */
-
-      if (this.isASnip(u, v, w, count, V)) ;
+      
+      /* Build a triangle of the three vertices. */
+      Point a = _coords.get(V[u]);
+      Point b = _coords.get(V[v]);
+      Point c = _coords.get(V[w]);
+      Triangle triangle = new Triangle(a, b, c);
+      
+      /* Test whether triangle <u,v,w> is a snip. */
+      boolean isSnip = true;
+      
+      /* 
+       * 1st condition: Counterclockwise rotation of triangle, 
+       * which means that v is a convex vertex of the polygon. 
+       */
+      if(MathUtils.checkOrientation(a, b, c) == -1)
+        isSnip = false;
+        
+      /*
+       * 2nd condition: No other vertex lies of the polygon lies
+       * inside the triangle <u,v,w>.  
+       */
+      if(isSnip) {
+        for (int p = 0; p < nv; p++) {
+          if ((p == u) || (p == v) || (p == w)) 
+            continue;
+          if (triangle.containsPoint(_coords.get(V[p]), true)) {
+            isSnip = false;
+            break;
+          }
+        }
+      }
+      
+      if(isSnip)
       {
-        int a, b, c, s, t;
         /* output Triangle */
-        returnList.add(new Triangle(_coords.get(V[u]), _coords.get(V[v]),
-            _coords.get(V[w])));
-        m++;
+        returnList.add(triangle);
+        
         /* remove v from remaining polygon */
-        for (s = v, t = v + 1; t < nv; s++, t++)
+        for (int s = v, t = v + 1; t < nv; s++, t++)
           V[s] = V[t];
         nv--;
-        /* resest error detection counter */
-        count = 2 * nv;
       }
     }
+    
     return returnList;
   }
 
@@ -385,42 +374,6 @@ public class OrderedListPolygon
               _coords.get(p).y;
     }
     return result / 2.0;
-  }
-
-  /**
-   * Needs to be reviewed!
-   * 
-   * @author Steve Dierker <dierker.steve@fu-berlin.de>
-   * @param u
-   * @param v
-   * @param w
-   * @param n
-   * @param V
-   * @return
-   */
-  public boolean isASnip(int u, int v, int w, int n, int[] V) {
-    int p;
-    long Ax, Ay, Bx, By, Cx, Cy, Px, Py;
-
-    Ax = _coords.get(V[u]).x;
-    Ay = _coords.get(V[u]).y;
-
-    Bx = _coords.get(V[v]).x;
-    By = _coords.get(V[v]).y;
-
-    Cx = _coords.get(V[w]).x;
-    Cy = _coords.get(V[w]).y;
-
-    for (p = 0; p < n; p++) {
-      if ((p == u) || (p == v) || (p == w)) continue;
-      Px = _coords.get(V[p]).x;
-      Py = _coords.get(V[p]).y;
-      Triangle tmpT =
-          new Triangle(new Point(Ax, Ay), new Point(Bx, By), new Point(Cx, Cy));
-      if (tmpT.containsPoint(new Point(Px, Py), true)) return false;
-    }
-
-    return true;
   }
 
   /**

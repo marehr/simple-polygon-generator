@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import polygonsSWP.util.MathUtils;
-
 
 /**
  * This class just represents the smallest kind of polygon, a triangle. It
@@ -64,27 +62,6 @@ public class Triangle
       // TODO: check for other polygon types with 3 points would be fancy!
       return false;
     }
-  }
-
-  /**
-   * @param onLine: whether on the edge is counted as inor outside the polygon.
-   * @return Checks whether the triangle contains the given point.
-   */
-  @Override
-  public boolean containsPoint(final Point p, final boolean onLine) {
-    boolean isInside = true;
-    boolean isOnLine = false;
-    Point first = _coords.get(2);
-    for (int i = 0; i < _coords.size(); ++i) {
-      if (!(MathUtils.checkOrientation(first, _coords.get(i), p) == 1))
-        isInside = false;
-      first = _coords.get(i);
-      LineSegment tmpLine = new LineSegment(first, _coords.get(i));
-      if (tmpLine.containsPoint(p)) isOnLine = true;
-      first = _coords.get(i);
-    }
-    if (onLine) return isInside || isOnLine;
-    else return isInside;
   }
 
   /**

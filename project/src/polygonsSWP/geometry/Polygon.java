@@ -3,6 +3,8 @@ package polygonsSWP.geometry;
 import java.util.ArrayList;
 import java.util.List;
 
+import polygonsSWP.util.MathUtils;
+
 /**
  * Polygon interface for simple _and_ complex polygons. Subclasses should never
  * assume they contain a simple polygon.
@@ -27,11 +29,6 @@ public abstract class Polygon
    * @return True if object equals polygon, false otherwise
    */
   public abstract boolean equals(Object obj);
-
-  /**
-   * @return If point is in Polygon.
-   */
-  public abstract boolean containsPoint(Point p, boolean onLine);
 
   /**
    * @return Surface area as double.
@@ -138,7 +135,47 @@ public abstract class Polygon
       return intersections;
     }
   }
+  
+  /**
+   * Tests if p is inside the given Polygon.
+   * <http://geosoft.no/software/geometry/Geometry.java.html> Added a test to
+   * check if Point is on line.
+   * 
+   * @author Steve Dierker <dierker.steve@fu-berlin.de>
+   * @param p Point to be checked if it is in polygon
+   * @param onLine whether a point lying on an edge is counted as in or out of
+   *          polygon
+   * @return True if Point is in/on Polygon, otherwise false
+   */
+  public boolean containsPoint(Point p, boolean onLine) {
+    List<Point> pList = this.getPoints();
+    boolean isInside = false;
+    int nPoints = pList.size();
+    Point first = pList.get(pList.size() - 1);
 
+    int j = 0;
+    for (int i = 0; i < nPoints; i++) {
+      j++;
+      if (j == nPoints) j = 0;
+
+      if (pList.get(i).y < p.y && pList.get(j).y >= p.y ||
+          pList.get(j).y < p.y && pList.get(i).y >= p.y) {
+        if (pList.get(i).x + (double) (p.y - pList.get(i).y) /
+            (double) (pList.get(j).y - pList.get(i).y) *
+            (pList.get(j).x - pList.get(i).x) < p.y) {
+          isInside = !isInside;
+        }
+      }
+      if (onLine)
+        if (MathUtils.checkOrientation(first, pList.get(i), p) == 0) { return true; }
+      first = pList.get(i);
+    }
+    return isInside;
+  }
+
+  /**
+   * Print the polygon in our own file format.
+   */
   public String toString() {
     StringBuilder sb = new StringBuilder();
     for(Point p : getPoints()) {

@@ -3,16 +3,14 @@ package polygonsSWP.tests.geometry;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import org.junit.Test;
 
-import polygonsSWP.generators.PermuteAndReject;
-import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Triangle;
+import polygonsSWP.util.GeneratorUtils;
 
 
 public class OrderedListPolygonTest
@@ -108,16 +106,18 @@ public class OrderedListPolygonTest
 
   @Test
   public void testTriangulate() {
-    Map<PolygonGenerator.Parameters, Object> params =
-        new HashMap<PolygonGenerator.Parameters, Object>();
-    for (int i = 3; i < 1000; i++) {
-      params.put(PolygonGenerator.Parameters.n, i);
-      params.put(PolygonGenerator.Parameters.size, 10000);
-      PolygonGenerator gen = new PermuteAndReject();
-      OrderedListPolygon poly = (OrderedListPolygon) gen.generate(params, null);
-      for (Triangle item : poly.triangulate())
-        System.out.println(item);
-      assertTrue(poly.triangulate().size()>=poly.size()/2);
-    }
+    OrderedListPolygon poly = new OrderedListPolygon();
+
+    poly.addPoint(new Point(7, 1));
+    poly.addPoint(new Point(0, 0));
+    poly.addPoint(new Point(10, 0));
+    poly.addPoint(new Point(15, 6));
+    
+    List<Triangle> l = poly.triangulate();
+    
+    assertTrue(l.size() == 2);
+    
+    double area = l.get(0).getSurfaceArea() + l.get(1).getSurfaceArea();
+    assertTrue(area == poly.getSurfaceArea());
   }
 }
