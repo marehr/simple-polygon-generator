@@ -1,6 +1,7 @@
 package polygonsSWP.tests.geometry;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,15 +10,22 @@ import org.junit.Test;
 
 import polygonsSWP.generators.PermuteAndReject;
 import polygonsSWP.generators.PolygonGenerator;
-import polygonsSWP.generators.TwoOptMoves;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
-import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.Triangle;
 
 
 public class OrderedListPolygonTest
 {
+  @Test
+  public void testGetSurfaceArea() {
+    OrderedListPolygon p = new OrderedListPolygon();
+    p.addPoint(new Point(1, 1));
+    p.addPoint(new Point(4, 1));
+    p.addPoint(new Point(4, 4));
+    assertTrue(4.5d == p.getSurfaceArea());
+  }
+  
   @Test
   public void testIsSimple() {
     // Simple polygon

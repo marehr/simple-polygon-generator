@@ -333,7 +333,7 @@ public class OrderedListPolygon
     List<Triangle> returnList = new ArrayList<Triangle>();
     int n = _coords.size();
     int[] V = new int[n];
-    if (0.0 < this.getArea()) for (int v = 0; v < n; v++)
+    if (0.0 < this.getSurfaceArea()) for (int v = 0; v < n; v++)
       V[v] = v;
     else for (int v = 0; v < n; v++)
       V[v] = (n - 1) - v;
@@ -370,18 +370,21 @@ public class OrderedListPolygon
   }
 
   /**
-   * Needs to be reviewed!
+   * Calculates the Surface Area using the Gaussian formula.  
    * 
    * @author Steve Dierker <dierker.steve@fu-berlin.de>
-   * @return
+   * @return Surface area of the polygon
    */
-  public double getArea() {
-    double result = 0;
-    for (int p = _coords.size(), q = 0; q < _coords.size(); p = q++)
+  public double getSurfaceArea() {
+    assert(size() >= 3);
+    
+    double result = 0.0;
+    for (int p = size() - 1, q = 0; q < size(); p = q++) {
       result +=
           _coords.get(p).x * _coords.get(q).y - _coords.get(q).x *
               _coords.get(p).y;
-    return result;
+    }
+    return result / 2.0;
   }
 
   /**
@@ -471,41 +474,6 @@ public class OrderedListPolygon
     }
 
     return retval;
-  }
-
-  /**
-   * Calculates the Surface Area of a given Polygon. TODO: currently uses the
-   * Triangularization of the given Polygon to calculate and add resulting
-   * Triangles. Gaussian Formula should be more effective.
-   * 
-   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
-   * @param polygon Polygon to calculate Size of.
-   * @return Surface Area of given Polygon2
-   */
-  public double getSurfaceArea() {
-    assert (size() >= 3);
-
-    double area = 0;
-
-    if (size() == 3) {
-
-      // Calculate triangle area
-      List<Point> trianglePoints = this.getPoints();
-      Vector u = new Vector(trianglePoints.get(0), trianglePoints.get(1));
-      Vector v = new Vector(trianglePoints.get(0), trianglePoints.get(2));
-      area = Math.abs(u.v1 * v.v2 - u.v2 * v.v1) / 2.0;
-
-    }
-    else {
-      // Triangulate polygon
-      List<Triangle> triangles = this.triangulate();
-
-      // Sum up the areas
-      for (Triangle t : triangles)
-        area += t.getSurfaceArea();
-    }
-
-    return area;
   }
 
   public boolean areNeighbours(Point a, Point b) {
