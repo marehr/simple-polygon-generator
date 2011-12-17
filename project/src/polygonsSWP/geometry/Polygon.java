@@ -31,6 +31,11 @@ public abstract class Polygon
   public abstract boolean equals(Object obj);
 
   /**
+   * @return the number of vertices
+   */
+  public abstract int size();
+  
+  /**
    * @return Surface area as double.
    */
   public abstract double getSurfaceArea();
