@@ -73,7 +73,7 @@ public class SeidelTrapezoidation
     }
     
     /*
-     * 3rd step: Construct polygons. 
+     * 3rd step: Construct polygons of limited regions. 
      */
     
     final List<Polygon> retval = new LinkedList<Polygon>();
@@ -98,7 +98,22 @@ public class SeidelTrapezoidation
     /*
      * 4th step: Eliminate outer polygons.
      */
-    // TODO implement
+    for(int i = 0; i < retval.size();) {
+      Polygon p = retval.get(i);
+      boolean outer = false;
+      for(int j = 0, k = p.size() - 1; j < p.size(); k = j++) {
+        Point x = new LineSegment(p.getPoints().get(j), p.getPoints().get(i)).getCenter();
+        if(!polygon.containsPoint(x, true)) {
+          outer = true;
+          break;
+        }
+      }
+      
+      if(outer)
+        retval.remove(i);
+      else
+        i++;
+    }
     
     return retval;
   }
