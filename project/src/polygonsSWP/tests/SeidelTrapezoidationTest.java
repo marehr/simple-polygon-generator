@@ -1,7 +1,5 @@
 package polygonsSWP.tests;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
 
 import polygonsSWP.geometry.OrderedListPolygon;
@@ -14,9 +12,11 @@ public class SeidelTrapezoidationTest
   @Test
   public void testGenerateTrapezoidation() {
     OrderedListPolygon poly = new OrderedListPolygon();
-    poly.addPoint(new Point(2, 2));   
-    poly.addPoint(new Point(5, 5));
-    poly.addPoint(new Point(3, 10));
+    poly.addPoint(new Point(20, 20));   
+    poly.addPoint(new Point(50, 50));
+    poly.addPoint(new Point(70, 80));
+    poly.addPoint(new Point(30, 100));
+    poly.addPoint(new Point(-20, 100));
     System.out.println(SeidelTrapezoidation.generateTrapezoidation(poly));
   }
 

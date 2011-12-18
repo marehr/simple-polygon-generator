@@ -367,19 +367,46 @@ public class SeidelTrapezoidation
     public Region[] splitByLineSegment(LineSegment l) {
       Region[] retval = new Region[2];
       
+      // Contract LineSegment.
+      Point[] ab = getVerticalIntersections(l);
+      LineSegment newL = new LineSegment(ab[0], ab[1]);
+      
       // Left region.
       retval[0] = new Region();
       retval[0].left = left;
-      retval[0].right = l;
+      retval[0].right = newL;
       retval[0].upperBound = upperBound;
       retval[0].lowerBound = lowerBound;
       
-      // Left region.
+      // Right region.
       retval[1] = new Region();
-      retval[1].left = l;
+      retval[1].left = newL;
       retval[1].right = right;
       retval[1].upperBound = upperBound;
       retval[1].lowerBound = lowerBound;
+      
+      return retval;
+    }
+    
+    /**
+     * @return the intersections of l with horizontal lines at y ==
+     * upperBound, y == lowerBounds or null, if none or only
+     * one of them is intersected.
+     */
+    private Point[] getVerticalIntersections(LineSegment l) {
+      Point[] retval = new Point[2];
+      
+      Line topRule = new Line(new Point(0, upperBound), new Point(1, upperBound));
+      Point[] isect = topRule.intersect(l);
+      if(isect == null)
+        return null;
+      retval[0] = isect[0];
+      
+      Line bottomRule = new Line(new Point(0, lowerBound), new Point(1, lowerBound));
+      isect = bottomRule.intersect(l);
+      if(isect == null)
+        return null;
+      retval[1] = isect[0];
       
       return retval;
     }
@@ -391,10 +418,7 @@ public class SeidelTrapezoidation
     public boolean intersects(LineSegment l) {
       // 1st test: l intersects vertically, i.e. intersects
       // both upperBound and lowerBound horizontal lines.
-      Line topRule = new Line(new Point(0, upperBound), new Point(1, upperBound));
-      Line bottomRule = new Line(new Point(0, lowerBound), new Point(1, lowerBound));
-      boolean intersects = (topRule.intersect(l) != null) &&
-          (bottomRule.intersect(l) != null);
+      boolean intersects = (getVerticalIntersections(l) != null);
       
       // 2nd test: If this region is left bounded,
       // l must be on the right side of 'left'.
