@@ -102,7 +102,7 @@ public class SeidelTrapezoidation
       Polygon p = retval.get(i);
       boolean outer = false;
       for(int j = 0, k = p.size() - 1; j < p.size(); k = j++) {
-        Point x = new LineSegment(p.getPoints().get(j), p.getPoints().get(i)).getCenter();
+        Point x = new LineSegment(p.getPoints().get(k), p.getPoints().get(j)).getCenter();
         if(!polygon.containsPoint(x, true)) {
           outer = true;
           break;
