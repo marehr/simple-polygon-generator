@@ -86,4 +86,13 @@ public class LineSegment
   public String toString() {
     return "[" + _a + "," + _b + "]";
   }
+  
+  /**
+   * @return center point of line segment.
+   */
+  public Point getCenter() {
+    long x = _a.x + (_b.x - _a.x) / 2;
+    long y = _a.y + (_b.y - _a.y) / 2;
+    return new Point(x, y);
+  }
 }
