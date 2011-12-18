@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import polygonsSWP.util.MathUtils;
+import polygonsSWP.util.intersections.IntersectionMode;
+import polygonsSWP.util.intersections.IntersectionUtils;
+import polygonsSWP.util.intersections.LineIntersectionMode;
+import polygonsSWP.util.intersections.LineSegmentIntersectionMode;
+import polygonsSWP.util.intersections.RayIntersectionMode;
 
 /**
  * Polygon interface for simple _and_ complex polygons. Subclasses should never
@@ -39,101 +44,79 @@ public abstract class Polygon
    * @return a random point in the polygon area (including on the edges).
    */
   public abstract Point createRandomPoint();
-
+  
   /**
    * @return list of point triplets. first of each triple is an intersection
    *         point, the following are the points representing the line segment
-   *         containing the intersection point. returns null if there is no
-   *         intersection. returns a Point-array {null, a, b} if the line
-   *         segment a, b is coincident with given line segment. it is assured, that the
-   *         points a, b are in the same order as in the polygon.
+   *         containing the intersection point. Returns empty list if there is no
+   *         intersection. Returns a Point-array {null, a, b} if the line
+   *         segment a, b is coincident with given line segment. It is assured, 
+   *         that the points a, b are in the same order as in the polygon.
+   *         Finally it returns {x, null, null} if the intersections is a
+   *         vertex of the polygon.
    */
   public List<Point[]> intersect(LineSegment ls) {
-    List<Point> points = this.getPoints();
-    int size = points.size();
-    List<Point[]> intersections = new ArrayList<Point[]>();
-    for (int i = 0; i < points.size(); i++) {
-      Point a = points.get(i % size);
-      Point b = points.get(i + 1 % size);
-      Line line = new Line(a, b);
-      Point[] isec = line.intersect(ls);
-      if (isec != null) {
-        if (isec.length != 0) {
-          Point[] triple = { isec[0], a, b };
-          intersections.add(triple);
-        }
-      }
-    }
-    if (intersections.size() == 0) {
-      return null;
-    }
-    else {
-      return intersections;
-    }
+    return abstractIntersect(ls._a, ls._b, new LineSegmentIntersectionMode(true));
   }
 
   /**
    * @return list of point triplets. first of each triple is an intersection
    *         point, the following are the points representing the line segment
-   *         containing the intersection point. returns null if there is no
-   *         intersection. returns a Point-array {null, a, b} if the line
-   *         segment a, b is coincident with given ray. it is assured, that the
-   *         points a, b are in the same order as in the polygon.
+   *         containing the intersection point. Returns empty list if there is no
+   *         intersection. Returns a Point-array {null, a, b} if the line
+   *         segment a, b is coincident with given line segment. It is assured, 
+   *         that the points a, b are in the same order as in the polygon.
+   *         Finally it returns {x, null, null} if the intersections is a
+   *         vertex of the polygon.
    */
   public List<Point[]> intersect(Ray r) {
-    List<Point> points = this.getPoints();
-    int size = points.size();
-    List<Point[]> intersections = new ArrayList<Point[]>();
-    for (int i = 0; i < points.size(); i++) {
-      Point a = points.get(i % size);
-      Point b = points.get(i + 1 % size);
-      Line line = new Line(a, b);
-      Point[] isec = line.intersect(r);
-      if (isec != null) {
-        if (isec.length != 0) {
-          Point[] triple = { isec[0], a, b };
-          intersections.add(triple);
-        }
-      }
-    }
-    if (intersections.size() == 0) {
-      return null;
-    }
-    else {
-      return intersections;
-    }
+    return abstractIntersect(r._base, r._support, new RayIntersectionMode(true));
   }
-
+  
   /**
    * @return list of point triplets. first of each triple is an intersection
    *         point, the following are the points representing the line segment
-   *         containing the intersection point. returns null if there is no
-   *         intersection. returns a Point-array {null, a, b} if the line
-   *         segment a, b is coincident with given line. it is assured, that the
-   *         points a, b are in the same order as in the polygon.
+   *         containing the intersection point. Returns empty list if there is no
+   *         intersection. Returns a Point-array {null, a, b} if the line
+   *         segment a, b is coincident with given line segment. It is assured, 
+   *         that the points a, b are in the same order as in the polygon.
+   *         Finally it returns {x, null, null} if the intersections is a
+   *         vertex of the polygon.
    */
   public List<Point[]> intersect(Line l) {
-    List<Point> points = this.getPoints();
-    int size = points.size();
+    return abstractIntersect(l._a, l._b, new LineIntersectionMode());
+  }
+  
+  final private List<Point[]> abstractIntersect(Point a, Point b, IntersectionMode im) {
     List<Point[]> intersections = new ArrayList<Point[]>();
-    for (int i = 0; i < points.size(); i++) {
-      Point a = points.get(i % size);
-      Point b = points.get(i + 1 % size);
-      Line line = new Line(a, b);
-      Point[] isec = line.intersect(l);
+    List<Point> points = getPoints();
+    IntersectionMode imv = new LineSegmentIntersectionMode(true);
+    for (int i = 0, j = points.size() - 1; i < points.size(); j = i++) {
+      Point vj = points.get(j);
+      Point vi = points.get(i);
+      Point[] isec = IntersectionUtils.intersect(vj, vi, a, b, imv, im);
       if (isec != null) {
         if (isec.length != 0) {
-          Point[] triple = { isec[0], a, b };
-          intersections.add(triple);
+          
+          if(isec[0].equals(vj)) {
+            // Intersection on vertex of polygon.
+            intersections.add(new Point[] { isec[0], null, null });
+          } else if(!isec[0].equals(vi)) {
+            // If isec[0] == vi, Intersection is a vertex of polygon, too,
+            // but we add it only once.
+            
+            // Real intersection.
+            intersections.add(new Point[] { isec[0], a, b });
+          }
+          
+        } else {
+          // Coincident with polygon edge.
+          intersections.add(new Point[] { null, a, b });
         }
       }
     }
-    if (intersections.size() == 0) {
-      return null;
-    }
-    else {
-      return intersections;
-    }
+    
+    return intersections;
   }
   
   /**
