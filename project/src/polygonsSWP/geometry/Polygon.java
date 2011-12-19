@@ -197,4 +197,20 @@ public abstract class Polygon
     sb.append("</svg>\n");
     return sb.toString();
   }
+
+  /**
+   * @return Center of mass of Polygon points.
+   */
+  public Point centerOfMass() {
+    long x = 0, y = 0;
+    for(Point p : getPoints()) {
+      x += p.x;
+      y += p.y;
+    }
+    
+    x /= size();
+    y /= size();
+    
+    return new Point(x, y);
+  }
 }

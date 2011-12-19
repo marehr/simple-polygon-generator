@@ -82,15 +82,14 @@ public class SeidelTrapezoidation
       @Override
       public void visit(SearchTreeNode n) {
         if(n.t.left != null & n.t.right != null) {
-          System.out.println(n.t);
           OrderedListPolygon trapezoid = new OrderedListPolygon();
           trapezoid.addPoint(n.t.left._b);
           trapezoid.addPoint(n.t.left._a);
-          if(n.t.left._a.equals(n.t.right._a))
+          if(!n.t.left._a.equals(n.t.right._a))
             trapezoid.addPoint(n.t.right._a);
-          if(n.t.left._b.equals(n.t.right._b))
+          if(!n.t.left._b.equals(n.t.right._b))
             trapezoid.addPoint(n.t.right._b);
-          
+
           retval.add(trapezoid);
         }
       }
@@ -101,17 +100,8 @@ public class SeidelTrapezoidation
      */
     
     for(int i = 0; i < retval.size();) {
-      Polygon p = retval.get(i);
-      boolean outer = false;
-      for(int j = 0, k = p.size() - 1; j < p.size(); k = j++) {
-        Point x = new LineSegment(p.getPoints().get(k), p.getPoints().get(j)).getCenter();
-        if(!polygon.containsPoint(x, true)) {
-          outer = true;
-          break;
-        }
-      }
-      
-      if(outer)
+      Point com = retval.get(i).centerOfMass();
+      if(!polygon.containsPoint(com, true))
         retval.remove(i);
       else
         i++;
@@ -137,7 +127,6 @@ public class SeidelTrapezoidation
         if(cur.type == SearchTreeNodeType.YNODE) {
           // Region is horizontally split by point.
           Point hs = cur.p;
-          assert(hs.y != x.y); // Nondegeneracy assumption.
           
           // Is x below or above horizontal line?
           if(x.y > hs.y) {
@@ -186,7 +175,7 @@ public class SeidelTrapezoidation
     
     /**
      * Splits all regions intersected by l vertically,
-     * merges continguous regions, and changes the search
+     * merges contiguous regions, and changes the search
      * tree accordingly.
      */
     public void processLineSegment(final LineSegment l) {
@@ -215,8 +204,11 @@ public class SeidelTrapezoidation
           for(int j = i + 1; j < isctngRgns.size(); j++) {         
             SearchTreeNode ni = newNodes[i][side];
             SearchTreeNode nj = newNodes[j][side];
-            Region merged = ni.t.merge(nj.t); 
-            if(merged != null) {
+            
+            // NOTE: Our left side is the regions' right side.
+            Region merged = ni.t.merge(nj.t, (side + 1) % 2); 
+            
+            if(merged != null) {             
               SearchTreeNode mergedNode = new SearchTreeNode(merged);
               
               // Now we need to update all node references pointing
@@ -436,37 +428,45 @@ public class SeidelTrapezoidation
     public boolean intersects(LineSegment l) {
       // 1st test: l intersects vertically, i.e. intersects
       // both upperBound and lowerBound horizontal lines.
-      boolean intersects = (getVerticalIntersections(l) != null);
+      Point[] vertIsects = getVerticalIntersections(l);
+      boolean intersects = (vertIsects != null);
       
       // 2nd test: If this region is left bounded,
-      // l must be on the right side of 'left'.
+      // intersections with upper/lower boundaries must be on the
+      // on the right of 'left'.
       if(intersects && left != null) {
-        intersects = left._a.x <= l._a.x && left._b.x <= l._b.x;
+        intersects = left._a.x <= vertIsects[0].x && left._b.x <= vertIsects[1].x;
       }
       
-      // 3rdd test: If this region is right bounded,
-      // l must be on the left side of 'right'.
+      // 3rd test: Same for right boundary.
       if(intersects && right != null) {
-        intersects = right._a.x >= l._a.x && right._b.x >= l._b.x;
+        intersects = right._a.x >= vertIsects[0].x && right._b.x >= vertIsects[1].x;
       }
       
       return intersects;
     }
     
     /**
-     * Merges two regions (if possible).
+     * Merges two regions (if possible), that just have been
+     * created during processing of an edge.
+     * 
+     * @param newSegmentsSide Used to specify the side of the
+     *        edge that has just been added. 0 for left,
+     *        1 for right.
      * @return merged region or null, if not mergable.
      */
-    public Region merge(Region tj) {
+    public Region merge(Region tj, int newSegmentsSide) {
       /*
        * All regions that are compared here are just divided
        * by a newly added LineSegment. This means that either
-       * both of right or left of the Regions form a straight
-       * LineSegment (part of the newly added one).
+       * one of right or left boundaries of the Regions form a 
+       * straight LineSegment (part of the newly added one). 
        * 
        * Regions can only be merged, if they share upperBound
-       * or lowerBound and either one horizontal direction
-       * is not limited/specified.
+       * or lowerBound and both horizontal directions
+       * are either not limited/specified _or_ are bounded by 
+       * a straight line. As we know the newSegmentsSide, we only
+       * have to test one direction.
        */
       
       // 1st option: ti is above tj.
@@ -474,35 +474,95 @@ public class SeidelTrapezoidation
         Region r = new Region();
         r.lowerBound = tj.lowerBound;
         r.upperBound = upperBound;
-        
-        // Check whether either side is not bounded.
-        if(left == null && tj.left == null) {
-          r.left = null;
-          r.right = new LineSegment(right._a, tj.right._b);
-        } else if(right == null && tj.right == null) {
-          r.right = null;
+
+        if(newSegmentsSide == 0) {
+          // Left side is the newly added edge and thus must form
+          // a straight line.
           r.left = new LineSegment(left._a, tj.left._b);
-        } else 
-          return null;
+          
+          // Check whether right side is either unbounded or
+          // a straight line.
+          if(right == null && tj.right == null) {
+            r.right = null;
+          } else if(right != null && tj.right != null) {
+
+            LineSegment newR = new LineSegment(right._a, tj.right._b);
+            if(newR.containsPoint(right._b))
+              r.right = newR;
+            else
+              // No match.
+              r = null;
+            
+          } else {
+            // No match.
+            r = null;
+          }
+        } else {
+          // Right side is the newly added edge.
+          r.right = new LineSegment(right._a, tj.right._b);
+          
+          // Check whether left side is either unbounded or
+          // a straight line.
+          if(left == null && tj.left == null) {
+            r.left = null;
+          } else if(left != null && tj.left != null) {
+
+            LineSegment newL = new LineSegment(left._a, tj.left._b);
+            if(newL.containsPoint(left._b))
+              r.left = newL;
+            else
+              // No match.
+              r = null;
+            
+          } else {
+            // No match.
+            r = null;
+          }
+        }
         
         return r;
       }
       
-      // 2nd option: ti is below tj.
+      // 2nd option: ti is below tj. Analog.
       if(upperBound == tj.lowerBound) {
         Region r = new Region();
         r.lowerBound = lowerBound;
         r.upperBound = tj.upperBound;
         
-        // Check whether either side is not bounded.
-        if(left == null && tj.left == null) {
-          r.left = null;
-          r.right = new LineSegment(tj.right._b, right._a);
-        } else if(right == null && tj.right == null) {
-          r.right = null;
-          r.left = new LineSegment(tj.left._b, left._a);
-        } else 
-          return null;
+        if(newSegmentsSide == 0) {
+          r.left = new LineSegment(tj.left._a, left._b);
+          
+          if(right == null && tj.right == null) {
+            r.right = null;
+          } else if (right != null && tj.right != null) {
+
+            LineSegment newR = new LineSegment(tj.right._a, right._b);
+            if(newR.containsPoint(tj.right._b))
+              r.right = newR;
+            else
+              r = null;
+            
+          } else {
+            r = null;
+          }
+          
+        } else {
+          r.right = new LineSegment(tj.right._a, right._b);
+          
+          if(left == null && tj.left == null) {
+            r.left = null;
+          } else if (left != null && tj.left != null) {
+
+            LineSegment newL = new LineSegment(tj.left._a, left._b);
+            if(newL.containsPoint(tj.left._b))
+              r.left = newL;
+            else
+              r = null;
+            
+          } else {
+            r = null;
+          }
+        }
         
         return r;
       }
@@ -513,7 +573,7 @@ public class SeidelTrapezoidation
     @Override
     public String toString() {
       return "Region [upper: " + upperBound + ", lower: " 
-         + lowerBound + ", left: " + left + ", right: " + right;
+         + lowerBound + ", left: " + left + ", right: " + right + "]";
     }
     
   }
