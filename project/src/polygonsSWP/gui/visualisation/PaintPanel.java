@@ -7,6 +7,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,18 +28,22 @@ class PaintPanel
   implements MouseListener, MouseMotionListener, MouseWheelListener
 {
   private static final long serialVersionUID = 1L;
+  private final DecimalFormat df = new DecimalFormat("#0.00");
+  
   /** list for point selection */
   private List<Point> points;
   
   /** Scene objects */
   private List<Polygon> polygons;
 
+  /* current display offsets & co. */
   private double zoom = 1.0d;
   private int offsetX = 0;
   private int offsetY = 0;
   private int dragOffsetX = -1;
   private int dragOffsetY = -1;
 
+  /** DrawMode indicates whether we're allowed to select points. */
   private boolean drawMode;
 
   public PaintPanel() {
@@ -83,7 +88,14 @@ class PaintPanel
     g.setColor(Color.WHITE);
     g.fillRect(0, 0, 1000, 1000);
 
-    // Paint the polygon
+    // Paint the yardstick
+    g.setColor(Color.BLUE);
+    g.drawRect(5, 5, 3, 9);
+    g.drawRect(8, 8, 44, 3);
+    g.drawRect(52, 5, 3, 9);
+    g.drawString(df.format(50 / zoom), 60, 14);
+    
+    // Paint polygons
     for(Polygon polygon : polygons) {
       List<Point> p = polygon.getPoints();
       int[] xcoords = new int[p.size()];
