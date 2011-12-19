@@ -256,4 +256,9 @@ public class MonotonPolygon
     }
     return tmpList;
   }
+
+  @Override
+  public int size() {
+    return _edges.size();
+  }
 }
