@@ -134,24 +134,23 @@ public abstract class Polygon
     List<Point> pList = this.getPoints();
     boolean isInside = false;
     int nPoints = pList.size();
-    Point first = pList.get(pList.size() - 1);
 
-    int j = 0;
-    for (int i = 0; i < nPoints; i++) {
-      j++;
-      if (j == nPoints) j = 0;
-
-      if (pList.get(i).y < p.y && pList.get(j).y >= p.y ||
-          pList.get(j).y < p.y && pList.get(i).y >= p.y) {
-        if (pList.get(i).x + (double) (p.y - pList.get(i).y) /
-            (double) (pList.get(j).y - pList.get(i).y) *
-            (pList.get(j).x - pList.get(i).x) < p.y) {
+    for (int i = 0, j = nPoints - 1; i < nPoints; j = i++) {     
+      Point pi = pList.get(i);
+      Point pj = pList.get(j);
+      
+      /* 
+       * Found here:
+       * http://stackoverflow.com/questions/217578/point-in-polygon-aka-hit-test
+       */
+      if((pi.y > p.y) != (pj.y > p.y)) {
+        if(p.x < ((pj.x - pi.x) * (p.y - pi.y) / (pj.y - pi.y) + pi.x)) {
           isInside = !isInside;
         }
       }
-      if (onLine)
-        if (MathUtils.checkOrientation(first, pList.get(i), p) == 0) { return true; }
-      first = pList.get(i);
+      
+      if (onLine && (MathUtils.checkOrientation(pj, pi, p) == 0))
+        return true;
     }
     return isInside;
   }
