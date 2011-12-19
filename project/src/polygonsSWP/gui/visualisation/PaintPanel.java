@@ -7,6 +7,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -26,8 +27,11 @@ class PaintPanel
   implements MouseListener, MouseMotionListener, MouseWheelListener
 {
   private static final long serialVersionUID = 1L;
-  private Polygon polygon;
+  /** list for point selection */
   private List<Point> points;
+  
+  /** Scene objects */
+  private List<Polygon> polygons;
 
   private double zoom = 1.0d;
   private int offsetX = 0;
@@ -38,6 +42,7 @@ class PaintPanel
   private boolean drawMode;
 
   public PaintPanel() {
+    polygons = new LinkedList<Polygon>();
     addMouseListener(this);
     addMouseMotionListener(this);
     addMouseWheelListener(this);
@@ -45,8 +50,17 @@ class PaintPanel
 
   /* API */
 
-  void setPolygon(Polygon p) {
-    polygon = p;
+  void clearScene() {
+    polygons.clear();
+  }
+  
+  void addPolygon(Polygon p) {
+    polygons.add(p);
+    repaint();
+  }
+  
+  void addPolygons(List<? extends Polygon> ps) {
+    polygons.addAll(ps);
     repaint();
   }
 
@@ -70,7 +84,7 @@ class PaintPanel
     g.fillRect(0, 0, 1000, 1000);
 
     // Paint the polygon
-    if (polygon != null) {
+    for(Polygon polygon : polygons) {
       List<Point> p = polygon.getPoints();
       int[] xcoords = new int[p.size()];
       int[] ycoords = new int[p.size()];
