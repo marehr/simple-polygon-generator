@@ -15,9 +15,7 @@ import polygonsSWP.geometry.Ray;
 public class SeidelTrapezoidation
 {
   public static List<Polygon> generateTrapezoidation(Polygon polygon) {
-    // Remark: We assume nondegenerate polygons for now.
-    // TODO: Make use of lexicographic ordering.
-    
+   
     /* 
      * 1st step: Initialization. 
      */
@@ -25,17 +23,16 @@ public class SeidelTrapezoidation
     Random r = new Random(System.currentTimeMillis());
     SearchTree S = new SearchTree();
     List<LineSegment> E = new LinkedList<LineSegment>();
-    List<Point> usedPoints = new LinkedList<Point>();
+    List<Long> horizontalLines = new LinkedList<Long>();
     
     // Create random list of line segments from polygon.
     List<Point> points = polygon.getPoints();
     List<LineSegment> tmp = new LinkedList<LineSegment>();
     for(int i = 0, j = polygon.size() - 1; i < polygon.size(); j = i++) {
-      // Sort points by y-coordinate.
+      // Sort points by y-coordinate or x-coordinate (i.e. lexicographic ordering).
       Point a = points.get(j);
       Point b = points.get(i);
       int cmp = a.compareToByY(b);
-      assert(cmp != 0); // Nondegeneracy assumption.
       LineSegment l = new LineSegment(
           (cmp == 1) ? a : b,
           (cmp == 1) ? b : a);
@@ -61,12 +58,16 @@ public class SeidelTrapezoidation
       
       // For each point, horizontally split containing trapezoid.
       for(Point x : ab) {
-        if(usedPoints.contains(x))
+        if(horizontalLines.contains(x.y))
           continue;
-        usedPoints.add(x);
+        horizontalLines.add(x.y);
         
         S.processPoint(x);
       }
+       
+      // Skip horizontal edges.
+      if(l._a.y == l._b.y)
+        continue;
       
       // Vertically split all regions intersecting with edge l.
       S.processLineSegment(l);
@@ -98,6 +99,7 @@ public class SeidelTrapezoidation
     /*
      * 4th step: Eliminate outer polygons.
      */
+    
     for(int i = 0; i < retval.size();) {
       Polygon p = retval.get(i);
       boolean outer = false;
@@ -141,9 +143,12 @@ public class SeidelTrapezoidation
           if(x.y > hs.y) {
             // Go above.
             cur = cur.leftOrAbove;
-          } else {
+          } else if (x.y < hs.y) {
             // Go below.
             cur = cur.rightOrBelow;
+          } else {
+            // Cannot happen as we passed the "! in horizontalLines" test above.
+            assert(false);
           }
           
         } else { // cur.type == 2
@@ -182,6 +187,7 @@ public class SeidelTrapezoidation
      * tree accordingly.
      */
     public void processLineSegment(final LineSegment l) {
+      
       // Find all regions intersected by l.
       final List<Region> isctngRgns = new LinkedList<Region>();
       visitAllRegions(new SearchTreeVisitor() {

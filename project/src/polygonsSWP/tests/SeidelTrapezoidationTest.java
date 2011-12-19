@@ -8,9 +8,9 @@ import polygonsSWP.util.SeidelTrapezoidation;
 
 public class SeidelTrapezoidationTest
 {
-
   @Test
-  public void testGenerateTrapezoidation() {
+  public void testGenerateTrapezoidation() {   
+    // Test horizontal edges.
     OrderedListPolygon poly = new OrderedListPolygon();
     poly.addPoint(new Point(20, 20));   
     poly.addPoint(new Point(50, 50));
