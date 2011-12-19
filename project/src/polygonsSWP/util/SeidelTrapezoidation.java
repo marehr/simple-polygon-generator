@@ -133,8 +133,8 @@ public class SeidelTrapezoidation
       SearchTreeNode cur = root;
       
       // Search trapezoid containing x.
-      while(cur.type != 0) {
-        if(cur.type == 1) {
+      while(cur.type != SearchTreeNodeType.SINK) {
+        if(cur.type == SearchTreeNodeType.YNODE) {
           // Region is horizontally split by point.
           Point hs = cur.p;
           assert(hs.y != x.y); // Nondegeneracy assumption.
@@ -151,7 +151,7 @@ public class SeidelTrapezoidation
             assert(false);
           }
           
-        } else { // cur.type == 2
+        } else if (cur.type == SearchTreeNodeType.XNODE) {
           // Region is vertically split by line segment.
           LineSegment vs = cur.l;
 
@@ -166,6 +166,9 @@ public class SeidelTrapezoidation
             cur = cur.rightOrBelow;
           }
 
+        } else {
+          // Cannot happen.
+          assert(false);
         }
       }
       
@@ -174,7 +177,7 @@ public class SeidelTrapezoidation
       
       // Change cur node into point node and attach new
       // trapezoid as above and below children.
-      cur.type = 1;
+      cur.type = SearchTreeNodeType.YNODE;
       cur.p = x;
       cur.t = null;
       cur.leftOrAbove = new SearchTreeNode(newT[0]);
@@ -234,7 +237,7 @@ public class SeidelTrapezoidation
         public void visit(SearchTreeNode n) {
           // NOTE: We expect the same order here as above.
           if(n.t.intersects(l)) {
-            n.type = 2;
+            n.type = SearchTreeNodeType.XNODE;
             n.t = null;
             n.l = l;
             n.leftOrAbove = newNodes[i][0];
@@ -268,11 +271,11 @@ public class SeidelTrapezoidation
       while(!s.isEmpty()) {
         SearchTreeNode n = s.pop();
         switch(n.type) {
-        case 0:
+        case SINK:
           v.visit(n);
           break;
-        case 1:
-        case 2:
+        case XNODE:
+        case YNODE:
           if(!visited.contains(n.leftOrAbove)) {
             s.push(n.leftOrAbove);
             visited.add(n.leftOrAbove);
@@ -295,7 +298,7 @@ public class SeidelTrapezoidation
   }
   
   private static class SearchTreeNode {
-    int type; // 0: leaf (trapezoid), 1: point, 2: line segment
+    SearchTreeNodeType type;
     Region t;
     Point p;
     LineSegment l;
@@ -304,8 +307,17 @@ public class SeidelTrapezoidation
     
     SearchTreeNode(Region t) {
       this.t = t;
-      type = 0;
+      type = SearchTreeNodeType.SINK;
     }
+  }
+  
+  private enum SearchTreeNodeType {
+    /** Regions split horizontally by a line segment. */
+    XNODE,
+    /** Regions split vertically by a point. */
+    YNODE,
+    /** Leaf node / Region */
+    SINK
   }
   
   private static class Region {
@@ -447,8 +459,6 @@ public class SeidelTrapezoidation
      */
     public Region merge(Region tj) {
       /*
-       * Assumptions:
-       * 
        * All regions that are compared here are just divided
        * by a newly added LineSegment. This means that either
        * both of right or left of the Regions form a straight
@@ -457,7 +467,6 @@ public class SeidelTrapezoidation
        * Regions can only be merged, if they share upperBound
        * or lowerBound and either one horizontal direction
        * is not limited/specified.
-       * TODO Correct?
        */
       
       // 1st option: ti is above tj.
