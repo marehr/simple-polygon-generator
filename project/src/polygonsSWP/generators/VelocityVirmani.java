@@ -12,9 +12,20 @@ import polygonsSWP.geometry.Polygon;
 public class VelocityVirmani implements PolygonGenerator {
 
 	private Random rand;
-
+	private long radius;
+	private int runs;
+	private int velocity;
+	
 	public VelocityVirmani() {
 		rand = new Random();
+	}
+	
+	public VelocityVirmani(long radius, int runs, int velocity)
+	{
+	  this();
+	  this.radius = radius;
+	  this.runs = runs;
+	  this.velocity = velocity;
 	}
 
 	
@@ -31,16 +42,27 @@ public class VelocityVirmani implements PolygonGenerator {
 
 	@Override
 	public Polygon generate(Map<Parameters, Object> params, PolygonHistory steps) {
-		if (!params.containsKey("!radius") || !params.containsKey("n")
-				|| !params.containsKey("size") || !params.containsKey("runs")) {
+	  
+	  //Weil die GUI noch nicht runs oder radius provided
+	  if(radius != 0 && runs != 0 && velocity !=0)
+	  {
+	    params.put(Parameters.radius, radius);
+	    params.put(Parameters.runs, runs);
+	    params.put(Parameters.velocity, velocity);
+	  }//bis hierher
+	  
+	  
+		if (!params.containsKey(Parameters.radius) || !params.containsKey(Parameters.n)
+				|| !params.containsKey(Parameters.size) || !params.containsKey(Parameters.runs)) {
 			throw new RuntimeException("Unsufficient Paramters");
 		}
 
 		long radius = (Long) params.get(Parameters.radius);
 		int n = (Integer) params.get(Parameters.n);
 		int runs = (Integer) params.get(Parameters.runs);
-		long bound = (Long) params.get(Parameters.size);
+		long bound = (Integer)params.get(Parameters.size);
 		int maxVelo = (Integer) params.get(Parameters.velocity);
+		
 		if (radius * 2 > bound) {
 			throw new RuntimeException(
 					"Radius must be smaller than the Bounds allow. (Pre: Radius * 2 < bound)");
@@ -49,20 +71,15 @@ public class VelocityVirmani implements PolygonGenerator {
 		OrderedListPolygon poly = regularPolygon(n, radius, bound);
 
 		int velox, veloy;
-		boolean loop;
 		while (runs > 0) // Macht die Iterationen an zufälligen Bewegungen
 		{
 			for (int i = 0; i < n; i++) // Geht durch alle Punkte
 			{
-				loop = true;
-				do // Überprüft ob die Punkte dann noch in den Boundaries(size)
+				  // Überprüft ob die Punkte dann noch in den Boundaries(size)
 					// sind + ob sie immernoch simple sind
-				{
-					velox = rand.nextBoolean() ? rand.nextInt(maxVelo) : -rand
-							.nextInt(maxVelo); // Kann auch negative
-												// Geschwindigkeiten annehmen
-					veloy = rand.nextBoolean() ? rand.nextInt(maxVelo) : -rand
-							.nextInt(maxVelo);
+				  
+					velox = rand.nextBoolean() ? rand.nextInt(maxVelo) : - rand.nextInt(maxVelo); // Kann auch negative Geschwindigkeiten annehmen
+					veloy = rand.nextBoolean() ? rand.nextInt(maxVelo) : - rand.nextInt(maxVelo);
 
 					if (poly.getPoint(i).x + velox > bound
 							|| poly.getPoint(i).y + veloy > bound // Checkt ob es noch in den Boundaries(size) ist
@@ -75,15 +92,12 @@ public class VelocityVirmani implements PolygonGenerator {
 												// addieren
 					poly.getPoint(i).y += veloy;
 
-					if (poly.isSimple())
-						loop = false;
-					else// Wieder Rückgängig machen da nicht simple
+					if (!poly.isSimple())// Wieder Rückgängig machen da nicht simple
 					{
 						poly.getPoint(i).x -= velox;
 						poly.getPoint(i).y -= veloy;
 					}
-
-				} while (loop);
+					
 			}
 			runs--;
 		}
