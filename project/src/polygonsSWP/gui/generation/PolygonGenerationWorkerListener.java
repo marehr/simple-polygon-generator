@@ -5,4 +5,6 @@ import polygonsSWP.geometry.Polygon;
 interface PolygonGenerationWorkerListener
 {
   public void onFinished(Polygon polygon);
+
+  public void onCancelled();
 }

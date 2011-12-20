@@ -91,6 +91,11 @@ public class PolygonGenerationPanel
       pgl.onPolygonGenerationStarted();
   }
 
+  protected void emitPolygonGenerationCanceled() {
+    for (PolygonGenerationPanelListener pgl : observers)
+      pgl.onPolygonGenerationCancelled();
+  }
+  
   protected void emitPolygonGenerated(Polygon p) {
     for (PolygonGenerationPanelListener pgl : observers)
       pgl.onPolygonGenerated(p, null);
@@ -106,6 +111,13 @@ public class PolygonGenerationPanel
     b_generate_polygon.setText("Generate");
     t = null;
     emitPolygonGenerated(polygon);
+  }
+  
+  @Override
+  public void onCancelled() {
+    b_generate_polygon.setText("Generate");
+    t = null;
+    emitPolygonGenerationCanceled();
   }
   
   /**

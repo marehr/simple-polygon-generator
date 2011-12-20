@@ -29,9 +29,15 @@ public interface PolygonGenerator
    *          'size'->Integer: Edge length of the surrounding square.
    * @param steps history object to store the algorithm's step in. This might be
    *          null, in which case the algorithm obviously should not use it.
-   * @return a Polygon
+   * @return a Polygon, or null if the generation was cancelled.
    */
   public Polygon generate(Map<Parameters, Object> params, PolygonHistory steps);
+  
+  /**
+   * Stop method. Used to stop running generators. Implementing classes should react
+   * on this after a short while.
+   */
+  public void stop();
   
   public enum Parameters{
     n, points, runs, size, radius, velocity
