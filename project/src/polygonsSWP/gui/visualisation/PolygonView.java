@@ -96,6 +96,7 @@ public class PolygonView
   public void onPolygonGenerationStarted() {
     saveButton.setEnabled(false);
     trapezoidButton.setEnabled(false);
+    trapezoidButton.setSelected(false);
     polygon = null;
 
     pp.clearScene();
