@@ -22,7 +22,7 @@ import polygonsSWP.gui.visualisation.PolygonView;
 /**
  * MainFrame.
  * 
- * @author Sebastian Thobe <sebastianthobe@googlemail.com>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
  * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
  */
 public class MainFrame
