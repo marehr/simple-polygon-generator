@@ -3,11 +3,14 @@ package polygonsSWP.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Random;
 
 import polygonsSWP.generators.PolygonGenerator.Parameters;
+import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -30,8 +33,7 @@ public class GeneratorUtils
     // First condition: No 2 points are the same.
     for (int i = 0; i < pointSet.size() - 1; i++) {
       for (int j = i + 1; j < pointSet.size(); j++) {
-        if (pointSet.get(i).equals(pointSet.get(j))) 
-          return false;
+        if (pointSet.get(i).equals(pointSet.get(j))) return false;
       }
     }
 
@@ -65,8 +67,8 @@ public class GeneratorUtils
    */
 
   @SuppressWarnings("unchecked")
-
-  public static List<Point> createOrUsePoints(Map<Parameters, Object> params, boolean ensureGeneralPosition) {
+  public static List<Point> createOrUsePoints(Map<Parameters, Object> params,
+      boolean ensureGeneralPosition) {
     Integer n = (Integer) params.get(Parameters.n);
     Integer size = (Integer) params.get(Parameters.size);
     List<Point> s = (List<Point>) params.get(Parameters.points);
@@ -89,7 +91,7 @@ public class GeneratorUtils
         throw new RuntimeException("user-defined set of points not in GP.");
 
     }
-    
+
     // Note: We're creating a copy of the list here to avoid having
     // the same list object in several containers (eg in the GUI and
     // in the computed Polygon).
@@ -101,7 +103,7 @@ public class GeneratorUtils
    */
 
   public static List<Point> createOrUsePoints(Map<Parameters, Object> params) {
-    return createOrUsePoints(params, false);    
+    return createOrUsePoints(params, false);
   }
 
   /**
@@ -127,7 +129,7 @@ public class GeneratorUtils
    * @param points set of points
    * @return random removed point
    */
-  public static Point removeRandomPoint(List<Point> points){
+  public static Point removeRandomPoint(List<Point> points) {
     return points.remove(rand_.nextInt(points.size()));
   }
 
@@ -214,34 +216,23 @@ public class GeneratorUtils
   }
 
   /**
-   * This function calculates the visible region of a line segment of the
-   * polygon determined by the Points pBegin and pEnd and returns a polygon
-   * representing the region. It is assumed, that the points in polygon are
-   * ordered counterclockwise. In this order, Vb is left from Va (Assume to
-   * continue from the beginning if reached the end of the list.)
+   * Borders of polygon count as inside so lineSegments and Points coincident or
+   * in lineSegment do not block sight.
    * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   * @param base
+   * @param support
    * @param polygon
-   * @param p1
-   * @param p2
-   * @return
    */
-  public static Polygon visiblePolygonRegionFromLineSegment(Polygon polygon,
-      Point Va, Point Vb) {
-    // a. Set clone with polygon
-    Polygon clone = polygon.clone();
-    List<Point> clonePoints = clone.getPoints();
-    // b. intersect Line VaVb with clone, take first intersection on each side
-    // of line, if existent, isert them into clone
-    Ray rayVaVb = new Ray(Va, Vb);
-    Ray rayVbVa = new Ray(Vb, Va);
-    clone.intersect(rayVaVb);
-    Point[] vx = rayVaVb.getPointClosestToBase(clone.intersect(rayVaVb));
-    Point[] vy = rayVbVa.getPointClosestToBase(clone.intersect(rayVbVa));
-    clonePoints.add(clonePoints.indexOf(vx[1]), vx[0]);
-    clonePoints.add(clonePoints.indexOf(vy[2]), vy[0]);
-    // c. beginning with Va.next determine vertices(running variable vi) visible
-    // from both Va and Vb
-    return clone;
+  public static boolean
+      isPolygonPointVisible(Point a, Point b, Polygon polygon) {
+    List<Point[]> intersections = polygon.intersect(new LineSegment(a, b));
+    boolean visible = true;
+    for (Point[] points : intersections) {
+      if (points[0] == null && points[1] == null) {
+        visible = false;
+      }
+    }
+    return visible;
   }
 }

@@ -39,7 +39,9 @@ public class LineSegment
    * @return true if p is in this LineSegment, else false.
    */
   public boolean containsPoint(Point p) {
-    return _a.distanceTo(p) + _b.distanceTo(p) == _a.distanceTo(_b);
+    double length = _a.distanceTo(_b);
+    double combinedDist = _a.distanceTo(p) + _b.distanceTo(p);
+    return Math.abs(combinedDist - length) < 0.0001;
   }
 
   /**
@@ -85,5 +87,14 @@ public class LineSegment
   @Override
   public String toString() {
     return "[" + _a + "," + _b + "]";
+  }
+  
+  /**
+   * @return center point of line segment.
+   */
+  public Point getCenter() {
+    long x = (_a.x + _b.x) / 2;
+    long y = (_a.y + _b.y) / 2;
+    return new Point(x, y);
   }
 }

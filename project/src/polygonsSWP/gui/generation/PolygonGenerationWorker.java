@@ -24,11 +24,13 @@ class PolygonGenerationWorker
   @Override
   public void run() {
     Polygon p = pg.generate(params, null);
-    cb.onFinished(p);
+    if(p == null)
+      cb.onCancelled();
+    else
+      cb.onFinished(p);
   }
 
   public void stop() {
-    // TODO implement
-    //    pg.stop();
+    pg.stop();
   }
 }

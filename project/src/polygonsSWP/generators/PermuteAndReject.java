@@ -11,6 +11,8 @@ public class PermuteAndReject
   implements PolygonGenerator
 {
 
+  private boolean doStop = false;
+  
   private Parameters[][] params = new Parameters[][] {
     new Parameters[] {Parameters.n, Parameters.size},
     new Parameters[] {Parameters.points}
@@ -23,11 +25,12 @@ public class PermuteAndReject
 
   @Override
   public Polygon generate(Map<Parameters, Object> params, PolygonHistory steps) {
+    doStop = false;
 
     // Step 1: Generate n points in the plane or use the given set of points
     OrderedListPolygon p = new OrderedListPolygon(GeneratorUtils.createOrUsePoints(params, true));
 
-    while(true) {
+    while(!doStop) {
       // Step 2: Permute those n points to construct a Polygon
       p.permute();
       
@@ -36,12 +39,20 @@ public class PermuteAndReject
         break;
     }
     
-    return p;
+    if(doStop)
+      return null;
+    else
+      return p;
   }
   
   @Override
   public String toString() {
     return "Permute & Reject";
+  }
+
+  @Override
+  public void stop() {
+    doStop = true;
   }
 
 }

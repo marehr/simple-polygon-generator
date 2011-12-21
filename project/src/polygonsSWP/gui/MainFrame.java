@@ -16,6 +16,7 @@ import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.RandomPolygonAlgorithm;
 import polygonsSWP.generators.SpacePartitioning;
 import polygonsSWP.generators.TwoOptMoves;
+import polygonsSWP.generators.VelocityVirmani;
 import polygonsSWP.gui.generation.PolygonGenerationPanel;
 import polygonsSWP.gui.visualisation.PolygonView;
 
@@ -37,7 +38,8 @@ public class MainFrame
 
   private PolygonGenerator[] polygon_algorithm_list = { new PermuteAndReject(),
       new TwoOptMoves(), new RandomPolygonAlgorithm(), new SpacePartitioning(),
-      new IncrementalConstructionAndBacktracking(), new ConvexHullGenerator() };
+      new IncrementalConstructionAndBacktracking(), new ConvexHullGenerator()
+  , new VelocityVirmani(300,10, 150)};
 
   public static void main(String[] args) {
     new MainFrame();

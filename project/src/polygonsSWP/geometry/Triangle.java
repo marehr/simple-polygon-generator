@@ -186,4 +186,9 @@ public class Triangle
       result += item+" ";
     return result.trim() + "]";
   }
+
+  @Override
+  public int size() {
+    return 3;
+  }
 }
