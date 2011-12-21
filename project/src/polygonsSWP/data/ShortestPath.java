@@ -9,6 +9,7 @@ import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.Ray;
 import polygonsSWP.util.MathUtils;
+import polygonsSWP.util.SeidelTrapezoidation;
 
 
 /**
@@ -88,7 +89,7 @@ public class ShortestPath
   public List<Point> generateShortestPath()
   {
 	  	// TODO: implement
-	  	List<Polygon> plist = getAllTrapezoid();
+	  	List<Polygon> plist = SeidelTrapezoidation.generateTrapezoidation(_polygon);
 	  	
 		Polygon startPolygon = null;
 		for(Polygon p : plist)
@@ -105,7 +106,7 @@ public class ShortestPath
 					break;
 				}
 			}
-			//e(t) ?
+			//TODO: do we need: e(t) ?
 		}
 				
 		initVars(startPolygon);
@@ -138,11 +139,13 @@ public class ShortestPath
 			if(tLiesInSubPolygon(q1,newP))
 			{
 				Point [] returnArray = {q1,succ(q1),newP};
+				addPointToPath(p);
 				return returnArray;
 			}
 			else
 			{
 				Point [] returnArray = {p,newP,q2};
+				addPointToPath(p);
 				return returnArray;
 			}
 		}
@@ -152,11 +155,13 @@ public class ShortestPath
 			if(tLiesInSubPolygon(q2,newP))
 			{
 				Point [] returnArray = {q2,newP,pred(q1)};
+				addPointToPath(p);
 				return returnArray;
 			}
 			else
 			{
 				Point [] returnArray = {p,q1,newP};
+				addPointToPath(p);
 				return returnArray;
 			}
 		}
@@ -168,11 +173,13 @@ public class ShortestPath
 				if(tLiesInSubPolygon(q1,newP))
 				{
 					Point [] returnArray = {p,q1,newP};
+					addPointToPath(p);
 					return returnArray;
 				}
 				else
 				{
 					Point [] returnArray = {p,newP,q2};
+					addPointToPath(p);
 					return returnArray;
 				}
 			}
@@ -182,18 +189,20 @@ public class ShortestPath
 				if(tLiesInSubPolygon(q2,newP))
 				{
 					Point [] returnArray = {p,newP,q2};
+					addPointToPath(p);
 					return returnArray;
 				}
 				else
 				{
 					Point [] returnArray = {p,q1,newP};
+					addPointToPath(p);
 					return returnArray;
 				}
 			}
 		}
 	}
 	
-
+	//TODO:
 	private boolean rayLiesInWedge(Point p, Point succP, Point q1, Point p2,Point q2) {
 		Ray ray = new Ray(p,succP);
 		return false;
@@ -393,14 +402,6 @@ public class ShortestPath
 		return false;
 	}
 
-	/**
-	   * This method seperates the polygon into trapezoid 
-	   * @return a list of Polygons
-	   */
-	private List<Polygon> getAllTrapezoid()
-	{
-		return null;
-	}
 	
 	/*
 	 * @return the last point in _path
