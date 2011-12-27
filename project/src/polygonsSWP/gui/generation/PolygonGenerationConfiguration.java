@@ -2,6 +2,8 @@ package polygonsSWP.gui.generation;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
@@ -114,12 +116,19 @@ class PolygonGenerationConfiguration
   }
   
   final private void registerListeners() {
-    /*
-     * b_load_points.addActionListener(new ActionListener() { public void
-     * actionPerformed(ActionEvent e) { JFrame f = new PolygonPointFrame(this);
-     * f.setTitle("Set Polygon Points"); f.setSize(400, 300);
-     * f.setLocationRelativeTo(null); f.setVisible(true); } });
-     */
+    
+    b_load_points.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        PolygonPointFrame f = new PolygonPointFrame(true);
+        List<Point> p;
+        if((p = f.getPoints()) != null) {
+          points = p;
+          emitPointGenerationModeSwitched(false, points);
+        }
+      }
+    });
+    
 
     // RadioButtons
     rb_polygonByGenerator.addMouseListener(new MouseAdapter() {

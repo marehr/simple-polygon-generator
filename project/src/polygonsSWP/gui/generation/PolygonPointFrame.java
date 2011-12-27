@@ -1,15 +1,28 @@
-package polygonsSWP.gui;
-import java.awt.*;
+package polygonsSWP.gui.generation;
+
+import java.awt.BorderLayout;
+import java.awt.FileDialog;
+import java.awt.Frame;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.util.ArrayList;
+import java.util.List;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
-public class PolygonPointFrame extends JFrame{
+import polygonsSWP.geometry.Point;
+
+public class PolygonPointFrame extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 	private JTextArea textArea;
@@ -18,9 +31,10 @@ public class PolygonPointFrame extends JFrame{
 	private JButton okbutton = new JButton("OK");
 	private JButton button;
 	private int x,y;
+  protected List<Point> pointList;
 	
-	public PolygonPointFrame()
-	{
+	public PolygonPointFrame(boolean modal)
+	{	  
 		textArea = new JTextArea();
 		textArea.setLineWrap(true);
 		scrollPane = new JScrollPane(textArea);
@@ -33,7 +47,7 @@ public class PolygonPointFrame extends JFrame{
 		panel.setLayout(new GridLayout(1,2));
 		panel.add(label);
 		panel.add(button);
-		
+			
 		setLayout(new BorderLayout(5,5));
 		add(panel,BorderLayout.NORTH);
 		add(scrollPane,BorderLayout.CENTER);
@@ -42,7 +56,7 @@ public class PolygonPointFrame extends JFrame{
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				clearText();
-				FileDialog fd = new FileDialog(new Frame(),"Choose File",FileDialog.LOAD);
+				FileDialog fd = new FileDialog(new Frame(), "Choose File",FileDialog.LOAD);
 				fd.setVisible(true);
 				
 				File f = new File(fd.getDirectory() + File.separator + fd.getFile());
@@ -68,7 +82,7 @@ public class PolygonPointFrame extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 				try
 				{
-					ArrayList<polygonsSWP.geometry.Point> pointList = new ArrayList<polygonsSWP.geometry.Point>();
+					pointList = new ArrayList<Point>();
 					String pointString = textArea.getText();
 					String [] a = pointString.split("\n");
 					for (int i = 0; i < a.length; i++) {
@@ -78,7 +92,6 @@ public class PolygonPointFrame extends JFrame{
 					}
 					if(pointList.size() >= 3)
 					{
-						//main.setPoints(pointList);
 						JOptionPane.showMessageDialog (null, "Points have been set successfully", "Notification", JOptionPane.PLAIN_MESSAGE);
 						hide_self();
 					}
@@ -95,6 +108,15 @@ public class PolygonPointFrame extends JFrame{
 			}
 		});
 		
+    setTitle("Load polygon points");
+    setSize(400, 300);
+    setLocationRelativeTo(null);
+    setModal(modal);
+    setVisible(true);
+	}
+	
+	public List<Point> getPoints() {
+	  return pointList;
 	}
 	
 	private void hide_self() {
