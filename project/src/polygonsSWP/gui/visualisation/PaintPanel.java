@@ -72,6 +72,7 @@ class PaintPanel
   void setDrawMode(boolean d, List<Point> p) {
     drawMode = d;
     points = p;
+    repaint();
   }
 
   void resetView() {
