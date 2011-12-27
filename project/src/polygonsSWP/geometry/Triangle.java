@@ -93,7 +93,7 @@ public class Triangle
       double x = u.v1 * randomPoint1 + v.v1 * randomPoint2;
       double y = u.v2 * randomPoint1 + v.v2 * randomPoint2;
 
-      retval = new Point((long) x, (long) y);
+      retval = new Point(x, y);
 
     }
     while (!containsPoint(retval, true));

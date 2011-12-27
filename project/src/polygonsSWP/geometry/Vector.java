@@ -1,9 +1,11 @@
 package polygonsSWP.geometry;
 
+import polygonsSWP.util.MathUtils;
+
 public class Vector
 {
-  public long v1;
-  public long v2;
+  public double v1;
+  public double v2;
   
   public Vector(Point p1, Point p2){
     v1 = p2.x - p1.x;
@@ -20,6 +22,6 @@ public class Vector
       return false;
     
     Vector v = (Vector) obj;
-    return (v.v1 == v1) && (v.v2 == v2);
+    return MathUtils.doubleEquals(v1, v.v1) && MathUtils.doubleEquals(v2, v.v2);
   }
 }

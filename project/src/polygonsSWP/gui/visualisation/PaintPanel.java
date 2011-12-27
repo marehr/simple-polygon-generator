@@ -133,8 +133,8 @@ class PaintPanel
     if (drawMode && e.getButton() == MouseEvent.BUTTON3) {
       assert (points != null);
 
-      long x = (long) ((e.getX() - offsetX) / zoom);
-      long y = (long) ((e.getY() - offsetY) / zoom);
+      double x = (e.getX() - offsetX) / zoom;
+      double y = (e.getY() - offsetY) / zoom;
       points.add(new Point(x, y));
 
       repaint();

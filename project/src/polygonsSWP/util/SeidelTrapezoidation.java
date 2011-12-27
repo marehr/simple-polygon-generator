@@ -23,7 +23,16 @@ public class SeidelTrapezoidation
     Random r = new Random(System.currentTimeMillis());
     SearchTree S = new SearchTree();
     List<LineSegment> E = new LinkedList<LineSegment>();
-    List<Long> horizontalLines = new LinkedList<Long>();
+    
+    // Remember used points (which mark horizontal lines).
+    // Note, that we use List.contains() below, which itself
+    // uses Double.equals which then uses doubleToLongBits()
+    // for comparison (i.e. two doubles are equal if they have
+    // the exact bitwise representatition). This should be fine
+    // here as we only add y-coordinates from the polygon's
+    // point list directly, i.e. we don't use any division/square
+    // roots here.
+    List<Double> horizontalLines = new LinkedList<Double>();
     
     // Create random list of line segments from polygon.
     List<Point> points = polygon.getPoints();
@@ -313,14 +322,14 @@ public class SeidelTrapezoidation
   }
   
   private static class Region {
-    long upperBound;
-    long lowerBound;
+    double upperBound;
+    double lowerBound;
     LineSegment left;
     LineSegment right;
     
     Region() {
-      upperBound = Long.MAX_VALUE;
-      lowerBound = Long.MIN_VALUE;
+      upperBound = Double.MAX_VALUE;
+      lowerBound = -Double.MAX_VALUE;
     }
 
     /**

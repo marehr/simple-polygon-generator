@@ -202,7 +202,7 @@ public abstract class Polygon
    * @return Center of mass of Polygon points.
    */
   public Point centerOfMass() {
-    long x = 0, y = 0;
+    double x = 0, y = 0;
     for(Point p : getPoints()) {
       x += p.x;
       y += p.y;

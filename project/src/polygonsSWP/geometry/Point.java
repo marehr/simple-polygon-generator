@@ -1,5 +1,7 @@
 package polygonsSWP.geometry;
 
+import polygonsSWP.util.MathUtils;
+
 /**
  * Implementation of point object. Just abstracts x and y coordinates to one
  * object.
@@ -9,10 +11,15 @@ package polygonsSWP.geometry;
 public class Point
   implements Comparable<Point>
 {
-  public long x;
-  public long y;
+  public double x;
+  public double y;
 
   public Point(long _x, long _y) {
+    // TODO remove
+    assert(false);
+  }
+  
+  public Point(double _x, double _y) {
     x = _x;
     y = _y;
   }
@@ -22,7 +29,7 @@ public class Point
     if (!(obj instanceof Point)) return false;
 
     Point p = (Point) obj;
-    return (p.x == x) && (p.y == y);
+    return MathUtils.doubleEquals(x, p.x) && MathUtils.doubleEquals(y, p.y);
   }
 
   public String toString() {
@@ -54,8 +61,10 @@ public class Point
    */
   @Override
   public int compareTo(Point p2) {
-    if (x != p2.x) return x < p2.x ? -1 : +1;
-    if (y == p2.y) return 0;
+    if (!MathUtils.doubleEquals(x, p2.x)) 
+      return x < p2.x ? -1 : +1;
+    if (MathUtils.doubleEquals(y, p2.y)) 
+      return 0;
     return y < p2.y ? -1 : +1;
   }
 
@@ -71,8 +80,10 @@ public class Point
    *         the right.
    */
   public int compareToByY(Point p2) {
-    if (y != p2.y) return y < p2.y ? -1 : +1;
-    if (x == p2.x) return 0;
+    if (!MathUtils.doubleEquals(y, p2.y)) 
+      return y < p2.y ? -1 : +1;
+    if (MathUtils.doubleEquals(x, p2.x)) 
+      return 0;
     return x < p2.x ? -1 : +1;
   }
 }

@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import polygonsSWP.geometry.Line;
 import polygonsSWP.geometry.Point;
-import polygonsSWP.geometry.Polygon;
-
 
 /**
  * Helper class for reusable math functions.
@@ -35,7 +32,7 @@ public class MathUtils
 
       boolean notInSet = false;
       while (!notInSet) {
-        p = new Point(r.nextInt(s), r.nextInt(s));
+        p = new Point(r.nextDouble() * s, r.nextDouble() * s);
 
         notInSet = true;
         for (int j = 0; j < retval.size(); j++) {
@@ -68,11 +65,30 @@ public class MathUtils
    *         => p is on the segment
    */
   public static int checkOrientation(Point begin, Point end, Point p) {
-    long result =
+    double result =
         begin.x * (end.y - p.y) + end.x * (p.y - begin.y) + p.x *
             (begin.y - end.y);
     if (result > 0) return 1;
     else if (result < 0) return -1;
     else return 0;
+  }
+  
+  /**
+   * Really small number.
+   */
+  public static final double EPSILON = 0.000001;
+  
+  /**
+   * Decimal number equality.
+   */
+  public static boolean doubleEquals(double a, double b) {
+    return Math.abs(a - b) < EPSILON;
+  }
+  
+  /**
+   * Decimal number equals zero.
+   */
+  public static boolean doubleZero(double a) {
+    return doubleEquals(a, 0d);
   }
 }
