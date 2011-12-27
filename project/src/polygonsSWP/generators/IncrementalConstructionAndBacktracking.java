@@ -14,6 +14,7 @@ import polygonsSWP.util.GeneratorUtils;
 
 public class IncrementalConstructionAndBacktracking implements PolygonGenerator
 {
+  private boolean doStop = false;
 
   private Parameters[][] params = new Parameters[][] {
     new Parameters[] {Parameters.n, Parameters.size},
@@ -29,9 +30,16 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
   public String toString() {
     return "Incremental Construction & Backtracking";
   }
+  
+  @Override
+  public void stop() {
+    doStop = true;
+  }
 
   @Override
   public Polygon generate(Map<Parameters, Object> params, PolygonHistory steps) {
+    doStop = false;
+    
     List<Point> points = GeneratorUtils.createOrUsePoints(params);
     
     // Precalculate the convex hull of points
@@ -58,7 +66,10 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
     pp.add(fp);
     polygon = recursivelyAddPoint(ue, pp, idx, ch, points);
 
-    assert(polygon != null);
+    assert(doStop || polygon != null);
+    
+    if(doStop)
+      return null;
     
     // Create polygon from index list.
     OrderedListPolygon olp = new OrderedListPolygon();
@@ -75,6 +86,10 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       final List<Point> points) {
     assert(remaining.size() > 0);
     
+    // Cancel?
+    if(doStop)
+      return null;
+    
     Random r = new Random(System.currentTimeMillis());
     
     // Remember used points (elements in 'remaining' list)
@@ -83,7 +98,7 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
     List<Integer> polygon = null;
     
     addPointLoop:
-    while(polygon == null && used.size() < remaining.size()) {
+    while(!doStop && polygon == null && used.size() < remaining.size()) {
       
       // Last point
       Integer lp = chain.get(chain.size() - 1);
@@ -166,6 +181,9 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
       }    
 
     }
+    
+    if(doStop)
+      return null;
     
     return polygon;    
   }
@@ -343,5 +361,4 @@ public class IncrementalConstructionAndBacktracking implements PolygonGenerator
         s[j][i] = true;
     }
   }
-
 }
