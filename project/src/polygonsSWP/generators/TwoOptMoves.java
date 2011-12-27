@@ -12,6 +12,7 @@ import polygonsSWP.util.GeneratorUtils;
 
 public class TwoOptMoves implements PolygonGenerator 
 {
+  private boolean doStop = false;
 
   private Parameters[][] params = new Parameters[][] {
     new Parameters[] {Parameters.n, Parameters.size},
@@ -22,9 +23,15 @@ public class TwoOptMoves implements PolygonGenerator
   public Parameters[][] getAcceptedParameters() {
     return params;
   }
+  
+  @Override
+  public void stop() {
+    doStop = true;
+  }
 
   @Override
   public Polygon generate(Map<Parameters, Object> params, PolygonHistory steps) {
+    doStop = false;
     
     // Step 1: Generate n points in the plane or use the given set of points.
     OrderedListPolygon p = new OrderedListPolygon(GeneratorUtils.createOrUsePoints(params, true));
@@ -33,14 +40,9 @@ public class TwoOptMoves implements PolygonGenerator
     p.permute();
     
     Integer[] intersection = null;
-    while((intersection = p.findRandomIntersection()) != null) {
+    while(!doStop && (intersection = p.findRandomIntersection()) != null) {
       // Step 3: Replace intersection (vi,vi+1),(vj,vj+1) 
       // with (vj+1,vi+1),(vj,vi)
-      
-      // TODO need to understand Helds code completely and handle all
-      // his special cases (eg. edge j lying on top of edge i, one vertex
-      // lying on the other edge, or vertex vj+1 being the same as vi). 
-      // Right now, this loop doesn't stop.
       
       int vi = intersection[0];
       int vj = intersection[1];
@@ -62,6 +64,9 @@ public class TwoOptMoves implements PolygonGenerator
       
       p.setPoints(np);
     }
+    
+    if(doStop)
+      return null;
     
     return p;
   }
