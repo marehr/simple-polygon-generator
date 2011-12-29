@@ -7,8 +7,8 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-import polygonsSWP.generators.PolygonGenerator;
-import polygonsSWP.generators.PolygonGenerator.Parameters;
+import polygonsSWP.generators.PolygonGeneratorFactory;
+import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 
 /**
  * Simple JComboBox extension able to enable/disable algorithms
@@ -22,7 +22,7 @@ class GeneratorChooser
   private static final long serialVersionUID = 1L;
   private AlgoCellRenderer acr;
 
-  GeneratorChooser(PolygonGenerator[] polygon_algorithm_list,
+  GeneratorChooser(PolygonGeneratorFactory[] polygon_algorithm_list,
       boolean randomPoints) {
     super(polygon_algorithm_list);
 
@@ -54,10 +54,10 @@ class GeneratorChooser
         int index, boolean isSelected, boolean cellHasFocus) {
       setText(value.toString());
 
-      PolygonGenerator pg = (PolygonGenerator) value;
+      PolygonGeneratorFactory pgf = (PolygonGeneratorFactory) value;
       
       boolean can_handle_this = false;
-      for(Parameters[] s : pg.getAcceptedParameters()) {
+      for(Parameters[] s : pgf.getAcceptedParameters()) {
         for(Parameters p : s) {
           if((randomPoints && p.equals(Parameters.n)) ||
               (!randomPoints && p.equals(Parameters.points))) {

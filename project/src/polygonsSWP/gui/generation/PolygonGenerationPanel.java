@@ -11,7 +11,8 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import polygonsSWP.generators.PolygonGenerator;
-import polygonsSWP.generators.PolygonGenerator.Parameters;
+import polygonsSWP.generators.PolygonGeneratorFactory;
+import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.Polygon;
 
 
@@ -38,11 +39,11 @@ public class PolygonGenerationPanel
   private Thread t;
   private PolygonGenerationWorker worker;
 
-  public PolygonGenerationPanel(final PolygonGenerator[] generators) {
+  public PolygonGenerationPanel(final PolygonGeneratorFactory[] polygon_algorithm_list) {
     observers = new LinkedList<PolygonGenerationPanelListener>();
 
     // Initialize generator configuration panel.
-    p_generator_config = new PolygonGenerationConfiguration(generators);
+    p_generator_config = new PolygonGenerationConfiguration(polygon_algorithm_list);
     
     // Initialize generate button.
     b_generate_polygon = new JButton("Generate");
@@ -125,12 +126,14 @@ public class PolygonGenerationPanel
    * the polygon.
    */
   protected void runGenerator() {
-    PolygonGenerator pg = p_generator_config.getGenerator();
+    PolygonGeneratorFactory pgf = p_generator_config.getGeneratorFactory();
     Map<Parameters, Object> params = p_generator_config.getParameters();
-    if(pg == null || params == null)
+    if(pgf == null || params == null)
       return;
 
-    worker = new PolygonGenerationWorker(pg, params, this);
+    PolygonGenerator pg = pgf.createInstance(params, null);
+    
+    worker = new PolygonGenerationWorker(pg, this);
     t = new Thread(worker);
     b_generate_polygon.setText("Cancel");
     

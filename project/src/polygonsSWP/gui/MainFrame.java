@@ -9,14 +9,14 @@ import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import polygonsSWP.generators.ConvexHullGenerator;
-import polygonsSWP.generators.IncrementalConstructionAndBacktracking;
-import polygonsSWP.generators.PermuteAndReject;
-import polygonsSWP.generators.PolygonGenerator;
-import polygonsSWP.generators.RandomPolygonAlgorithm;
-import polygonsSWP.generators.SpacePartitioning;
-import polygonsSWP.generators.TwoOptMoves;
-import polygonsSWP.generators.VelocityVirmani;
+import polygonsSWP.generators.PolygonGeneratorFactory;
+import polygonsSWP.generators.heuristics.IncrementalConstructionAndBacktrackingFactory;
+import polygonsSWP.generators.heuristics.SpacePartitioningFactory;
+import polygonsSWP.generators.heuristics.TwoOptMovesFactory;
+import polygonsSWP.generators.heuristics.VelocityVirmaniFactory;
+import polygonsSWP.generators.other.ConvexHullGeneratorFactory;
+import polygonsSWP.generators.other.PermuteAndRejectFactory;
+import polygonsSWP.generators.rpa.RandomPolygonAlgorithmFactory;
 import polygonsSWP.gui.generation.PolygonGenerationPanel;
 import polygonsSWP.gui.visualisation.PolygonView;
 
@@ -31,15 +31,20 @@ public class MainFrame
 {
   private static final long serialVersionUID = 313119639927682997L;
 
-  // gui components
+  // GUI components.
   private final PolygonGenerationPanel p_generator;
   private final ShortestPathPanel _sp_config;
   private final PolygonView p_polygon_view;
 
-  private PolygonGenerator[] polygon_algorithm_list = { new PermuteAndReject(),
-      new TwoOptMoves(), new RandomPolygonAlgorithm(), new SpacePartitioning(),
-      new IncrementalConstructionAndBacktracking(), new ConvexHullGenerator()
-  , new VelocityVirmani(300,10, 150)};
+  private PolygonGeneratorFactory[] polygon_algorithm_list = { 
+      new PermuteAndRejectFactory(),
+      new TwoOptMovesFactory(), 
+      new RandomPolygonAlgorithmFactory(), 
+      new SpacePartitioningFactory(),
+      new IncrementalConstructionAndBacktrackingFactory(), 
+      new ConvexHullGeneratorFactory(),
+      new VelocityVirmaniFactory()
+  };
 
   public static void main(String[] args) {
     new MainFrame();

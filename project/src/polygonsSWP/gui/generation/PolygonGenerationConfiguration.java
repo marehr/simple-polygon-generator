@@ -20,8 +20,9 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import polygonsSWP.generators.PolygonGenerator;
-import polygonsSWP.generators.PolygonGenerator.Parameters;
+import polygonsSWP.generators.PolygonGeneratorFactory;
+import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
+import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.geometry.Point;
 
 
@@ -43,11 +44,11 @@ class PolygonGenerationConfiguration
   /* the list of user-selected points */
   private List<Point> points = null;
   
-  PolygonGenerationConfiguration(PolygonGenerator[] generators) {
+  PolygonGenerationConfiguration(PolygonGeneratorFactory[] polygon_algorithm_list) {
     observers = new LinkedList<PointGenerationModeListener>();
     
     // init combobox
-    cb_polygon_algorithm_chooser = new GeneratorChooser(generators, true);
+    cb_polygon_algorithm_chooser = new GeneratorChooser(polygon_algorithm_list, true);
 
     // init spinners
     sp_edges = new JSpinner(new SpinnerNumberModel(5, 3, 1000, 1));
@@ -166,10 +167,10 @@ class PolygonGenerationConfiguration
     observers.add(listener);
   }
 
-  PolygonGenerator getGenerator() {
-    PolygonGenerator pg =
-      (PolygonGenerator) cb_polygon_algorithm_chooser.getSelectedItem();
-    return pg;
+  PolygonGeneratorFactory getGeneratorFactory() {
+    PolygonGeneratorFactory pgf =
+      (PolygonGeneratorFactory) cb_polygon_algorithm_chooser.getSelectedItem();
+    return pgf;
   }
 
   Map<Parameters, Object> getParameters() {
