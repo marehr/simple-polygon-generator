@@ -1,6 +1,7 @@
 package polygonsSWP.generators.heuristics;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,16 +13,17 @@ import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.util.GeneratorUtils;
 
-public class TwoOptMovesFactory implements PolygonGeneratorFactory 
-{
-  private static final Parameters[][] params = new Parameters[][] {
-    new Parameters[] {Parameters.n, Parameters.size},
-    new Parameters[] {Parameters.points}
-  };
+public class TwoOptMovesFactory 
+  implements PolygonGeneratorFactory {
+  
+  @Override
+  public boolean acceptsUserSuppliedPoints() {
+    return true;
+  }
 
   @Override
-  public Parameters[][] getAcceptedParameters() {
-    return params;
+  public List<Parameters> getAdditionalParameters() {
+    return new LinkedList<Parameters>();
   }
   
   @Override

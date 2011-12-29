@@ -1,11 +1,13 @@
 package polygonsSWP.generators.heuristics;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
+import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.OrderedListPolygon;
@@ -13,16 +15,17 @@ import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 
-public class SpacePartitioningFactory implements PolygonGeneratorFactory {
-
-  private static final Parameters[][] params = new Parameters[][] {
-    new Parameters[] {Parameters.n, Parameters.size},
-    new Parameters[] {Parameters.points}
-  };
+public class SpacePartitioningFactory 
+  implements PolygonGeneratorFactory {
 
   @Override
-  public Parameters[][] getAcceptedParameters() {
-    return params;
+  public boolean acceptsUserSuppliedPoints() {
+    return true;
+  }
+
+  @Override
+  public List<Parameters> getAdditionalParameters() {
+    return new LinkedList<Parameters>();
   }
   
   @Override

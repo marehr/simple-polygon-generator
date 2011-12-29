@@ -22,7 +22,6 @@ import javax.swing.SpinnerNumberModel;
 
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
-import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.geometry.Point;
 
 
@@ -37,9 +36,9 @@ class PolygonGenerationConfiguration
   /* Controls. */
   private final JRadioButton rb_polygonByUser, rb_polygonByGenerator;
   private final GeneratorChooser cb_polygon_algorithm_chooser;
-  private final JSpinner sp_edges, sp_size;
+  private final JSpinner sp_edges, sp_size, sp_runs, sp_radius, sp_velocity;
   private final JButton b_load_points;
-  private final JLabel lbl_size;
+  private final JLabel lbl_size, lbl_runs, lbl_radius, lbl_velocity;
   
   /* the list of user-selected points */
   private List<Point> points = null;
@@ -53,6 +52,13 @@ class PolygonGenerationConfiguration
     // init spinners
     sp_edges = new JSpinner(new SpinnerNumberModel(5, 3, 1000, 1));
     sp_size = new JSpinner(new SpinnerNumberModel(600, 1, 10000, 20));
+    // TODO max/min values? steps?!?
+    sp_runs = new JSpinner(new SpinnerNumberModel());
+    sp_runs.setEnabled(false);
+    sp_radius = new JSpinner(new SpinnerNumberModel());
+    sp_radius.setEnabled(false);
+    sp_velocity = new JSpinner(new SpinnerNumberModel());
+    sp_velocity.setEnabled(false);
     
     // init buttons
     b_load_points = new JButton("Load Points");
@@ -60,6 +66,9 @@ class PolygonGenerationConfiguration
    
     // init labels
     lbl_size = new JLabel("Bounding box size");
+    lbl_runs = new JLabel("Iterations");
+    lbl_radius = new JLabel("Initial radius");
+    lbl_velocity = new JLabel("Max. Velocity");
     
     // init RadioButtons and Groups
     ButtonGroup polygon_menu = new ButtonGroup();
@@ -112,12 +121,55 @@ class PolygonGenerationConfiguration
 
     gbc.gridx = 0;
     gbc.gridy = 3;
+    add(lbl_runs, gbc);
+    
+    gbc.gridx = 1;
+    gbc.gridy = 3;
+    add(sp_runs, gbc);
+    
+    gbc.gridx = 0;
+    gbc.gridy = 4;
+    add(lbl_radius, gbc);
+    
+    gbc.gridx = 1;
+    gbc.gridy = 4;
+    add(sp_radius, gbc);
+    
+    gbc.gridx = 0;
+    gbc.gridy = 5;
+    add(lbl_velocity, gbc);
+    
+    gbc.gridx = 1;
+    gbc.gridy = 5;
+    add(sp_velocity, gbc);
+    
+    gbc.gridx = 0;
+    gbc.gridy = 6;
     gbc.gridwidth = 2;
     add(cb_polygon_algorithm_chooser, gbc);
   }
   
   final private void registerListeners() {
     
+    // Combobox
+    cb_polygon_algorithm_chooser.addActionListener(new ActionListener() {
+
+      @Override
+      public void actionPerformed(ActionEvent arg0) {
+        PolygonGeneratorFactory pgf = 
+            (PolygonGeneratorFactory) cb_polygon_algorithm_chooser.getSelectedItem();
+        
+        // Enable/Disable controls based on Generator parameterization.
+        List<Parameters> addparams = pgf.getAdditionalParameters();
+        sp_runs.setEnabled(addparams.contains(Parameters.runs));
+        sp_radius.setEnabled(addparams.contains(Parameters.radius));
+        sp_velocity.setEnabled(addparams.contains(Parameters.velocity));
+        rb_polygonByUser.setEnabled(pgf.acceptsUserSuppliedPoints());
+      }
+      
+    });
+    
+    // Load points button
     b_load_points.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -129,7 +181,6 @@ class PolygonGenerationConfiguration
         }
       }
     });
-    
 
     // RadioButtons
     rb_polygonByGenerator.addMouseListener(new MouseAdapter() {
@@ -175,9 +226,7 @@ class PolygonGenerationConfiguration
 
   Map<Parameters, Object> getParameters() {
     // TODO: check parameters again, but in a better way.
-    // I disabled incapable algorithms in GeneratorChooser, but
-    // if for example RPA was selected when "Set Points" was clicked,
-    // RPA still stays selected.
+
     Map<Parameters, Object> params = new HashMap<Parameters, Object>();
 
     Integer size = (Integer) sp_size.getValue();
@@ -209,6 +258,15 @@ class PolygonGenerationConfiguration
         return null;
       }
     }
+    
+    if(sp_runs.isEnabled())
+      params.put(Parameters.runs, (Integer) sp_runs.getValue());
+    
+    if(sp_radius.isEnabled())
+      params.put(Parameters.radius, (Long) ((Number) sp_radius.getValue()).longValue());
+
+    if(sp_velocity.isEnabled())
+      params.put(Parameters.velocity, (Integer) sp_velocity.getValue());
     
     return params;
   }

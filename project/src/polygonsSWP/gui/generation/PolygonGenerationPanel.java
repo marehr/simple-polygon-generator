@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
@@ -131,7 +133,19 @@ public class PolygonGenerationPanel
     if(pgf == null || params == null)
       return;
 
-    PolygonGenerator pg = pgf.createInstance(params, null);
+    PolygonGenerator pg = null;
+    try {
+      pg = pgf.createInstance(params, null);
+    }
+    catch (IllegalParameterizationException e) {
+      JOptionPane.showMessageDialog(null,
+          "Could not create PolygonGenerator.\n" +
+          "Error was: " + e.getMessage() + "\n" + 
+          "For parameter: " + e.getIllegalParameter(),
+          "Parameterization error",
+          JOptionPane.ERROR_MESSAGE);  
+      return;
+    }
     
     worker = new PolygonGenerationWorker(pg, this);
     t = new Thread(worker);

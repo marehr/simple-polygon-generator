@@ -1,5 +1,6 @@
 package polygonsSWP.generators.rpa;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -17,14 +18,16 @@ import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 
 public class RandomPolygonAlgorithmFactory
-  implements PolygonGeneratorFactory
-{
-  private static final Parameters[][] params = new Parameters[][] { new Parameters[] {
-      Parameters.n, Parameters.size } };
+  implements PolygonGeneratorFactory {
+  
+  @Override
+  public boolean acceptsUserSuppliedPoints() {
+    return false;
+  }
 
   @Override
-  public Parameters[][] getAcceptedParameters() {
-    return params;
+  public List<Parameters> getAdditionalParameters() {
+    return new LinkedList<Parameters>();
   }
   
   @Override

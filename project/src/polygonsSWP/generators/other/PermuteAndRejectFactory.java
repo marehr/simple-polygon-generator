@@ -1,5 +1,7 @@
 package polygonsSWP.generators.other;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import polygonsSWP.data.PolygonHistory;
@@ -9,16 +11,17 @@ import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.util.GeneratorUtils;
 
-public class PermuteAndRejectFactory implements PolygonGeneratorFactory
-{  
-  private static final Parameters[][] params = new Parameters[][] {
-    new Parameters[] {Parameters.n, Parameters.size},
-    new Parameters[] {Parameters.points}
-  };
+public class PermuteAndRejectFactory 
+  implements PolygonGeneratorFactory { 
+  
+  @Override
+  public boolean acceptsUserSuppliedPoints() {
+    return true;
+  }
 
   @Override
-  public Parameters[][] getAcceptedParameters() {
-    return params;
+  public List<Parameters> getAdditionalParameters() {
+    return new LinkedList<Parameters>();
   }
   
   @Override

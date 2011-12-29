@@ -8,7 +8,6 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
 import polygonsSWP.generators.PolygonGeneratorFactory;
-import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 
 /**
  * Simple JComboBox extension able to enable/disable algorithms
@@ -55,18 +54,7 @@ class GeneratorChooser
       setText(value.toString());
 
       PolygonGeneratorFactory pgf = (PolygonGeneratorFactory) value;
-      
-      boolean can_handle_this = false;
-      for(Parameters[] s : pgf.getAcceptedParameters()) {
-        for(Parameters p : s) {
-          if((randomPoints && p.equals(Parameters.n)) ||
-              (!randomPoints && p.equals(Parameters.points))) {
-            can_handle_this = true;
-            break;
-          }
-        }
-      }
-      
+      boolean can_handle_this = randomPoints || pgf.acceptsUserSuppliedPoints();     
       setEnabled(can_handle_this);
       setFocusable(can_handle_this);
       

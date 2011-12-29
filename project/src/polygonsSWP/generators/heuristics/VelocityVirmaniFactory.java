@@ -1,9 +1,12 @@
 package polygonsSWP.generators.heuristics;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
@@ -13,14 +16,18 @@ import polygonsSWP.geometry.Polygon;
 
 public class VelocityVirmaniFactory implements PolygonGeneratorFactory {
 
-  private static final Parameters[][] params = new Parameters[][]
-      {
-        new Parameters[] {Parameters.n, Parameters.radius, Parameters.velocity, Parameters.size, Parameters.runs}
-      };
-  
   @Override
-  public Parameters[][] getAcceptedParameters() {
-    return params;
+  public boolean acceptsUserSuppliedPoints() {
+    return false;
+  }
+
+  @Override
+  public List<Parameters> getAdditionalParameters() {
+    List<Parameters> addparams = new LinkedList<Parameters>();
+    addparams.add(Parameters.radius);
+    addparams.add(Parameters.runs);
+    addparams.add(Parameters.velocity);
+    return addparams;
   }
   
   @Override
@@ -31,60 +38,47 @@ public class VelocityVirmaniFactory implements PolygonGeneratorFactory {
   
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonHistory steps) {
-    // TODO: Maybe do sanity checks here?
-    return new VelocityVirmani(params, steps);
+      PolygonHistory steps) throws IllegalParameterizationException {
+    
+    // TODO: Do sanity checks here and throw exception.
+    
+    long radius = (Long) params.get(Parameters.radius);
+    int n = (Integer) params.get(Parameters.n);
+    int runs = (Integer) params.get(Parameters.runs);
+    int bound = (Integer)params.get(Parameters.size);
+    int maxVelo = (Integer) params.get(Parameters.velocity);
+    
+    if (radius * 2 > bound) {
+      throw new IllegalParameterizationException(
+          "Radius must be smaller than the bounds allow (Pre: Radius * 2 < bound).",
+          Parameters.radius);
+    }    
+    
+    return new VelocityVirmani(n, radius, runs, bound, maxVelo);
   }
   
 	private static class VelocityVirmani implements PolygonGenerator {
 	
 	  private Random rand;
-	  private long radius;
-	  private int runs;
-	  private int velocity;
-    private Map<Parameters, Object> params;
-    private PolygonHistory steps;
+    private int n;
+    private long radius;
+    private int runs;
+    private int maxVelo;
+    private int bound;
 	  
-  	VelocityVirmani(Map<Parameters, Object> params, PolygonHistory steps)
+  	VelocityVirmani(int n, long radius, int runs, int bound, int maxVelo)
   	{
-  	  this.params = params;
-  	  this.steps = steps;
-  	  this.rand = new Random();
-  	  this.radius = radius;
+      this.rand = new Random();
+  	  this.n = n;
+      this.radius = radius;
   	  this.runs = runs;
-  	  this.velocity = velocity;
+  	  this.bound = bound;
+  	  this.maxVelo = maxVelo;
   	}
   
   	@Override
   	public Polygon generate() {
-  	  
-  	  // TODO ........
-  	  
-  	  //Weil die GUI noch nicht runs oder radius provided
-  	  if(radius != 0 && runs != 0 && velocity !=0)
-  	  {
-  	    params.put(Parameters.radius, radius);
-  	    params.put(Parameters.runs, runs);
-  	    params.put(Parameters.velocity, velocity);
-  	  }//bis hierher
-  	  
-  	  
-  		if (!params.containsKey(Parameters.radius) || !params.containsKey(Parameters.n)
-  				|| !params.containsKey(Parameters.size) || !params.containsKey(Parameters.runs)) {
-  			throw new RuntimeException("Unsufficient Paramters");
-  		}
-  
-  		long radius = (Long) params.get(Parameters.radius);
-  		int n = (Integer) params.get(Parameters.n);
-  		int runs = (Integer) params.get(Parameters.runs);
-  		long bound = (Integer)params.get(Parameters.size);
-  		int maxVelo = (Integer) params.get(Parameters.velocity);
-  		
-  		if (radius * 2 > bound) {
-  			throw new RuntimeException(
-  					"Radius must be smaller than the Bounds allow. (Pre: Radius * 2 < bound)");
-  		}
-  
+  	     
   		OrderedListPolygon poly = regularPolygon(n, radius, bound);
   
   		int velox, veloy;
