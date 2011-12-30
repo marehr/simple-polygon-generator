@@ -48,13 +48,17 @@ public class SeidelTrapezoidation
      * 2nd step: Iterate through edge set and construct
      * search tree incrementally.
      */
-    
+   
     while(!E.isEmpty()) {
       LineSegment l = E.remove(0);
       Point[] ab = new Point[] {
           l._a, // Upper point of l.
           l._b  // Lower point of l.
       };
+           
+      // Skip horizontal edges.
+      if(l._a.y == l._b.y)
+        continue;
       
       // For each point, horizontally split containing trapezoid.
       for(Point x : ab) {
@@ -65,10 +69,6 @@ public class SeidelTrapezoidation
         S.processPoint(x);
       }
        
-      // Skip horizontal edges.
-      if(l._a.y == l._b.y)
-        continue;
-      
       // Vertically split all regions intersecting with edge l.
       S.processLineSegment(l);
     }
