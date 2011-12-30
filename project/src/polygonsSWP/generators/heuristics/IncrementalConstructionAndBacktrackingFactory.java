@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.geometry.LineSegment;
@@ -35,17 +36,18 @@ public class IncrementalConstructionAndBacktrackingFactory
 
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonHistory steps) {
-    return new IncrementalConstructionAndBacktracking(params, steps);
+      PolygonHistory steps) throws IllegalParameterizationException {
+    List<Point> points = GeneratorUtils.createOrUsePoints(params, true);
+    return new IncrementalConstructionAndBacktracking(points, steps);
   }
   
   private static class IncrementalConstructionAndBacktracking implements PolygonGenerator {
     private boolean doStop;
-    private Map<Parameters, Object> params;
+    private List<Point> points;
     private PolygonHistory steps;
     
-    IncrementalConstructionAndBacktracking(Map<Parameters, Object> params, PolygonHistory steps) {
-      this.params = params;
+    IncrementalConstructionAndBacktracking(List<Point> points, PolygonHistory steps) {
+      this.points = points;
       this.steps = steps;
       this.doStop = false;
     }
@@ -56,9 +58,7 @@ public class IncrementalConstructionAndBacktrackingFactory
     }
   
     @Override
-    public Polygon generate() {     
-      List<Point> points = GeneratorUtils.createOrUsePoints(params);
-      
+    public Polygon generate() {          
       // Precalculate the convex hull of points
       OrderedListPolygon ch = GeneratorUtils.convexHull(points);
       

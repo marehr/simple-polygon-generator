@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
@@ -58,20 +59,25 @@ public class GeneratorUtils
    * 
    * @param params params as handled over to the Generator
    * @param ensureGeneralPosition if set, this methods makes sure that the
-   *          returned set of points is in general position. If it was a
-   *          user-supplied set of points, an exception is thrown.
+   *          returned set of points is in general position. 
    * @return either the given set of points or a randomly created set if size n.
+   * @throws IllegalParameterizationException in case of
+   *         a) if none of or
+   *         b) if both 'n' and 'points' parameters are given.
+   *         c) if 'points' is given and ensureGeneralPosition
+   *            is set but point set is not in GP.
    */
-
   @SuppressWarnings("unchecked")
   public static List<Point> createOrUsePoints(Map<Parameters, Object> params,
-      boolean ensureGeneralPosition) {
+      boolean ensureGeneralPosition) throws IllegalParameterizationException {
     Integer n = (Integer) params.get(Parameters.n);
     Integer size = (Integer) params.get(Parameters.size);
     List<Point> s = (List<Point>) params.get(Parameters.points);
 
-    // TODO remove
-    assert (s != null || (n != null && size != null));
+    if ((s == null && n == null) || 
+        (s != null && n != null))
+      throw new IllegalParameterizationException(
+          "You have to specify either the 'n' or the 'points' parameter.");
 
     if (s == null) {
 
@@ -80,12 +86,12 @@ public class GeneratorUtils
       }
       while (ensureGeneralPosition && !isInGeneralPosition(s));
 
-    }
-    else {
+    } else {
 
       if (ensureGeneralPosition && !isInGeneralPosition(s))
-      // TODO throw sth proper
-        throw new RuntimeException("user-defined set of points not in GP.");
+        throw new IllegalParameterizationException(
+            "User-defined set of points not in GP.", 
+            Parameters.points);
 
     }
 
@@ -98,8 +104,7 @@ public class GeneratorUtils
   /**
    * Compatibility method for above.
    */
-
-  public static List<Point> createOrUsePoints(Map<Parameters, Object> params) {
+  public static List<Point> createOrUsePoints(Map<Parameters, Object> params) throws IllegalParameterizationException {
     return createOrUsePoints(params, false);
   }
 

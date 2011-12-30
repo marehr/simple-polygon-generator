@@ -12,6 +12,10 @@ public class IllegalParameterizationException
     this.illegalParameter = illegalParameter;
   }
   
+  public IllegalParameterizationException(String msg) {
+    this(msg, null);
+  }
+
   public Parameters getIllegalParameter() {
     return illegalParameter;
   }

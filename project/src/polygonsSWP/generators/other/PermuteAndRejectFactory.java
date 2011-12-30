@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.geometry.OrderedListPolygon;
+import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.util.GeneratorUtils;
 
@@ -31,26 +33,27 @@ public class PermuteAndRejectFactory
   
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonHistory steps) {
-    return new PermuteAndReject(params, steps);
+      PolygonHistory steps) throws IllegalParameterizationException {
+    List<Point> points = GeneratorUtils.createOrUsePoints(params, true);
+    return new PermuteAndReject(points, steps);
   }
   
   private static class PermuteAndReject implements PolygonGenerator {
     
     private boolean doStop = false;
-    private Map<Parameters, Object> params;
     private PolygonHistory steps;
+    private List<Point> points;
     
-    PermuteAndReject(Map<Parameters, Object> params, PolygonHistory steps) {
-      this.params = params;
+    PermuteAndReject(List<Point> points, PolygonHistory steps) {
+      this.points = points;
       this.steps = steps;
       this.doStop = false;
     }
     
     @Override
     public Polygon generate() {  
-      // Step 1: Generate n points in the plane or use the given set of points
-      OrderedListPolygon p = new OrderedListPolygon(GeneratorUtils.createOrUsePoints(params, true));
+      // Step 1: Generate polygon of given point set.
+      OrderedListPolygon p = new OrderedListPolygon(points);
   
       while(!doStop) {
         // Step 2: Permute those n points to construct a Polygon

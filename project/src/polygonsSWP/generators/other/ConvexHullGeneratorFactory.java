@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.geometry.Point;
@@ -30,23 +31,23 @@ public class ConvexHullGeneratorFactory
   
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonHistory steps) {
-    return new ConvexHullGenerator(params, steps);
+      PolygonHistory steps) throws IllegalParameterizationException {
+    List<Point> points = GeneratorUtils.createOrUsePoints(params);
+    return new ConvexHullGenerator(points, steps);
   }
   
   private static class ConvexHullGenerator implements PolygonGenerator {
 
-    private Map<Parameters, Object> params;
+    private List<Point> points;
     private PolygonHistory steps;
     
-    ConvexHullGenerator(Map<Parameters, Object> params, PolygonHistory steps) {
-      this.params = params;
+    ConvexHullGenerator(List<Point> points, PolygonHistory steps) {
+      this.points = points;
       this.steps = steps;
     }
     
     @Override
     public Polygon generate() {
-      List<Point> points = GeneratorUtils.createOrUsePoints(params);
       return GeneratorUtils.convexHull(points);
     }
 

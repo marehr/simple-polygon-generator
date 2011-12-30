@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
@@ -37,17 +38,29 @@ public class RandomPolygonAlgorithmFactory
   
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonHistory steps) {
-    return new RandomPolygonAlgorithm(params, steps);
+      PolygonHistory steps) throws IllegalParameterizationException {
+    Integer n = (Integer) params.get(Parameters.n);
+    if(n == null)
+      throw new IllegalParameterizationException(
+          "Number of points not set.", Parameters.n);
+    
+    Integer size = (Integer) params.get(Parameters.size);
+    if(size == null)
+      throw new IllegalParameterizationException(
+          "Size of bounding box not set.", Parameters.size);
+    
+    return new RandomPolygonAlgorithm(n, size, steps);
   }
   
   private static class RandomPolygonAlgorithm implements PolygonGenerator {
 
-    private Map<Parameters, Object> params;
+    private int _n;
+    private int _size;
     private PolygonHistory steps;
 
-    RandomPolygonAlgorithm(Map<Parameters, Object> params, PolygonHistory steps) {
-      this.params = params;
+    RandomPolygonAlgorithm(int n, int size, PolygonHistory steps) {
+      this._n = n;
+      this._size = size;
       this.steps = steps;
     }
     
@@ -57,14 +70,13 @@ public class RandomPolygonAlgorithmFactory
       Random random = new Random(System.currentTimeMillis());
   
       // 1. generate 3 rand points -> polygon P
-      OrderedListPolygon polygon =
-          new OrderedListPolygon(MathUtils.createRandomSetOfPointsInSquare(3,
-              (Integer) params.get(Parameters.size)));
+      OrderedListPolygon polygon = new OrderedListPolygon(
+          MathUtils.createRandomSetOfPointsInSquare(3, _size));
   
       List<Point> polygonPoints = polygon.getPoints();
   
       // 2. n-3 times:
-      for (int i = 0; i < (Integer) params.get(Parameters.n) - 3;) {
+      for (int i = 0; i < _n - 3;) {
         // 2.a select random line segment VaVb
         // (assumed that there will be less than 2^31-1 points)
         int randomIndex = random.nextInt(polygonPoints.size());

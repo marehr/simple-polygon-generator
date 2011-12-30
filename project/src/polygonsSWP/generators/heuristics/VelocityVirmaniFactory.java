@@ -39,14 +39,31 @@ public class VelocityVirmaniFactory implements PolygonGeneratorFactory {
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
       PolygonHistory steps) throws IllegalParameterizationException {
+      
+    Long radius = (Long) params.get(Parameters.radius);
+    if(radius == null)
+      throw new IllegalParameterizationException(
+          "Radius not set.", Parameters.radius);
     
-    // TODO: Do sanity checks here and throw exception.
+    Integer n = (Integer) params.get(Parameters.n);
+    if(n == null)
+      throw new IllegalParameterizationException(
+          "Number of points not set.", Parameters.n);
     
-    long radius = (Long) params.get(Parameters.radius);
-    int n = (Integer) params.get(Parameters.n);
-    int runs = (Integer) params.get(Parameters.runs);
-    int bound = (Integer)params.get(Parameters.size);
-    int maxVelo = (Integer) params.get(Parameters.velocity);
+    Integer runs = (Integer) params.get(Parameters.runs);
+    if(runs == null)
+      throw new IllegalParameterizationException(
+          "Number of iterations not set.", Parameters.runs);
+    
+    Integer bound = (Integer)params.get(Parameters.size);
+    if(bound == null)
+      throw new IllegalParameterizationException(
+          "Size of bounding box not set.", Parameters.size);
+    
+    Integer maxVelo = (Integer) params.get(Parameters.velocity);
+    if(maxVelo == null)
+      throw new IllegalParameterizationException(
+          "Maximum velocity not set.", Parameters.velocity);
     
     if (radius * 2 > bound) {
       throw new IllegalParameterizationException(

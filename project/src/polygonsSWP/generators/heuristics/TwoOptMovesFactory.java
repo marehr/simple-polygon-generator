@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.geometry.OrderedListPolygon;
@@ -33,18 +34,19 @@ public class TwoOptMovesFactory
   
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonHistory steps) {
-    return new TwoOptMoves(params, steps);
+      PolygonHistory steps) throws IllegalParameterizationException {
+    List<Point> points = GeneratorUtils.createOrUsePoints(params, true);
+    return new TwoOptMoves(points, steps);
   }
 
   private static class TwoOptMoves implements PolygonGenerator {
     
     private boolean doStop = false;
-    private Map<Parameters, Object> params;
+    private List<Point> points;
     private PolygonHistory steps;
     
-    TwoOptMoves(Map<Parameters, Object> params, PolygonHistory steps) {
-      this.params = params;
+    TwoOptMoves(List<Point> points, PolygonHistory steps) {
+      this.points = points;
       this.steps = steps;
       this.doStop = false;
     }
@@ -56,8 +58,8 @@ public class TwoOptMovesFactory
     
     @Override
     public Polygon generate() {    
-      // Step 1: Generate n points in the plane or use the given set of points.
-      OrderedListPolygon p = new OrderedListPolygon(GeneratorUtils.createOrUsePoints(params, true));
+      // Step 1: Generate polygon of given set of points.
+      OrderedListPolygon p = new OrderedListPolygon(points);
       
       // Step 2: Generate random permutation in case given set was ordered somehow.
       p.permute();

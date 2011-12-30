@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
@@ -35,26 +36,24 @@ public class SpacePartitioningFactory
   
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonHistory steps) {
-    return new SpacePartitioning(params, steps);
+      PolygonHistory steps) throws IllegalParameterizationException {
+    List<Point> points = GeneratorUtils.createOrUsePoints(params);
+    return new SpacePartitioning(points, steps);
   }
   
   private static class SpacePartitioning implements PolygonGenerator {
 
-    private Map<Parameters, Object> params;
+    private List<Point> points;
     private PolygonHistory steps;
 
-    SpacePartitioning(Map<Parameters, Object> params, PolygonHistory steps) {
-      this.params = params;
+    SpacePartitioning(List<Point> points, PolygonHistory steps) {
+      this.points = points;
       this.steps = steps;
     }
     
     @Override
     public Polygon generate() {
       // System.out.println("<------------------------- NEW GENERATE ------------------------->");
-  
-      List<Point> points = GeneratorUtils.createOrUsePoints(params);
-      // System.out.println("points: " + points);
   
       Point first = GeneratorUtils.removeRandomPoint(points),
              last = GeneratorUtils.removeRandomPoint(points);
