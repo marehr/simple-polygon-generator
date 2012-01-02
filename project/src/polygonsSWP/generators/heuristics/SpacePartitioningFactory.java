@@ -45,14 +45,29 @@ public class SpacePartitioningFactory
 
     private List<Point> points;
     private PolygonHistory steps;
+    private boolean doStop = false;
 
     SpacePartitioning(List<Point> points, PolygonHistory steps) {
       this.points = points;
       this.steps = steps;
     }
-    
+
     @Override
     public Polygon generate() {
+      doStop = false;
+
+      Polygon p = null;
+      try{
+        p = generate0();
+      } catch(RuntimeException e){
+        e.printStackTrace();
+      } catch(InterruptedException e){
+      }
+
+      return doStop == true ? null : p;
+    }
+
+    private Polygon generate0() throws InterruptedException{
       // System.out.println("<------------------------- NEW GENERATE ------------------------->");
   
       Point first = GeneratorUtils.removeRandomPoint(points),
@@ -77,7 +92,11 @@ public class SpacePartitioningFactory
       // System.out.println("polygon: " + merge.getPoints());
   
       if(!merge.isSimple()) {
-        throw new RuntimeException("generated Polygon is not simple: "
+        String out = GeneratorUtils.isInGeneralPosition(merge.getPoints())?
+                     "true" : "false";
+        throw new RuntimeException(
+            "general position: " + out + "\n" + 
+            "generated Polygon is not simple: "
              + merge.getPoints());
       }
       // System.err.println(merge.isSimple()? "simple" : "not simple");
@@ -104,8 +123,10 @@ public class SpacePartitioningFactory
     }
   
     private/* String */void partionateIn(List<Point> left, List<Point> right,
-        List<Point> points, Point first, Point last) {
-  
+        List<Point> points, Point first, Point last) throws InterruptedException {
+
+      if(doStop) throw new InterruptedException();
+
       // String output = "";
       for (Point point : points) {
   
@@ -132,13 +153,16 @@ public class SpacePartitioningFactory
     }
   
     private OrderedListPolygon spacePartitioning(List<Point> points, Point first,
-        Point last) {
+        Point last) throws InterruptedException {
+
+      if(doStop) throw new InterruptedException();
+
       // base size == 0
       if (points.size() == 0) {
         ArrayList<Point> list = new ArrayList<Point>();
         list.add(first);
         list.add(last);
-  
+
         // System.out.println("\n\n---size == 0---\npoints: " + points);
         // System.out.println("first: " + first);
         // System.out.println("last: "+ last);
@@ -191,6 +215,11 @@ public class SpacePartitioningFactory
       // System.out.println("------");
   
       return merge;
+    }
+
+    @Override
+    public void stop() {
+      doStop = true;
     }
   }
 }
