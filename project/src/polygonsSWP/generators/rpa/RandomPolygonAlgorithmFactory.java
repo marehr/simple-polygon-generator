@@ -18,9 +18,11 @@ import polygonsSWP.geometry.Ray;
 import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 
+
 public class RandomPolygonAlgorithmFactory
-  implements PolygonGeneratorFactory {
-  
+  implements PolygonGeneratorFactory
+{
+
   @Override
   public boolean acceptsUserSuppliedPoints() {
     return false;
@@ -30,30 +32,34 @@ public class RandomPolygonAlgorithmFactory
   public List<Parameters> getAdditionalParameters() {
     return new LinkedList<Parameters>();
   }
-  
+
   @Override
   public String toString() {
     return "RandomPolygonAlgorithm";
   }
-  
+
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonHistory steps) throws IllegalParameterizationException {
+      PolygonHistory steps)
+    throws IllegalParameterizationException {
     Integer n = (Integer) params.get(Parameters.n);
-    if(n == null)
-      throw new IllegalParameterizationException(
-          "Number of points not set.", Parameters.n);
-    
+    if (n == null)
+      throw new IllegalParameterizationException("Number of points not set.",
+          Parameters.n);
+
     Integer size = (Integer) params.get(Parameters.size);
-    if(size == null)
+    if (size == null)
       throw new IllegalParameterizationException(
           "Size of bounding box not set.", Parameters.size);
-    
+
     return new RandomPolygonAlgorithm(n, size, steps);
   }
-  
-  private static class RandomPolygonAlgorithm implements PolygonGenerator {
 
+
+  private static class RandomPolygonAlgorithm
+    implements PolygonGenerator
+  {
+    private boolean dostop = false;
     private int _n;
     private int _size;
     private PolygonHistory steps;
@@ -63,20 +69,23 @@ public class RandomPolygonAlgorithmFactory
       this._size = size;
       this.steps = steps;
     }
-    
+
     @Override
     public Polygon generate() {
-  
+
       Random random = new Random(System.currentTimeMillis());
-  
+
       // 1. generate 3 rand points -> polygon P
-      OrderedListPolygon polygon = new OrderedListPolygon(
-          MathUtils.createRandomSetOfPointsInSquare(3, _size));
-  
+      OrderedListPolygon polygon =
+          new OrderedListPolygon(MathUtils.createRandomSetOfPointsInSquare(3,
+              _size));
+
       List<Point> polygonPoints = polygon.getPoints();
-  
+
       // 2. n-3 times:
       for (int i = 0; i < _n - 3;) {
+        // test if algorithm should be canceled
+        if (dostop) break;
         // 2.a select random line segment VaVb
         // (assumed that there will be less than 2^31-1 points)
         int randomIndex = random.nextInt(polygonPoints.size());
@@ -90,17 +99,19 @@ public class RandomPolygonAlgorithmFactory
         // 2.d add line segments VaVc and VcVb (delete line segment VaVb)
         polygonPoints.add(randomIndex, randomPoint);
       }
-  
+      
+      if (dostop) return null;
+
       return polygon;
     }
-  
+
     /**
      * This function calculates the visible region of a line segment of the
      * polygon determined by the Points pBegin and pEnd and returns a polygon
      * representing the region. It is assumed, that the points in polygon are
      * ordered counterclockwise. In this order, Vb is left from Va
-     * (vvvvvVbVavvvv)(Assume to continue from the beginning if reached the end of
-     * the list.) TODO: check if visible form inside or outside!!!
+     * (vvvvvVbVavvvv)(Assume to continue from the beginning if reached the end
+     * of the list.) TODO: check if visible form inside or outside!!!
      * 
      * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
      * @param polygon
@@ -133,7 +144,8 @@ public class RandomPolygonAlgorithmFactory
           insVx = false;
         }
       }
-      // c. beginning with Va.next determine vertices(running variable vi) visible
+      // c. beginning with Va.next determine vertices(running variable vi)
+      // visible
       // from both Va and Vb. maintain point last visible from both Va and Vb.
       Point lastVisible = Va;
       cloneIterator =
@@ -166,35 +178,104 @@ public class RandomPolygonAlgorithmFactory
           Point currentPrevious = prevIterator.previous();
           if (polygon.getPoints().contains(currentPrevious)) {
             isViPrevVisibleFromVa =
-                GeneratorUtils.isPolygonPointVisible(currentPrevious, Va, polygon);
+                GeneratorUtils.isPolygonPointVisible(currentPrevious, Va,
+                    polygon);
             isViPrevVisibleFromVb =
-                GeneratorUtils.isPolygonPointVisible(currentPrevious, Vb, polygon);
+                GeneratorUtils.isPolygonPointVisible(currentPrevious, Vb,
+                    polygon);
             break;
           }
         }
-        // vi not visible from va nor vb
+        // vi not visible from va or vb
         if (!isVisibleFromVa && !isVisibleFromVb) {
           cloneIterator.remove();
         }
         // vi visible from va and vb
         if (isVisibleFromVa && isVisibleFromVb) {
-          // viPrev visible from va and vb
+          // case 1 viPrev visible from va and vb
           if (isViPrevVisibleFromVa && isViPrevVisibleFromVb) {
             lastVisible = vi;
           }
-          // viPrev not visible from va and vb
+          // case 2 viPrev not visible from va and vb
           if (!isViPrevVisibleFromVa && !isViPrevVisibleFromVb) {
-            // TODO: intersections && visibility test tests
+            Ray r1 = new Ray(Va, lastVisible);
+            Ray r2 = new Ray(Vb, lastVisible);
+            Ray r3 = new Ray(Va, vi);
+            Ray r4 = new Ray(Vb, vi);
+
+            Point u1 = r1.getPointClosestToBase(polygon.intersect(r1))[0];
+            Point u2 = r2.getPointClosestToBase(polygon.intersect(r2))[0];
+            Point u3 = r3.getPointClosestToBase(polygon.intersect(r3))[0];
+            Point u4 = r4.getPointClosestToBase(polygon.intersect(r4))[0];
+
+            if (u1 != null &&
+                GeneratorUtils.isPolygonPointVisible(Va, u1, polygon) &&
+                GeneratorUtils.isPolygonPointVisible(Vb, u1, polygon)) {
+              cloneIterator.add(u1);
+            }
+            if (u2 != null &&
+                GeneratorUtils.isPolygonPointVisible(Va, u2, polygon) &&
+                GeneratorUtils.isPolygonPointVisible(Vb, u2, polygon)) {
+              cloneIterator.add(u2);
+            }
+            if (u3 != null &&
+                GeneratorUtils.isPolygonPointVisible(Va, u3, polygon) &&
+                GeneratorUtils.isPolygonPointVisible(Vb, u3, polygon)) {
+              cloneIterator.add(u3);
+            }
+            if (u4 != null &&
+                GeneratorUtils.isPolygonPointVisible(Va, u4, polygon) &&
+                GeneratorUtils.isPolygonPointVisible(Vb, u4, polygon)) {
+              cloneIterator.add(u4);
+            }
+            lastVisible = vi;
           }
-          // viPrev visible to one of va and vb
-          if (isViPrevVisibleFromVa || isViPrevVisibleFromVb) {
-            // TODO: intersections && visibility test tests
+          // case 3 viPrev visible to one of va and vb
+          if (isViPrevVisibleFromVa && !isViPrevVisibleFromVb) {
+            Ray r1 = new Ray(Va, lastVisible);
+            Ray r2 = new Ray(Va, vi);
+
+            Point u1 = r1.getPointClosestToBase(polygon.intersect(r1))[0];
+            Point u2 = r2.getPointClosestToBase(polygon.intersect(r2))[0];
+
+            if (u1 != null &&
+                GeneratorUtils.isPolygonPointVisible(Va, u1, polygon) &&
+                GeneratorUtils.isPolygonPointVisible(Vb, u1, polygon)) {
+              cloneIterator.add(u1);
+            }
+            if (u2 != null &&
+                GeneratorUtils.isPolygonPointVisible(Va, u2, polygon) &&
+                GeneratorUtils.isPolygonPointVisible(Vb, u2, polygon)) {
+              cloneIterator.add(u2);
+            }
+          }
+          // case 4 viPrev visible to one of va and vb
+          if (!isViPrevVisibleFromVa && isViPrevVisibleFromVb) {
+            Ray r1 = new Ray(Vb, lastVisible);
+            Ray r2 = new Ray(Vb, vi);
+
+            Point u1 = r1.getPointClosestToBase(polygon.intersect(r1))[0];
+            Point u2 = r2.getPointClosestToBase(polygon.intersect(r2))[0];
+
+            if (u1 != null &&
+                GeneratorUtils.isPolygonPointVisible(Va, u1, polygon) &&
+                GeneratorUtils.isPolygonPointVisible(Vb, u1, polygon)) {
+              cloneIterator.add(u1);
+            }
+            if (u2 != null &&
+                GeneratorUtils.isPolygonPointVisible(Va, u2, polygon) &&
+                GeneratorUtils.isPolygonPointVisible(Vb, u2, polygon)) {
+              cloneIterator.add(u2);
+            }
           }
         }
-  
-        lastVisible = vi;
       }
       return clone;
+    }
+
+    @Override
+    public void stop() {
+      dostop = true;
     }
   }
 }
