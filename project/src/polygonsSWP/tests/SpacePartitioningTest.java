@@ -8,9 +8,11 @@ import java.util.List;
 
 import org.junit.Test;
 
+import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
-import polygonsSWP.generators.PolygonGenerator.Parameters;
-import polygonsSWP.generators.SpacePartitioning;
+import polygonsSWP.generators.PolygonGeneratorFactory;
+import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
+import polygonsSWP.generators.heuristics.SpacePartitioningFactory;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 
@@ -18,7 +20,7 @@ public class SpacePartitioningTest
 {
 
   @Test
-  public void shouldBeSimplePolygon() {
+  public void shouldBeSimplePolygon() throws IllegalParameterizationException {
     List<Point> points = new ArrayList<Point>();
     points.add(new Point(148, 367));
     points.add(new Point(397,136));
@@ -27,13 +29,15 @@ public class SpacePartitioningTest
     points.add(new Point(204,251));
     points.add(new Point(242,25));
 
+    PolygonGeneratorFactory factory = new SpacePartitioningFactory();
+
     // should be simple
     for(int i = 0; i < 100; ++i){
       HashMap<Parameters, Object> params = new HashMap<Parameters, Object>();
       params.put(Parameters.points, new ArrayList<Point>(points));
 
-      OrderedListPolygon polygon = (OrderedListPolygon)
-        new SpacePartitioning().generate(params, null);
+      PolygonGenerator gen = factory.createInstance(params, null);
+      OrderedListPolygon polygon = (OrderedListPolygon) gen.generate();
 
       assertTrue(i + ". try is not simple", polygon.isSimple());
     }
@@ -41,9 +45,10 @@ public class SpacePartitioningTest
 
   /**
    * polygon that fails isSimple test, after completion of the algorithm.
+   * @throws IllegalParameterizationException 
    */
   @Test
-  public void bug0() {
+  public void bug0() throws IllegalParameterizationException {
     List<Point> points = new ArrayList<Point>();
     points.add(new Point(546,76));
     points.add(new Point(228,51));
@@ -56,19 +61,17 @@ public class SpacePartitioningTest
     points.add(new Point(83,20));
     points.add(new Point(229,4));
 
+    PolygonGeneratorFactory factory = new SpacePartitioningFactory();
+
     // should be simple
     for(int i = 0; i < 100; ++i){
       HashMap<Parameters, Object> params = new HashMap<Parameters, Object>();
       params.put(Parameters.points, new ArrayList<Point>(points));
 
-      PolygonGenerator gen = new SpacePartitioning();
+      PolygonGenerator gen = factory.createInstance(params, null);
+      OrderedListPolygon polygon = (OrderedListPolygon) gen.generate();
 
-      try{
-        gen.generate(params, null);
-      } catch(RuntimeException e) {
-        System.err.println(i + ". try is not simple");
-        throw e;
-      }
+      assertNotNull(polygon);
     }
   }
 
