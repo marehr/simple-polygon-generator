@@ -59,7 +59,7 @@ public class RandomPolygonAlgorithmFactory
   private static class RandomPolygonAlgorithm
     implements PolygonGenerator
   {
-
+    private boolean dostop = false;
     private int _n;
     private int _size;
     private PolygonHistory steps;
@@ -84,6 +84,8 @@ public class RandomPolygonAlgorithmFactory
 
       // 2. n-3 times:
       for (int i = 0; i < _n - 3;) {
+        // test if algorithm should be canceled
+        if (dostop) break;
         // 2.a select random line segment VaVb
         // (assumed that there will be less than 2^31-1 points)
         int randomIndex = random.nextInt(polygonPoints.size());
@@ -97,6 +99,8 @@ public class RandomPolygonAlgorithmFactory
         // 2.d add line segments VaVc and VcVb (delete line segment VaVb)
         polygonPoints.add(randomIndex, randomPoint);
       }
+      
+      if (dostop) return null;
 
       return polygon;
     }
@@ -230,10 +234,10 @@ public class RandomPolygonAlgorithmFactory
           if (isViPrevVisibleFromVa && !isViPrevVisibleFromVb) {
             Ray r1 = new Ray(Va, lastVisible);
             Ray r2 = new Ray(Va, vi);
-            
+
             Point u1 = r1.getPointClosestToBase(polygon.intersect(r1))[0];
             Point u2 = r2.getPointClosestToBase(polygon.intersect(r2))[0];
-            
+
             if (u1 != null &&
                 GeneratorUtils.isPolygonPointVisible(Va, u1, polygon) &&
                 GeneratorUtils.isPolygonPointVisible(Vb, u1, polygon)) {
@@ -249,10 +253,10 @@ public class RandomPolygonAlgorithmFactory
           if (!isViPrevVisibleFromVa && isViPrevVisibleFromVb) {
             Ray r1 = new Ray(Vb, lastVisible);
             Ray r2 = new Ray(Vb, vi);
-            
+
             Point u1 = r1.getPointClosestToBase(polygon.intersect(r1))[0];
             Point u2 = r2.getPointClosestToBase(polygon.intersect(r2))[0];
-            
+
             if (u1 != null &&
                 GeneratorUtils.isPolygonPointVisible(Va, u1, polygon) &&
                 GeneratorUtils.isPolygonPointVisible(Vb, u1, polygon)) {
@@ -267,6 +271,11 @@ public class RandomPolygonAlgorithmFactory
         }
       }
       return clone;
+    }
+
+    @Override
+    public void stop() {
+      dostop = true;
     }
   }
 }
