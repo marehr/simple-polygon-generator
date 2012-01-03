@@ -76,7 +76,7 @@ public class MathUtils
   /**
    * Really small number.
    */
-  public static final double EPSILON = 0.000001;
+  public static final double EPSILON = 10E-8d;
   
   /**
    * Decimal number equality.
@@ -89,6 +89,6 @@ public class MathUtils
    * Decimal number equals zero.
    */
   public static boolean doubleZero(double a) {
-    return doubleEquals(a, 0d);
+    return Math.abs(a) < EPSILON;
   }
 }
