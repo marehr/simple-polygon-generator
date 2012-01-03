@@ -20,9 +20,43 @@ import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.Ray;
 
 
+/**
+ * The whole idea is: you add arbitrary geometry objects to the scene and they
+ * are painted to a SVG in the order polygon -> line -> linesegment -> ray ->
+ * point. So from bit to small. Not highlighted objects are painted black,
+ * higlighted objects are painted according to their class.
+ * 
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ */
+
 public class HistoryScene
   implements Scene
 {
+  /**
+   * Inner class to put highlighted and highlighted object in one box.
+   * 
+   * @author Steve Dierker <dierker.steve@fu-berlin.de>
+   * @param <T> Specifies which type is boxed in the box.
+   */
+  private class Box<T>
+  {
+    private boolean _highlight;
+    private T _object;
+
+    public Box(T object, boolean highlight) {
+      _highlight = highlight;
+      _object = object;
+    }
+
+    public boolean isHighlighted() {
+      return _highlight;
+    }
+
+    public T openBox() {
+      return _object;
+    }
+  }
+
   private LinkedList<Box<Polygon>> _polyList;
   private LinkedList<Box<Line>> _lineList;
   private LinkedList<Box<LineSegment>> _lineSegmentList;
@@ -33,6 +67,11 @@ public class HistoryScene
   private boolean _circle;
   private int _height, _width, _radius;
 
+  /**
+   * Initializes the scene and bind it to the history object.
+   * 
+   * @param history
+   */
   public HistoryScene(History history) {
     _polyList = new LinkedList<Box<Polygon>>();
     _lineList = new LinkedList<Box<Line>>();
@@ -42,12 +81,19 @@ public class HistoryScene
     _history = history;
   }
 
+  /**
+   * Generates SVG from current state and add the scene to the history object.
+   */
   @Override
   public void safe() {
     this.toSvg();
     _history.addScene(this);
   }
 
+  /**
+   * This draws every thing to the SVG
+   * @param g2d
+   */
   private void paint(Graphics2D g2d) {
     // light blue for polygons
     Color polyColor = new Color(0xa2cdfd);
@@ -156,26 +202,6 @@ public class HistoryScene
       e.printStackTrace();
     }
     return out.toString();
-  }
-
-
-  private class Box<T>
-  {
-    private boolean _highlight;
-    private T _object;
-
-    public Box(T object, boolean highlight) {
-      _highlight = highlight;
-      _object = object;
-    }
-
-    public boolean isHighlighted() {
-      return _highlight;
-    }
-
-    public T openBox() {
-      return _object;
-    }
   }
 
   @Override

@@ -5,6 +5,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 
+/**
+ * THis object contains a ordered List of scenes and can be used to iterate over
+ * them and display them.
+ * 
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ */
+
 public class PolygonHistory
   implements History
 {
