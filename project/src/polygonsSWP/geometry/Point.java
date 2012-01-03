@@ -14,6 +14,10 @@ public class Point
   public double x;
   public double y;
 
+  public Point(int _x, int _y) {
+    this((double)_x, (double)_y);
+  }
+
   public Point(long _x, long _y) {
     // TODO remove
     assert(false);
