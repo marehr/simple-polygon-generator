@@ -475,7 +475,7 @@ public class SeidelTrapezoidation
        */
       
       // 1st option: ti is above tj.
-      if(lowerBound == tj.upperBound) {
+      if(MathUtils.doubleEquals(lowerBound, tj.upperBound)) {
         Region r = new Region();
         r.lowerBound = tj.lowerBound;
         r.upperBound = upperBound;
@@ -529,7 +529,7 @@ public class SeidelTrapezoidation
       }
       
       // 2nd option: ti is below tj. Analog.
-      if(upperBound == tj.lowerBound) {
+      if(MathUtils.doubleEquals(upperBound, tj.lowerBound)) {
         Region r = new Region();
         r.lowerBound = lowerBound;
         r.upperBound = tj.upperBound;
