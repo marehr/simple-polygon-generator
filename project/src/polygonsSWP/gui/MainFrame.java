@@ -54,16 +54,17 @@ public class MainFrame
     // init canvas
     p_polygon_view = new PolygonView();
     
-    // init generator configuration panel
-    p_generator = new PolygonGenerationPanel(polygon_algorithm_list);
-    p_generator.setBorder(BorderFactory.createTitledBorder("Polygon Generation"));
-    p_generator.addPolygonGenerationPanelListener(p_polygon_view);
-    p_generator.addPointGenerationModeListener(p_polygon_view);
-    
     // init shortest path configuration panel
     _sp_config = new ShortestPathPanel();
     _sp_config.setBorder(BorderFactory.createTitledBorder("Shortest Path"));
     
+    // init generator configuration panel
+    p_generator = new PolygonGenerationPanel(polygon_algorithm_list);
+    p_generator.setBorder(BorderFactory.createTitledBorder("Polygon Generation"));
+    p_generator.addPolygonGenerationPanelListener(p_polygon_view);
+    p_generator.addPolygonGenerationPanelListener(_sp_config);
+    p_generator.addPointGenerationModeListener(p_polygon_view);
+  
     // Create a sidebar on the left.
     JPanel p_sidebarLeft = new JPanel();
     p_sidebarLeft.setLayout(new GridLayout(2, 1));

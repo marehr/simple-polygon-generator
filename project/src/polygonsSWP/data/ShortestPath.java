@@ -202,10 +202,8 @@ public class ShortestPath
 		}
 	}
 	
-	//TODO:
 	private boolean rayLiesInWedge(Point p, Point succP, Point q1, Point p2,Point q2) {
-		Ray ray = new Ray(p,succP);
-		return false;
+		return ((MathUtils.checkOrientation(p, q2, succP) <= 0) && (MathUtils.checkOrientation(p, q1, succP) >= 0));
 	}
 
 	private Point succ(Point p) {
