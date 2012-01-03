@@ -24,15 +24,8 @@ public class SeidelTrapezoidation
     SearchTree S = new SearchTree();
     List<LineSegment> E = new LinkedList<LineSegment>();
     
-    // Remember used points (which mark horizontal lines).
-    // Note, that we use List.contains() below, which itself
-    // uses Double.equals which then uses doubleToLongBits()
-    // for comparison (i.e. two doubles are equal if they have
-    // the exact bitwise representatition). This should be fine
-    // here as we only add y-coordinates from the polygon's
-    // point list directly, i.e. we don't use any division/square
-    // roots here.
-    List<Double> horizontalLines = new LinkedList<Double>();
+    // Remember used points as we don't want to add them twice.
+    List<Point> usedPoints = new LinkedList<Point>();
     
     // Create random list of line segments from polygon.
     List<Point> points = polygon.getPoints();
@@ -71,9 +64,9 @@ public class SeidelTrapezoidation
       
       // For each point, horizontally split containing trapezoid.
       for(Point x : ab) {
-        if(horizontalLines.contains(x.y))
+        if(usedPoints.contains(x))
           continue;
-        horizontalLines.add(x.y);
+        usedPoints.add(x);
         
         S.processPoint(x);
       }
@@ -145,8 +138,11 @@ public class SeidelTrapezoidation
             // Go below.
             cur = cur.rightOrBelow;
           } else {
-            // Cannot happen as we passed the "! in horizontalLines" test above.
-            assert(false);
+            // Okay, we found a point which has the same y coordinate
+            // as some other point before. Seemingly, the region
+            // is still split horizontally by that point.
+            // Do nothing.
+            return;
           }
           
         } else if (cur.type == SearchTreeNodeType.XNODE) {
