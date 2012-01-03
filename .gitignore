@@ -10,3 +10,5 @@ project/.project
 project/bin
 *.class
 .metadata
+.classpath
+.project
