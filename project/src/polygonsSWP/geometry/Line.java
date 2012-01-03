@@ -1,5 +1,6 @@
 package polygonsSWP.geometry;
 
+import polygonsSWP.util.MathUtils;
 import polygonsSWP.util.intersections.IntersectionUtils;
 import polygonsSWP.util.intersections.LineIntersectionMode;
 import polygonsSWP.util.intersections.LineSegmentIntersectionMode;
@@ -25,14 +26,9 @@ public class Line
   public boolean containsPoint(Point p) {
     Vector oa = new Vector(new Point(0, 0), _a);
     Vector ab = new Vector(_a, _b);
-    long lambda1 = ((p.x - oa.v1) / ab.v1);
-    long lambda2 = ((p.y - oa.v2) / ab.v2);
-    if (lambda1 == lambda2) {
-      return true;
-    }
-    else {
-      return false;
-    }
+    double lambda1 = ((p.x - oa.v1) / ab.v1);
+    double lambda2 = ((p.y - oa.v2) / ab.v2);
+    return MathUtils.doubleEquals(lambda1, lambda2);
   }
 
   /**

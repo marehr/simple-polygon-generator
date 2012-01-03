@@ -2,6 +2,7 @@ package polygonsSWP.geometry;
 
 import java.util.List;
 
+import polygonsSWP.util.MathUtils;
 import polygonsSWP.util.intersections.IntersectionUtils;
 import polygonsSWP.util.intersections.LineSegmentIntersectionMode;
 import polygonsSWP.util.intersections.RayIntersectionMode;
@@ -27,14 +28,9 @@ public class Ray
   public boolean containsPoint(Point p) {
     Vector oa = new Vector(new Point(0, 0), _base);
     Vector ab = new Vector(_base, _support);
-    long lambda1 = ((p.x - oa.v1) / ab.v1);
-    long lambda2 = ((p.y - oa.v2) / ab.v2);
-    if (lambda1 == lambda2 && lambda1 >= 0) {
-      return true;
-    }
-    else {
-      return false;
-    }
+    double lambda1 = ((p.x - oa.v1) / ab.v1);
+    double lambda2 = ((p.y - oa.v2) / ab.v2);
+    return MathUtils.doubleEquals(lambda1, lambda2) && lambda1 >= 0;
   }
 
   /**
