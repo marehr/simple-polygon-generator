@@ -87,7 +87,7 @@ class PaintPanel
   @Override
   public void paintComponent(Graphics g) {
     g.setColor(Color.WHITE);
-    g.fillRect(0, 0, 1000, 1000);
+    g.fillRect(0, 0, getWidth(), getHeight());
 
     // Paint the yardstick
     g.setColor(Color.BLUE);
