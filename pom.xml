@@ -10,6 +10,7 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<source>1.6</source>
@@ -33,11 +34,11 @@
 				<artifactId>maven-eclipse-plugin</artifactId>
 				<configuration>
 					<workspace>${basedir}</workspace>
-					<workspaceCodeStylesURL>${basedir}/polygons-coding-style.xml</workspaceCodeStylesURL>
+					<workspaceCodeStylesURL>file://${basedir}/polygons-coding-style.xml</workspaceCodeStylesURL>
 				</configuration>
 			</plugin>
-	
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
         		<artifactId>maven-assembly-plugin</artifactId>
               	<executions>
           			<execution>
