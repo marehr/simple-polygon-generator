@@ -157,5 +157,10 @@ public class VelocityVirmaniFactory implements PolygonGeneratorFactory {
   		}
   		return poly;
   	}
+
+    @Override
+    public void stop() {
+      // TODO Auto-generated method stub
+    }
 	}
 }
