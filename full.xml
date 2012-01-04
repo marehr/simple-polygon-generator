@@ -16,13 +16,27 @@
     	<!-- Sources. -->
         <fileSet>
             <directory>src/main/java</directory>
-            <outputDirectory>src/main/java</outputDirectory>
+            <outputDirectory>source/src/main/java</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>src/test/java</directory>
-            <outputDirectory>src/test/java</outputDirectory>
+            <outputDirectory>source/src/test/java</outputDirectory>
         </fileSet>
     </fileSets>
+    
+    <files>
+    	<file>
+    		<source>pom.xml</source>
+    		<outputDirectory>source</outputDirectory>
+    	</file>
+    	<file>
+    		<source>full.xml</source>
+    		<outputDirectory>source</outputDirectory>
+    	</file>
+    	<file>
+    		<source>README</source>
+    	</file>
+    </files>
     
     <dependencySets>
     	<!-- Dependencies. -->
