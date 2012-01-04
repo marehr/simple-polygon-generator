@@ -5,10 +5,9 @@
 *.nav
 *.snm
 *.toc
-project/.classpath
-project/.project
-project/bin
 *.class
 .metadata
 .classpath
 .project
+target
+.settings

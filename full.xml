@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<assembly>
+    <id>full</id>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <formats>
+        <format>jar</format>
+    </formats>
+
+    <fileSets>
+    	<!-- Binaries. -->
+    	<fileSet>
+			<directory>target/classes</directory>
+			<outputDirectory></outputDirectory>
+		</fileSet>
+    
+    	<!-- Sources. -->
+        <fileSet>
+            <directory>src/main/java</directory>
+            <outputDirectory>src/main/java</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>src/test/java</directory>
+            <outputDirectory>src/test/java</outputDirectory>
+        </fileSet>
+    </fileSets>
+    
+    <dependencySets>
+    	<!-- Dependencies. -->
+        <dependencySet>
+            <scope>runtime</scope>
+            <useProjectArtifact>false</useProjectArtifact>
+            <unpack>false</unpack>
+            <outputDirectory>lib</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+
+</assembly>
