@@ -2,7 +2,6 @@ package polygonsSWP.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -11,13 +10,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import polygonsSWP.generators.PermuteAndReject;
-import polygonsSWP.generators.PolygonGenerator.Parameters;
-
-import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
+import polygonsSWP.geometry.Triangle;
 import polygonsSWP.util.MathUtils;
 
 
@@ -81,8 +77,8 @@ public class MathUtilsTest
     pPoints.add(new Point(0, 0));
     pPoints.add(new Point(2, 0));
     OrderedListPolygon triangle = new OrderedListPolygon(pPoints);
-    List<OrderedListPolygon> result = triangle.triangulate();
-    OrderedListPolygon poly = result.get(0);
+    List<Triangle> result = triangle.triangulate();
+    Triangle poly = result.get(0);
     assertEquals(result.size(), 1);
     assertTrue(poly.equals(triangle));
     triangle.addPoint(new Point(2, 2));
@@ -95,7 +91,9 @@ public class MathUtilsTest
     triangle.addPoint(new Point(1, 1));
     result = triangle.triangulate();
     assertEquals(3, result.size());
+    
     // Test with random polygons:
+    /*
     for (int i = 6; i < 16; ++i) {
       HashMap<Parameters, Object> map = new HashMap<Parameters, Object>();
       map.put(Parameters.n, i);
@@ -108,7 +106,7 @@ public class MathUtilsTest
       for (Polygon item : result)
         System.out.println(item.getPoints());
       assert(result.size() >= i-2);
-    }
+    }*/
   }
 
   /**
@@ -153,7 +151,7 @@ public class MathUtilsTest
     pPoints.add(new Point(0, 10));
     OrderedListPolygon polygon = new OrderedListPolygon(pPoints);
     // triangulate Polygon, result consists of 3 Polygons
-    List<OrderedListPolygon> triangularization = polygon.triangulate();
+    List<Triangle> triangularization = polygon.triangulate();
     // use method representative times and store which polygon was picked
     HashMap<Polygon, Integer> amountsPolygonsChosen =
         new HashMap<Polygon, Integer>();
@@ -163,7 +161,7 @@ public class MathUtilsTest
     int timesTested = 1000;
     for (int i = 0; i < timesTested; i++) {
       Polygon selectedPolygon =
-          MathUtils.selectRandomTriangleBySize(triangularization);
+        Triangle.selectRandomTriangleBySize(triangularization);
       assertTrue(triangularization.contains(selectedPolygon));
       amountsPolygonsChosen.put(selectedPolygon,
           amountsPolygonsChosen.get(selectedPolygon) + 1);
@@ -187,6 +185,7 @@ public class MathUtilsTest
   }
   
   // TODO: Was testet dieser Test?
+  /*
   @Test
   public void testCreateRandomPointInPolygon() {
     PolygonGenerator generator = new PermuteAndReject();
@@ -221,5 +220,5 @@ public class MathUtilsTest
         MathUtils.getIntersectionsPolygonLine(poly, new Point(100, 0),
             new Point(50, 10));
     System.out.println(result);
-  }
+  }*/
 }
