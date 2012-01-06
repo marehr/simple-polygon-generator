@@ -10,29 +10,31 @@ import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
-import polygonsSWP.geometry.Ray;
 
 public class SeidelTrapezoidationRewrite
 { 
-  public static List<Polygon> generateTrapezoidation(Polygon polygon) {
+  private RegionList T;
+  private SearchTreeNode Z;
+  private LineSegment[] S;
+  
+  public List<Polygon> generateTrapezoidation(Polygon polygon) {
    
     /* 
      * 1st step: Initialization. See paper for explanation of data structures.
      */
     
     // Regions. Initially there's only one region, namely the R² plane.
-    Region[] T = new Region[polygon.size() * 4];
-    int Tcount = 0;
-    T[Tcount++] = new Region();
-    
+    T = new RegionList(polygon.size());
+    int initidx = T.createRegion();
+        
     // Point locating data structure. Directed, acyclic graph.
     // Initially contains only one node (SINK) pointing to the
     // initial region.
-    SearchTreeNode Z = new SearchTreeNode(0);
-    T[0].sink = Z;
+    Z = new SearchTreeNode(initidx);
+    T.getRegion(initidx).sink = Z;
     
     // Set of LineSegments to process.
-    LineSegment[] S = new LineSegment[polygon.size()];
+    S = new LineSegment[polygon.size()];
     
     /* 
      * 2st step: Create random list of line segments from polygon.
@@ -61,131 +63,33 @@ public class SeidelTrapezoidationRewrite
      * 3nd step: Iterate through edge set and process each line.
      */
    
-    // Remember used points as we don't want to add them twice.
-    List<Point> usedPoints = new LinkedList<Point>();
     for(int si = 0; si < S.length; si++) {
       LineSegment sx = S[si];
            
       // Skip horizontal edges.
-      if(sx._a.y == sx._b.y)
+      if(MathUtils.doubleEquals(sx._a.y, sx._b.y))
         continue;
       
-      /*
-       * Step 3a: For each end point, horizontally split containing trapezoid.
-       */
-      
-      // Remember top-most and bottom-most region the segment goes through.
-      int[] endpoint_regions = new int[2];
-
-      for(int xi = 0; xi < 2; xi++) {
-        Point px = (xi == 0) ? sx._a : sx._b;
-        if(usedPoints.contains(px))
-          continue;
-        usedPoints.add(px);
-        
-        // Locate region containing the point.
-        SearchTreeNode cur = Z;
-        while(cur.type != SearchTreeNodeType.SINK) {
-          switch(cur.type) {
-            case XNODE:
-              // Region is further split by line segment. Test whether
-              // point is left or right of the segment.
-              LineSegment vs = S[cur.segmentIdx];
-              int oriented = MathUtils.checkOrientation(vs._b, vs._a, px); 
-              if(oriented == 1) {
-                cur = cur.leftOrAbove;
-              } else if(oriented == -1) {
-                cur = cur.rightOrBelow;
-              } else {
-                assert(false); // Intersecting edges!
-              }
-              break;
-            case YNODE:
-              // Region is horizontally split by a point. Test whether
-              // px lies above or below the horizontal line.
-              if(px.y < cur.y) {
-                cur = cur.leftOrAbove;
-              } else if(px.y > cur.y) {
-                cur = cur.rightOrBelow;
-              } else {
-                // Okay, we found a point which has the same y coordinate
-                // as some other point before. With regard to the current
-                // points position on its line segment (upper or lower), go
-                // down or up.
-                if(xi == 0) {
-                  // Upper point, so go down.
-                  cur = cur.leftOrAbove;
-                } else {
-                  cur = cur.rightOrBelow;
-                }
-              }
-              break;
-            default:
-              assert(false); // Can not happen.
-          }
-        }
-        
-        // Horizontally split the region, use the original one as the upper.
-        int upper_idx = cur.regionIdx; int lower_idx = Tcount++;
-        Region upper = T[cur.regionIdx];
-        upper.lowerBoundsIdx[0] = lower_idx;
-        upper.lowerBoundsIdx[1] = -1;
-        
-        Region lower = (T[lower_idx] = new Region());
-        lower.upperBoundsIdx[0] = upper_idx;
-        lower.lowerBoundsIdx[0] = upper.lowerBoundsIdx[0];
-        lower.lowerBoundsIdx[1] = upper.lowerBoundsIdx[1];
-        lower.left = upper.left;
-        lower.right = upper.right;
-        
-        // Update the search tree. Current node becomes a YNODE, insert two
-        // new sinks as its children.
-        cur.type = SearchTreeNodeType.YNODE;
-        cur.y = px.y;
-        cur.leftOrAbove = new SearchTreeNode(upper_idx);
-        cur.rightOrBelow = new SearchTreeNode(lower_idx);
-        
-        // Remember upper region (for upper point) or lower region (for lower point).
-        endpoint_regions[xi] = (xi == 0) ? upper_idx : lower_idx;
-      }
+      // For each end point, find containing trapezoid and split if necessary.      
+      int topMostRegionIdx = findAndSplitRegion(sx._a, true);
+      int bottomMostRegionIdx = findAndSplitRegion(sx._b, false);
        
-      /*
-       * Step 3b: Thread segment sx through T, vertically splitting the regions,
-       *          and update the search tree accordingly. Go top-down.
-       */
-      List<Integer> left_contiguous = new LinkedList<Integer>();
-      List<Integer> right_contiguous = new LinkedList<Integer>();
-      int cur_region_idx = endpoint_regions[0];
-      do {
-        // Split region, update Z on-the-go.
-        Region oldregion = T[cur_region_idx];
-        SearchTreeNode oldsink = oldregion.sink;
-        
-        oldsink.type = SearchTreeNodeType.XNODE;
-        oldsink.segmentIdx = si;
-        
-        // Create new regions, use oldregion as left one.
-        Region leftregion = oldregion;
-        Region rightregion = (T[Tcount++] = new Region());
-        rightregion.leftSegmentIdx = si;
-        rightregion.rightSegmentIdx = leftregion.rightSegmentIdx;
-        leftregion.rightSegmentIdx = si;
-        
-        // TODO upper/lower bounds cases handling, merging, +++
-        
-      } while(cur_region_idx != endpoint_regions[1]);
-      
+      // Thread segment si through T.      
+      threadSegmentThroughTrapezoidalMap(si, topMostRegionIdx, bottomMostRegionIdx);     
     }
     
     /*
      * 3rd step: Construct polygons of limited regions. 
      */
-    List<Polygon> retval = null;
+    List<Polygon> retval = new LinkedList<Polygon>();
+    List<Integer> markedRegions = new LinkedList<Integer>();
+    double high = Double.MAX_VALUE;
+    double low = -Double.MAX_VALUE;
+    extractValidPolygons(Z, retval, markedRegions, high, low);
    
     /*
      * 4th step: Eliminate outer polygons.
      */
-    
     for(int i = 0; i < retval.size();) {
       Point com = retval.get(i).centerOfMass();
       if(!polygon.containsPoint(com, true))
@@ -195,6 +99,399 @@ public class SeidelTrapezoidationRewrite
     }
     
     return retval;
+  }
+  
+  private void extractValidPolygons(SearchTreeNode node, List<Polygon> polygons, List<Integer> markedRegions, double high, double low) {
+    switch(node.type) {
+    case XNODE:
+      extractValidPolygons(node.leftOrAbove, polygons, markedRegions, high, low);
+      extractValidPolygons(node.rightOrBelow, polygons, markedRegions, high, low);
+      break;
+    case YNODE:
+      extractValidPolygons(node.leftOrAbove, polygons, markedRegions, high, node.y);
+      extractValidPolygons(node.rightOrBelow, polygons, markedRegions, node.y, low);
+      break;
+    case SINK:
+      Region region = T.getRegion(node.regionIdx);
+      if(high < Double.MAX_VALUE 
+          && low > -Double.MAX_VALUE 
+          && region.leftSegmentIdx != -1 
+          && region.rightSegmentIdx != -1 
+          && !markedRegions.contains(node.regionIdx)) {
+        markedRegions.add(node.regionIdx);
+        
+        OrderedListPolygon olp = new OrderedListPolygon();
+        Line upperHorizontal = new Line(new Point(0, high), new Point(1, high));
+        Point upperLeft = upperHorizontal.intersect(S[region.leftSegmentIdx])[0];
+        Point upperRight = upperHorizontal.intersect(S[region.rightSegmentIdx])[0];
+        
+        Line lowerHorizontal = new Line(new Point(0, low), new Point(1, low));
+        Point lowerLeft = lowerHorizontal.intersect(S[region.leftSegmentIdx])[0];
+        Point lowerRight = lowerHorizontal.intersect(S[region.rightSegmentIdx])[0];
+        
+        olp.addPoint(upperLeft);
+        if(!upperRight.equals(upperLeft))
+          olp.addPoint(upperRight);
+        
+        olp.addPoint(lowerRight);
+        if(!lowerLeft.equals(lowerRight))
+          olp.addPoint(lowerLeft);
+        
+        polygons.add(olp);
+      }
+      break;
+    }
+  }
+  
+  /**
+   * Locates the containing region r for a point p. If point lies
+   * in the interior of r, r is split horizontally at p.y. 
+   * 
+   * @param p the point
+   * @param upper_point true if p is the upper point of a line segment.
+   * @return index of a region, lower region the point if upper_point is set,
+   *         upper region otherwise.
+   */
+  private int findAndSplitRegion(Point p, boolean upper_point) {
+    
+    boolean doSplit = true;
+    
+    // Locate region containing the point.
+    SearchTreeNode cur = Z;
+    while(cur.type != SearchTreeNodeType.SINK) {
+      switch(cur.type) {
+      
+        case XNODE:
+          // Region is further split by line segment. Test whether
+          // point is left or right of the segment.
+          LineSegment vs = S[cur.segmentIdx];
+          int oriented = MathUtils.checkOrientation(vs._b, vs._a, p); 
+          if(oriented == 1) {
+            cur = cur.leftOrAbove;
+          } else if(oriented == -1) {
+            cur = cur.rightOrBelow;
+          } else {
+            assert(false); // Intersecting edges!
+          }
+          break;
+          
+        case YNODE:
+          // Region is horizontally split by a point. Test whether
+          // p lies above or below the horizontal line.
+          if(p.y < cur.y + MathUtils.EPSILON) {
+            cur = cur.leftOrAbove;
+          } else if(p.y > cur.y - MathUtils.EPSILON) {
+            cur = cur.rightOrBelow;
+          } else {
+            // Okay, we found a point which has the same y coordinate
+            // as some other point before. This can either be a common
+            // end point or a point which has the same y-coordinate as 
+            // as previously added point. Either way, we don't 
+            // have to split the containing region anymore. Still, we
+            // need to continue looking for the first (last) region the
+            // line segment cuts through.
+            doSplit = false;
+            if(upper_point)
+              cur = cur.leftOrAbove;
+            else
+              cur = cur.rightOrBelow;
+          }
+          break;
+          
+        default:
+          assert(false); // Can not happen.
+      }
+    }
+    
+    if(doSplit) {
+      // Horizontally split the region, use the original one as the upper.
+      int upper_idx = cur.regionIdx; 
+      int lower_idx = T.createRegion();
+      
+      Region upper_region = T.getRegion(upper_idx);
+      
+      Region lower_region = T.getRegion(lower_idx);
+      lower_region.upperBoundsIdx[0] = upper_idx;
+      lower_region.lowerBoundsIdx[0] = upper_region.lowerBoundsIdx[0];
+      lower_region.lowerBoundsIdx[1] = upper_region.lowerBoundsIdx[1];
+      lower_region.leftSegmentIdx = upper_region.leftSegmentIdx;
+      lower_region.rightSegmentIdx = upper_region.rightSegmentIdx;
+      
+      upper_region.lowerBoundsIdx[0] = lower_idx;
+      upper_region.lowerBoundsIdx[1] = -1;
+
+      // Update the search tree. Current node becomes a YNODE, insert two
+      // new sinks as its children.
+      cur.type = SearchTreeNodeType.YNODE;
+      cur.y = p.y;
+      cur.leftOrAbove = new SearchTreeNode(upper_idx);
+      upper_region.sink = cur.leftOrAbove;
+      cur.rightOrBelow = new SearchTreeNode(lower_idx);
+      lower_region.sink = cur.rightOrBelow;
+      
+      if(upper_point)
+        return lower_idx;
+      else
+        return upper_idx;
+      
+    } else {
+      
+      // As we are not supposed to split the area, we did the upper/lower point
+      // check above and can safely return the current region.
+      return cur.regionIdx;
+      
+    }    
+  }
+  
+  private void threadSegmentThroughTrapezoidalMap(int segmentIdx, int topMostRegionIdx, int bottomMostRegionIdx) {
+    LineSegment segment = S[segmentIdx];
+      
+    /*
+     * TODO comment
+     */
+    
+    int[] round = {topMostRegionIdx, -1, -1};
+    boolean firstRound = true;
+    boolean lastRound = false;
+    do {
+      int curRegionIdx = round[0];
+      lastRound = (curRegionIdx == bottomMostRegionIdx); 
+      
+      /*
+       *  Split region. Use original region as left region.
+       */
+      
+      int leftRegionIdx = curRegionIdx;
+      int rightRegionIdx = T.createRegion();
+      
+      Region leftRegion = T.getRegion(leftRegionIdx);
+      Region rightRegion = T.getRegion(rightRegionIdx);
+      
+      rightRegion.leftSegmentIdx = segmentIdx;
+      rightRegion.rightSegmentIdx = leftRegion.rightSegmentIdx;
+      leftRegion.rightSegmentIdx = segmentIdx;
+      
+      // Update SearchTree.
+      SearchTreeNode oldsink = leftRegion.sink;
+      oldsink.type = SearchTreeNodeType.XNODE;
+      oldsink.segmentIdx = segmentIdx;
+      leftRegion.sink = new SearchTreeNode(leftRegionIdx);
+      oldsink.leftOrAbove = leftRegion.sink;
+      rightRegion.sink = new SearchTreeNode(rightRegionIdx);
+      oldsink.rightOrBelow = rightRegion.sink;
+      
+      /*
+       *  Connect upper regions.
+       */
+      
+      if(firstRound) {
+        connectUpperBoundsFirstRound(leftRegionIdx, rightRegionIdx, segment);
+        firstRound = false;
+      } else {
+        connectUpperBounds(leftRegionIdx, rightRegionIdx, round);
+        
+        // Try to merge something.
+        int tmp = merge(leftRegionIdx);
+        if(tmp != -1) {
+          // Update SearchTree.
+          leftRegion.sink.leftOrAbove = T.getRegion(tmp).sink;
+          leftRegionIdx = tmp;
+        }
+        tmp = merge(rightRegionIdx);
+        if(tmp != -1) {
+          // Update SearchTree.
+          rightRegion.sink.rightOrBelow = T.getRegion(tmp).sink;
+          rightRegionIdx = tmp;
+        }
+      }
+               
+      /*
+       *  Find next region and connect lower regions.
+       */
+      
+      round = findNextRegionAndConnectLowerBounds(leftRegionIdx, rightRegionIdx, segment);
+            
+    } while(!lastRound);
+  }
+  
+  private void connectUpperBoundsFirstRound(int leftRegionIdx, int rightRegionIdx, LineSegment segment) {
+    Region leftRegion = T.getRegion(leftRegionIdx);
+    Region rightRegion = T.getRegion(rightRegionIdx);
+    
+    if(leftRegion.upperRegions() < 2) {
+      // If there was only one region above, it's pretty easy.
+      rightRegion.upperBoundsIdx[0] = leftRegion.upperBoundsIdx[0];
+      
+    } else {
+      
+      int upperLeftIdx = leftRegion.upperBoundsIdx[0];
+      int upperRightIdx = leftRegion.upperBoundsIdx[1];
+      Region upperLeft = T.getRegion(leftRegion.upperBoundsIdx[0]);
+      Region upperRight = T.getRegion(upperRightIdx);
+      
+      // Find point lying on horizontal line.
+      LineSegment upperLeftRightSegment = S[upperLeft.rightSegmentIdx];
+      Point hp = upperLeftRightSegment._b;
+      
+      // Test whether horizontal point is left or right of our segment.
+      int oriented = MathUtils.checkOrientation(segment._b, segment._a, hp);
+      if(oriented == -1) {
+        // 1st case: Point is right of segment.
+        // --> Right region has two upper neighbors.
+        
+        rightRegion.upperBoundsIdx[0] = upperLeftIdx;
+        rightRegion.upperBoundsIdx[1] = upperRightIdx;
+        leftRegion.upperBoundsIdx[1] = -1;
+        
+        upperLeft.lowerBoundsIdx[0] = leftRegionIdx;
+        upperLeft.lowerBoundsIdx[1] = rightRegionIdx;
+        upperRight.lowerBoundsIdx[0] = rightRegionIdx;
+        
+      } else if(oriented == 1) {
+        // 2nd case: Point is left of segment.
+        // --> Left region has two upper neighbors.
+        
+        rightRegion.upperBoundsIdx[0] = upperRightIdx;
+        
+        if(upperLeft.lowerRegions() == 1)
+          upperLeft.lowerBoundsIdx[0] = leftRegionIdx;
+        else
+          upperLeft.lowerBoundsIdx[1] = leftRegionIdx;
+        upperRight.lowerBoundsIdx[0] = leftRegionIdx;
+        upperRight.lowerBoundsIdx[1] = rightRegionIdx;
+        
+      } else {
+        // 3rd case: Segment's upper point is equal to upper point.
+        // --> Common end point --> Left region has left upper region as neighbor
+        // and right region has right upper region as neighbor.
+        
+        rightRegion.upperBoundsIdx[0] = upperRightIdx;
+        leftRegion.upperBoundsIdx[1] = -1;
+        
+        if(upperLeft.lowerRegions() == 1)
+          upperLeft.lowerBoundsIdx[0] = leftRegionIdx;
+        else
+          upperLeft.lowerBoundsIdx[1] = leftRegionIdx;
+        upperRight.lowerBoundsIdx[0] = leftRegionIdx;
+      }
+    }
+  }
+  
+  private void connectUpperBounds(int leftRegionIdx, int rightRegionIdx, int[] round) {
+    Region leftRegion = T.getRegion(leftRegionIdx);
+    Region rightRegion = T.getRegion(rightRegionIdx);
+    
+    if(round[1] != -1) {
+      rightRegion.upperBoundsIdx[0] = leftRegion.upperBoundsIdx[0];
+      rightRegion.upperBoundsIdx[1] = leftRegion.upperBoundsIdx[1];
+      leftRegion.upperBoundsIdx[0] = round[1];
+      leftRegion.upperBoundsIdx[1] = -1;
+      T.getRegion(rightRegion.upperBoundsIdx[0]).lowerBoundsIdx[0] = rightRegionIdx;
+    } else if(round[2] != -1) {
+      rightRegion.upperBoundsIdx[0] = round[2];
+      T.getRegion(round[2]).lowerBoundsIdx[0] = rightRegionIdx;
+    } else {
+      rightRegion.upperBoundsIdx[0] = leftRegion.upperBoundsIdx[1];
+      leftRegion.upperBoundsIdx[1] = -1;
+    }
+  }
+  
+  private int merge(int regionIdx) {
+    Region region = T.getRegion(regionIdx);
+    if(region.upperRegions() > 1)
+      return -1;
+    
+    int upperIdx = region.upperBoundsIdx[0];
+    Region upper = T.getRegion(upperIdx);
+    
+    if(upper.leftSegmentIdx == region.leftSegmentIdx && upper.rightSegmentIdx == region.rightSegmentIdx) {
+      upper.lowerBoundsIdx[0] = region.lowerBoundsIdx[0];
+      upper.lowerBoundsIdx[1] = region.lowerBoundsIdx[1];
+      return upperIdx;
+    }
+    
+    return -1;
+  }
+  
+  /**
+   * Find the next region the segment goes through and connect lower regions with current regions.
+   * 
+   * @param leftRegionIdx index of current left region
+   * @param rightRegionIdx index of current right region
+   * @param segment the segment
+   * @return array of size 3, where array[0] is the index of the next region, array[1] is the additional
+   *         region for the future right region or -1 if there is none, array[2] contains the index of 
+   *         the right additional region or -1.
+   */
+  private int[] findNextRegionAndConnectLowerBounds(int leftRegionIdx, int rightRegionIdx, LineSegment segment) {
+    Region leftRegion = T.getRegion(leftRegionIdx);
+    Region rightRegion = T.getRegion(rightRegionIdx);
+    int nextRegionIdx = -1;
+    int addLeft = -1;
+    int addRight = -1;
+    
+    if(leftRegion.lowerRegions() == 1) {
+      
+      rightRegion.lowerBoundsIdx[0] = leftRegion.lowerBoundsIdx[0];
+      nextRegionIdx = leftRegion.lowerBoundsIdx[0];
+      
+    } else if (leftRegion.lowerRegions() == 2) {
+      int lowerLeftIdx = leftRegion.lowerBoundsIdx[0];
+      int lowerRightIdx = leftRegion.lowerBoundsIdx[1];
+      Region lowerLeft = T.getRegion(lowerLeftIdx);
+      Region lowerRight = T.getRegion(lowerRightIdx);
+      
+      // Find point lying on horizontal line.
+      LineSegment lowerLeftRightSegment = S[lowerLeft.rightSegmentIdx];
+      Point hp = lowerLeftRightSegment._a;
+      
+      // Test whether horizontal point lies to the left or to the right of segment.
+      int oriented = MathUtils.checkOrientation(segment._b, segment._a, hp);
+      if(oriented == -1) {
+        // Point is right of segment. --> Right region has two lower neighbors.
+        nextRegionIdx = lowerLeftIdx;
+        
+        rightRegion.lowerBoundsIdx[0] = lowerLeftIdx;
+        rightRegion.lowerBoundsIdx[1] = lowerRightIdx;
+        leftRegion.lowerBoundsIdx[1] = -1;
+        
+        if(lowerLeft.upperRegions() == 2) {
+          lowerLeft.upperBoundsIdx[1] = leftRegionIdx; 
+          addRight = rightRegionIdx;
+        } else {
+          lowerRight.upperBoundsIdx[0] = rightRegionIdx;
+          lowerLeft.upperBoundsIdx[0] = leftRegionIdx;
+          lowerLeft.upperBoundsIdx[1] = rightRegionIdx; 
+        }
+        
+        // Return parents
+      } else if(oriented == 1) {
+        // Point is left of segment. --> Left region has two lower neighbors.
+        nextRegionIdx = lowerRightIdx;
+        
+        rightRegion.lowerBoundsIdx[0] = lowerRightIdx;
+        
+        if(lowerRight.upperRegions() == 2) {
+          lowerRight.upperBoundsIdx[0] = rightRegionIdx;
+          addLeft = leftRegionIdx;
+        } else {
+          lowerRight.upperBoundsIdx[0] = leftRegionIdx;
+          lowerRight.upperBoundsIdx[1] = rightRegionIdx;
+        }
+        
+      } else {
+        // Point is on the segment. --> Last round.
+        leftRegion.lowerBoundsIdx[1] = -1;
+        rightRegion.lowerBoundsIdx[0] = lowerRightIdx;
+        lowerRight.lowerBoundsIdx[0] = rightRegionIdx;        
+      }
+      
+    } else {
+      // We should have exited the loop by now.
+      assert(false);
+    }
+    
+    return new int[] {nextRegionIdx, addLeft, addRight};
   }
       
   private static class SearchTreeNode {
@@ -225,6 +522,37 @@ public class SeidelTrapezoidationRewrite
     int[] upperBoundsIdx = {-1, -1};
     int[] lowerBoundsIdx = {-1, -1};
     int leftSegmentIdx = -1;
-    int rightSegmentIdx = -1;    
+    int rightSegmentIdx = -1;
+    
+    int upperRegions() {
+      int res = (upperBoundsIdx[0] == -1) ? 1 : 0;
+      res += (upperBoundsIdx[1] == -1) ? 1 : 0;
+      return res;
+    }
+    
+    int lowerRegions() {
+      int res = (lowerBoundsIdx[0] == -1) ? 1 : 0;
+      res += (lowerBoundsIdx[1] == -1) ? 1 : 0;
+      return res;
+    }
+  }
+  
+  private static class RegionList {
+    private Region[] regions;
+    private int rcount;
+    RegionList(int nvertices) {
+      regions = new Region[nvertices * 4];
+      rcount = 0;
+    }
+    
+    Region getRegion(int idx) {
+      return regions[idx];
+    }
+    
+    int createRegion() {
+      int idx = rcount++;
+      regions[idx] = new Region();
+      return idx;
+    }
   }
 }
