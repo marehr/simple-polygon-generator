@@ -263,6 +263,8 @@ public class SeidelTrapezoidationRewrite
       
       int leftRegionIdx = curRegionIdx;
       int rightRegionIdx = T.createRegion();
+      if(leftRegionIdx == -1)
+        System.out.println("TERROR");
       
       Region leftRegion = T.getRegion(leftRegionIdx);
       Region rightRegion = T.getRegion(rightRegionIdx);
@@ -525,8 +527,8 @@ public class SeidelTrapezoidationRewrite
     int rightSegmentIdx = -1;
     
     int upperRegions() {
-      int res = (upperBoundsIdx[0] == -1) ? 1 : 0;
-      res += (upperBoundsIdx[1] == -1) ? 1 : 0;
+      int res = (upperBoundsIdx[0] == -1) ? 0 : 1;
+      res += (upperBoundsIdx[1] == -1) ? 0 : 1;
       return res;
     }
     
