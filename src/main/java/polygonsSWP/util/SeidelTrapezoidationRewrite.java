@@ -531,8 +531,8 @@ public class SeidelTrapezoidationRewrite
     }
     
     int lowerRegions() {
-      int res = (lowerBoundsIdx[0] == -1) ? 1 : 0;
-      res += (lowerBoundsIdx[1] == -1) ? 1 : 0;
+      int res = (lowerBoundsIdx[0] == -1) ? 0 : 1;
+      res += (lowerBoundsIdx[1] == -1) ? 0 : 1;
       return res;
     }
   }
