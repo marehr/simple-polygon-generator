@@ -15,6 +15,7 @@ import org.w3c.dom.Document;
 
 import polygonsSWP.geometry.Line;
 import polygonsSWP.geometry.LineSegment;
+import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.Ray;
@@ -64,9 +65,8 @@ public class HistoryScene
   private LinkedList<Box<Point>> _pointList;
   private History _history = null;
   private SVGGraphics2D svg;
-  private boolean _circle;
-  private int _height, _width, _radius;
   private HistoryScene _self;
+  private Polygon _boundingBox;
 
   /**
    * Initializes the scene and bind it to the history object.
@@ -106,8 +106,18 @@ public class HistoryScene
     Color pointColor = new Color(0x007426);
     // First of all draw bounding Box:
     g2d.setColor(Color.BLACK);
-    if (_circle) g2d.drawOval(_radius, _radius, _radius, _radius);
-    else g2d.drawRect(0, 0, _width, _height);
+    if (true) {
+      int[] xcoords = new int[_boundingBox.size()];
+      int[] ycoords = new int[_boundingBox.size()];
+      for (int i = 0; i < _boundingBox.size(); i++) {
+        xcoords[i] = (int) (_boundingBox.getPoints().get(i).x);
+        ycoords[i] = (int) (_boundingBox.getPoints().get(i).y);
+      }
+
+      g2d.setColor(Color.BLACK);
+      g2d.drawPolygon(xcoords, ycoords, _boundingBox.size());
+    }
+
     // Afterwards every polygon:
     for (Box<Polygon> item : _polyList) {
       List<Point> p = item.openBox().getPoints();
@@ -214,16 +224,18 @@ public class HistoryScene
 
   @Override
   public Scene setBoundingBox(int height, int width) {
-    _height = height;
-    _width = width;
-    _circle = false;
+    List<Point> tmpLst = new LinkedList<Point>();
+    tmpLst.add(new Point(0, 0));
+    tmpLst.add(new Point(0, height));
+    tmpLst.add(new Point(width, height));
+    tmpLst.add(new Point(width, 0));
+    _boundingBox = new OrderedListPolygon(tmpLst);
     return _self;
   }
 
   @Override
   public Scene setBoundingBox(int radius) {
-    _radius = radius;
-    _circle = true;
+    // TODO: Implement!
     return _self;
   }
 }
