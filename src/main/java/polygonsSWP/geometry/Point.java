@@ -2,6 +2,7 @@ package polygonsSWP.geometry;
 
 import polygonsSWP.util.MathUtils;
 
+
 /**
  * Implementation of point object. Just abstracts x and y coordinates to one
  * object.
@@ -15,14 +16,14 @@ public class Point
   public double y;
 
   public Point(int _x, int _y) {
-    this((double)_x, (double)_y);
+    this((double) _x, (double) _y);
   }
 
   public Point(long _x, long _y) {
     // TODO remove
-    assert(false);
+    assert (false);
   }
-  
+
   public Point(double _x, double _y) {
     x = _x;
     y = _y;
@@ -65,10 +66,8 @@ public class Point
    */
   @Override
   public int compareTo(Point p2) {
-    if (!MathUtils.doubleEquals(x, p2.x)) 
-      return x < p2.x ? -1 : +1;
-    if (MathUtils.doubleEquals(y, p2.y)) 
-      return 0;
+    if (!MathUtils.doubleEquals(x, p2.x)) return x < p2.x ? -1 : +1;
+    if (MathUtils.doubleEquals(y, p2.y)) return 0;
     return y < p2.y ? -1 : +1;
   }
 
@@ -84,10 +83,12 @@ public class Point
    *         the right.
    */
   public int compareToByY(Point p2) {
-    if (!MathUtils.doubleEquals(y, p2.y)) 
-      return y < p2.y ? -1 : +1;
-    if (MathUtils.doubleEquals(x, p2.x)) 
-      return 0;
+    if (!MathUtils.doubleEquals(y, p2.y)) return y < p2.y ? -1 : +1;
+    if (MathUtils.doubleEquals(x, p2.x)) return 0;
     return x < p2.x ? -1 : +1;
+  }
+
+  public Point clone() {
+    return new Point(x, y);
   }
 }

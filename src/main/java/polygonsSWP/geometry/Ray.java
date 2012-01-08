@@ -90,4 +90,8 @@ public class Ray
     }
     return closest;
   }
+
+  public Ray clone() {
+    return new Ray(_base.clone(), _support.clone());
+  }
 }

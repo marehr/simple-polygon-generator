@@ -66,6 +66,7 @@ public class HistoryScene
   private SVGGraphics2D svg;
   private boolean _circle;
   private int _height, _width, _radius;
+  private HistoryScene _self;
 
   /**
    * Initializes the scene and bind it to the history object.
@@ -79,6 +80,7 @@ public class HistoryScene
     _rayList = new LinkedList<Box<Ray>>();
     _pointList = new LinkedList<Box<Point>>();
     _history = history;
+    _self = this;
   }
 
   /**
@@ -92,6 +94,7 @@ public class HistoryScene
 
   /**
    * This draws every thing to the SVG
+   * 
    * @param g2d
    */
   private void paint(Graphics2D g2d) {
@@ -117,7 +120,7 @@ public class HistoryScene
 
       if (item.isHighlighted()) {
         g2d.setColor(polyColor);
-        g2d.fillPolygon(xcoords, xcoords, p.size());
+        g2d.fillPolygon(xcoords, ycoords, p.size());
       }
       g2d.setColor(Color.BLACK);
       g2d.drawPolygon(xcoords, ycoords, p.size());
@@ -162,28 +165,33 @@ public class HistoryScene
   }
 
   @Override
-  public void addPolygon(Polygon polygon, Boolean highlight) {
-    _polyList.add(new Box<Polygon>(polygon, highlight));
+  public Scene addPolygon(Polygon polygon, Boolean highlight) {
+    _polyList.add(new Box<Polygon>(polygon.clone(), highlight));
+    return _self;
   }
 
   @Override
-  public void addLine(Line line, Boolean highlight) {
-    _lineList.add(new Box<Line>(line, highlight));
+  public Scene addLine(Line line, Boolean highlight) {
+    _lineList.add(new Box<Line>(line.clone(), highlight));
+    return _self;
   }
 
   @Override
-  public void addLineSegment(LineSegment linesegment, Boolean highlight) {
-    _lineSegmentList.add(new Box<LineSegment>(linesegment, highlight));
+  public Scene addLineSegment(LineSegment linesegment, Boolean highlight) {
+    _lineSegmentList.add(new Box<LineSegment>(linesegment.clone(), highlight));
+    return _self;
   }
 
   @Override
-  public void addRay(Ray ray, Boolean highlight) {
-    _rayList.add(new Box<Ray>(ray, highlight));
+  public Scene addRay(Ray ray, Boolean highlight) {
+    _rayList.add(new Box<Ray>(ray.clone(), highlight));
+    return _self;
   }
 
   @Override
-  public void addPoint(Point point, Boolean highlight) {
-    _pointList.add(new Box<Point>(point, highlight));
+  public Scene addPoint(Point point, Boolean highlight) {
+    _pointList.add(new Box<Point>(point.clone(), highlight));
+    return _self;
   }
 
   @Override
@@ -205,15 +213,17 @@ public class HistoryScene
   }
 
   @Override
-  public void setBoundingBox(int height, int width) {
+  public Scene setBoundingBox(int height, int width) {
     _height = height;
     _width = width;
     _circle = false;
+    return _self;
   }
 
   @Override
-  public void setBoundingBox(int radius) {
+  public Scene setBoundingBox(int radius) {
     _radius = radius;
     _circle = true;
+    return _self;
   }
 }

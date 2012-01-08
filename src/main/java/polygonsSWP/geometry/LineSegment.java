@@ -88,4 +88,8 @@ public class LineSegment
   public String toString() {
     return "[" + _a + "," + _b + "]";
   }
+  
+  public LineSegment clone() {
+    return new LineSegment(_a.clone(), _b.clone());
+  }
 }

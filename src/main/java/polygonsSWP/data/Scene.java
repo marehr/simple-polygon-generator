@@ -24,14 +24,14 @@ public interface Scene
    * @param height
    * @param width
    */
-  public void setBoundingBox(int height, int width);
+  public Scene setBoundingBox(int height, int width);
 
   /**
    * Sets a circular bounding box
    * 
    * @param radius
    */
-  public void setBoundingBox(int radius);
+  public Scene setBoundingBox(int radius);
 
   /**
    * Adds a polygon to the scene
@@ -39,7 +39,7 @@ public interface Scene
    * @param polygon
    * @param highlight whether it should be highlighted or not
    */
-  public void addPolygon(Polygon polygon, Boolean highlight);
+  public Scene addPolygon(Polygon polygon, Boolean highlight);
 
   /**
    * Adds a line to the scene
@@ -47,7 +47,7 @@ public interface Scene
    * @param line
    * @param highlight whether it should be highlighted or not
    */
-  public void addLine(Line line, Boolean highlight);
+  public Scene addLine(Line line, Boolean highlight);
 
   /**
    * Adds a lineSegment to the scene
@@ -55,7 +55,7 @@ public interface Scene
    * @param linesegment
    * @param highlight whether it should be highlighted or not
    */
-  public void addLineSegment(LineSegment linesegment, Boolean highlight);
+  public Scene addLineSegment(LineSegment linesegment, Boolean highlight);
 
   /**
    * Adds a ray to the scene
@@ -63,7 +63,7 @@ public interface Scene
    * @param ray
    * @param highlight whether it should be highlighted or not
    */
-  public void addRay(Ray ray, Boolean highlight);
+  public Scene addRay(Ray ray, Boolean highlight);
 
   /**
    * Adds a point to the scene.
@@ -71,7 +71,7 @@ public interface Scene
    * @param point
    * @param highlight whether it should be highlighted or not
    */
-  public void addPoint(Point point, Boolean highlight);
+  public Scene addPoint(Point point, Boolean highlight);
 
   /**
    * Generates a string containing a valid SVG representation of the scene

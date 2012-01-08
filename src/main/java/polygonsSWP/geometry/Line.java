@@ -69,4 +69,8 @@ public class Line
     return IntersectionUtils.intersect(_a, _b, l2._a, l2._b, 
         new LineIntersectionMode(), new LineIntersectionMode());
   }
+  
+  public Line clone() {
+    return new Line(_a.clone(), _b.clone());
+  }
 }
