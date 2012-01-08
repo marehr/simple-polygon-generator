@@ -39,4 +39,8 @@ public interface History
    */
   public Iterator<Scene> getSceneIterator();
 
+  /**
+   * Clear out every scene data so the history can be reused.
+   */
+  public void clear();
 }

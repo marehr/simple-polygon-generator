@@ -41,4 +41,9 @@ public class PolygonHistory
     return sceneList.iterator();
   }
 
+  @Override
+  public void clear() {
+    sceneList.clear();
+  }
+
 }

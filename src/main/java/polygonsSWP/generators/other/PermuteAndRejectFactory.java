@@ -39,7 +39,8 @@ public class PermuteAndRejectFactory
       PolygonHistory steps)
     throws IllegalParameterizationException {
     List<Point> points = GeneratorUtils.createOrUsePoints(params, true);
-    return new PermuteAndReject(points, steps, (Integer) params.get(Parameters.size));
+    return new PermuteAndReject(points, steps,
+        (Integer) params.get(Parameters.size));
   }
 
 
@@ -61,19 +62,21 @@ public class PermuteAndRejectFactory
 
     @Override
     public Polygon generate() {
-      // Initiliaze history
-      // steps = new PolygonHistory();
+      // Initiailize History
+      if (steps != null) steps.clear();
       // Step 1: Generate polygon of given point set.
       OrderedListPolygon p = new OrderedListPolygon(points);
       // TODO: Do we have always the same BoundingBox with float?
       // Add a new scene, set Bounding Box and add the polygon.
-      steps.newScene().setBoundingBox(_size, _size).addPolygon(p, false).safe();
+      if (steps != null)
+        steps.newScene().setBoundingBox(_size, _size).addPolygon(p, false).safe();
 
       while (!doStop) {
         // Step 2: Permute those n points to construct a Polygon
         p.permute();
         // Create a new scene for every polygon which is created.
-        steps.newScene().setBoundingBox(_size, _size).addPolygon(p, true).safe();
+        if (steps != null)
+          steps.newScene().setBoundingBox(_size, _size).addPolygon(p, true).safe();
         // Step 3: Accept only simple polygons in counterclockwise orientation.
         if (p.isSimple() && (p.isClockwise() == -1)) break;
       }
