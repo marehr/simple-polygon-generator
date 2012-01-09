@@ -557,7 +557,10 @@ public class SeidelTrapezoidationRewrite
     private Region[] regions;
     private int rcount;
     RegionList(int nvertices) {
-      regions = new Region[nvertices * 4];
+      // TODO Implement RegionList as a RegionPool.
+      // Maybe we could reuse disloged Regions here and only allocate the maximum number
+      // of resulting regions? Maybe not.
+      regions = new Region[nvertices * 5];
       rcount = 0;
     }
     
