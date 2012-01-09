@@ -65,12 +65,12 @@ public class SeidelTrapezoidationRewrite
       S[i] = tmp.remove(r.nextInt(tmp.size()));
     
     // TODO remove
-    Point[] parr = {new Point(481.53, 183.167), new Point(45.713, 162.635), new Point(15.249, 382.435), new Point(310.737, 197.333), new Point(402.097, 363.839)};
+    /*Point[] parr = {new Point(481.53, 183.167), new Point(45.713, 162.635), new Point(15.249, 382.435), new Point(310.737, 197.333), new Point(402.097, 363.839)};
     S[0] = new LineSegment(parr[0], parr[1]);
     S[1] = new LineSegment(parr[2], parr[1]);
     S[2] = new LineSegment(parr[2], parr[3]);
     S[3] = new LineSegment(parr[4], parr[3]);
-    S[4] = new LineSegment(parr[4], parr[0]);
+    S[4] = new LineSegment(parr[4], parr[0]);*/
     for(int si = 0; si < S.length; si++) {
       System.out.println("si = " + si + ": " + S[si]);
     }
@@ -278,8 +278,8 @@ public class SeidelTrapezoidationRewrite
       int lower_idx = T.createRegion();
       
       Region upper_region = T.getRegion(upper_idx);
-      
       Region lower_region = T.getRegion(lower_idx);
+      
       lower_region.upperBoundsIdx[0] = upper_idx;
       lower_region.lowerBoundsIdx[0] = upper_region.lowerBoundsIdx[0];
       lower_region.lowerBoundsIdx[1] = upper_region.lowerBoundsIdx[1];
@@ -309,6 +309,7 @@ public class SeidelTrapezoidationRewrite
       cur.type = SearchTreeNodeType.YNODE;
       cur.y = p.y;
       cur.leftOrAbove = new SearchTreeNode(upper_idx);
+      upper_region.sinks.clear();
       upper_region.sinks.add(cur.leftOrAbove);
       cur.rightOrBelow = new SearchTreeNode(lower_idx);
       lower_region.sinks.add(cur.rightOrBelow);
@@ -356,7 +357,7 @@ public class SeidelTrapezoidationRewrite
       leftRegion.rightSegmentIdx = segmentIdx;
       
       // Update SearchTree.
-      List<SearchTreeNode> oldsinks = leftRegion.sinks;
+      List<SearchTreeNode> oldsinks = new LinkedList<SearchTreeNode>(leftRegion.sinks);
       SearchTreeNode newleftsink = new SearchTreeNode(leftRegionIdx);
       SearchTreeNode newrightsink = new SearchTreeNode(rightRegionIdx);
       leftRegion.sinks.clear();
@@ -506,6 +507,9 @@ public class SeidelTrapezoidationRewrite
         leftRegion.upperBoundsIdx[1] = -1; 
         T.getRegion(leftRegion.upperBoundsIdx[0]).lowerBoundsIdx[0] = leftRegionIdx;
         T.getRegion(rightRegion.upperBoundsIdx[0]).lowerBoundsIdx[0] = rightRegionIdx;
+      } else if(leftRegion.upperRegions() == 1) {
+        System.out.println("LEFT REGION HAS ONLY ONE UPPER NEIGHBOR OH OH");
+        assert(false);
       } else {
         assert(false); // Defensive programming.
       }
@@ -517,6 +521,8 @@ public class SeidelTrapezoidationRewrite
     Region region = T.getRegion(regionIdx);
     if(region.upperRegions() > 1)
       return -1;
+    
+    assert(region.upperRegions() == 1);
     
     int upperIdx = region.upperBoundsIdx[0];
     Region upper = T.getRegion(upperIdx);
@@ -550,6 +556,7 @@ public class SeidelTrapezoidationRewrite
     if(leftRegion.lowerRegions() == 1) {
       
       rightRegion.lowerBoundsIdx[0] = leftRegion.lowerBoundsIdx[0];
+      T.getRegion(rightRegion.lowerBoundsIdx[0]).upperBoundsIdx[1] = rightRegionIdx;
       nextRegionIdx = leftRegion.lowerBoundsIdx[0];
       
     } else if (leftRegion.lowerRegions() == 2) {
@@ -601,12 +608,11 @@ public class SeidelTrapezoidationRewrite
         // Point is on the segment. --> Last round.
         leftRegion.lowerBoundsIdx[1] = -1;
         rightRegion.lowerBoundsIdx[0] = lowerRightIdx;
-        lowerRight.lowerBoundsIdx[0] = rightRegionIdx;        
+        lowerRight.upperBoundsIdx[0] = rightRegionIdx;        
       }
       
     } else {
       // We should have exited the loop by now.
-      System.out.println("LEFT REGION HAS lowerRegions() == " + leftRegion.lowerRegions());
       assert(false);
     }
     
