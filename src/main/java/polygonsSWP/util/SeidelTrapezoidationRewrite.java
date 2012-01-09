@@ -1,5 +1,6 @@
 package polygonsSWP.util;
 
+import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -13,6 +14,10 @@ import polygonsSWP.geometry.Polygon;
 
 public class SeidelTrapezoidationRewrite
 { 
+  
+  // TODO remove
+  private static DecimalFormat df = new DecimalFormat("###.##");
+  
   private RegionList T;
   private SearchTreeNode Z;
   private LineSegment[] S;
@@ -59,6 +64,11 @@ public class SeidelTrapezoidationRewrite
     for(int i = 0; i < S.length; i++)
       S[i] = tmp.remove(r.nextInt(tmp.size()));
     
+    // TODO remove
+    for(int si = 0; si < S.length; si++) {
+      System.out.println("si = " + si + ": " + S[si]);
+    }
+    
     /* 
      * 3nd step: Iterate through edge set and process each line.
      */
@@ -76,6 +86,9 @@ public class SeidelTrapezoidationRewrite
        
       // Thread segment si through T.      
       threadSegmentThroughTrapezoidalMap(si, topMostRegionIdx, bottomMostRegionIdx);     
+      
+      // TODO remove
+      System.out.println(debugSearchTree(Z));
     }
     
     /*
@@ -98,6 +111,23 @@ public class SeidelTrapezoidationRewrite
         i++;
     }
     
+    return retval;
+  }
+  
+  // TODO remove
+  private String debugSearchTree(SearchTreeNode s) {
+    String retval = null;
+    switch(s.type) {
+    case XNODE:
+      retval = "(XNODE[" + s.segmentIdx + "] " + debugSearchTree(s.leftOrAbove) + " " + debugSearchTree(s.rightOrBelow) + ")";
+      break;
+    case YNODE:
+      retval = "(YNODE[" + df.format(s.y) + "] " + debugSearchTree(s.leftOrAbove) + " " + debugSearchTree(s.rightOrBelow) + ")";
+      break;
+    case SINK:
+      retval = "SINK[" + s.regionIdx + "]";
+      break;
+    }
     return retval;
   }
   
