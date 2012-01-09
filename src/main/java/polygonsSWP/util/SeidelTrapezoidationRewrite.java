@@ -179,9 +179,9 @@ public class SeidelTrapezoidationRewrite
           // Region is horizontally split by a point. Test whether
           // p lies above or below the horizontal line.
           if(p.y < cur.y + MathUtils.EPSILON) {
-            cur = cur.leftOrAbove;
-          } else if(p.y > cur.y - MathUtils.EPSILON) {
             cur = cur.rightOrBelow;
+          } else if(p.y > cur.y - MathUtils.EPSILON) {
+            cur = cur.leftOrAbove;
           } else {
             // Okay, we found a point which has the same y coordinate
             // as some other point before. This can either be a common
@@ -263,12 +263,10 @@ public class SeidelTrapezoidationRewrite
       
       int leftRegionIdx = curRegionIdx;
       int rightRegionIdx = T.createRegion();
-      if(leftRegionIdx == -1)
-        System.out.println("TERROR");
       
       Region leftRegion = T.getRegion(leftRegionIdx);
       Region rightRegion = T.getRegion(rightRegionIdx);
-      
+           
       rightRegion.leftSegmentIdx = segmentIdx;
       rightRegion.rightSegmentIdx = leftRegion.rightSegmentIdx;
       leftRegion.rightSegmentIdx = segmentIdx;
@@ -321,9 +319,10 @@ public class SeidelTrapezoidationRewrite
     Region rightRegion = T.getRegion(rightRegionIdx);
     
     if(leftRegion.upperRegions() < 2) {
+      
       // If there was only one region above, it's pretty easy.
       rightRegion.upperBoundsIdx[0] = leftRegion.upperBoundsIdx[0];
-      
+
     } else {
       
       int upperLeftIdx = leftRegion.upperBoundsIdx[0];
@@ -384,17 +383,30 @@ public class SeidelTrapezoidationRewrite
     Region rightRegion = T.getRegion(rightRegionIdx);
     
     if(round[1] != -1) {
+      // Last round we had three lower neighbors. See findNextRegionAndConnectLowerBounds.
       rightRegion.upperBoundsIdx[0] = leftRegion.upperBoundsIdx[0];
       rightRegion.upperBoundsIdx[1] = leftRegion.upperBoundsIdx[1];
       leftRegion.upperBoundsIdx[0] = round[1];
       leftRegion.upperBoundsIdx[1] = -1;
       T.getRegion(rightRegion.upperBoundsIdx[0]).lowerBoundsIdx[0] = rightRegionIdx;
     } else if(round[2] != -1) {
+      // Same here.
       rightRegion.upperBoundsIdx[0] = round[2];
       T.getRegion(round[2]).lowerBoundsIdx[0] = rightRegionIdx;
     } else {
-      rightRegion.upperBoundsIdx[0] = leftRegion.upperBoundsIdx[1];
-      leftRegion.upperBoundsIdx[1] = -1;
+      
+      // Default case: Above us there is only one region _or_ two regions but the
+      // segment connects to the current segment.
+      
+      if(leftRegion.upperRegions() == 1) {
+        rightRegion.upperBoundsIdx[0] = leftRegion.upperBoundsIdx[0];
+      } else if(leftRegion.upperRegions() == 2) {
+        rightRegion.upperBoundsIdx[0] = leftRegion.upperBoundsIdx[1];
+        leftRegion.upperBoundsIdx[1] = -1; 
+      } else {
+        assert(false); // Defensive programming.
+      }
+      
     }
   }
   
@@ -402,6 +414,8 @@ public class SeidelTrapezoidationRewrite
     Region region = T.getRegion(regionIdx);
     if(region.upperRegions() > 1)
       return -1;
+    
+    assert(region.upperRegions() == 1); // Must have a upper region as it was just 'threaded' by a segment.
     
     int upperIdx = region.upperBoundsIdx[0];
     Region upper = T.getRegion(upperIdx);
