@@ -222,9 +222,9 @@ public class SeidelTrapezoidationRewrite
             // line segment cuts through.
             doSplit = false;
             if(upper_point)
-              cur = cur.leftOrAbove;
-            else
               cur = cur.rightOrBelow;
+            else
+              cur = cur.leftOrAbove;
           }
           break;
           
@@ -590,7 +590,7 @@ public class SeidelTrapezoidationRewrite
       // TODO Implement RegionList as a RegionPool.
       // Maybe we could reuse disloged Regions here and only allocate the maximum number
       // of resulting regions? Maybe not.
-      regions = new Region[nvertices * 5];
+      regions = new Region[nvertices * 6];
       rcount = 0;
     }
     
