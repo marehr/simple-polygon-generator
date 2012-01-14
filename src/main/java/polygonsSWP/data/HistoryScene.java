@@ -13,6 +13,7 @@ import org.apache.batik.svggen.SVGGraphics2DIOException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
+import polygonsSWP.geometry.Circle;
 import polygonsSWP.geometry.Line;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
@@ -106,7 +107,7 @@ public class HistoryScene
     Color pointColor = new Color(0x007426);
     // First of all draw bounding Box:
     g2d.setColor(Color.BLACK);
-    if (true) {
+    if (_boundingBox instanceof OrderedListPolygon) {
       int[] xcoords = new int[_boundingBox.size()];
       int[] ycoords = new int[_boundingBox.size()];
       for (int i = 0; i < _boundingBox.size(); i++) {
@@ -116,6 +117,10 @@ public class HistoryScene
 
       g2d.setColor(Color.BLACK);
       g2d.drawPolygon(xcoords, ycoords, _boundingBox.size());
+    }
+    else {
+      g2d.drawOval(0, 0, (int) (2 * ((Circle) _boundingBox).getRadius()),
+          (int) (2 * ((Circle) _boundingBox).getRadius()));
     }
 
     // Afterwards every polygon:
@@ -136,30 +141,42 @@ public class HistoryScene
       g2d.drawPolygon(xcoords, ycoords, p.size());
     }
     // Every Line
-    // TODO: Calculate real line from it
     for (Box<Line> item : _lineList) {
-      Line tmp = item.openBox();
       if (item.isHighlighted()) g2d.setColor(lineColor);
       else g2d.setColor(Color.BLACK);
-      g2d.drawLine((int) tmp._a.x, (int) tmp._a.y, (int) tmp._b.x,
-          (int) tmp._b.y);
+      // Calculate intersections to keep line inside of bounding box
+      List<Point[]> returnList;
+      returnList = _boundingBox.intersect(item.openBox());
+      g2d.drawLine((int) returnList.get(0)[0].x, (int) returnList.get(0)[0].y,
+          (int) returnList.get(1)[0].x, (int) returnList.get(1)[0].y);
     }
     // Every LineSegment
     for (Box<LineSegment> item : _lineSegmentList) {
       LineSegment tmp = item.openBox();
       if (item.isHighlighted()) g2d.setColor(lineColor);
       else g2d.setColor(Color.BLACK);
+      // We assume all geometry elements are chosen to be inside the box if
+      // they are not infinite to one side
       g2d.drawLine((int) tmp._a.x, (int) tmp._a.y, (int) tmp._b.x,
           (int) tmp._b.y);
     }
     // Every Ray
-    // TODO: calculate real ray from it
     for (Box<Ray> item : _rayList) {
       Ray tmp = item.openBox();
       if (item.isHighlighted()) g2d.setColor(lineColor);
       else g2d.setColor(Color.BLACK);
-      g2d.drawLine((int) tmp._base.x, (int) tmp._base.y, (int) tmp._support.x,
-          (int) tmp._support.y);
+      // Calculate intersection
+      List<Point[]> returnList;
+      returnList = _boundingBox.intersect(item.openBox());
+      if (returnList.size() == 1) {
+        g2d.drawLine((int) tmp._base.x, (int) tmp._base.y,
+            (int) returnList.get(0)[0].x, (int) returnList.get(0)[0].y);
+      }
+      else {
+        g2d.drawLine((int) returnList.get(0)[0].x,
+            (int) returnList.get(0)[0].y, (int) returnList.get(1)[0].x,
+            (int) returnList.get(1)[0].y);
+      }
 
     }
     // Every Point
@@ -235,7 +252,7 @@ public class HistoryScene
 
   @Override
   public Scene setBoundingBox(int radius) {
-    // TODO: Implement!
+    _boundingBox = new Circle(radius, new Point(radius, radius));
     return _self;
   }
 }
