@@ -49,7 +49,7 @@ public class PermuteAndRejectFactory
   {
 
     private boolean doStop = false;
-    private PolygonHistory steps;
+    private PolygonHistory steps = null;
     private List<Point> points;
     private int _size;
 
