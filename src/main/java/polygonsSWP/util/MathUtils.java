@@ -68,8 +68,8 @@ public class MathUtils
     double result =
         begin.x * (end.y - p.y) + end.x * (p.y - begin.y) + p.x *
             (begin.y - end.y);
-    if (result > 0 - EPSILON) return 1;
-    else if (result < 0 + EPSILON) return -1;
+    if (result > 0 + EPSILON) return 1;
+    else if (result < 0 - EPSILON) return -1;
     else return 0;
   }
   

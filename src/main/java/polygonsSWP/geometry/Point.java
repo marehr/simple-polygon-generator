@@ -1,5 +1,7 @@
 package polygonsSWP.geometry;
 
+import java.text.DecimalFormat;
+
 import polygonsSWP.util.MathUtils;
 
 
@@ -12,6 +14,8 @@ import polygonsSWP.util.MathUtils;
 public class Point
   implements Comparable<Point>
 {
+  private static DecimalFormat df = new DecimalFormat("###.###");
+  
   public double x;
   public double y;
 
@@ -38,7 +42,7 @@ public class Point
   }
 
   public String toString() {
-    return "(" + x + "," + y + ")";
+    return "(" + df.format(x) + "," + df.format(y) + ")";
   }
 
   /**
