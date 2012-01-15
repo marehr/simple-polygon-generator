@@ -62,8 +62,7 @@ public class VelocityVirmaniFactory
   }
 
 
-  private static class VelocityVirmani
-    implements PolygonGenerator
+  private static class VelocityVirmani implements PolygonGenerator
   {
 
     private Random rand;
@@ -72,6 +71,8 @@ public class VelocityVirmaniFactory
     private int runs;
     private int maxVelo;
     private int bound;
+    
+    private boolean stop = false;
 
     VelocityVirmani(int n, long radius, int runs, int bound, int maxVelo) {
       this.rand = new Random();
@@ -88,7 +89,7 @@ public class VelocityVirmaniFactory
       OrderedListPolygon poly = regularPolygon(n, radius, bound);
 
       int velox, veloy;
-      while (runs > 0) // The Loop for the Number of Iterations
+      while (runs > 0 && !stop) // The Loop for the Number of Iterations. Stops if "stop" is true.
       {
         for (int i = 0; i < n; i++) // Looping through the Points
         {
@@ -113,7 +114,8 @@ public class VelocityVirmaniFactory
         }
         runs--;
       }
-
+      if(stop)
+        return null;
       return poly;
     }
 
@@ -135,9 +137,10 @@ public class VelocityVirmaniFactory
       for (int i = 0; i < n; i++) {
         tmpWinkel = winkel * i;
         x1 = (long) (x * Math.cos(tmpWinkel) - y * Math.sin(tmpWinkel)) // Calculating the new Point
-            +
-            (bound / 2); // Translation. So the Point has a Origin of top left
-        y1 = -(long) (x * Math.sin(tmpWinkel) + y * Math.cos(tmpWinkel)) + (bound / 2);// y has to be negative because the y axe had another directions.
+            + (bound / 2); // Translation. So the Point has a Origin of top left
+        
+        y1 = -(long) (x * Math.sin(tmpWinkel) + y * Math.cos(tmpWinkel)) 
+            + (bound / 2);// y has to be negative because the y axe had another directions.
         poly.addPoint(new Point(x1, y1));
       }
       return poly;
@@ -145,7 +148,7 @@ public class VelocityVirmaniFactory
 
     @Override
     public void stop() {
-      // TODO Auto-generated method stub
+      stop = true;
     }
   }
 }
