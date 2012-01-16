@@ -387,46 +387,29 @@ public class OrderedListPolygon
   public Point createRandomPoint() {
     assert (size() >= 3);
 
-    Point retval;
+    Point point;
 
-    // If polygon is a triangle, choose random point.
-    if (size() == 3) {
-
-      Random random = new Random(System.currentTimeMillis());
-
-      do {
-
-        // Choose random Point in rectangle with length of edges according to
-        // length
-        // of vector. Then scale Point to actual Point in Parallelogram.
-        Vector u = new Vector(_coords.get(0), _coords.get(1));
-        Vector v = new Vector(_coords.get(0), _coords.get(2));
-        double randomPoint1 = random.nextDouble();
-        double randomPoint2 = random.nextDouble();
-        double x = u.v1 * randomPoint1 + v.v1 * randomPoint2;
-        double y = u.v2 * randomPoint1 + v.v2 * randomPoint2;
-
-        retval = new Point(x, y);
-
-      }
-      while (!containsPoint(retval, true));
-
+    // If polygon is a triangle
+    if (this.size() == 3) {
+      Triangle triangle = new Triangle(this.getPoints());
+      point = triangle.createRandomPoint(); 
     }
     else {
-
+      
       // Triangulate given Polygon.
       List<Triangle> triangularization = this.triangulate();
-
+      
       // Choose one triangle of triangularization randomly weighted by their
       // Surface Area.
       Triangle chosenTriangle =
           Triangle.selectRandomTriangleBySize(triangularization);
-
+      
       // Return randomly chosen Point in chosen Triangle.
-      retval = chosenTriangle.createRandomPoint();
+      point = chosenTriangle.createRandomPoint();
+      
     }
 
-    return retval;
+    return point;
   }
 
   public boolean areNeighbours(Point a, Point b) {

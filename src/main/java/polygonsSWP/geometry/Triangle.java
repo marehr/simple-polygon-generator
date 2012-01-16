@@ -80,24 +80,30 @@ public class Triangle
    */
   @Override
   public Point createRandomPoint() {
-    Point retval;
+    //TODO: real random !!
     Random random = new Random(System.currentTimeMillis());
-    do {
-      // Choose random Point in rectangle with length of edges according to
-      // length
-      // of vector. Then scale Point to actual Point in Parallelogram.
-      Vector u = new Vector(_coords.get(0), _coords.get(1));
-      Vector v = new Vector(_coords.get(0), _coords.get(2));
-      double randomPoint1 = random.nextDouble();
-      double randomPoint2 = random.nextDouble();
-      double x = u.v1 * randomPoint1 + v.v1 * randomPoint2;
-      double y = u.v2 * randomPoint1 + v.v2 * randomPoint2;
-
-      retval = new Point(x, y);
-
+  
+    // Choose random Point in rectangle with length of edges according to
+    // length
+    // of vector. Then scale Point to actual Point in Parallelogram.
+    Vector v0 = new Vector(new Point(0, 0), _coords.get(0));
+    Vector v1 = new Vector(new Point(0, 0), _coords.get(1));
+    Vector v2 = new Vector(new Point(0, 0), _coords.get(2));
+    double random1 = random.nextDouble();
+    double random2 = random.nextDouble();
+    Vector x = v1.subb(v0).mult(random2).add(v2.subb(v0).mult(random2));
+    
+    //check if Ox is in triangle
+    Vector v3 = v1.subb(v0).add(v2.subb(v0));
+    Point point = new Point(x.v1, x.v2);
+    
+    if (!containsPoint(point, true)){
+      x = v0.add(x.subb(v3));
+      point = new Point(x.v1, x.v2);
+      if (!containsPoint(point, true))
+        System.out.println("generated point still not in triangle!!!");
     }
-    while (!containsPoint(retval, true));
-    return retval;
+    return point;
   }
 
   public MonotonPolygon getMonotonPolygon() {
@@ -148,10 +154,10 @@ public class Triangle
    * Triangles. TODO: still safe although surface areas calculated as doubles?
    * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
-   * @param polygons
+   * @param triangles
    * @return
    */
-  public static Triangle selectRandomTriangleBySize(List<Triangle> polygons) {
+  public static Triangle selectRandomTriangleBySize(List<Triangle> triangles) {
     // This algorithm works as follows:
     // 1. sum the weights (totalSurfaceArea)
     // 2. select a uniform random value (randomValue) u 0 <= u < sum of weights
@@ -160,20 +166,21 @@ public class Triangle
     // 4. as soon as running total >= random value, select the item you're
     // currently looking at (the one whose weight you just added).
 
+    //TODO: real random !!!
     Random random = new Random(System.currentTimeMillis());
     HashMap<Triangle, Long> surfaceAreaTriangles =
         new HashMap<Triangle, Long>();
     long totalSurfaceArea = 0;
-    for (Triangle polygon2 : polygons) {
+    for (Triangle triangle : triangles) {
       long polygon2SurfaceArea =
-          Math.round(Math.ceil(polygon2.getSurfaceArea()));
+          Math.round(Math.ceil(triangle.getSurfaceArea()));
       totalSurfaceArea += polygon2SurfaceArea;
-      surfaceAreaTriangles.put(polygon2, polygon2SurfaceArea);
+      surfaceAreaTriangles.put(triangle, polygon2SurfaceArea);
     }
     long randomValue =
         Math.round(Math.ceil(random.nextDouble() * totalSurfaceArea));
     long runningTotal = 0;
-    for (Triangle polygon2 : polygons) {
+    for (Triangle polygon2 : triangles) {
       runningTotal += surfaceAreaTriangles.get(polygon2);
       if (runningTotal >= randomValue) { return polygon2; }
     }
