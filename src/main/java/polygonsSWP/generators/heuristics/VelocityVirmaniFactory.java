@@ -67,7 +67,7 @@ public class VelocityVirmaniFactory
 
     private Random rand;
     private int n;
-    private long radius;
+    private double radius;
     private int runs;
     private int maxVelo;
     private int bound;
@@ -93,7 +93,7 @@ public class VelocityVirmaniFactory
       {
         for (int i = 0; i < n; i++) // Looping through the Points
         {
-
+          
           // Calculates a Random Velocity. Can be Negative.
           velox = rand.nextBoolean() ? rand.nextInt(maxVelo) : -rand.nextInt(maxVelo);
           veloy = rand.nextBoolean() ? rand.nextInt(maxVelo) : -rand.nextInt(maxVelo);
@@ -127,19 +127,19 @@ public class VelocityVirmaniFactory
      * @param bound Bound. To Center the Polygon itself
      * @return
      */
-    private OrderedListPolygon regularPolygon(int n, long radius, long bound) {
+    private OrderedListPolygon regularPolygon(int n, double radius, double bound) {
       double winkel = (Math.PI * 2) / n;
-      long x = radius;
-      long y = 0;
-      long x1, y1;
+      double x = radius;
+      double y = 0;
+      double x1, y1;
       double tmpWinkel;
       OrderedListPolygon poly = new OrderedListPolygon();
       for (int i = 0; i < n; i++) {
         tmpWinkel = winkel * i;
-        x1 = (long) (x * Math.cos(tmpWinkel) - y * Math.sin(tmpWinkel)) // Calculating the new Point
+        x1 = (x * Math.cos(tmpWinkel) - y * Math.sin(tmpWinkel)) // Calculating the new Point
             + (bound / 2); // Translation. So the Point has a Origin of top left
         
-        y1 = -(long) (x * Math.sin(tmpWinkel) + y * Math.cos(tmpWinkel)) 
+        y1 = -(x * Math.sin(tmpWinkel) + y * Math.cos(tmpWinkel)) 
             + (bound / 2);// y has to be negative because the y axe had another directions.
         poly.addPoint(new Point(x1, y1));
       }

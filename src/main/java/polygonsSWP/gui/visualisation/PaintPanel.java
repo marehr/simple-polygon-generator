@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 
+
 /**
  * Component for drawing our geometry objects. This one features drawing a
  * polygon as well as points plus zooming and dragging stuff around.
@@ -29,22 +30,22 @@ class PaintPanel
 {
   private static final long serialVersionUID = 1L;
   private final DecimalFormat df = new DecimalFormat("#0.00");
-  
+
   /** list for point selection */
   private List<Point> points;
-  
+
   /** Scene objects */
   private List<Polygon> polygons;
 
   /* current display offsets & co. */
-  private double zoom = 1.0d;
-  private int offsetX = 0;
-  private int offsetY = 0;
+  protected double zoom = 1.0d;
+  protected int offsetX = 0;
+  protected int offsetY = 0;
   private int dragOffsetX = -1;
   private int dragOffsetY = -1;
 
   /** DrawMode indicates whether we're allowed to select points. */
-  private boolean drawMode;
+  protected boolean drawMode;
 
   public PaintPanel() {
     polygons = new LinkedList<Polygon>();
@@ -58,12 +59,12 @@ class PaintPanel
   void clearScene() {
     polygons.clear();
   }
-  
+
   void addPolygon(Polygon p) {
     polygons.add(p);
     repaint();
   }
-  
+
   void addPolygons(List<? extends Polygon> ps) {
     polygons.addAll(ps);
     repaint();
@@ -84,8 +85,8 @@ class PaintPanel
 
   /* Painting */
 
-  @Override
-  public void paintComponent(Graphics g) {
+  protected void initPanel(Graphics g) {
+    // Clear panel
     g.setColor(Color.WHITE);
     g.fillRect(0, 0, getWidth(), getHeight());
 
@@ -95,9 +96,14 @@ class PaintPanel
     g.drawRect(8, 8, 44, 3);
     g.drawRect(52, 5, 3, 9);
     g.drawString(df.format(50 / zoom), 60, 14);
-    
+  }
+
+  @Override
+  public void paintComponent(Graphics g) {
+    initPanel(g);
+
     // Paint polygons
-    for(Polygon polygon : polygons) {
+    for (Polygon polygon : polygons) {
       List<Point> p = polygon.getPoints();
       int[] xcoords = new int[p.size()];
       int[] ycoords = new int[p.size()];
@@ -182,7 +188,7 @@ class PaintPanel
   /*
    * MouseWheelListener methods. Used for zooming.
    */
-  
+
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
     if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
@@ -191,7 +197,7 @@ class PaintPanel
        * e.getScrollAmount()).
        */
       final double b = 0.1;
-      
+
       double nz = -1;
       if (e.getWheelRotation() < 0) {
         // Zoom in
@@ -199,10 +205,9 @@ class PaintPanel
       }
       else {
         nz = Math.exp(b * (Math.log(zoom) / b - 1));
-        
-        if(nz < 0.1)
-          nz = 0.1;
-      } 
+
+        if (nz < 0.1) nz = 0.1;
+      }
 
       if (nz != -1) {
         offsetX = (int) (e.getX() - (e.getX() - offsetX) / zoom * nz);

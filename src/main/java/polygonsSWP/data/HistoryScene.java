@@ -98,7 +98,7 @@ public class HistoryScene
    * 
    * @param g2d
    */
-  private void paint(Graphics2D g2d) {
+  public void paint(Graphics2D g2d, double zoom, int offsetx, int offsety) {
     // light blue for polygons
     Color polyColor = new Color(0xa2cdfd);
     // red for lines (rays, linesegment...)
@@ -111,16 +111,17 @@ public class HistoryScene
       int[] xcoords = new int[_boundingBox.size()];
       int[] ycoords = new int[_boundingBox.size()];
       for (int i = 0; i < _boundingBox.size(); i++) {
-        xcoords[i] = (int) (_boundingBox.getPoints().get(i).x);
-        ycoords[i] = (int) (_boundingBox.getPoints().get(i).y);
+        xcoords[i] = (int) (_boundingBox.getPoints().get(i).x * zoom + offsetx);
+        ycoords[i] = (int) (_boundingBox.getPoints().get(i).y * zoom + offsety);
       }
 
       g2d.setColor(Color.BLACK);
       g2d.drawPolygon(xcoords, ycoords, _boundingBox.size());
     }
     else {
-      g2d.drawOval(0, 0, (int) (2 * ((Circle) _boundingBox).getRadius()),
-          (int) (2 * ((Circle) _boundingBox).getRadius()));
+      g2d.drawOval(0 + offsetx, 0 + offsety,
+          (int) (2 * ((Circle) _boundingBox).getRadius() * zoom),
+          (int) (2 * ((Circle) _boundingBox).getRadius() * zoom));
     }
 
     // Afterwards every polygon:
@@ -129,8 +130,8 @@ public class HistoryScene
       int[] xcoords = new int[p.size()];
       int[] ycoords = new int[p.size()];
       for (int i = 0; i < p.size(); i++) {
-        xcoords[i] = (int) (p.get(i).x);
-        ycoords[i] = (int) (p.get(i).y);
+        xcoords[i] = (int) (p.get(i).x * zoom + offsety);
+        ycoords[i] = (int) (p.get(i).y * zoom + offsety);
       }
 
       if (item.isHighlighted()) {
@@ -147,8 +148,10 @@ public class HistoryScene
       // Calculate intersections to keep line inside of bounding box
       List<Point[]> returnList;
       returnList = _boundingBox.intersect(item.openBox());
-      g2d.drawLine((int) returnList.get(0)[0].x, (int) returnList.get(0)[0].y,
-          (int) returnList.get(1)[0].x, (int) returnList.get(1)[0].y);
+      g2d.drawLine((int) (returnList.get(0)[0].x * zoom + offsetx),
+          (int) (returnList.get(0)[0].y * zoom + offsety),
+          (int) (returnList.get(1)[0].x * zoom + offsetx),
+          (int) (returnList.get(1)[0].y * zoom + offsety));
     }
     // Every LineSegment
     for (Box<LineSegment> item : _lineSegmentList) {
@@ -157,8 +160,9 @@ public class HistoryScene
       else g2d.setColor(Color.BLACK);
       // We assume all geometry elements are chosen to be inside the box if
       // they are not infinite to one side
-      g2d.drawLine((int) tmp._a.x, (int) tmp._a.y, (int) tmp._b.x,
-          (int) tmp._b.y);
+      g2d.drawLine((int) (tmp._a.x * zoom + offsetx),
+          (int) (tmp._a.y * zoom + offsety), (int) (tmp._b.x * zoom + offsetx),
+          (int) (tmp._b.y * zoom + offsety));
     }
     // Every Ray
     for (Box<Ray> item : _rayList) {
@@ -169,13 +173,15 @@ public class HistoryScene
       List<Point[]> returnList;
       returnList = _boundingBox.intersect(item.openBox());
       if (returnList.size() == 1) {
-        g2d.drawLine((int) tmp._base.x, (int) tmp._base.y,
-            (int) returnList.get(0)[0].x, (int) returnList.get(0)[0].y);
+        g2d.drawLine((int) (tmp._base.x * zoom + offsetx), (int) (tmp._base.y *
+            zoom + offsety), (int) (returnList.get(0)[0].x * zoom + offsetx),
+            (int) (returnList.get(0)[0].y * zoom + offsety));
       }
       else {
-        g2d.drawLine((int) returnList.get(0)[0].x,
-            (int) returnList.get(0)[0].y, (int) returnList.get(1)[0].x,
-            (int) returnList.get(1)[0].y);
+        g2d.drawLine((int) (returnList.get(0)[0].x * zoom + offsetx),
+            (int) (returnList.get(0)[0].y * zoom + offsety),
+            (int) (returnList.get(1)[0].x * zoom + offsetx),
+            (int) (returnList.get(1)[0].y * zoom + offsety));
       }
 
     }
@@ -184,10 +190,12 @@ public class HistoryScene
       Point tmp = item.openBox();
       if (item.isHighlighted()) g2d.setColor(pointColor);
       else g2d.setColor(Color.BLACK);
-      g2d.drawLine((int) tmp.x + 2, (int) tmp.y + 2, (int) tmp.x - 2,
-          (int) tmp.y - 2);
-      g2d.drawLine((int) tmp.x - 2, (int) tmp.y + 2, (int) tmp.x + 2,
-          (int) tmp.y - 2);
+      g2d.drawLine((int) ((tmp.x + 2) * zoom + offsetx), (int) ((tmp.y + 2) *
+          zoom + offsety), (int) ((tmp.x - 2) * zoom + offsetx),
+          (int) ((tmp.y - 2) * zoom + offsety));
+      g2d.drawLine((int) ((tmp.x - 2) * zoom + offsetx), (int) ((tmp.y + 2) *
+          zoom + offsety), (int) ((tmp.x + 2) * zoom + offsetx),
+          (int) ((tmp.y - 2) * zoom + offsety));
     }
   }
 
@@ -228,7 +236,7 @@ public class HistoryScene
     Document document =
         domImpl.createDocument("http://www.w3.org/2000/svg", "svg", null);
     svg = new SVGGraphics2D(document);
-    this.paint(svg);
+    this.paint(svg, 10000.0d, 0, 0);
     Writer out = new StringWriter();
     try {
       svg.stream(out, true);
