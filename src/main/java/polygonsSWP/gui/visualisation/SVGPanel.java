@@ -7,6 +7,7 @@ import java.util.List;
 import polygonsSWP.data.History;
 import polygonsSWP.data.Scene;
 import polygonsSWP.geometry.Point;
+import polygonsSWP.geometry.Polygon;
 
 
 public class SVGPanel
@@ -34,6 +35,29 @@ public class SVGPanel
    */
   @Override
   void setDrawMode(boolean d, List<Point> p) {
+    repaint();
+  }
+
+  /**
+   * Resets the panel to construction state
+   */
+  @Override
+  void clearScene() {
+    polygonHistory = null;
+    currentScene = null;
+  }
+
+  @Override
+  void addPolygon(Polygon p) {
+    // We could actually add it to the scene, but why?
+    // polygons.add(p);
+    repaint();
+  }
+
+  @Override
+  void addPolygons(List<? extends Polygon> ps) {
+    // We could actually add them to the scene, but why?
+    // polygons.addAll(ps);
     repaint();
   }
 
@@ -85,6 +109,6 @@ public class SVGPanel
     // SVG class needs a Graphics2D but according to sun it is always safe to
     // cast Graphics to Graphics2D since Java 1.2+
     Graphics2D g2d = (Graphics2D) g;
-    currentScene.paint(g2d, zoom, offsetX, offsetY);
+    if (currentScene != null) currentScene.paint(g2d, zoom, offsetX, offsetY);
   }
 }
