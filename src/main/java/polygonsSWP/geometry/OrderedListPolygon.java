@@ -1,5 +1,6 @@
 package polygonsSWP.geometry;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -375,6 +376,73 @@ public class OrderedListPolygon
     }
     return result / 2.0;
   }
+  
+  /*
+   * @return list of coords sorted by x value of each point
+   */
+  public List<Point> sortByX() {
+	Point [] pArray = _coords.toArray();
+	quicksort(0, pArray.length - 1,true,pArray);
+	return arrayToList(pArray);
+  }
+  
+  /* !Doesnt change the actual values
+   * @return list of coords sorted by y value of each point
+   */
+  public List<Point> sortByY() {
+	Point [] pArray = _coords.toArray();
+    quicksort(0, pArray.length - 1,false,pArray);
+    return arrayToList(pArray);
+  }
+  
+  private List<Point> arrayToList(Point [] array)
+  {
+	  List<Point> list = new LinkedList<Point>()
+	  for (int i = 0; i < array.length; i++) {
+	    list.add(array[i]);
+	  }
+	  return list;
+  }
+
+  private void quicksort(int low, int high, boolean x, Point[] array) {
+	int i = low, j = high;
+	Point pivot = array[low + (high-low)/2];
+	  while (i <= j) {
+		if(x)
+		{
+			while (array[i].x < pivot.x) {i++;}
+			while (array[j].x > pivot.x) {j--;}
+			if (i <= j) {
+				swap(i, j, array);
+				i++;
+				j--;
+			}
+		}
+		else
+		{
+			while (array[i].y < pivot.y) {i++;}
+			while (array[j].y > pivot.y) {j--;}
+			if (i <= j) {
+				swap(i, j, array);
+				i++;
+				j--;
+			}
+		}
+		
+	  }
+	  if (low < j)
+		quicksort(low, j);
+	  if (i < high)
+		quicksort(i, high);
+	}
+
+	private void swap(int i, int j, Object [] array) {
+		Object temp = array[i];
+		array[i] = array[j];
+		array[j] = temp;
+	}
+  
+  
 
   /**
    * Creates a random Point in Polygon. Uses Triangularization, randomly chooses

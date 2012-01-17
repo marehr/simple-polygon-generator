@@ -89,9 +89,9 @@ public class ShortestPath
   public List<Point> generateShortestPath()
   {
 	  	// TODO: implement
-	  	List<Polygon> plist = SeidelTrapezoidation.generateTrapezoidation(_polygon);
+	  	List<OrderedListPolyon> plist = SeidelTrapezoidation.generateTrapezoidation(_polygon);
 	  	
-		Polygon startPolygon = null;
+	  	OrderedListPolyon startPolygon = null;
 		for(Polygon p : plist)
 		{
 			if(p.containsPoint(_path.get(0), true))
@@ -119,12 +119,32 @@ public class ShortestPath
 		return _path;
 	}
   
-  	private void initVars(Polygon startPolygon)
+  	private void initVars(OrderedListPolyon startPolygon)
   	{
+  		List<java.awt.Point> list = startPolygon.sortByY();
+  		int len = list.size();
+  		
+  		//TODO: init correctly
+  		
+  		if(tLiesInSubPolygon(list.get(0), list.get(11)))	
+  		{
+  			parray[1] = list.get(0);
+  			parray[2] = list.get(1);
+  		}
+  		else if(tLiesInSubPolygon(list.get(len-1), list.get(len-2)))
+  		{
+  			parray[1] = list.get(len-1);
+  			parray[2] = list.get(len-2);
+  		}
+  
+  		
   		// find subpolygon which contains endpoint
   		// init q1,q2 (parray[1],parray[2])
   		// Figure 9 p. 17
   	}
+  	
+
+  	
   		
   	/*
   	 * TODO: description
