@@ -89,10 +89,10 @@ public class ShortestPath
   public List<Point> generateShortestPath()
   {
 	  	// TODO: implement
-	  	List<OrderedListPolyon> plist = SeidelTrapezoidation.generateTrapezoidation(_polygon);
+	  	List<OrderedListPolygon> plist = SeidelTrapezoidation.generateTrapezoidation(_polygon);
 	  	
-	  	OrderedListPolyon startPolygon = null;
-		for(Polygon p : plist)
+	  	OrderedListPolygon startPolygon = null;
+		for(OrderedListPolygon p : plist)
 		{
 			if(p.containsPoint(_path.get(0), true))
 			{
@@ -119,9 +119,9 @@ public class ShortestPath
 		return _path;
 	}
   
-  	private void initVars(OrderedListPolyon startPolygon)
+  	private void initVars(OrderedListPolygon startPolygon)
   	{
-  		List<java.awt.Point> list = startPolygon.sortByY();
+  		List<Point> list = startPolygon.sortByY();
   		int len = list.size();
   		
   		//TODO: init correctly
