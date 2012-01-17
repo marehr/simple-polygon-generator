@@ -1,10 +1,11 @@
 package polygonsSWP.geometry;
 
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Comparator;
 
 import polygonsSWP.util.MathUtils;
 
@@ -176,10 +177,10 @@ public class OrderedListPolygon
       for (int j = i + 1; j < size; j++) {
         LineSegment b =
             new LineSegment(_coords.get(j), _coords.get((j + 1) % size));
-        
+
         isect = a.intersect(b);
         if (isect != null) {
-          
+
           boolean coincident;
           boolean ab = false;
           boolean ba = false;
@@ -293,16 +294,16 @@ public class OrderedListPolygon
    * @return List of triangulars
    */
   public List<Triangle> triangulate() {
-    assert(isSimple());
-    assert(isClockwise() == -1);
-    
+    assert (isSimple());
+    assert (isClockwise() == -1);
+
     List<Triangle> returnList = new ArrayList<Triangle>();
 
     /* Manage a list of indices. */
     int[] V = new int[size()];
-    for(int v = 0; v < size(); v++)
+    for (int v = 0; v < size(); v++)
       V[v] = v;
-    
+
     int nv = size();
     for (int v = nv - 1; nv > 2;) {
       /* Three consecutive vertices in current polygon, <u,v,w>. */
@@ -312,62 +313,59 @@ public class OrderedListPolygon
       if (nv <= v) v = 0; /* new v */
       int w = v + 1;
       if (nv <= w) w = 0; /* next */
-      
+
       /* Build a triangle of the three vertices. */
       Point a = _coords.get(V[u]);
       Point b = _coords.get(V[v]);
       Point c = _coords.get(V[w]);
       Triangle triangle = new Triangle(a, b, c);
-      
+
       /* Test whether triangle <u,v,w> is a snip. */
       boolean isSnip = true;
-      
-      /* 
-       * 1st condition: Counterclockwise rotation of triangle, 
-       * which means that v is a convex vertex of the polygon. 
-       */
-      if(MathUtils.checkOrientation(a, b, c) == -1)
-        isSnip = false;
-        
+
       /*
-       * 2nd condition: No other vertex lies of the polygon lies
-       * inside the triangle <u,v,w>.  
+       * 1st condition: Counterclockwise rotation of triangle, which means that
+       * v is a convex vertex of the polygon.
        */
-      if(isSnip) {
+      if (MathUtils.checkOrientation(a, b, c) == -1) isSnip = false;
+
+      /*
+       * 2nd condition: No other vertex lies of the polygon lies inside the
+       * triangle <u,v,w>.
+       */
+      if (isSnip) {
         for (int p = 0; p < nv; p++) {
-          if ((p == u) || (p == v) || (p == w)) 
-            continue;
+          if ((p == u) || (p == v) || (p == w)) continue;
           if (triangle.containsPoint(_coords.get(V[p]), true)) {
             isSnip = false;
             break;
           }
         }
       }
-      
-      if(isSnip)
-      {
+
+      if (isSnip) {
         /* output Triangle */
         returnList.add(triangle);
-        
+
         /* remove v from remaining polygon */
         for (int s = v, t = v + 1; t < nv; s++, t++)
           V[s] = V[t];
         nv--;
       }
     }
-    
+
     return returnList;
   }
 
   /**
-   * Calculates the Surface Area using the Gaussian formula.  
+   * Calculates the Surface Area using the Gaussian formula.
    * 
    * @author Steve Dierker <dierker.steve@fu-berlin.de>
    * @return Surface area of the polygon
    */
   public double getSurfaceArea() {
-    assert(size() >= 3);
-    
+    assert (size() >= 3);
+
     double result = 0.0;
     for (int p = size() - 1, q = 0; q < size(); p = q++) {
       result +=
@@ -376,73 +374,52 @@ public class OrderedListPolygon
     }
     return result / 2.0;
   }
-  
+
   /*
+   * !Doesnt change the actual values
    * @return list of coords sorted by x value of each point
    */
   public List<Point> sortByX() {
-	Point [] pArray = _coords.toArray();
-	quicksort(0, pArray.length - 1,true,pArray);
-	return arrayToList(pArray);
+    List<Point> tmpList = new LinkedList<Point>();
+    tmpList.addAll(_coords);
+    Collections.sort(tmpList, new XCompare());
+    return tmpList;
   }
-  
-  /* !Doesnt change the actual values
+
+  /*
+   * !Doesnt change the actual values
    * @return list of coords sorted by y value of each point
    */
   public List<Point> sortByY() {
-	Point [] pArray = _coords.toArray();
-    quicksort(0, pArray.length - 1,false,pArray);
-    return arrayToList(pArray);
+    List<Point> tmpList = new LinkedList<Point>();
+    tmpList.addAll(_coords);
+    Collections.sort(tmpList, new YCompare());
+    return tmpList;
   }
-  
-  private List<Point> arrayToList(Point [] array)
+
+
+  private class XCompare
+    implements Comparator<Point>
   {
-	  List<Point> list = new LinkedList<Point>()
-	  for (int i = 0; i < array.length; i++) {
-	    list.add(array[i]);
-	  }
-	  return list;
+
+    @Override
+    public int compare(Point o1, Point o2) {
+      return o1.compareTo(o2);
+    }
+
   }
 
-  private void quicksort(int low, int high, boolean x, Point[] array) {
-	int i = low, j = high;
-	Point pivot = array[low + (high-low)/2];
-	  while (i <= j) {
-		if(x)
-		{
-			while (array[i].x < pivot.x) {i++;}
-			while (array[j].x > pivot.x) {j--;}
-			if (i <= j) {
-				swap(i, j, array);
-				i++;
-				j--;
-			}
-		}
-		else
-		{
-			while (array[i].y < pivot.y) {i++;}
-			while (array[j].y > pivot.y) {j--;}
-			if (i <= j) {
-				swap(i, j, array);
-				i++;
-				j--;
-			}
-		}
-		
-	  }
-	  if (low < j)
-		quicksort(low, j);
-	  if (i < high)
-		quicksort(i, high);
-	}
 
-	private void swap(int i, int j, Object [] array) {
-		Object temp = array[i];
-		array[i] = array[j];
-		array[j] = temp;
-	}
-  
-  
+  private class YCompare
+    implements Comparator<Point>
+  {
+
+    @Override
+    public int compare(Point o1, Point o2) {
+      return o1.compareToByY(o2);
+    }
+
+  }
 
   /**
    * Creates a random Point in Polygon. Uses Triangularization, randomly chooses
@@ -460,21 +437,21 @@ public class OrderedListPolygon
     // If polygon is a triangle
     if (this.size() == 3) {
       Triangle triangle = new Triangle(this.getPoints());
-      point = triangle.createRandomPoint(); 
+      point = triangle.createRandomPoint();
     }
     else {
-      
+
       // Triangulate given Polygon.
       List<Triangle> triangularization = this.triangulate();
-      
+
       // Choose one triangle of triangularization randomly weighted by their
       // Surface Area.
       Triangle chosenTriangle =
           Triangle.selectRandomTriangleBySize(triangularization);
-      
+
       // Return randomly chosen Point in chosen Triangle.
       point = chosenTriangle.createRandomPoint();
-      
+
     }
 
     return point;
