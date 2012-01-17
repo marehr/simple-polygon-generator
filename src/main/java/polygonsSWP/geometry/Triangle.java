@@ -80,24 +80,24 @@ public class Triangle
    */
   @Override
   public Point createRandomPoint() {
-    //TODO: real random !!
+    // TODO: real random !!
     Random random = new Random(System.currentTimeMillis());
-  
+
     // Choose random Point in rectangle with length of edges according to
     // length
     // of vector. Then scale Point to actual Point in Parallelogram.
     Vector v0 = new Vector(new Point(0, 0), _coords.get(0));
     Vector v1 = new Vector(new Point(0, 0), _coords.get(1));
     Vector v2 = new Vector(new Point(0, 0), _coords.get(2));
-    double random1 = random.nextDouble();
+
     double random2 = random.nextDouble();
     Vector x = v1.subb(v0).mult(random2).add(v2.subb(v0).mult(random2));
-    
-    //check if Ox is in triangle
+
+    // check if Ox is in triangle
     Vector v3 = v1.subb(v0).add(v2.subb(v0));
     Point point = new Point(x.v1, x.v2);
-    
-    if (!containsPoint(point, true)){
+
+    if (!containsPoint(point, true)) {
       x = v0.add(x.subb(v3));
       point = new Point(x.v1, x.v2);
       if (!containsPoint(point, true))
@@ -166,7 +166,7 @@ public class Triangle
     // 4. as soon as running total >= random value, select the item you're
     // currently looking at (the one whose weight you just added).
 
-    //TODO: real random !!!
+    // TODO: real random !!!
     Random random = new Random(System.currentTimeMillis());
     HashMap<Triangle, Long> surfaceAreaTriangles =
         new HashMap<Triangle, Long>();
@@ -186,11 +186,11 @@ public class Triangle
     }
     return null;
   }
-  
+
   public String toString() {
     String result = "[";
-    for(Point item : _coords)
-      result += item+" ";
+    for (Point item : _coords)
+      result += item + " ";
     return result.trim() + "]";
   }
 
