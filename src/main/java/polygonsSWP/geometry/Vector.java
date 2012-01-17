@@ -12,8 +12,25 @@ public class Vector
     v2 = p2.y - p1.y;
   }
   
+  public Vector(double _v1, double _v2){
+    v1 = _v1;
+    v2 = _v2;
+  }
+  
   public double length(){
     return Math.sqrt((v1*v1 + v2*v2));
+  }
+  
+  public Vector add(Vector u){
+    return new Vector(v1 + u.v1, v2 + u.v2);
+  }
+  
+  public Vector subb(Vector u){
+    return new Vector(v1 - u.v1, v2 - u.v2);
+  }
+  
+  public Vector mult(double x){
+    return new Vector(v1 * x, v2 * x);
   }
   
   @Override

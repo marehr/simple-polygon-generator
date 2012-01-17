@@ -11,4 +11,4 @@
 .project
 target
 .settings
-.svg
+*.svg

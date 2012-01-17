@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.Scene;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
@@ -12,9 +13,11 @@ import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.util.GeneratorUtils;
 
-public class ConvexHullGeneratorFactory 
-  implements PolygonGeneratorFactory {
-  
+
+public class ConvexHullGeneratorFactory
+  implements PolygonGeneratorFactory
+{
+
   @Override
   public boolean acceptsUserSuppliedPoints() {
     return true;
@@ -24,31 +27,49 @@ public class ConvexHullGeneratorFactory
   public List<Parameters> getAdditionalParameters() {
     return new LinkedList<Parameters>();
   }
-  
+
   public String toString() {
     return "ConvexHull";
   }
-  
+
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonHistory steps) throws IllegalParameterizationException {
+      PolygonHistory steps)
+    throws IllegalParameterizationException {
     List<Point> points = GeneratorUtils.createOrUsePoints(params);
     return new ConvexHullGenerator(points, steps);
   }
-  
-  private static class ConvexHullGenerator implements PolygonGenerator {
+
+
+  private static class ConvexHullGenerator
+    implements PolygonGenerator
+  {
 
     private List<Point> points;
-    private PolygonHistory steps;
-    
+    private PolygonHistory steps = null;
+    private int size;
+
     ConvexHullGenerator(List<Point> points, PolygonHistory steps) {
       this.points = points;
       this.steps = steps;
+      // FIXME: Hard-coded boundingBox size should be passed as parameter
+      this.size = 600;
     }
-    
+
     @Override
     public Polygon generate() {
-      return GeneratorUtils.convexHull(points);
+      if (steps != null) {
+        steps.clear();
+        Scene initial = steps.newScene().setBoundingBox(size, size);
+        for (Point item : points) {
+          initial.addPoint(item, true);
+        }
+        initial.safe();
+      }
+      Polygon poly = GeneratorUtils.convexHull(points);
+      if (steps != null)
+        steps.newScene().setBoundingBox(size, size).addPolygon(poly, true).safe();
+      return poly;
     }
 
     @Override
@@ -57,5 +78,3 @@ public class ConvexHullGeneratorFactory
     }
   }
 }
-
-

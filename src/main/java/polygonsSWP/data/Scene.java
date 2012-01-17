@@ -1,5 +1,7 @@
 package polygonsSWP.data;
 
+import java.awt.Graphics2D;
+
 import polygonsSWP.geometry.Line;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.Point;
@@ -79,4 +81,9 @@ public interface Scene
    * @return SVG representation in a String
    */
   public String toSvg();
+
+  /**
+   * 
+   */
+  public void paint(Graphics2D g2d, double zoom, int offsetx, int offsety);
 }

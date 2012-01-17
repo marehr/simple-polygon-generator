@@ -83,23 +83,27 @@ public class RandomPolygonAlgorithmFactory
       List<Point> polygonPoints = polygon.getPoints();
 
       // 2. n-3 times:
-      for (int i = 0; i < _n - 3;) {
+      for (int i = 0; i < _n - 3; i++) {
+        System.out.println("-----------------");
+        System.out.println("main loop:" + i);
         // test if algorithm should be canceled
         if (dostop) break;
         // 2.a select random line segment VaVb
         // (assumed that there will be less than 2^31-1 points)
         int randomIndex = random.nextInt(polygonPoints.size());
-        Point Va = polygonPoints.get(randomIndex);
-        Point Vb = polygonPoints.get(randomIndex + 1);
+        Point Vb = polygonPoints.get(randomIndex);
+        Point Va = polygonPoints.get((randomIndex + 1) % polygonPoints.size());
         // 2.b determine visible region to VaVb -> P'
         Polygon visibleRegion =
             visiblePolygonRegionFromLineSegment(polygon, Va, Vb);
+        System.out.println("visible region: " + visibleRegion.getPoints() + "\n");
         // 2.c randomly select point Vc in P'
         Point randomPoint = visibleRegion.createRandomPoint();
         // 2.d add line segments VaVc and VcVb (delete line segment VaVb)
         polygonPoints.add(randomIndex, randomPoint);
+        System.out.println(polygon.getPoints());
       }
-      
+
       if (dostop) return null;
 
       return polygon;
@@ -121,83 +125,119 @@ public class RandomPolygonAlgorithmFactory
      */
     private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon,
         Point Va, Point Vb) {
-      // a. Set clone with polygon
+      
+      List<Point> polygonPoints = polygon.getPoints();
+      System.out.println("va, vb: " + Va + Vb + "\n");
+      
+      
+      /* a. Set clone with polygon.*/
+      
       Polygon clone = polygon.clone();
-      // b. intersect Line VaVb with clone, take first intersection on each side
-      // of line, if existent, isert them into clone
+      
+      
+      /* b. intersect Line VaVb with clone, take first intersection on each side
+      of line, if existent, isert them into clone*/
+      
       Ray rayVaVb = new Ray(Va, Vb);
       Ray rayVbVa = new Ray(Vb, Va);
-      Point[] vx = rayVaVb.getPointClosestToBase(polygon.intersect(rayVaVb));
-      Point[] vy = rayVbVa.getPointClosestToBase(polygon.intersect(rayVbVa));
+      Point[] isec1 = rayVaVb.getPointClosestToBase(polygon.intersect(rayVaVb));
+      Point[] isec2 = rayVbVa.getPointClosestToBase(polygon.intersect(rayVbVa));
       // if vx/vy exists and is no point of polygon
-      boolean insVx = (vx != null && vx[1] != null);
-      boolean insVy = (vy != null && vy[1] != null);
+      
+      // if there are real intersections, add them to clone
+      boolean insIsec1 = (isec1 != null && isec1[1] != null);
+      boolean insIsec2 = (isec2 != null && isec2[1] != null);
       ListIterator<Point> cloneIterator = clone.getPoints().listIterator(0);
       while (cloneIterator.hasNext()) {
         Point current = cloneIterator.next();
-        if ((current.equals(vx[1]) || current.equals(vx[2])) && insVx) {
-          cloneIterator.add(vx[0]);
-          insVx = false;
+        if ((current.equals(isec1[1]) || current.equals(isec1[2])) && insIsec1) {
+          cloneIterator.add(isec1[0]);
+          insIsec1 = false;
         }
-        if ((current.equals(vy[1]) || current.equals(vy[2])) && insVy) {
-          cloneIterator.add(vy[0]);
-          insVx = false;
+        if ((current.equals(isec2[1]) || current.equals(isec2)) && insIsec2) {
+          cloneIterator.add(isec2[0]);
+          insIsec2 = false;
         }
       }
-      // c. beginning with Va.next determine vertices(running variable vi)
-      // visible
-      // from both Va and Vb. maintain point last visible from both Va and Vb.
-      Point lastVisible = Va;
+      
+      
+      /* c. beginning with Va.next determine vertices(running variable vi)
+      visible from both Va and Vb. maintain point last visible from both Va 
+      and Vb.*/
+      
       cloneIterator =
-          clone.getPoints().listIterator(polygon.getPoints().indexOf(Va));
-      while (true) {
+          clone.getPoints().listIterator(polygonPoints.indexOf(Va));
+      Point lastVisible = cloneIterator.next();
+      Point vi = null;
+      
+      while(true) {
+        
+        
         List<Point> clonePoints = clone.getPoints();
         if (!cloneIterator.hasNext()) {
           cloneIterator = clonePoints.listIterator(0);
         }
-        Point vi = cloneIterator.next();
-        // break if all points in clone visited
+        
+        vi = cloneIterator.next();
+        
+        // break if all points were visited
         if (vi.equals(Vb)) {
           break;
         }
-        boolean isVisibleFromVa =
+        
+        System.out.println("minorLoop1, visit all vertices");
+        System.out.println("vi: " + vi);
+        System.out.println("clonePoints: " + clonePoints);
+        
+        // visibility of vi form Va and Vb
+        boolean fromVa =
             GeneratorUtils.isPolygonPointVisible(Va, vi, polygon);
-        boolean isVisibleFromVb =
+        boolean fromVb =
             GeneratorUtils.isPolygonPointVisible(Vb, vi, polygon);
-        // check if viPrev is visible to Va and/or Vb
+        
+        // visibility of vi.prev (from P') from Va and Vb
         // therefore iterate backwards over clone and search for first point in
         // polygon (clone and polygon differ by now). this point is viPrev.
-        boolean isViPrevVisibleFromVa = false;
-        boolean isViPrevVisibleFromVb = false;
+        boolean prevFromVa = false;
+        boolean prevFromVb = false;
         ListIterator<Point> prevIterator =
             clone.getPoints().listIterator(clonePoints.indexOf(vi));
         while (true) {
           if (!prevIterator.hasPrevious()) {
-            prevIterator = clonePoints.listIterator(clonePoints.size() - 1);
+            prevIterator = clonePoints.listIterator(clonePoints.size());
           }
-          Point currentPrevious = prevIterator.previous();
-          if (polygon.getPoints().contains(currentPrevious)) {
-            isViPrevVisibleFromVa =
-                GeneratorUtils.isPolygonPointVisible(currentPrevious, Va,
+          Point current = prevIterator.previous();
+          System.out.println("minorLoop2, find previous:" + current);
+          if (polygonPoints.contains(current)) {
+            prevFromVa =
+                GeneratorUtils.isPolygonPointVisible(current, Va,
                     polygon);
-            isViPrevVisibleFromVb =
-                GeneratorUtils.isPolygonPointVisible(currentPrevious, Vb,
+            prevFromVb =
+                GeneratorUtils.isPolygonPointVisible(current, Vb,
                     polygon);
             break;
           }
         }
+        
+        System.out.println("after minorLoop2");
+        System.out.println("" + fromVa + fromVb + prevFromVa + prevFromVb);
+        
         // vi not visible from va or vb
-        if (!isVisibleFromVa && !isVisibleFromVb) {
+        if (!fromVa && !fromVb) {
+          System.out.println("not visible form va, vb: remove vi");
           cloneIterator.remove();
         }
         // vi visible from va and vb
-        if (isVisibleFromVa && isVisibleFromVb) {
+        if (fromVa && fromVb) {
+          System.out.println("visible from va and vb");
           // case 1 viPrev visible from va and vb
-          if (isViPrevVisibleFromVa && isViPrevVisibleFromVb) {
+          if (prevFromVa && prevFromVb) {
+            System.out.println("case 1: set last visible");
             lastVisible = vi;
           }
           // case 2 viPrev not visible from va and vb
-          if (!isViPrevVisibleFromVa && !isViPrevVisibleFromVb) {
+          if (!prevFromVa && !prevFromVb) {
+            System.out.println("case 2: 4 intersections, keep 2");
             Ray r1 = new Ray(Va, lastVisible);
             Ray r2 = new Ray(Vb, lastVisible);
             Ray r3 = new Ray(Va, vi);
@@ -231,7 +271,8 @@ public class RandomPolygonAlgorithmFactory
             lastVisible = vi;
           }
           // case 3 viPrev visible to one of va and vb
-          if (isViPrevVisibleFromVa && !isViPrevVisibleFromVb) {
+          if (prevFromVa && !prevFromVb) {
+            System.out.println("case 3: from va visible, 2 intersections");
             Ray r1 = new Ray(Va, lastVisible);
             Ray r2 = new Ray(Va, vi);
 
@@ -250,7 +291,8 @@ public class RandomPolygonAlgorithmFactory
             }
           }
           // case 4 viPrev visible to one of va and vb
-          if (!isViPrevVisibleFromVa && isViPrevVisibleFromVb) {
+          if (!prevFromVa && prevFromVb) {
+            System.out.println("case 4: from vb visible, 2 intersections");
             Ray r1 = new Ray(Vb, lastVisible);
             Ray r2 = new Ray(Vb, vi);
 
@@ -269,6 +311,7 @@ public class RandomPolygonAlgorithmFactory
             }
           }
         }
+        System.out.println("end of minorLoop1 \n");
       }
       return clone;
     }
