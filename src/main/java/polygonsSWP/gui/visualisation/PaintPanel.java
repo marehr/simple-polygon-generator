@@ -2,6 +2,7 @@ package polygonsSWP.gui.visualisation;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -13,6 +14,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import polygonsSWP.data.Scene;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 
@@ -26,7 +28,7 @@ import polygonsSWP.geometry.Polygon;
  */
 class PaintPanel
   extends JPanel
-  implements MouseListener, MouseMotionListener, MouseWheelListener
+  implements MouseListener, MouseMotionListener, MouseWheelListener, VisualisationControlListener
 {
   private static final long serialVersionUID = 1L;
   private final DecimalFormat df = new DecimalFormat("#0.00");
@@ -34,7 +36,10 @@ class PaintPanel
   /** list for point selection */
   private List<Point> points;
 
-  /** Scene objects */
+  /** SVG scene from history object. */
+  private Scene svgScene;
+  
+  /** Our own scene objects */
   private List<Polygon> polygons;
 
   /* current display offsets & co. */
@@ -102,6 +107,14 @@ class PaintPanel
   public void paintComponent(Graphics g) {
     initPanel(g);
 
+    // Paint svgScene.
+    if(svgScene != null) {
+      // SVG class needs a Graphics2D but according to sun it is always safe to
+      // cast Graphics to Graphics2D since Java 1.2+
+      Graphics2D g2d = (Graphics2D) g;
+      svgScene.paint(g2d, zoom, offsetX, offsetY);
+    }
+    
     // Paint polygons
     for (Polygon polygon : polygons) {
       List<Point> p = polygon.getPoints();
@@ -216,5 +229,14 @@ class PaintPanel
         repaint();
       }
     }
+  }
+
+  /* VisualisationControlListener methods. */
+  
+  @Override
+  public void onNewScene(Scene scene) {
+    System.out.println("GOT NEW SCENE");
+    svgScene = scene;
+    repaint();
   }
 }

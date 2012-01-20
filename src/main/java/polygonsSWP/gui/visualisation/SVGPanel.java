@@ -106,9 +106,6 @@ public class SVGPanel
   public void paintComponent(Graphics g) {
     // First of all initialize panel
     initPanel(g);
-    // SVG class needs a Graphics2D but according to sun it is always safe to
-    // cast Graphics to Graphics2D since Java 1.2+
-    Graphics2D g2d = (Graphics2D) g;
-    if (currentScene != null) currentScene.paint(g2d, zoom, offsetX, offsetY);
+    
   }
 }
