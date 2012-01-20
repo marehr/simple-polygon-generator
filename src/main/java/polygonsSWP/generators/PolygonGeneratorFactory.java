@@ -59,7 +59,9 @@ public interface PolygonGeneratorFactory
     size, 
     /** Size of circle for initial regular polygon (Long). */
     radius, 
-    /** Speed of vertex movements (Long). */
-    velocity
+    /** Speed of vertex movements (Double). */
+    velocity,
+    /** The empty PolygonStatistics-Object to fill.*/
+    polygonStatistics
   }
 }

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGenerator;
@@ -51,8 +52,9 @@ public class RandomPolygonAlgorithmFactory
     if (size == null)
       throw new IllegalParameterizationException(
           "Size of bounding box not set.", Parameters.size);
-
-    return new RandomPolygonAlgorithm(n, size, steps);
+    PolygonStatistics stats = (PolygonStatistics) params.get(Parameters.polygonStatistics);
+    
+    return new RandomPolygonAlgorithm(n, size, steps, stats);
   }
 
 
@@ -63,11 +65,13 @@ public class RandomPolygonAlgorithmFactory
     private int _n;
     private int _size;
     private PolygonHistory steps;
-
-    RandomPolygonAlgorithm(int n, int size, PolygonHistory steps) {
+    PolygonStatistics statistics;
+    
+    RandomPolygonAlgorithm(int n, int size, PolygonHistory steps, PolygonStatistics statistics) {
       this._n = n;
       this._size = size;
       this.steps = steps;
+      this.statistics = statistics;
     }
 
     @Override

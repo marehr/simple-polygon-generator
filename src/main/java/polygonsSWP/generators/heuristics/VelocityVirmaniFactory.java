@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Random;
 
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGenerator;
@@ -57,8 +58,10 @@ public class VelocityVirmaniFactory
     if (maxVelo == null) throw new IllegalParameterizationException("Maximum velocity not set.", Parameters.velocity);
 
     if (radius * 2 > bound) { throw new IllegalParameterizationException("Radius must be smaller than the bounds allow (Pre: Radius * 2 < bound).", Parameters.radius); }
-
-    return new VelocityVirmani(n, radius, runs, bound, maxVelo);
+    
+    PolygonStatistics stats = (PolygonStatistics) params.get(Parameters.polygonStatistics);
+    
+    return new VelocityVirmani(n, radius, runs, bound, maxVelo, stats);
   }
 
 
@@ -71,17 +74,19 @@ public class VelocityVirmaniFactory
     private int runs;
     private int maxVelo;
     private int bound;
+    private PolygonStatistics statistics;
     
     private boolean stop = false;
-
-    VelocityVirmani(int n, long radius, int runs, int bound, int maxVelo) {
-      this.rand = new Random();
-      this.n = n;
-      this.radius = radius;
-      this.runs = runs;
-      this.bound = bound;
-      this.maxVelo = maxVelo;
-    }
+    
+    VelocityVirmani(int n, long radius, int runs, int bound, int maxVelo, PolygonStatistics statistics) {
+        this.rand = new Random();
+        this.n = n;
+        this.radius = radius;
+        this.runs = runs;
+        this.bound = bound;
+        this.maxVelo = maxVelo;
+        this.statistics = statistics;
+      }
 
     @Override
     public Polygon generate() {
