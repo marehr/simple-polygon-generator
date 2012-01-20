@@ -105,8 +105,8 @@ class PaintPanel
     
     // Set translation & scale.
     AffineTransform tx = new AffineTransform();
-    tx.scale(zoom, zoom);
     tx.translate(offsetX, offsetY);
+    tx.scale(zoom, zoom);
     g.setTransform(tx);
   }
 
