@@ -13,6 +13,7 @@ import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 import polygonsSWP.util.SteadyGrowthConvexHull;
@@ -39,10 +40,11 @@ public class SteadyGrowthFactory
 
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonHistory steps)
+      PolygonStatistics stats, PolygonHistory steps)
     throws IllegalParameterizationException {
+
     List<Point> points = GeneratorUtils.createOrUsePoints(params);
-    return new SteadyGrowth(points, steps);
+    return new SteadyGrowth(points, steps, stats);
   }
 
 
@@ -55,13 +57,15 @@ public class SteadyGrowthFactory
     private List<Point> points;
     private PolygonHistory steps;
     private boolean doStop = false;
+    private PolygonStatistics stats = null;
 
     private int initializeRejections = 0;
     private int maximumRejections = 0;
     private int rejections = 0;
     private int runs = 0;
 
-    SteadyGrowth(List<Point> points, PolygonHistory steps) {
+    public SteadyGrowth(List<Point> points, PolygonHistory steps,
+        PolygonStatistics stats) {
       this.points = points;
       // this.points = new ArrayList<Point>(Arrays.asList(
       // new Point(0, 0), new Point(10, 0),
@@ -72,6 +76,7 @@ public class SteadyGrowthFactory
       // boolean b = GeneratorUtils.isInGeneralPosition(this.points);
       // System.out.println(b ? "general pos" : "not in general pos");
       this.steps = steps;
+      this.stats = stats;
     }
 
     @Override
