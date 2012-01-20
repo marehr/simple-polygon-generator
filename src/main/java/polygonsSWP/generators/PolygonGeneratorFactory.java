@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.PolygonStatistics;
 
 public interface PolygonGeneratorFactory
 {
@@ -18,6 +19,7 @@ public interface PolygonGeneratorFactory
    * the given parameters.
    * 
    * @param params the generator's parameters. See <code>Parameters</code> enum.
+   * @param stats statistics object, may be null.
    * @param steps history object to store the algorithm's step in. 
    *        This might be null, in which case the algorithm 
    *        obviously should not use it.
@@ -26,7 +28,7 @@ public interface PolygonGeneratorFactory
    * @throws IllegalParameterizationException in case the given parameters
    *         did not meet the PolygonGenerator's requirements.
    */
-  public PolygonGenerator createInstance(Map<Parameters, Object> params, PolygonHistory steps) throws IllegalParameterizationException;
+  public PolygonGenerator createInstance(Map<Parameters, Object> params, PolygonStatistics stats, PolygonHistory steps) throws IllegalParameterizationException;
   
   /**
    * Specifies whether the generator can handle a set of
@@ -60,8 +62,6 @@ public interface PolygonGeneratorFactory
     /** Size of circle for initial regular polygon (Long). */
     radius, 
     /** Speed of vertex movements (Double). */
-    velocity,
-    /** The empty PolygonStatistics-Object to fill.*/
-    polygonStatistics
+    velocity
   }
 }

@@ -35,9 +35,9 @@ public class SpacePartitioningFactory implements PolygonGeneratorFactory {
 
 	@Override
 	public PolygonGenerator createInstance(Map<Parameters, Object> params,
+	    PolygonStatistics stats,
 			PolygonHistory steps) throws IllegalParameterizationException {
 		List<Point> points = GeneratorUtils.createOrUsePoints(params);
-		PolygonStatistics stats = (PolygonStatistics) params.get(Parameters.polygonStatistics);
 		return new SpacePartitioning(points, steps,
 				(Integer) params.get(Parameters.size), stats);
 	}

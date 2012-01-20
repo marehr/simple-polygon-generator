@@ -37,10 +37,10 @@ public class PermuteAndRejectFactory
 
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
+      PolygonStatistics stats,
       PolygonHistory steps)
     throws IllegalParameterizationException {
     List<Point> points = GeneratorUtils.createOrUsePoints(params, true);
-    PolygonStatistics stats = (PolygonStatistics) params.get(Parameters.polygonStatistics);
     return new PermuteAndReject(points, steps, (Integer) params.get(Parameters.size), stats);
   }
 

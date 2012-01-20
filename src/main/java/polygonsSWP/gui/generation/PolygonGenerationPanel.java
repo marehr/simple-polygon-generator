@@ -142,8 +142,7 @@ public class PolygonGenerationPanel
     steps = new PolygonHistory();
     stats = new PolygonStatistics();
     try {
-//      pg = pgf.createInstance(params, stats, steps);
-      pg = pgf.createInstance(params, steps);
+      pg = pgf.createInstance(params, stats, steps);
     }
     catch (IllegalParameterizationException e) {
       JOptionPane.showMessageDialog(null,
