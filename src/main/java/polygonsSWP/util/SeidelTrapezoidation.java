@@ -14,7 +14,7 @@ import polygonsSWP.geometry.Ray;
 
 public class SeidelTrapezoidation
 {
-  public static List<OrderedListPolygon> generateTrapezoidation(Polygon polygon) {
+  public static List<Polygon> generateTrapezoidation(Polygon polygon) {
    
     /* 
      * 1st step: Initialization. 
@@ -79,7 +79,7 @@ public class SeidelTrapezoidation
      * 3rd step: Construct polygons of limited regions. 
      */
     
-    final List<OrderedListPolygon> retval = new LinkedList<OrderedListPolygon>();
+    final List<Polygon> retval = new LinkedList<Polygon>();
     S.visitAllRegions(new SearchTreeVisitor() {
       @Override
       public void visit(SearchTreeNode n) {
