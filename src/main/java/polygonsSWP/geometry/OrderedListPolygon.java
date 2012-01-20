@@ -2,10 +2,12 @@ package polygonsSWP.geometry;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Comparator;
+import java.util.TreeSet;
 
 import polygonsSWP.util.MathUtils;
 
@@ -286,13 +288,19 @@ public class OrderedListPolygon
 
   public List<MonotonPolygon> sweepLine() {
     List<MonotonPolygon> returnList = new ArrayList<MonotonPolygon>();
-    List<PointType> typeList = new ArrayList<PointType>();
-    // Calculate type and direction for every Point
+    // Add comparator
+    TreeSet<PointType> pointTree = new TreeSet<PointType>(new PointType.PointComparator());
+    // Calculate type and direction for every Point and them to the tree
+    // they are implicitly sorted then.
     for (Point p : _coords)
-      typeList.add(categorizePointForSweepLine(p));
-    // Sort the Points ascending x and y. Order first by y then by x
-
-    // Add them to Red-Black-Tree
+      pointTree.add(categorizePointForSweepLine(p));
+    // For every Vertex in tree 
+    Iterator<PointType> iter = pointTree.iterator();
+    while(iter.hasNext()) {
+      PointType curr = iter.next();
+    }
+    // For every Vertex in tree:
+       
     return returnList;
   }
 
@@ -408,7 +416,7 @@ public class OrderedListPolygon
     public PointClass type;
     public Direction direct;
     
-    public class PointComarator implements Comparator<PointType>{
+    public static class PointComparator implements Comparator<PointType>{
 
       @Override
       public int compare(PointType pt1, PointType pt2) {
