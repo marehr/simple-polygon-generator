@@ -19,6 +19,7 @@ import javax.swing.JToolBar;
 import javax.swing.filechooser.FileFilter;
 
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.gui.generation.PointGenerationModeListener;
@@ -108,7 +109,7 @@ public class PolygonView
   }
 
   @Override
-  public void onPolygonGenerated(Polygon newPolygon, PolygonHistory history) {
+  public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats, PolygonHistory history) {
     pp.clearScene();
     pp.addPolygon(newPolygon);
     visControl.setHistory(history);

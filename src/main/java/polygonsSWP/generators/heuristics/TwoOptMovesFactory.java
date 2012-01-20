@@ -35,9 +35,9 @@ public class TwoOptMovesFactory
   
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
+      PolygonStatistics stats,
       PolygonHistory steps) throws IllegalParameterizationException {
     List<Point> points = GeneratorUtils.createOrUsePoints(params, true);
-    PolygonStatistics stats = (PolygonStatistics) params.get(Parameters.polygonStatistics);
     return new TwoOptMoves(points, steps, stats);
   }
 
@@ -49,11 +49,11 @@ public class TwoOptMovesFactory
     private PolygonStatistics statistics = null;
     
     TwoOptMoves(List<Point> points, PolygonHistory steps, PolygonStatistics statistics) {
-        this.points = points;
-        this.steps = steps;
-        this.doStop = false;
-        this.statistics = statistics;
-      }
+      this.points = points;
+      this.steps = steps;
+      this.doStop = false;
+      this.statistics = statistics;
+    }
     
     @Override
     public void stop() {
@@ -67,6 +67,9 @@ public class TwoOptMovesFactory
       
       // Step 2: Generate random permutation in case given set was ordered somehow.
       p.permute();
+      
+      steps.clear();
+      steps.newScene();
       
       Integer[] intersection = null;
       while(!doStop && (intersection = p.findRandomIntersection()) != null) {

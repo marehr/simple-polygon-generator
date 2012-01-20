@@ -10,7 +10,6 @@ import polygonsSWP.data.Scene;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
-import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.util.GeneratorUtils;
@@ -33,9 +32,9 @@ public class ConvexHullGeneratorFactory implements PolygonGeneratorFactory {
 
 	@Override
 	public PolygonGenerator createInstance(Map<Parameters, Object> params,
+	    PolygonStatistics stats,
 			PolygonHistory steps) throws IllegalParameterizationException {
 		List<Point> points = GeneratorUtils.createOrUsePoints(params);
-		PolygonStatistics stats = (PolygonStatistics) params.get(Parameters.polygonStatistics);
 		return new ConvexHullGenerator(points, steps, stats);
 	}
 
