@@ -407,8 +407,28 @@ public class OrderedListPolygon
     public Point p;
     public PointClass type;
     public Direction direct;
+    
+    public class PointComarator implements Comparator<PointType>{
 
-  }
+      @Override
+      public int compare(PointType pt1, PointType pt2) {
+        
+        Point p1 = pt1.p;
+        Point p2 = pt2.p;
+        
+        if (p1.y > p2.y + MathUtils.EPSILON) return 1;
+        else if (p1.y < p2.y - MathUtils.EPSILON) return -1;
+        else {
+          if (p1.x > p2.x + MathUtils.EPSILON) return 1;
+          else if (p1.x < p2.x - MathUtils.EPSILON) return -1;
+          else return 0;
+        }
+      }
+      
+    }
+    
+
+  } 
 
   /**
    * @author Steve Dierker <dierker.steve@fu-berlin.de>
