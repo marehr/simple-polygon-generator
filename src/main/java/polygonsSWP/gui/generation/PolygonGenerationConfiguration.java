@@ -20,7 +20,10 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.generators.IllegalParameterizationException;
+import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.Point;
@@ -220,42 +223,18 @@ class PolygonGenerationConfiguration
     observers.add(listener);
   }
 
-  PolygonGeneratorFactory getGeneratorFactory() {
-    PolygonGeneratorFactory pgf =
-      (PolygonGeneratorFactory) cb_polygon_algorithm_chooser.getSelectedItem();
-    return pgf;
-  }
+  public PolygonGenerator createGenerator(PolygonStatistics stats,
+      PolygonHistory steps) {
 
-  Map<Parameters, Object> getParameters() {
-    // TODO: check parameters again, but in a better way.
-
+    PolygonGeneratorFactory pgf = (PolygonGeneratorFactory) cb_polygon_algorithm_chooser.getSelectedItem();    
     Map<Parameters, Object> params = new HashMap<Parameters, Object>();
-
+    
     Integer size = (Integer) sp_size.getValue();
     params.put(Parameters.size, size);
-
-    // how many random points
+    
+    // Random points?
     if (rb_polygonByGenerator.isSelected()) {
       Integer edges = (Integer) sp_edges.getValue();
-
-      // set points at random if the algorithm accepts points as parameter
-      // so that the gui can show the points
-      if (rb_polygonByUser.isEnabled()){
-        try {
-          Map<Parameters, Object> randomParams = new HashMap<Parameters, Object>();
-          randomParams.put(Parameters.size, size);
-          randomParams.put(Parameters.n, edges);
-
-          points = GeneratorUtils.createOrUsePoints(randomParams, true);
-
-          emitPointGenerationModeSwitched(false, points);
-          params.put(Parameters.points, points);
-        } catch (IllegalParameterizationException e) {
-          params.put(Parameters.n, edges);
-        }
-      } else {
-        params.put(Parameters.n, edges);
-      }
 
       // Sanity check: number of points should be far less than
       // area of bounding box.
@@ -265,8 +244,39 @@ class PolygonGenerationConfiguration
             JOptionPane.ERROR_MESSAGE);
         return null;
       }
-    }
-    else if (rb_polygonByUser.isSelected()) {
+      
+      // If the algorithm also accepts user-defined set of points,
+      // we generate that here in order to display it first.
+      // This way, convexHull can display all points + the polygon.
+      if(pgf.acceptsUserSuppliedPoints()) {
+        
+        try {
+          // Temporarily add number of points parameter.
+          params.put(Parameters.n, edges);
+
+          // Create points.
+          points = GeneratorUtils.createOrUsePoints(params, true);
+          
+          // Display points.
+          emitPointGenerationModeSwitched(false, points);
+          
+          // Update params.
+          params.remove(Parameters.n);
+          params.put(Parameters.points, points);
+          
+        } catch (IllegalParameterizationException e) {
+          // Can not happen.
+          throw new RuntimeException(e);
+        }
+      } else {
+        
+        // If not, let the generator do the work (-> RPA, Velocity).
+        params.put(Parameters.n, edges);
+        
+      }
+      
+    // User-supplied points?
+    } else if (rb_polygonByUser.isSelected()) {
       assert (points != null);
 
       if (points.size() >= 3) {
@@ -289,6 +299,18 @@ class PolygonGenerationConfiguration
     if(sp_velocity.isEnabled())
       params.put(Parameters.velocity, (Integer) sp_velocity.getValue());
     
-    return params;
+    // Create generator instance.
+    try {
+      return pgf.createInstance(params, stats, steps);
+    }
+    catch (IllegalParameterizationException e) {
+      JOptionPane.showMessageDialog(null,
+          "Could not create PolygonGenerator.\n" +
+          "Error was: " + e.getMessage() + "\n" + 
+          "For parameter: " + e.getIllegalParameter(),
+          "Parameterization error",
+          JOptionPane.ERROR_MESSAGE);
+      return null;
+    }
   }
 }
