@@ -6,6 +6,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -182,5 +183,49 @@ public class SteadyGrowthConvexHullTest {
 
     assertArrayEquals(expecteds, actuals);
     System.out.println("testConvexHull - end\n\n");
+  }
+
+  @Test
+  public void failingConvexHull(){
+    System.out.println("\nfailingConvexHull");
+
+    List<Point> list = Arrays.asList(
+        new Point(0, 12), new Point(3, 6), new Point(11, 0),
+        new Point(26, 2), new Point(13, 9)
+    );
+
+    SteadyGrowthConvexHull hull = new SteadyGrowthConvexHull();
+    for(Point a: list){
+      hull.addPoint(a);
+    }
+
+    Point[] expected = list.toArray(new Point[]{}),
+            actual = hull.getPoints().toArray(new Point[]{});
+
+    System.out.println("expected: " + list);
+    System.out.println("actual: " + hull.getPoints());
+    assertArrayEquals(expected, actual);
+  }
+
+  @Test
+  public void failingConvexHull1(){
+    System.out.println("\nfailingConvexHull1");
+
+    List<Point> list = Arrays.asList(
+        new Point(280, 580), new Point(300, 320), new Point(530, 0),
+        new Point(520, 180), new Point(420, 280)
+    );
+
+    SteadyGrowthConvexHull hull = new SteadyGrowthConvexHull();
+    for(Point a: list){
+      hull.addPoint(a);
+    }
+
+    Point[] expected = list.subList(0, 4).toArray(new Point[]{}),
+            actual = hull.getPoints().toArray(new Point[]{});
+
+    System.out.println("expected: " + list.subList(0, 4));
+    System.out.println("actual: " + hull.getPoints());
+    assertArrayEquals(expected, actual);
   }
 }

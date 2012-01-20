@@ -167,7 +167,7 @@ public class GeneratorUtils
 
     if (points.size() <= 3) return new OrderedListPolygon(points);
 
-    // compute the lower side of the convex hull
+    // compute the upper side of the convex hull
 
     hull.add(points.get(0));
     hull.add(points.get(1));
@@ -190,12 +190,12 @@ public class GeneratorUtils
       k += 1;
     }
 
-    // compute the upper side of the convex hull
+    // compute the lower side of the convex hull
 
     int lowerSize = k - 1;
     k = 1;
 
-    for (int i = n - 3; i >= 0; --i) {
+    for (int i = n - 2; i >= 0; --i) {
       pi = points.get(i);
 
       while (k >= 1) {
