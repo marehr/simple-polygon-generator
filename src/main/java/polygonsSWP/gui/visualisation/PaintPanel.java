@@ -8,6 +8,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.AffineTransform;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
@@ -90,30 +91,34 @@ class PaintPanel
 
   /* Painting */
 
-  protected void initPanel(Graphics g) {
+  protected void initCanvas(Graphics2D g) {
     // Clear panel
     g.setColor(Color.WHITE);
     g.fillRect(0, 0, getWidth(), getHeight());
-
+    
     // Paint the yardstick
     g.setColor(Color.BLUE);
     g.drawRect(5, 5, 3, 9);
     g.drawRect(8, 8, 44, 3);
     g.drawRect(52, 5, 3, 9);
     g.drawString(df.format(50 / zoom), 60, 14);
+    
+    // Set translation & scale.
+    AffineTransform tx = new AffineTransform();
+    tx.scale(zoom, zoom);
+    tx.translate(offsetX, offsetY);
+    g.setTransform(tx);
   }
 
   @Override
   public void paintComponent(Graphics g) {
-    initPanel(g);
-
+    Graphics2D g2d = (Graphics2D) g;
+    
+    initCanvas(g2d);
+    
     // Paint svgScene.
-    if(svgScene != null) {
-      // SVG class needs a Graphics2D but according to sun it is always safe to
-      // cast Graphics to Graphics2D since Java 1.2+
-      Graphics2D g2d = (Graphics2D) g;
-      svgScene.paint(g2d, zoom, offsetX, offsetY);
-    }
+    if(svgScene != null)
+      svgScene.paint(g2d);
     
     // Paint polygons
     for (Polygon polygon : polygons) {
@@ -121,8 +126,8 @@ class PaintPanel
       int[] xcoords = new int[p.size()];
       int[] ycoords = new int[p.size()];
       for (int i = 0; i < p.size(); i++) {
-        xcoords[i] = (int) (p.get(i).x * zoom + offsetX);
-        ycoords[i] = (int) (p.get(i).y * zoom + offsetY);
+        xcoords[i] = (int) p.get(i).x;
+        ycoords[i] = (int) p.get(i).y;
       }
 
       g.setColor(Color.BLACK);
@@ -135,10 +140,8 @@ class PaintPanel
 
       g.setColor(new Color(80, 0, 90));
       for (Point p : points) {
-        g.drawOval((int) (p.x * zoom + offsetX) - 2,
-            (int) (p.y * zoom + offsetY) - 2, 5, 5);
-        g.drawOval((int) (p.x * zoom + offsetX) - 1,
-            (int) (p.y * zoom + offsetY) - 1, 3, 3);
+        g.drawOval((int) (p.x - 2), (int) (p.y - 2), 5, 5);
+        g.drawOval((int) (p.x - 1), (int) (p.y - 1), 3, 3);
       }
     }
   }

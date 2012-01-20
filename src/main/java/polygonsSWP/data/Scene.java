@@ -83,7 +83,7 @@ public interface Scene
   public String toSvg();
 
   /**
-   * 
+   * Doodle.
    */
-  public void paint(Graphics2D g2d, double zoom, int offsetx, int offsety);
+  public void paint(Graphics2D g2d);
 }
