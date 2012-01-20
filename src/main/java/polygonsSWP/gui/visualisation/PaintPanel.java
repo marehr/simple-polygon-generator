@@ -235,7 +235,6 @@ class PaintPanel
   
   @Override
   public void onNewScene(Scene scene) {
-    System.out.println("GOT NEW SCENE");
     svgScene = scene;
     repaint();
   }

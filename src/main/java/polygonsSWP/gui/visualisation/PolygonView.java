@@ -111,7 +111,9 @@ public class PolygonView
   @Override
   public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats, PolygonHistory history) {
     pp.clearScene();
-    pp.addPolygon(newPolygon);
+    // Remark: Commented out as we display the polygon through the
+    // history object.
+    // pp.addPolygon(newPolygon);
     visControl.setHistory(history);
 
     polygon = newPolygon;
