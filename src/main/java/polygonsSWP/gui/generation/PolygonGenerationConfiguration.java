@@ -20,9 +20,11 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.Point;
+import polygonsSWP.util.GeneratorUtils;
 
 
 class PolygonGenerationConfiguration
@@ -232,10 +234,29 @@ class PolygonGenerationConfiguration
     Integer size = (Integer) sp_size.getValue();
     params.put(Parameters.size, size);
 
+    // how many random points
     if (rb_polygonByGenerator.isSelected()) {
       Integer edges = (Integer) sp_edges.getValue();
-      params.put(Parameters.n, edges);
-      
+
+      // set points at random if the algorithm accepts points as parameter
+      // so that the gui can show the points
+      if (rb_polygonByUser.isEnabled()){
+        try {
+          Map<Parameters, Object> randomParams = new HashMap<Parameters, Object>();
+          randomParams.put(Parameters.size, size);
+          randomParams.put(Parameters.n, edges);
+
+          points = GeneratorUtils.createOrUsePoints(randomParams, true);
+
+          emitPointGenerationModeSwitched(false, points);
+          params.put(Parameters.points, points);
+        } catch (IllegalParameterizationException e) {
+          params.put(Parameters.n, edges);
+        }
+      } else {
+        params.put(Parameters.n, edges);
+      }
+
       // Sanity check: number of points should be far less than
       // area of bounding box.
       if((size * size) < (edges * 100)) {
