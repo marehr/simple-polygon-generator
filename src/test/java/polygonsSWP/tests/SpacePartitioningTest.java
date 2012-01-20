@@ -36,7 +36,7 @@ public class SpacePartitioningTest
       HashMap<Parameters, Object> params = new HashMap<Parameters, Object>();
       params.put(Parameters.points, new ArrayList<Point>(points));
 
-      PolygonGenerator gen = factory.createInstance(params, null);
+      PolygonGenerator gen = factory.createInstance(params, null, null);
       OrderedListPolygon polygon = (OrderedListPolygon) gen.generate();
 
       assertTrue(i + ". try is not simple", polygon.isSimple());
@@ -68,7 +68,7 @@ public class SpacePartitioningTest
       HashMap<Parameters, Object> params = new HashMap<Parameters, Object>();
       params.put(Parameters.points, new ArrayList<Point>(points));
 
-      PolygonGenerator gen = factory.createInstance(params, null);
+      PolygonGenerator gen = factory.createInstance(params, null, null);
       OrderedListPolygon polygon = (OrderedListPolygon) gen.generate();
 
       assertNotNull(polygon);
