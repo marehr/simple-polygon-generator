@@ -1,8 +1,11 @@
 package polygonsSWP.tests;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +14,7 @@ import org.junit.Test;
 
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
+import polygonsSWP.geometry.Polygon;
 import polygonsSWP.util.GeneratorUtils;
 
 
@@ -89,5 +93,49 @@ public class GeneratorUtilsTest
     System.out.println("assigned: " + assignedHull.getPoints());
 
     assertArrayEquals(expecteds, actuals);
+  }
+
+
+  @Test
+  public void isPolygonPointVisibleTest(){
+    ArrayList<Point> points = new ArrayList<Point>();
+    points.add(new Point(0, 0));
+    points.add(new Point(0, 50));
+    points.add(new Point(50, 50));
+    Polygon polygon = new OrderedListPolygon(points);
+
+    Point point = new Point(40, 30);
+
+    assertTrue(GeneratorUtils.isPolygonPointVisible(point, points.get(0), polygon));
+    assertTrue(GeneratorUtils.isPolygonPointVisible(point, points.get(2), polygon));
+    assertFalse(GeneratorUtils.isPolygonPointVisible(point, points.get(1), polygon));
+
+
+
+    point = new Point(0, 25);
+
+    // Punkt liegt genau auf der Polygonkante (0,0) - (0, 50)
+    // Letzter Fall ist falsch, da Punkte auf einer PolygonKante auch als
+    // Schnittpunkte zaehlen und es damit genau 2 Schnittpunkte gibt.
+
+    // TODO: den letzten Fall vielleicht erlauben. (in GeneralPosition kann der
+    // Fall nicht auftreten)
+    assertFalse(GeneratorUtils.isPolygonPointVisible(point, points.get(0), polygon));
+    assertFalse(GeneratorUtils.isPolygonPointVisible(point, points.get(2), polygon));
+    assertFalse(GeneratorUtils.isPolygonPointVisible(point, points.get(1), polygon));
+  }
+
+  @Test
+  public void isPolygonPointVisibleTestGeneralPosition(){
+    List<Point> points = Arrays.asList(
+        new Point(20, 30), new Point(30, 35), new Point(30, 45)
+    );
+    Polygon polygon = new OrderedListPolygon(points);
+    Point point = new Point(0, 0);
+
+    // letzter Testcase schlaegt fehl, obwohl eigentlich sichtbar.
+    assertTrue(GeneratorUtils.isPolygonPointVisible(point, points.get(0), polygon));
+    assertTrue(GeneratorUtils.isPolygonPointVisible(point, points.get(1), polygon));
+    assertFalse(GeneratorUtils.isPolygonPointVisible(point, points.get(2), polygon));
   }
 }
