@@ -284,10 +284,133 @@ public class OrderedListPolygon
     return getPoints().contains(p);
   }
 
+  public List<MonotonPolygon> sweepLine() {
+    List<MonotonPolygon> returnList = new ArrayList<MonotonPolygon>();
+    List<PointType> typeList = new ArrayList<PointType>();
+    // Calculate type and direction for every Point
+    for (Point p : _coords)
+      typeList.add(categorizePointForSweepLine(p));
+    // Sort the Points ascending x and y. Order first by y then by x
+
+    // Add them to Red-Black-Tree
+    return returnList;
+  }
+
+  private PointType categorizePointForSweepLine(Point middle) {
+    Point left = this.getPoint((_coords.indexOf(middle) - 1) % _coords.size());
+    Point right = this.getPoint((_coords.indexOf(middle) + 1) % _coords.size());
+    // INT
+    if (left.y > middle.y + MathUtils.EPSILON &&
+        middle.y > right.y + MathUtils.EPSILON) {
+      return new PointType(middle, PointType.PointClass.INT,
+          PointType.Direction.RIGHT);
+    }
+    else if (left.y < middle.y - MathUtils.EPSILON &&
+        middle.y < right.y - MathUtils.EPSILON) {
+      return new PointType(middle, PointType.PointClass.INT,
+          PointType.Direction.LEFT);
+    }
+    // MAX
+    else if (left.y < middle.y - MathUtils.EPSILON &&
+        right.y < middle.y - MathUtils.EPSILON) {
+      if (middle.x > left.x + MathUtils.EPSILON) {
+        return new PointType(middle, PointType.PointClass.MAX,
+            PointType.Direction.BOTH);
+      }
+      else if (middle.x < left.x - MathUtils.EPSILON) {
+        return new PointType(middle, PointType.PointClass.MAX,
+            PointType.Direction.NONE);
+      }
+      else {
+        if (middle.x < right.x - MathUtils.EPSILON) {
+          return new PointType(middle, PointType.PointClass.MAX,
+              PointType.Direction.BOTH);
+        }
+        else {
+          return new PointType(middle, PointType.PointClass.MAX,
+              PointType.Direction.NONE);
+        }
+      }
+    }
+    // MIN
+    else if (left.y > middle.y + MathUtils.EPSILON &&
+        right.y > middle.y + MathUtils.EPSILON) {
+      if (middle.x > left.x + MathUtils.EPSILON) {
+        return new PointType(middle, PointType.PointClass.MAX,
+            PointType.Direction.NONE);
+      }
+      else if (middle.x < left.x - MathUtils.EPSILON) {
+        return new PointType(middle, PointType.PointClass.MAX,
+            PointType.Direction.BOTH);
+      }
+      else {
+        if (middle.x < right.x - MathUtils.EPSILON) {
+          return new PointType(middle, PointType.PointClass.MAX,
+              PointType.Direction.NONE);
+        }
+        else {
+          return new PointType(middle, PointType.PointClass.MAX,
+              PointType.Direction.BOTH);
+        }
+      }
+    }
+    // IGNORE
+    else if (MathUtils.doubleEquals(middle.y, right.y) &&
+        MathUtils.doubleEquals(middle.y, left.y)) {
+      return new PointType(middle, PointType.PointClass.IGNORE,
+          PointType.Direction.NONE);
+    }
+    // HMAX || HMIN
+    else if (MathUtils.doubleEquals(middle.y, left.y)) {
+      if (right.y > left.y + MathUtils.EPSILON) {
+        return new PointType(middle, PointType.PointClass.HMIN,
+            PointType.Direction.RIGHT);
+      }
+      else {
+        return new PointType(middle, PointType.PointClass.HMAX,
+            PointType.Direction.RIGHT);
+      }
+    }
+    else if (MathUtils.doubleEquals(middle.y, right.y)) {
+      if (left.y > right.y + MathUtils.EPSILON) {
+        return new PointType(middle, PointType.PointClass.HMIN,
+            PointType.Direction.LEFT);
+      }
+      else {
+        return new PointType(middle, PointType.PointClass.HMAX,
+            PointType.Direction.LEFT);
+      }
+    }
+    else {
+      // This should never be reached!
+      return null;
+    }
+  }
+
+
+  private static class PointType
+  {
+    public enum PointClass {
+      INT, MAX, MIN, HMAX, HMIN, IGNORE
+    }
+
+
+    public enum Direction {
+      RIGHT, LEFT, BOTH, NONE
+    }
+
+    public PointType(Point p, PointClass type, Direction direct) {
+      this.type = type;
+      this.direct = direct;
+    }
+
+    public Point p;
+    public PointClass type;
+    public Direction direct;
+
+  }
+
   /**
-   * This algorithm is an implementation of Seidel's Sweep-Line-Algorithm O(n
-   * log* n). All three methods need to be reviewed!
-   * 
    * @author Steve Dierker <dierker.steve@fu-berlin.de>
    * @see http://www.flipcode.com/archives/Efficient_Polygon_Triangulation.shtml
    * @category Ear-Clipping-Algorithm
