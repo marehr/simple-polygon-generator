@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.heuristics.IncrementalConstructionAndBacktrackingFactory;
 import polygonsSWP.generators.heuristics.SpacePartitioningFactory;
+import polygonsSWP.generators.heuristics.SteadyGrowthFactory;
 import polygonsSWP.generators.heuristics.TwoOptMovesFactory;
 import polygonsSWP.generators.heuristics.VelocityVirmaniFactory;
 import polygonsSWP.generators.other.ConvexHullGeneratorFactory;
@@ -43,7 +44,8 @@ public class MainFrame
       new SpacePartitioningFactory(),
       new IncrementalConstructionAndBacktrackingFactory(), 
       new ConvexHullGeneratorFactory(),
-      new VelocityVirmaniFactory()
+      new VelocityVirmaniFactory(),
+      new SteadyGrowthFactory()
   };
 
   public static void main(String[] args) {
