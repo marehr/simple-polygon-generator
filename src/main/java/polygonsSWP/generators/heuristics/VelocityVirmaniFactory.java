@@ -101,13 +101,16 @@ public class VelocityVirmaniFactory
       int iterations = runs;
       double avgspeed_without_rejections = 0;
       Scene scene;
-
+      
+      if(steps != null) steps.clear();
+      
       while (runs > 0 && !stop) // The Loop for the Number of Iterations. Stops if "stop" is true.
       {
         // PolygonHistory: New Scene object is generated and added to the History
         scene = null;
-        if (steps != null) steps.addScene(scene = steps.newScene());
-
+        if (steps != null) 
+          steps.addScene(scene = steps.newScene().setBoundingBox(bound, bound));
+        
         for (int i = 0; i < n; i++) // Looping through the Points
         {
 
