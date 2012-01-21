@@ -1,5 +1,6 @@
 package polygonsSWP.generators.heuristics;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,13 +10,14 @@ import java.util.Random;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
+import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.data.PolygonStatistics;
+import polygonsSWP.data.Scene;
 import polygonsSWP.util.GeneratorUtils;
-import polygonsSWP.util.MathUtils;
 import polygonsSWP.util.SteadyGrowthConvexHull;
 
 
@@ -55,7 +57,7 @@ public class SteadyGrowthFactory
     private static int calls = 0;
 
     private List<Point> points;
-    private PolygonHistory steps;
+    final private PolygonHistory steps;
     private boolean doStop = false;
     private PolygonStatistics stats = null;
 
@@ -64,19 +66,33 @@ public class SteadyGrowthFactory
     private int rejections = 0;
     private int runs = 0;
 
+    // TODO: get from parameters
+    private int size = 600;
+
+    private final Color OLD_HULL = Color.LIGHT_GRAY;
+    private final Color POLYGON_HULL = new Color(0xDCDCDC);
+    private final Color VISIBLE_EDGE = new Color(0xE0115F);
+    private final Color POINT_IN_HULL = Color.RED;
+    private final Color NEW_EDGE_POINT = Color.GREEN;
+    private final Color VALID_HULL = Color.GREEN;
+
     public SteadyGrowth(List<Point> points, PolygonHistory steps,
         PolygonStatistics stats) {
       this.points = points;
-      // this.points = new ArrayList<Point>(Arrays.asList(
-      // new Point(0, 0), new Point(10, 0),
-      // new Point(20, 30), new Point(40, 30),
-      // new Point(30, 35), new Point(30, 55),
-      // new Point(40, 50), new Point(50, 50),
-      // new Point(60, 10), new Point(70, 20)));
-      // boolean b = GeneratorUtils.isInGeneralPosition(this.points);
-      // System.out.println(b ? "general pos" : "not in general pos");
       this.steps = steps;
       this.stats = stats;
+    }
+
+    private Scene newScene(Polygon polygon){
+      return newScene(polygon, null);
+    }
+
+    private Scene newScene(Polygon polygon, Color color){
+      Scene scene = steps.newScene().setBoundingBox(size, size);
+      if(polygon == null) return scene;
+      if(color == null) return scene.addPolygon(polygon, true);
+
+      return scene.addPolygon(polygon, color);
     }
 
     @Override
@@ -90,6 +106,10 @@ public class SteadyGrowthFactory
       System.out.println(called + ".: started generation");
       System.out.println("points: " + points);
 
+      if (steps != null) {
+        steps.clear();
+      }
+
       Polygon polygon = null;
       try {
         polygon = generate0();
@@ -97,6 +117,10 @@ public class SteadyGrowthFactory
       catch (InterruptedException e) {}
       catch (RuntimeException e) {
         e.printStackTrace();
+      }
+
+      if (steps != null) {
+        newScene(polygon).safe();
       }
 
       System.out.println(called + ".: rejections: ");
@@ -113,6 +137,7 @@ public class SteadyGrowthFactory
 
     private Polygon generate0()
       throws InterruptedException {
+
       SteadyGrowthConvexHull hull = initialize(), copy;
       ArrayList<Point> polygon = new ArrayList<Point>(points.size());
       polygon.addAll(hull.getPoints());
@@ -148,6 +173,16 @@ public class SteadyGrowthFactory
         // - wenn nein, dann akzeptieren wir den punkt und machen weiter
         Point containsPoint = containsAnyPoint(hull);
         if (containsPoint != null) {
+
+          if( steps != null ) {
+            Polygon poly = new OrderedListPolygon(polygon);
+            newScene(hull, OLD_HULL)
+            .addPolygon(copy, POLYGON_HULL)
+            .addPolygon(poly, true)
+            .addPoint(a, NEW_EDGE_POINT)
+            .addPoint(containsPoint, POINT_IN_HULL).safe();
+          }
+
           rejections++;
           rejected++;
 
@@ -163,6 +198,18 @@ public class SteadyGrowthFactory
         points.remove(index);
 
         int insertIndex = getIndexOfVisibleEdge(polygon, a);
+
+        if( steps != null ) {
+          Point pk = polygon.get(insertIndex - 1),
+                pl = polygon.get(insertIndex % polygon.size());
+
+          Polygon poly = new OrderedListPolygon(polygon);
+          newScene(hull, OLD_HULL)
+          .addPolygon(copy, POLYGON_HULL)
+          .addPolygon(poly, true)
+          .addLineSegment(new LineSegment(pk, pl), VISIBLE_EDGE)
+          .addPoint(a, NEW_EDGE_POINT).safe();
+        }
         // System.out.println("insertIndex: " + insertIndex);
         polygon.add(insertIndex, a);
       }
@@ -173,14 +220,14 @@ public class SteadyGrowthFactory
     private int getIndexOfVisibleEdge(ArrayList<Point> points, Point a) {
       OrderedListPolygon polygon = new OrderedListPolygon(points);
 
-      Point /* first, last, */b;
+      Point base;
       boolean lastVisible = false, visible = false;
 
       for (int i = 0, size = points.size(); i <= size; i++) {
         lastVisible = visible;
 
-        b = points.get(i % size);
-        visible = GeneratorUtils.isPolygonPointVisible(b, a, polygon);
+        base = points.get(i % size);
+        visible = GeneratorUtils.isPolygonPointVisible(base, a, polygon);
         // System.out.println(b + " -> " + a + "; visible: " + visible +
         // "; lastVisible: " + lastVisible);
 
@@ -188,6 +235,7 @@ public class SteadyGrowthFactory
         return i;
       }
 
+      // Nach dem Paper von Held gibt es immer eine Kante, die sichtbar ist
       throw new RuntimeException("steady-growth: should not happen");
     }
 
@@ -209,7 +257,16 @@ public class SteadyGrowthFactory
 
         Point containsPoint = containsAnyPoint(hull);
         if (containsPoint == null) {
+
+          if (steps != null) {
+            newScene(hull, VALID_HULL).safe();
+          }
+
           break;
+        }
+
+        if (steps != null) {
+          newScene(hull).addPoint(containsPoint, POINT_IN_HULL).safe();
         }
 
         initializeRejections++;
@@ -228,7 +285,12 @@ public class SteadyGrowthFactory
 
     private Point containsAnyPoint(SteadyGrowthConvexHull hull) {
       for (Point point : points) {
-        if (hull.containsPoint(point)) return point;
+        // NOTE: Wenn ein Punkt genau auf dem Rand der Convexen Huelle
+        // liegt, dann wird hier gesagt, dass die Convexe Huelle diesen
+        // Punkt nicht beinhaltet, damit diese Funktion null zurueckgibt
+        // und dieser Punkt akzeptiert wird, da die Convexe Huelle
+        // diesen Punkt einfach verschluckt und sich dadurch nicht aendert.
+        if (hull.containsPoint(point, false)) return point;
       }
 
       return null;

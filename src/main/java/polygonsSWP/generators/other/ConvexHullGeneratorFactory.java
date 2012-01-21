@@ -13,7 +13,6 @@ import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.util.GeneratorUtils;
-import polygonsSWP.util.SteadyGrowthConvexHull;
 
 
 public class ConvexHullGeneratorFactory
