@@ -14,7 +14,7 @@ import java.util.List;
 import org.junit.Test;
 
 import polygonsSWP.geometry.Point;
-import polygonsSWP.util.SteadyGrowthConvexHull;
+import polygonsSWP.geometry.SteadyGrowthConvexHull;
 
 /**
  * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>

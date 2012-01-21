@@ -14,11 +14,11 @@ import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.OrderedListPolygon;
+import polygonsSWP.geometry.SteadyGrowthConvexHull;
 import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
 import polygonsSWP.util.GeneratorUtils;
-import polygonsSWP.util.SteadyGrowthConvexHull;
 
 
 public class SteadyGrowthFactory

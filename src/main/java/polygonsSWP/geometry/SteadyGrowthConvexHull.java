@@ -1,16 +1,14 @@
-package polygonsSWP.util;
+package polygonsSWP.geometry;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import polygonsSWP.geometry.Point;
-import polygonsSWP.geometry.Polygon;
+import polygonsSWP.util.MathUtils;
 
 
 public class SteadyGrowthConvexHull extends Polygon
-  implements Cloneable
 {
 
   private ArrayList<Point> upperHull = new ArrayList<Point>(),

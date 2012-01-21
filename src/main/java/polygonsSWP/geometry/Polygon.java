@@ -17,7 +17,7 @@ import polygonsSWP.util.intersections.RayIntersectionMode;
  * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
  * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
  */
-public abstract class Polygon
+public abstract class Polygon implements Cloneable
 {
   /**
    * @return Returns the ordered list of points associated with the polygon,
@@ -140,22 +140,27 @@ public abstract class Polygon
     boolean isInside = false;
     int nPoints = pList.size();
 
-    for (int i = 0, j = nPoints - 1; i < nPoints; j = i++) {     
+    for (int i = 0, j = nPoints - 1; i < nPoints; j = i++) {
       Point pi = pList.get(i);
       Point pj = pList.get(j);
-      
+
       /* 
        * Found here:
        * http://stackoverflow.com/questions/217578/point-in-polygon-aka-hit-test
+       * Originial Source:
+       * http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
        */
-      if((pi.y > p.y) != (pj.y > p.y)) {
-        if(p.x < ((pj.x - pi.x) * (p.y - pi.y) / (pj.y - pi.y) + pi.x)) {
+      if((pi.y - p.y > MathUtils.EPSILON) != (pj.y - p.y > MathUtils.EPSILON)) {
+        if(p.x - ((pj.x - pi.x) * (p.y - pi.y) / (pj.y - pi.y) + pi.x) < MathUtils.EPSILON) {
           isInside = !isInside;
         }
       }
-      
-      if (onLine && (MathUtils.checkOrientation(pj, pi, p) == 0))
-        return true;
+
+      // we check, if point is on the line segment pj, pi
+      // (including endpoints)
+      if (new LineSegment(pj, pi).containsPoint(p)){
+        return onLine;
+      }
     }
     return isInside;
   }
