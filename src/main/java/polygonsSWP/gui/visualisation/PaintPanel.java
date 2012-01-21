@@ -10,6 +10,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,6 +33,8 @@ class PaintPanel
   implements MouseListener, MouseMotionListener, MouseWheelListener, VisualisationControlListener
 {
   private static final long serialVersionUID = 1L;
+  private java.awt.Point mouse = null;
+  private boolean inFrame = false;
   private final DecimalFormat df = new DecimalFormat("#0.00");
 
   /** list for point selection */
@@ -102,7 +105,7 @@ class PaintPanel
     g.drawRect(8, 8, 44, 3);
     g.drawRect(52, 5, 3, 9);
     g.drawString(df.format(50 / zoom), 60, 14);
-    
+        
     // Set translation & scale.
     AffineTransform tx = new AffineTransform();
     tx.translate(offsetX, offsetY);
@@ -144,6 +147,12 @@ class PaintPanel
         g.drawOval((int) (p.x - 1), (int) (p.y - 1), 3, 3);
       }
     }
+    
+    if(mouse != null)
+    {
+    	//TODO: display correct values with zoom
+    	g.drawString("[" + mouse.x + " - " + mouse.y + "]", mouse.x-30, mouse.y+30);
+    }
   }
 
   /*
@@ -170,10 +179,14 @@ class PaintPanel
 
   @Override
   public void mouseEntered(MouseEvent e) {
+	  inFrame = true;
   }
 
   @Override
   public void mouseExited(MouseEvent e) {
+	  inFrame = false;
+	  mouse = null;
+	  repaint();
   }
 
   @Override
@@ -199,6 +212,8 @@ class PaintPanel
 
   @Override
   public void mouseMoved(MouseEvent e) {
+	  mouse = e.getPoint();
+	  repaint();
   }
 
   /*
@@ -241,4 +256,5 @@ class PaintPanel
     svgScene = scene;
     repaint();
   }
+   
 }
