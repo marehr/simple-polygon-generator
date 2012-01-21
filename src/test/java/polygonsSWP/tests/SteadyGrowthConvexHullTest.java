@@ -55,17 +55,16 @@ public class SteadyGrowthConvexHullTest {
     System.out.println("testContainsPoint - start");
 
     SteadyGrowthConvexHull hull  = new SteadyGrowthConvexHull();
-    ArrayList<Point> points = new ArrayList<Point>(),
+    List<Point> points = Arrays.asList(
+                  new Point(1, 1), new Point(1, 2),
+                  new Point(1, 3), new Point(1, 4),
+                  new Point(4, 1), new Point(4, 4)
+                ),
                 expectedHull= new ArrayList<Point>();
 
-    points.add(new Point(1, 1));
     expectedHull.add(new Point(1, 1));
-    points.add(new Point(1, 2));
-    points.add(new Point(1, 4));
     expectedHull.add(new Point(1, 4));
-    points.add(new Point(4, 1));
     expectedHull.add(new Point(4, 1));
-    points.add(new Point(4, 4));
     expectedHull.add(new Point(4, 4));
 
     Collections.shuffle(points);
@@ -76,13 +75,22 @@ public class SteadyGrowthConvexHullTest {
     System.out.println("hull: " + hull.getPoints());
 
     // edge cases containen nicht den punkt!
-    assertFalse("edge case(0)", hull.containsPoint(new Point(1, 1)));
-    assertFalse("edge case(1)", hull.containsPoint(new Point(1, 3)));
-    assertFalse("edge case(2)", hull.containsPoint(new Point(2, 4)));
-    assertFalse("edge case(3)", hull.containsPoint(new Point(4, 2)));
+    assertFalse("edge case(0)", hull.containsPoint(new Point(1, 1), false));
+    assertFalse("edge case(1)", hull.containsPoint(new Point(1, 3), false));
+    assertFalse("edge case(2)", hull.containsPoint(new Point(2, 4), false));
+    assertFalse("edge case(3)", hull.containsPoint(new Point(4, 2), false));
 
-    assertTrue("should contain", hull.containsPoint(new Point(2, 2)));
-    assertFalse("shouldn't contain", hull.containsPoint(new Point(0, 0)));
+    // edge cases containen den punkt!
+    assertTrue("edge case(0)", hull.containsPoint(new Point(1, 1), true));
+    assertTrue("edge case(1)", hull.containsPoint(new Point(1, 3), true));
+    assertTrue("edge case(2)", hull.containsPoint(new Point(2, 4), true));
+    assertTrue("edge case(3)", hull.containsPoint(new Point(4, 2), true));
+
+    assertTrue("should contain", hull.containsPoint(new Point(2, 2), false));
+    assertTrue("should contain", hull.containsPoint(new Point(2, 2), true));
+
+    assertFalse("shouldn't contain", hull.containsPoint(new Point(0, 0), false));
+    assertFalse("shouldn't contain", hull.containsPoint(new Point(0, 0), true));
 
     System.out.println("testContainsPoint - end\n\n");
   }
