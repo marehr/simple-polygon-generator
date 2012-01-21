@@ -7,9 +7,10 @@ import java.util.Random;
 
 import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.data.PolygonStatistics;
+import polygonsSWP.data.Scene;
 import polygonsSWP.generators.IllegalParameterizationException;
-import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGenerator;
+import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -39,9 +40,7 @@ public class VelocityVirmaniFactory
   }
 
   @Override
-  public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonStatistics stats,
-      PolygonHistory steps)
+  public PolygonGenerator createInstance(Map<Parameters, Object> params, PolygonStatistics stats, PolygonHistory steps)
     throws IllegalParameterizationException {
 
     Long radius = (Long) params.get(Parameters.radius);
@@ -60,12 +59,13 @@ public class VelocityVirmaniFactory
     if (maxVelo == null) throw new IllegalParameterizationException("Maximum velocity not set.", Parameters.velocity);
 
     if (radius * 2 > bound) { throw new IllegalParameterizationException("Radius must be smaller than the bounds allow (Pre: Radius * 2 < bound).", Parameters.radius); }
-    
-    return new VelocityVirmani(n, radius, runs, bound, maxVelo, stats);
+
+    return new VelocityVirmani(n, radius, runs, bound, maxVelo, steps, stats);
   }
 
 
-  private static class VelocityVirmani implements PolygonGenerator
+  private static class VelocityVirmani
+    implements PolygonGenerator
   {
 
     private Random rand;
@@ -74,34 +74,46 @@ public class VelocityVirmaniFactory
     private int runs;
     private int maxVelo;
     private int bound;
+    private PolygonHistory steps;
     private PolygonStatistics statistics;
-    
+
     private boolean stop = false;
-    
-    VelocityVirmani(int n, long radius, int runs, int bound, int maxVelo, PolygonStatistics statistics) {
-        this.rand = new Random();
-        this.n = n;
-        this.radius = radius;
-        this.runs = runs;
-        this.bound = bound;
-        this.maxVelo = maxVelo;
-        this.statistics = statistics;
-      }
+
+    VelocityVirmani(int n, long radius, int runs, int bound, int maxVelo, PolygonHistory steps, PolygonStatistics statistics) {
+      this.rand = new Random();
+      this.n = n;
+      this.radius = radius;
+      this.runs = runs;
+      this.bound = bound;
+      this.maxVelo = maxVelo;
+      this.steps = steps;
+      this.statistics = statistics;
+    }
 
     @Override
     public Polygon generate() {
 
       OrderedListPolygon poly = regularPolygon(n, radius, bound);
 
-      int velox, veloy;
+      double velox, veloy;
+
+      int rejections = 0;
+      int iterations = runs;
+      double avgspeed_without_rejections = 0;
+      Scene scene;
+
       while (runs > 0 && !stop) // The Loop for the Number of Iterations. Stops if "stop" is true.
       {
+        // PolygonHistory: New Scene object is generated and added to the History
+        scene = null;
+        if (steps != null) steps.addScene(scene = steps.newScene());
+
         for (int i = 0; i < n; i++) // Looping through the Points
         {
-          
+
           // Calculates a Random Velocity. Can be Negative.
-          velox = rand.nextBoolean() ? rand.nextInt(maxVelo) : -rand.nextInt(maxVelo);
-          veloy = rand.nextBoolean() ? rand.nextInt(maxVelo) : -rand.nextInt(maxVelo);
+          velox = rand.nextBoolean() ? rand.nextDouble() * maxVelo : -rand.nextDouble() * maxVelo;
+          veloy = rand.nextBoolean() ? rand.nextDouble() * maxVelo : -rand.nextDouble() * maxVelo;
 
           // Checks if the Polygon is in Bound
           if (poly.getPoint(i).x + velox > bound || poly.getPoint(i).y + veloy > bound || poly.getPoint(i).x + velox < 0 || poly.getPoint(i).y + veloy < 0) continue;
@@ -114,13 +126,26 @@ public class VelocityVirmaniFactory
           if (!poly.isSimple()) {
             poly.getPoint(i).x -= velox;
             poly.getPoint(i).y -= veloy;
+            if (steps != null) scene.addPoint(poly.getPoint(i), true);// PolygonHistory: Highlights a Point if he doesnt move
+            if (statistics != null) {
+              avgspeed_without_rejections += velox + veloy; // To Calculate the Average velocity without collisions
+              rejections++;
+            }
           }
+          else if (steps != null) scene.addPoint(poly.getPoint(i), false);// PolygonHistory: Just adds a Points without Highlighting
 
         }
         runs--;
       }
-      if(stop)
-        return null;
+      if (stop) return null;// If stop is called and this was finished. Give back null.
+
+      if (statistics != null) {
+        avgspeed_without_rejections = avgspeed_without_rejections / (n * iterations);
+        statistics.avg_velocity_without_collisions = avgspeed_without_rejections;
+        statistics.iterations = iterations;
+        statistics.radius = statistics.radius;
+        statistics.rejections = rejections;
+      }
       return poly;
     }
 
@@ -142,10 +167,10 @@ public class VelocityVirmaniFactory
       for (int i = 0; i < n; i++) {
         tmpWinkel = winkel * i;
         x1 = (x * Math.cos(tmpWinkel) - y * Math.sin(tmpWinkel)) // Calculating the new Point
-            + (bound / 2); // Translation. So the Point has a Origin of top left
-        
-        y1 = -(x * Math.sin(tmpWinkel) + y * Math.cos(tmpWinkel)) 
-            + (bound / 2);// y has to be negative because the y axe had another directions.
+            +
+            (bound / 2); // Translation. So the Point has a Origin of top left
+
+        y1 = -(x * Math.sin(tmpWinkel) + y * Math.cos(tmpWinkel)) + (bound / 2);// y has to be negative because the y axe had another directions.
         poly.addPoint(new Point(x1, y1));
       }
       return poly;
@@ -155,5 +180,6 @@ public class VelocityVirmaniFactory
     public void stop() {
       stop = true;
     }
+
   }
 }
