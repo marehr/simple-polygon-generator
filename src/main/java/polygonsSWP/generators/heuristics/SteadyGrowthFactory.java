@@ -19,6 +19,7 @@ import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
 import polygonsSWP.util.GeneratorUtils;
+import polygonsSWP.util.MathUtils;
 
 
 public class SteadyGrowthFactory
@@ -71,7 +72,8 @@ public class SteadyGrowthFactory
 
     private final Color OLD_HULL = Color.LIGHT_GRAY;
     private final Color POLYGON_HULL = new Color(0xDCDCDC);
-    private final Color VISIBLE_EDGE = new Color(0xE0115F);
+    private final Color VISIBLE_EDGE = Color.MAGENTA;
+    private final Color CHOOSEN_VISIBLE_EDGE = new Color(0xE0115F);
     private final Color POINT_IN_HULL = Color.RED;
     private final Color NEW_EDGE_POINT = Color.GREEN;
     private final Color VALID_HULL = Color.GREEN;
@@ -129,7 +131,7 @@ public class SteadyGrowthFactory
       System.out.println(called + ".: \tmaximum = " + maximumRejections);
       System.out.println(called + ".: while repeated: " + runs);
       System.out.println(called + ".: finished generation");
-      System.out.println(called + ".: polygon: " + polygon.getPoints());
+      if(polygon != null) System.out.println(called + ".: polygon: " + polygon.getPoints());
       System.out.println();
 
       return polygon;
@@ -197,18 +199,33 @@ public class SteadyGrowthFactory
 
         points.remove(index);
 
-        int insertIndex = getIndexOfVisibleEdge(polygon, a);
+        // waehlen einen zufaelligen startpunkt aus
+        int startIndex = rand.nextInt(polygon.size());
+        int insertIndex = getIndexOfVisibleEdge(polygon, a, startIndex);
 
         if( steps != null ) {
-          Point pk = polygon.get(insertIndex - 1),
-                pl = polygon.get(insertIndex % polygon.size());
+          Point pk = polygon.get(MathUtils.modulo(insertIndex-1, polygon.size())),
+                pl = polygon.get(insertIndex);
 
           Polygon poly = new OrderedListPolygon(polygon);
-          newScene(hull, OLD_HULL)
+          Scene scene = newScene(hull, OLD_HULL)
           .addPolygon(copy, POLYGON_HULL)
           .addPolygon(poly, true)
-          .addLineSegment(new LineSegment(pk, pl), VISIBLE_EDGE)
-          .addPoint(a, NEW_EDGE_POINT).safe();
+          .addLineSegment(new LineSegment(pk, pl), CHOOSEN_VISIBLE_EDGE)
+          .addPoint(a, NEW_EDGE_POINT);
+
+          int i = insertIndex;
+          // zeichne alle waehlbaren kanten
+          do{
+            i = getIndexOfVisibleEdge(polygon, a, i);
+            if(insertIndex == i) break;
+
+            pk = polygon.get(MathUtils.modulo(i - 1, polygon.size()));
+            pl = polygon.get(i);
+            scene.addLineSegment(new LineSegment(pk, pl), VISIBLE_EDGE);
+          } while(true);
+
+          scene.safe();
         }
         // System.out.println("insertIndex: " + insertIndex);
         polygon.add(insertIndex, a);
@@ -217,16 +234,17 @@ public class SteadyGrowthFactory
       return new OrderedListPolygon(polygon);
     }
 
-    private int getIndexOfVisibleEdge(ArrayList<Point> points, Point a) {
+    private int getIndexOfVisibleEdge(ArrayList<Point> points, Point a, int start) {
       OrderedListPolygon polygon = new OrderedListPolygon(points);
 
       Point base;
       boolean lastVisible = false, visible = false;
 
-      for (int i = 0, size = points.size(); i <= size; i++) {
+      int size = points.size();
+      for (int i = start % size, k = 0; k <= size; i = (i+1) % size, ++k) {
         lastVisible = visible;
 
-        base = points.get(i % size);
+        base = points.get(i);
         visible = GeneratorUtils.isPolygonPointVisible(base, a, polygon);
         // System.out.println(b + " -> " + a + "; visible: " + visible +
         // "; lastVisible: " + lastVisible);
