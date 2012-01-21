@@ -1,5 +1,6 @@
 package polygonsSWP.data;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 
 import polygonsSWP.geometry.Line;
@@ -44,12 +45,28 @@ public interface Scene
   public Scene addPolygon(Polygon polygon, Boolean highlight);
 
   /**
+   * Adds a polygon to the scene
+   * 
+   * @param polygon
+   * @param color highlighted color
+   */
+  public Scene addPolygon(Polygon polygon, Color color);
+
+  /**
    * Adds a line to the scene
    * 
    * @param line
    * @param highlight whether it should be highlighted or not
    */
   public Scene addLine(Line line, Boolean highlight);
+
+  /**
+   * Adds a line to the scene
+   * 
+   * @param line
+   * @param color highlighted color
+   */
+  public Scene addLine(Line line, Color color);
 
   /**
    * Adds a lineSegment to the scene
@@ -60,6 +77,14 @@ public interface Scene
   public Scene addLineSegment(LineSegment linesegment, Boolean highlight);
 
   /**
+   * Adds a lineSegment to the scene
+   * 
+   * @param linesegment
+   * @param color highlighted color
+   */
+  public Scene addLineSegment(LineSegment linesegment, Color color);
+
+  /**
    * Adds a ray to the scene
    * 
    * @param ray
@@ -68,12 +93,28 @@ public interface Scene
   public Scene addRay(Ray ray, Boolean highlight);
 
   /**
+   * Adds a ray to the scene
+   * 
+   * @param ray
+   * @param color highlighted color
+   */
+  public Scene addRay(Ray ray, Color color);
+
+  /**
    * Adds a point to the scene.
    * 
    * @param point
    * @param highlight whether it should be highlighted or not
    */
   public Scene addPoint(Point point, Boolean highlight);
+
+  /**
+   * Adds a point to the scene.
+   * 
+   * @param point
+   * @param color highlighted color
+   */
+  public Scene addPoint(Point point, Color color);
 
   /**
    * Generates a string containing a valid SVG representation of the scene
@@ -86,4 +127,9 @@ public interface Scene
    * Doodle.
    */
   public void paint(Graphics2D g2d);
+
+  /**
+   * Doodle Points.
+   */
+  public void paintPoints(Graphics2D g2d);
 }
