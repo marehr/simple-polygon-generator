@@ -29,6 +29,7 @@ import polygonsSWP.geometry.Ray;
  * higlighted objects are painted according to their class.
  * 
  * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
  */
 
 public class HistoryScene
@@ -210,6 +211,20 @@ public class HistoryScene
     }
   }
 
+
+  @Override
+  public Scene mergeScene(Scene scene) {
+    if(!(scene instanceof HistoryScene)) return _self;
+    HistoryScene that = (HistoryScene)scene;
+
+    _lineList.addAll(that._lineList);
+    _lineSegmentList.addAll(that._lineSegmentList);
+    _polyList.addAll(that._polyList);
+    _pointList.addAll(that._pointList);
+    _rayList.addAll(that._rayList);
+    return _self;
+  }
+
   @Override
   public Scene addPolygon(Polygon polygon, Boolean highlight) {
     return addPolygon(polygon, highlight ? polyColor : null);
@@ -263,6 +278,20 @@ public class HistoryScene
   @Override
   public Scene addPoint(Point point, Boolean highlight) {
     return addPoint(point, highlight? pointColor : null);
+  }
+
+  @Override
+  public Scene addPoints(List<Point> points, Boolean highlight) {
+    return addPoints(points, highlight? pointColor : null);
+  }
+
+  @Override
+  public Scene addPoints(List<Point> points, Color color) {
+    if(points == null) return _self;
+    for(Point point: points){
+      addPoint(point, color);
+    }
+    return _self;
   }
 
   @Override

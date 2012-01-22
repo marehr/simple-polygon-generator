@@ -2,6 +2,7 @@ package polygonsSWP.data;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.List;
 
 import polygonsSWP.geometry.Line;
 import polygonsSWP.geometry.LineSegment;
@@ -12,6 +13,7 @@ import polygonsSWP.geometry.Ray;
 
 /**
  * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
  */
 public interface Scene
 {
@@ -35,6 +37,13 @@ public interface Scene
    * @param radius
    */
   public Scene setBoundingBox(int radius);
+
+  /**
+   * Merges another scene in this scene
+   * 
+   * @param scene
+   */
+  public Scene mergeScene(Scene scene);
 
   /**
    * Adds a polygon to the scene
@@ -115,6 +124,22 @@ public interface Scene
    * @param color highlighted color
    */
   public Scene addPoint(Point point, Color color);
+
+  /**
+   * Adds points to the scene.
+   * 
+   * @param points
+   * @param highlight whether it should be highlighted or not
+   */
+  public Scene addPoints(List<Point> points, Boolean highlight);
+
+  /**
+   * Adds points to the scene.
+   * 
+   * @param points
+   * @param color highlighted color
+   */
+  public Scene addPoints(List<Point> points, Color color);
 
   /**
    * Generates a string containing a valid SVG representation of the scene

@@ -55,6 +55,19 @@ public class LineSegment implements Cloneable
   }
 
   /**
+   * Get a point on this line segment a, b, whereas the factor
+   * is the percentage of the way from a to b
+   * 
+   * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+   * @param factor in [0, 1]
+   * @return Point
+   */
+  public Point getPointOnLineSegment(double factor){
+    return new Point(factor * (_a.x - _b.x) + _b.x,
+                     factor * (_a.y - _b.y) + _b.y);
+  }
+
+  /**
    * Convenience function. Will find shared endpoints, too.
    */
 
