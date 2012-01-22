@@ -74,7 +74,7 @@ public class PermuteAndRejectFactory
       // TODO: Do we have always the same BoundingBox with float?
       // Add a new scene, set Bounding Box and add the polygon.
       if (steps != null)
-        steps.newScene().setBoundingBox(_size, _size).addPolygon(p, false).safe();
+        steps.newScene().setBoundingBox(_size, _size).addPolygon(p, false).save();
 
       if(statistics != null)
         statistics.iterations = 0;
@@ -85,7 +85,7 @@ public class PermuteAndRejectFactory
         
         // Create a new scene for every polygon which is created.
         if (steps != null)
-          steps.newScene().setBoundingBox(_size, _size).addPolygon(p, true).safe();
+          steps.newScene().setBoundingBox(_size, _size).addPolygon(p, true).save();
 
         if(statistics != null)
           statistics.iterations++;

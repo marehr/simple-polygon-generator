@@ -102,7 +102,7 @@ public class HistoryScene
    * Generates SVG from current state and add the scene to the history object.
    */
   @Override
-  public void safe() {
+  public void save() {
     this.toSvg();
     _history.addScene(this);
   }

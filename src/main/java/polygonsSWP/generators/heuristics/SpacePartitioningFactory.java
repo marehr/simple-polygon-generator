@@ -115,7 +115,7 @@ public class SpacePartitioningFactory
       catch (InterruptedException e) {}
 
       if (steps != null) {
-        newScene(p).safe();
+        newScene(p).save();
       }
 
       return doStop == true ? null : p;
@@ -142,7 +142,7 @@ public class SpacePartitioningFactory
         .addLine(new Line(first, last), true)
         .addPoints(left, LEFT_POINTS)
         .addPoints(right, RIGHT_POINTS)
-        .safe();
+        .save();
       }
 
       OrderedListPolygon leftPolygon, rightPolygon;
@@ -168,7 +168,7 @@ public class SpacePartitioningFactory
         .addPolygon(rightPolygon, RIGHT_POLYGON)
         .addPoints(left, LEFT_POINTS)
         .addPoints(right, RIGHT_POINTS)
-        .safe();
+        .save();
       }
 
       // System.out.println("\n\n");
@@ -317,7 +317,7 @@ public class SpacePartitioningFactory
         .addLine(new Line(startMiddle, endMiddle), MIDDLE_LINE)
         .addPoints(left, LEFT_POINTS)
         .addPoints(right, RIGHT_POINTS)
-        .safe();
+        .save();
 
         leftScene = newScene(null)
         .addLine(new Line(startMiddle, endMiddle), true)
@@ -338,7 +338,7 @@ public class SpacePartitioningFactory
         .addLine(new Line(startMiddle, endMiddle), MIDDLE_LINE)
         .addPoints(left, LEFT_POINTS)
         .addPoints(right, RIGHT_POINTS)
-        .safe();
+        .save();
 
         leftScene = newScene(leftPolygon)
         .mergeScene(leftScene);
@@ -358,7 +358,7 @@ public class SpacePartitioningFactory
         .addPolygon(rightPolygon, RIGHT_POLYGON)
         .addPoints(left, LEFT_POINTS)
         .addPoints(right, RIGHT_POINTS)
-        .safe();
+        .save();
 
         points.add(endMiddle);
       }
@@ -388,7 +388,7 @@ public class SpacePartitioningFactory
         .addPolygon(merge, true)
         .addPoints(left, LEFT_POINTS)
         .addPoints(right, RIGHT_POINTS)
-        .safe();
+        .save();
       }
 
       // System.out.println("merge: " + merge.getPoints());

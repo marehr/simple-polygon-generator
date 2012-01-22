@@ -122,7 +122,7 @@ public class SteadyGrowthFactory
       }
 
       if (steps != null) {
-        newScene(polygon).safe();
+        newScene(polygon).save();
       }
 
       System.out.println(called + ".: rejections: ");
@@ -182,7 +182,7 @@ public class SteadyGrowthFactory
             .addPolygon(copy, POLYGON_HULL)
             .addPolygon(poly, true)
             .addPoint(a, NEW_EDGE_POINT)
-            .addPoint(containsPoint, POINT_IN_HULL).safe();
+            .addPoint(containsPoint, POINT_IN_HULL).save();
           }
 
           rejections++;
@@ -225,7 +225,7 @@ public class SteadyGrowthFactory
             scene.addLineSegment(new LineSegment(pk, pl), VISIBLE_EDGE);
           } while(true);
 
-          scene.safe();
+          scene.save();
         }
         // System.out.println("insertIndex: " + insertIndex);
         polygon.add(insertIndex, a);
@@ -277,14 +277,14 @@ public class SteadyGrowthFactory
         if (containsPoint == null) {
 
           if (steps != null) {
-            newScene(hull, VALID_HULL).safe();
+            newScene(hull, VALID_HULL).save();
           }
 
           break;
         }
 
         if (steps != null) {
-          newScene(hull).addPoint(containsPoint, POINT_IN_HULL).safe();
+          newScene(hull).addPoint(containsPoint, POINT_IN_HULL).save();
         }
 
         initializeRejections++;

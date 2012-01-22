@@ -18,10 +18,10 @@ import polygonsSWP.geometry.Ray;
 public interface Scene
 {
   /**
-   * This method safes the scene to the history object specified at construction
+   * This method saves the scene to the history object specified at construction
    * time.
    */
-  public void safe();
+  public void save();
 
   /**
    * Sets a rectangle bounding box.

@@ -71,13 +71,13 @@ public class ConvexHullGeneratorFactory
         for (Point item : points) {
           initial.addPoint(item, true);
         }
-        initial.safe();
+        initial.save();
       }
 
       Polygon poly = GeneratorUtils.convexHull(points);
 
       if (steps != null)
-        steps.newScene().setBoundingBox(size, size).addPolygon(poly, true).safe();
+        steps.newScene().setBoundingBox(size, size).addPolygon(poly, true).save();
 
       return poly;
     }
