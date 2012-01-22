@@ -1,7 +1,9 @@
 package polygonsSWP.geometry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -289,18 +291,120 @@ public class OrderedListPolygon
   public List<MonotonPolygon> sweepLine() {
     List<MonotonPolygon> returnList = new ArrayList<MonotonPolygon>();
     // Add comparator
-    TreeSet<PointType> pointTree = new TreeSet<PointType>(new PointType.PointComparator());
+    TreeSet<PointType> pointTree =
+        new TreeSet<PointType>(new PointType.PointComparator());
     // Calculate type and direction for every Point and them to the tree
     // they are implicitly sorted then.
     for (Point p : _coords)
       pointTree.add(categorizePointForSweepLine(p));
-    // For every Vertex in tree 
+
+    EdgeList eList = new EdgeList();
+    HashMap<LineSegment, Point> formerIsec = new HashMap<LineSegment, Point>();
+    // For every Vertex in tree
     Iterator<PointType> iter = pointTree.iterator();
-    while(iter.hasNext()) {
+    while (iter.hasNext()) {
       PointType curr = iter.next();
+      // Step 1
+      // Add beginning edge of current Vertex
+      // Mark ending edge of current vertex for removal
+      switch (curr.type) {
+      case INT:
+        // mark every edge with curr.p as endpoint for deletion
+        eList.mark(curr.p);
+        // Add the edge curr.p with left or right neighbor.
+        // where the neighbor with the lower y coordinate is choosen
+        if (this.getPointInRange(_coords.indexOf(curr.p) + 1).y < curr.p.y) eList.insertEdge(new LineSegment(
+            curr.p, this.getPointInRange(_coords.indexOf(curr.p) + 1)));
+        else eList.insertEdge(new LineSegment(curr.p,
+            this.getPointInRange(_coords.indexOf(curr.p) - 1)));
+        break;
+      case MAX:
+        // Add both edges to right and left neighbour to edgelist
+        eList.insertEdge(new LineSegment(curr.p,
+            this.getPointInRange(_coords.indexOf(curr.p) + 1)));
+        eList.insertEdge(new LineSegment(curr.p,
+            this.getPointInRange(_coords.indexOf(curr.p) - 1)));
+        break;
+      case MIN:
+        // Mark every edge with curr.p as endpoint for deletion
+        eList.mark(curr.p);
+        break;
+      case HMAX:
+        // Insert only the non horizontal edge
+        if (MathUtils.doubleEquals(
+            this.getPointInRange(_coords.indexOf(curr.p) + 1).x, curr.p.x)) eList.insertEdge(new LineSegment(
+            curr.p, this.getPointInRange(_coords.indexOf(curr.p) - 1)));
+        else eList.insertEdge(new LineSegment(curr.p,
+            this.getPointInRange(_coords.indexOf(curr.p) + 1)));
+        break;
+      case HMIN:
+        // Mark only the non horizontal edge for deletion
+        eList.mark(curr.p);
+        break;
+      default:
+        break;
+      }
+      // Step 2
+      // Get direction sweepline has to be thrown
+      PointType.Direction direction = curr.direct;
+
+      // Step 3
+      // determine intersecting edges of polygon and sweepline with edge list
+      List<LineSegment> edges =
+          eList.searchIntersectingEdges(curr.p.x, curr.direct);
+      Point[] trapezoidPoints = new Point[4];
+      // Step 4
+      // Calculate intersections with edges and form trapezoids
+      for (LineSegment edge : edges) {
+        switch (curr.direct) {
+        case LEFT:
+          Ray r1 = new Ray(curr.p, new Point(curr.p.x - 1, curr.p.y));
+          Point isec1 = r1.intersect(edge)[0];
+          trapezoidPoints[0] = isec1;
+          trapezoidPoints[1] = curr.p;
+          trapezoidPoints[2] = formerIsec.get(eList.getEdgeByEndPoint(curr.p));
+          trapezoidPoints[3] = formerIsec.get(edge);
+          formerIsec.put(edge, isec1);
+          break;
+        case RIGHT:
+          Ray r2 = new Ray(curr.p, new Point(curr.p.x + 1, curr.p.y));
+          Point isec2 = r2.intersect(edge)[0];
+          trapezoidPoints[0] = curr.p;
+          trapezoidPoints[1] = isec2;
+          trapezoidPoints[2] = formerIsec.get(edge);
+          trapezoidPoints[3] = formerIsec.get(eList.getEdgeByEndPoint(curr.p));
+          formerIsec.put(edge, isec2);
+          break;
+        case BOTH:
+          Line l = new Line(curr.p, new Point(curr.p.x + 1, curr.p.y));
+          Point isec3 = l.intersect(edge)[0];
+          if (isec3.x < curr.p.x - MathUtils.EPSILON) {
+            trapezoidPoints[0] = isec3;
+            trapezoidPoints[3] = formerIsec.get(edge);
+          }
+          else {
+            trapezoidPoints[1] = isec3;
+            trapezoidPoints[2] = formerIsec.get(edge);
+          }
+          formerIsec.put(edge, isec3);
+          break;
+        default:
+          break;
+        }
+      }
+      
+      List<LineSegment> trapezoidEdges = new ArrayList<LineSegment>();
+      for (int i = 0; i < trapezoidPoints.length; i++) {
+        if (trapezoidPoints[i] != trapezoidPoints[(i+1)%4])
+        trapezoidEdges.add(new LineSegment(trapezoidPoints[i], trapezoidPoints[(i+1)%4]));
+      }
+      returnList.add(new MonotonPolygon(trapezoidEdges));
+
+      // Step 5
+      // Remove Marked Edges from EdgeList
     }
     // For every Vertex in tree:
-       
+
     return returnList;
   }
 
@@ -396,6 +500,30 @@ public class OrderedListPolygon
   }
 
 
+  private static class EdgeList
+  {
+
+    public void insertEdge(LineSegment ls) {
+
+    }
+
+    public void mark(Point endPoint) {
+
+    }
+
+    public List<LineSegment> searchIntersectingEdges(double x,
+        PointType.Direction direct) {
+      return null;
+
+    }
+
+    public LineSegment getEdgeByEndPoint(Point endPoint) {
+      return null;
+
+    }
+  }
+
+
   private static class PointType
   {
     public enum PointClass {
@@ -415,15 +543,18 @@ public class OrderedListPolygon
     public Point p;
     public PointClass type;
     public Direction direct;
-    
-    public static class PointComparator implements Comparator<PointType>{
+
+
+    public static class PointComparator
+      implements Comparator<PointType>
+    {
 
       @Override
       public int compare(PointType pt1, PointType pt2) {
-        
+
         Point p1 = pt1.p;
         Point p2 = pt2.p;
-        
+
         if (p1.y > p2.y + MathUtils.EPSILON) return 1;
         else if (p1.y < p2.y - MathUtils.EPSILON) return -1;
         else {
@@ -432,11 +563,10 @@ public class OrderedListPolygon
           else return 0;
         }
       }
-      
-    }
-    
 
-  } 
+    }
+
+  }
 
   /**
    * @author Steve Dierker <dierker.steve@fu-berlin.de>
@@ -610,8 +740,12 @@ public class OrderedListPolygon
 
   public boolean areNeighbours(Point a, Point b) {
     if (_coords.contains(a)) {
-      if (_coords.get(this.getIndexInRange(_coords.indexOf(a) + 1)).equals(b) ||
-          _coords.get(this.getIndexInRange(_coords.indexOf(a) - 1)).equals(b)) return true;
+      if (_coords.get(
+          this.getIndexInRange((_coords.indexOf(a) + 1) % _coords.size())).equals(
+          b) ||
+          _coords.get(
+              this.getIndexInRange((_coords.indexOf(a) - 1) % _coords.size())).equals(
+              b)) return true;
       else return false;
     }
     return false;
