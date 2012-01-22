@@ -4,20 +4,27 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.heuristics.IncrementalConstructionAndBacktrackingFactory;
 import polygonsSWP.generators.heuristics.SpacePartitioningFactory;
+import polygonsSWP.generators.heuristics.SteadyGrowthFactory;
 import polygonsSWP.generators.heuristics.TwoOptMovesFactory;
 import polygonsSWP.generators.heuristics.VelocityVirmaniFactory;
 import polygonsSWP.generators.other.ConvexHullGeneratorFactory;
 import polygonsSWP.generators.other.PermuteAndRejectFactory;
 import polygonsSWP.generators.rpa.RandomPolygonAlgorithmFactory;
 import polygonsSWP.gui.generation.PolygonGenerationPanel;
+import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
 import polygonsSWP.gui.visualisation.PolygonView;
 
 /**
@@ -32,9 +39,12 @@ public class MainFrame
   private static final long serialVersionUID = 313119639927682997L;
 
   // GUI components.
-  private final PolygonGenerationPanel p_generator;
-  private final ShortestPathPanel _sp_config;
-  private final PolygonView p_polygon_view;
+  private final PolygonGenerationPanel gui_generator;
+  private final ShortestPathPanel gui_shortest_path;
+  private final PolygonView gui_polygon_view;
+  private JTabbedPane tabpane;
+  private boolean inGenerationMode = true;
+  private final List<GUIModeListener> observers;
 
   private PolygonGeneratorFactory[] polygon_algorithm_list = { 
       new PermuteAndRejectFactory(),
@@ -43,7 +53,8 @@ public class MainFrame
       new SpacePartitioningFactory(),
       new IncrementalConstructionAndBacktrackingFactory(), 
       new ConvexHullGeneratorFactory(),
-      new VelocityVirmaniFactory()
+      new VelocityVirmaniFactory(),
+      new SteadyGrowthFactory()
   };
 
   public static void main(String[] args) {
@@ -52,29 +63,39 @@ public class MainFrame
 
   public MainFrame() {
     // init canvas
-    p_polygon_view = new PolygonView();
+    gui_polygon_view = new PolygonView();
     
     // init shortest path configuration panel
-    _sp_config = new ShortestPathPanel();
-    _sp_config.setBorder(BorderFactory.createTitledBorder("Shortest Path"));
+    gui_shortest_path = new ShortestPathPanel();
+    gui_shortest_path.setBorder(BorderFactory.createTitledBorder("Shortest Path"));
     
     // init generator configuration panel
-    p_generator = new PolygonGenerationPanel(polygon_algorithm_list);
-    p_generator.setBorder(BorderFactory.createTitledBorder("Polygon Generation"));
-    p_generator.addPolygonGenerationPanelListener(p_polygon_view);
-    p_generator.addPolygonGenerationPanelListener(_sp_config);
-    p_generator.addPointGenerationModeListener(p_polygon_view);
+    gui_generator = new PolygonGenerationPanel(polygon_algorithm_list);
+    gui_generator.setBorder(BorderFactory.createTitledBorder("Polygon Generation"));
+    gui_generator.addPolygonGenerationPanelListener(gui_polygon_view);
+    gui_generator.addPolygonGenerationPanelListener(gui_shortest_path);
+    gui_generator.addPointGenerationModeListener(gui_polygon_view);
   
-    // Create a sidebar on the left.
-    JPanel p_sidebarLeft = new JPanel();
-    p_sidebarLeft.setLayout(new GridLayout(2, 1));
-    p_sidebarLeft.add(p_generator);
-    p_sidebarLeft.add(_sp_config);
-
+    observers = new LinkedList<GUIModeListener>();
+    
+    tabpane = new JTabbedPane();
+    tabpane.add("Polygon Generation",gui_generator);
+    tabpane.add("Shortest Path Generation",gui_shortest_path);
+    
+    tabpane.addChangeListener(new ChangeListener() {
+		public void stateChanged(ChangeEvent arg0) {
+			inGenerationMode = !inGenerationMode;
+			if(inGenerationMode)
+				emitInGenerationMode();
+			else
+				emitInShortestPathMode();
+		}
+	});
+    
     // Layout the main window.
     setLayout(new BorderLayout(5, 5));
-    add(p_sidebarLeft, BorderLayout.WEST);
-    add(p_polygon_view, BorderLayout.CENTER);
+    add(tabpane, BorderLayout.WEST);
+    add(gui_polygon_view, BorderLayout.CENTER);
 
     setTitle("PolygonGen");
     setSize(1000, 650);
@@ -86,4 +107,17 @@ public class MainFrame
     });
     setVisible(true);
   }
+  
+  private void emitInGenerationMode()
+  {
+	  for(GUIModeListener l:observers)
+		  l.inGenerationMode();
+  }
+  
+  private void emitInShortestPathMode()
+  {
+	  for(GUIModeListener l:observers)
+		  l.inShortestPathMode();
+  }
+  
 }

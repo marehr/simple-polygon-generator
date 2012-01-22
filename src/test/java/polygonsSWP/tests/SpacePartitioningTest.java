@@ -15,6 +15,7 @@ import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.generators.heuristics.SpacePartitioningFactory;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
+import polygonsSWP.util.GeneratorUtils;
 
 public class SpacePartitioningTest
 {
@@ -36,7 +37,25 @@ public class SpacePartitioningTest
       HashMap<Parameters, Object> params = new HashMap<Parameters, Object>();
       params.put(Parameters.points, new ArrayList<Point>(points));
 
-      PolygonGenerator gen = factory.createInstance(params, null);
+      PolygonGenerator gen = factory.createInstance(params, null, null);
+      OrderedListPolygon polygon = (OrderedListPolygon) gen.generate();
+
+      assertTrue(i + ". try is not simple", polygon.isSimple());
+    }
+  }
+
+  private void testNotInGeneralPosition(List<Point> points) throws IllegalParameterizationException {
+    boolean position = GeneratorUtils.isInGeneralPosition(points);
+    assertTrue("should not be in general position", !position);
+
+    PolygonGeneratorFactory factory = new SpacePartitioningFactory();
+
+    // should be simple
+    for(int i = 0; i < 100; ++i){
+      HashMap<Parameters, Object> params = new HashMap<Parameters, Object>();
+      params.put(Parameters.points, new ArrayList<Point>(points));
+
+      PolygonGenerator gen = factory.createInstance(params, null, null);
       OrderedListPolygon polygon = (OrderedListPolygon) gen.generate();
 
       assertTrue(i + ". try is not simple", polygon.isSimple());
@@ -48,7 +67,7 @@ public class SpacePartitioningTest
    * @throws IllegalParameterizationException 
    */
   @Test
-  public void bug0() throws IllegalParameterizationException {
+  public void notInGeneralPosition0() throws IllegalParameterizationException {
     List<Point> points = new ArrayList<Point>();
     points.add(new Point(546,76));
     points.add(new Point(228,51));
@@ -61,18 +80,22 @@ public class SpacePartitioningTest
     points.add(new Point(83,20));
     points.add(new Point(229,4));
 
-    PolygonGeneratorFactory factory = new SpacePartitioningFactory();
-
-    // should be simple
-    for(int i = 0; i < 100; ++i){
-      HashMap<Parameters, Object> params = new HashMap<Parameters, Object>();
-      params.put(Parameters.points, new ArrayList<Point>(points));
-
-      PolygonGenerator gen = factory.createInstance(params, null);
-      OrderedListPolygon polygon = (OrderedListPolygon) gen.generate();
-
-      assertNotNull(polygon);
-    }
+    testNotInGeneralPosition(points);
   }
 
+  /**
+   * polygon that fails isSimple test, after completion of the algorithm.
+   * @throws IllegalParameterizationException 
+   */
+  @Test
+  public void notInGeneralPosition1() throws IllegalParameterizationException {
+    List<Point> points = new ArrayList<Point>();
+    points.add(new Point(120,50));
+    points.add(new Point(130,100));
+    points.add(new Point(110,100));
+    points.add(new Point(100,80));
+    points.add(new Point(115,100));
+
+    testNotInGeneralPosition(points);
+  }
 }

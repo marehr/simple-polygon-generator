@@ -129,31 +129,17 @@ public class PolygonGenerationPanel
   }
   
   /**
-   * Checks parameters and starts a worker thread to generate
+   * Creates a generator and starts a worker thread to generate
    * the polygon.
    */
   protected void runGenerator() {
-    PolygonGeneratorFactory pgf = p_generator_config.getGeneratorFactory();
-    Map<Parameters, Object> params = p_generator_config.getParameters();
-    if(pgf == null || params == null)
-      return;
-
-    PolygonGenerator pg = null;
     steps = new PolygonHistory();
     stats = new PolygonStatistics();
-    try {
-      pg = pgf.createInstance(params, stats, steps);
-    }
-    catch (IllegalParameterizationException e) {
-      JOptionPane.showMessageDialog(null,
-          "Could not create PolygonGenerator.\n" +
-          "Error was: " + e.getMessage() + "\n" + 
-          "For parameter: " + e.getIllegalParameter(),
-          "Parameterization error",
-          JOptionPane.ERROR_MESSAGE);  
+    PolygonGenerator pg = p_generator_config.createGenerator(stats, steps);
+
+    if(pg == null)
       return;
-    }
-    
+        
     worker = new PolygonGenerationWorker(pg, this);
     t = new Thread(worker);
     b_generate_polygon.setText("Cancel");

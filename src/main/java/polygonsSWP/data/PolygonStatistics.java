@@ -19,6 +19,9 @@ public class PolygonStatistics
   //Permute & Reject + IC&BT + Virmani  
   public Integer iterations = null;
  
+  //Permute & Reject + Virmani
+  public Integer rejections = null;
+  
   //RPA
   //nothing yet
   
@@ -27,7 +30,6 @@ public class PolygonStatistics
   public Integer count_of_backtracks = null;
   
   //Velocity Virmani
-  public Integer virmani_collisions = null;
   public Double radius = null;
   public Double avg_velocity_without_collisions = null;
   

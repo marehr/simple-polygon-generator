@@ -16,228 +16,234 @@ import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 
-public class SpacePartitioningFactory implements PolygonGeneratorFactory {
 
-	@Override
-	public boolean acceptsUserSuppliedPoints() {
-		return true;
-	}
+public class SpacePartitioningFactory
+  implements PolygonGeneratorFactory
+{
 
-	@Override
-	public List<Parameters> getAdditionalParameters() {
-		return new LinkedList<Parameters>();
-	}
+  @Override
+  public boolean acceptsUserSuppliedPoints() {
+    return true;
+  }
 
-	@Override
-	public String toString() {
-		return "SpacePartitioning";
-	}
+  @Override
+  public List<Parameters> getAdditionalParameters() {
+    return new LinkedList<Parameters>();
+  }
 
-	@Override
-	public PolygonGenerator createInstance(Map<Parameters, Object> params,
-	    PolygonStatistics stats,
-			PolygonHistory steps) throws IllegalParameterizationException {
-		List<Point> points = GeneratorUtils.createOrUsePoints(params);
-		return new SpacePartitioning(points, steps,
-				(Integer) params.get(Parameters.size), stats);
-	}
+  @Override
+  public String toString() {
+    return "SpacePartitioning";
+  }
 
-	private static class SpacePartitioning implements PolygonGenerator {
+  @Override
+  public PolygonGenerator createInstance(Map<Parameters, Object> params,
+      PolygonStatistics stats, PolygonHistory steps)
+    throws IllegalParameterizationException {
 
-		private List<Point> points;
-		private PolygonHistory steps = null;
-		private boolean doStop = false;
-		private int size;
-		private PolygonStatistics statistics = null;
+    List<Point> points = GeneratorUtils.createOrUsePoints(params);
 
-		SpacePartitioning(List<Point> points, PolygonHistory steps, int size,
-				PolygonStatistics statistics) {
-			this.points = points;
-			this.steps = steps;
-			this.size = size;
-			this.statistics = statistics;
-		}
+    return new SpacePartitioning(points, steps, stats);
+  }
 
-		@Override
-		public Polygon generate() {
-			doStop = false;
 
-			Polygon p = null;
-			try {
-				p = generate0();
-			} catch (RuntimeException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-			}
+  private static class SpacePartitioning
+    implements PolygonGenerator
+  {
 
-			return doStop == true ? null : p;
-		}
+    private List<Point> points;
+    private PolygonHistory steps = null;
+    private boolean doStop = false;
+    private PolygonStatistics stats = null;
 
-		private Polygon generate0() throws InterruptedException {
-			// System.out.println("<------------------------- NEW GENERATE ------------------------->");
+    SpacePartitioning(List<Point> points, PolygonHistory steps,
+        PolygonStatistics stats) {
+      this.points = points;
+      this.steps = steps;
+      this.stats = stats;
+    }
 
-			Point first = GeneratorUtils.removeRandomPoint(points), last = GeneratorUtils
-					.removeRandomPoint(points);
-			// System.out.println("first: " + first + ", last: "+ last);
+    @Override
+    public Polygon generate() {
+      doStop = false;
 
-			List<Point> left = new ArrayList<Point>(points.size()), right = new ArrayList<Point>(
-					points.size());
+      Polygon p = null;
+      try {
+        p = generate0();
+      }
+      catch (RuntimeException e) {
+        e.printStackTrace();
+      }
+      catch (InterruptedException e) {}
 
-			partionateIn(left, right, points, first, last);
+      return doStop == true ? null : p;
+    }
 
-			OrderedListPolygon leftPolygon = spacePartitioning(left, first,
-					last), rightPolygon = spacePartitioning(right, last, first);
+    private Polygon generate0()
+      throws InterruptedException {
+      // System.out.println("<------------------------- NEW GENERATE ------------------------->");
 
-			// System.out.println("\n\n");
-			// System.out.println("result in generate");
-			// System.out.println("first: " + first);
-			// System.out.println("last: "+ last);
-			// System.out.println("left: " + leftPolygon.getPoints());
-			// System.out.println("right: " + rightPolygon.getPoints());
-			OrderedListPolygon merge = merge(leftPolygon, rightPolygon);
-			// System.out.println("polygon: " + merge.getPoints());
+      Point first = GeneratorUtils.removeRandomPoint(points), last =
+          GeneratorUtils.removeRandomPoint(points);
+      // System.out.println("first: " + first + ", last: "+ last);
 
-			if (!merge.isSimple()) {
-				String out = GeneratorUtils.isInGeneralPosition(merge
-						.getPoints()) ? "true" : "false";
-				throw new RuntimeException("general position: " + out + "\n"
-						+ "generated Polygon is not simple: "
-						+ merge.getPoints());
-			}
-			// System.err.println(merge.isSimple()? "simple" : "not simple");
+      List<Point> left = new ArrayList<Point>(points.size()), right =
+          new ArrayList<Point>(points.size());
 
-			return merge;
-		}
+      partionateIn(left, right, points, first, last);
 
-		private void removeDuplicates(Polygon left, Polygon right) {
-			List<Point> leftPoints = left.getPoints(), rightPoints = right
-					.getPoints();
+      OrderedListPolygon leftPolygon = spacePartitioning(left, first, last), rightPolygon =
+          spacePartitioning(right, last, first);
 
-			assert leftPoints.size() > 0 && rightPoints.size() > 0;
+      // System.out.println("\n\n");
+      // System.out.println("result in generate");
+      // System.out.println("first: " + first);
+      // System.out.println("last: "+ last);
+      // System.out.println("left: " + leftPolygon.getPoints());
+      // System.out.println("right: " + rightPolygon.getPoints());
+      OrderedListPolygon merge = merge(leftPolygon, rightPolygon);
+      // System.out.println("polygon: " + merge.getPoints());
 
-			// on borders can be duplicated elements, we must remove them
-			if (rightPoints.get(0)
-					.equals(leftPoints.get(leftPoints.size() - 1))) {
-				rightPoints.remove(0);
-			}
+      if (!merge.isSimple()) {
+        String out =
+            GeneratorUtils.isInGeneralPosition(merge.getPoints())
+                ? "true"
+                : "false";
+        throw new RuntimeException("general position: " + out + "\n" +
+            "generated Polygon is not simple: " + merge.getPoints());
+      }
+      // System.err.println(merge.isSimple()? "simple" : "not simple");
 
-			assert leftPoints.size() > 0 && rightPoints.size() > 0;
+      return merge;
+    }
 
-			if (leftPoints.get(0).equals(
-					rightPoints.get(rightPoints.size() - 1))) {
-				leftPoints.remove(0);
-			}
-		}
+    private void removeDuplicates(Polygon left, Polygon right) {
+      List<Point> leftPoints = left.getPoints(), rightPoints =
+          right.getPoints();
 
-		private/* String */void partionateIn(List<Point> left,
-				List<Point> right, List<Point> points, Point first, Point last)
-				throws InterruptedException {
+      assert leftPoints.size() > 0 && rightPoints.size() > 0;
 
-			if (doStop)
-				throw new InterruptedException();
+      // on borders can be duplicated elements, we must remove them
+      if (rightPoints.get(0).equals(leftPoints.get(leftPoints.size() - 1))) {
+        rightPoints.remove(0);
+      }
 
-			// String output = "";
-			for (Point point : points) {
+      assert leftPoints.size() > 0 && rightPoints.size() > 0;
 
-				int orients = MathUtils.checkOrientation(first, last, point);
-				// output += "orients: [" + first + "," + last + "," + point +
-				// "]" +
-				// (orients < 0 ? "LEFT" : (orients == 0 ? "ONSEGMENT" :
-				// "RIGHT")) +
-				// "\n";
-				if (orients < 0) { // on left-side
-					left.add(point);
-				} else {
-					right.add(point);
-				}
+      if (leftPoints.get(0).equals(rightPoints.get(rightPoints.size() - 1))) {
+        leftPoints.remove(0);
+      }
+    }
 
-			}
+    private/* String */void partionateIn(List<Point> left, List<Point> right,
+        List<Point> points, Point first, Point last)
+      throws InterruptedException {
 
-			// return /*output*/ null;
-		}
+      if (doStop) throw new InterruptedException();
 
-		private OrderedListPolygon merge(OrderedListPolygon left,
-				OrderedListPolygon right) {
-			removeDuplicates(left, right);
+      // String output = "";
+      for (Point point : points) {
 
-			left.getPoints().addAll(right.getPoints());
-			return left;
-		}
+        int orients = MathUtils.checkOrientation(first, last, point);
+        // output += "orients: [" + first + "," + last + "," + point +
+        // "]" +
+        // (orients < 0 ? "LEFT" : (orients == 0 ? "ONSEGMENT" :
+        // "RIGHT")) +
+        // "\n";
+        if (orients < 0) { // on left-side
+          left.add(point);
+        }
+        else {
+          right.add(point);
+        }
 
-		private OrderedListPolygon spacePartitioning(List<Point> points,
-				Point first, Point last) throws InterruptedException {
+      }
 
-			if (doStop)
-				throw new InterruptedException();
+      // return /*output*/ null;
+    }
 
-			// base size == 0
-			if (points.size() == 0) {
-				ArrayList<Point> list = new ArrayList<Point>();
-				list.add(first);
-				list.add(last);
+    private OrderedListPolygon merge(OrderedListPolygon left,
+        OrderedListPolygon right) {
+      removeDuplicates(left, right);
 
-				// System.out.println("\n\n---size == 0---\npoints: " + points);
-				// System.out.println("first: " + first);
-				// System.out.println("last: "+ last);
-				// System.out.println("draw segment: " + first + " to " + last);
-				// System.out.println("------");
-				return new OrderedListPolygon(list);
-			}
+      left.getPoints().addAll(right.getPoints());
+      return left;
+    }
 
-			// base size == 1
-			if (points.size() == 1) {
-				ArrayList<Point> list = new ArrayList<Point>();
-				list.add(first);
-				list.add(points.get(0));
-				list.add(last);
+    private OrderedListPolygon spacePartitioning(List<Point> points,
+        Point first, Point last)
+      throws InterruptedException {
 
-				// System.out.println("\n\n---size == 1---\npoints: " + points);
-				// System.out.println("first: " + first);
-				// System.out.println("last: "+ last);
-				// System.out.println("draw segment: " + first + " to " +
-				// points.get(0)
-				// +
-				// " to " + last);
-				// System.out.println("------");
-				return new OrderedListPolygon(list);
-			}
+      if (doStop) throw new InterruptedException();
 
-			Point middle = GeneratorUtils.removeRandomPoint(points);
+      // base size == 0
+      if (points.size() == 0) {
+        ArrayList<Point> list = new ArrayList<Point>();
+        list.add(first);
+        list.add(last);
 
-			List<Point> left = new ArrayList<Point>(points.size()), right = new ArrayList<Point>(
-					points.size());
+        // System.out.println("\n\n---size == 0---\npoints: " + points);
+        // System.out.println("first: " + first);
+        // System.out.println("last: "+ last);
+        // System.out.println("draw segment: " + first + " to " + last);
+        // System.out.println("------");
+        return new OrderedListPolygon(list);
+      }
 
-			// String output =
-			partionateIn(left, right, points, first, middle);
+      // base size == 1
+      if (points.size() == 1) {
+        ArrayList<Point> list = new ArrayList<Point>();
+        list.add(first);
+        list.add(points.get(0));
+        list.add(last);
 
-			boolean onLeftSide = MathUtils
-					.checkOrientation(first, last, middle) == -1;
+        // System.out.println("\n\n---size == 1---\npoints: " + points);
+        // System.out.println("first: " + first);
+        // System.out.println("last: "+ last);
+        // System.out.println("draw segment: " + first + " to " +
+        // points.get(0)
+        // +
+        // " to " + last);
+        // System.out.println("------");
+        return new OrderedListPolygon(list);
+      }
 
-			OrderedListPolygon leftPolygon = spacePartitioning(
-					onLeftSide ? left : right, first, middle), rightPolygon = spacePartitioning(
-					onLeftSide ? right : left, middle, last);
+      Point middle = GeneratorUtils.removeRandomPoint(points);
 
-			// System.out.println("\n\n---general---\npoints: " + points +
-			// ", ordered: "
-			// + (onLeftSide ? "LEFT" : "RIGHT"));
-			// System.out.println("first: " + first);
-			// System.out.println("last: "+ last);
-			// System.out.println("middle: " + middle);
-			// System.out.println(output);
+      List<Point> left = new ArrayList<Point>(points.size()), right =
+          new ArrayList<Point>(points.size());
 
-			// System.out.println("left: " + leftPolygon.getPoints());
-			// System.out.println("right: " + rightPolygon.getPoints());
+      // String output =
+      partionateIn(left, right, points, first, middle);
 
-			OrderedListPolygon merge = merge(leftPolygon, rightPolygon);
-			// System.out.println("merge: " + merge.getPoints());
-			// System.out.println("------");
+      boolean onLeftSide =
+          MathUtils.checkOrientation(first, last, middle) == -1;
 
-			return merge;
-		}
+      OrderedListPolygon leftPolygon =
+          spacePartitioning(onLeftSide ? left : right, first, middle), rightPolygon =
+          spacePartitioning(onLeftSide ? right : left, middle, last);
 
-		@Override
-		public void stop() {
-			doStop = true;
-		}
-	}
+      // System.out.println("\n\n---general---\npoints: " + points +
+      // ", ordered: "
+      // + (onLeftSide ? "LEFT" : "RIGHT"));
+      // System.out.println("first: " + first);
+      // System.out.println("last: "+ last);
+      // System.out.println("middle: " + middle);
+      // System.out.println(output);
+
+      // System.out.println("left: " + leftPolygon.getPoints());
+      // System.out.println("right: " + rightPolygon.getPoints());
+
+      OrderedListPolygon merge = merge(leftPolygon, rightPolygon);
+      // System.out.println("merge: " + merge.getPoints());
+      // System.out.println("------");
+
+      return merge;
+    }
+
+    @Override
+    public void stop() {
+      doStop = true;
+    }
+  }
 }

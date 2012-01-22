@@ -29,7 +29,7 @@ import polygonsSWP.util.SeidelTrapezoidation;
 
 public class PolygonView
   extends JPanel
-  implements PolygonGenerationPanelListener, PointGenerationModeListener, VisualisationControlListener
+  implements PolygonGenerationPanelListener, PointGenerationModeListener
 {
   private static final long serialVersionUID = 1L;
 
@@ -77,7 +77,7 @@ public class PolygonView
     tb.add(trapezoidButton);
 
     visControl = new VisualisationControl(tb);
-    visControl.addVisualisationControlListener(this);
+    visControl.addVisualisationControlListener(pp);
 
     layoutControls();
   }
@@ -111,7 +111,9 @@ public class PolygonView
   @Override
   public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats, PolygonHistory history) {
     pp.clearScene();
-    pp.addPolygon(newPolygon);
+    // Remark: Commented out as we display the polygon through the
+    // history object.
+    // pp.addPolygon(newPolygon);
     visControl.setHistory(history);
 
     polygon = newPolygon;
@@ -125,13 +127,6 @@ public class PolygonView
   public void onPointGenerationModeSwitched(boolean randomPoints,
       List<Point> points) {
     pp.setDrawMode(!randomPoints, points);
-  }
-
-  /* VisualisationControlListener methods. */
-
-  @Override
-  public void onNewFrame() {
-    // TODO load new frame in PaintPanel.
   }
 
   /* Internals. */

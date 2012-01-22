@@ -28,7 +28,7 @@ public class HistorySceneTest
     PolygonHistory hist = new PolygonHistory();
     PolygonGenerator inst;
     try {
-      inst = fac.createInstance(params, hist);
+      inst = fac.createInstance(params, null, hist);
       inst.generate();
       int i = 0;
       for(Scene item : hist.getScenes()) {
