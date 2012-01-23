@@ -2,17 +2,21 @@ package polygonsSWP.gui.visualisation;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.AffineTransform;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JPanel;
 
+import polygonsSWP.data.Scene;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 
@@ -26,15 +30,20 @@ import polygonsSWP.geometry.Polygon;
  */
 class PaintPanel
   extends JPanel
-  implements MouseListener, MouseMotionListener, MouseWheelListener
+  implements MouseListener, MouseMotionListener, MouseWheelListener, VisualisationControlListener
 {
   private static final long serialVersionUID = 1L;
+  private java.awt.Point mouse = null;
+  private boolean inFrame = false;
   private final DecimalFormat df = new DecimalFormat("#0.00");
 
   /** list for point selection */
   private List<Point> points;
 
-  /** Scene objects */
+  /** SVG scene from history object. */
+  private Scene svgScene;
+  
+  /** Our own scene objects */
   private List<Polygon> polygons;
 
   /* current display offsets & co. */
@@ -85,49 +94,73 @@ class PaintPanel
 
   /* Painting */
 
-  protected void initPanel(Graphics g) {
+  protected void initCanvas(Graphics2D g) {
     // Clear panel
     g.setColor(Color.WHITE);
     g.fillRect(0, 0, getWidth(), getHeight());
-
+    
     // Paint the yardstick
     g.setColor(Color.BLUE);
     g.drawRect(5, 5, 3, 9);
     g.drawRect(8, 8, 44, 3);
     g.drawRect(52, 5, 3, 9);
     g.drawString(df.format(50 / zoom), 60, 14);
+        
+    // Set translation & scale.
+    AffineTransform tx = new AffineTransform();
+    tx.translate(offsetX, offsetY);
+    tx.scale(zoom, zoom);
+    g.setTransform(tx);
   }
 
   @Override
   public void paintComponent(Graphics g) {
-    initPanel(g);
+    Graphics2D g2d = (Graphics2D) g;
+    
+    initCanvas(g2d);
 
-    // Paint polygons
-    for (Polygon polygon : polygons) {
-      List<Point> p = polygon.getPoints();
-      int[] xcoords = new int[p.size()];
-      int[] ycoords = new int[p.size()];
-      for (int i = 0; i < p.size(); i++) {
-        xcoords[i] = (int) (p.get(i).x * zoom + offsetX);
-        ycoords[i] = (int) (p.get(i).y * zoom + offsetY);
-      }
-
-      g.setColor(Color.BLACK);
-      g.drawPolygon(xcoords, ycoords, p.size());
+    // Paint svgScene.
+    if(svgScene != null) {
+      svgScene.paint(g2d);
     }
 
     // Paint the points
-    if (drawMode) {
+    if (drawMode && points != null) {
       assert (points != null);
 
       g.setColor(new Color(80, 0, 90));
       for (Point p : points) {
-        g.drawOval((int) (p.x * zoom + offsetX) - 2,
-            (int) (p.y * zoom + offsetY) - 2, 5, 5);
-        g.drawOval((int) (p.x * zoom + offsetX) - 1,
-            (int) (p.y * zoom + offsetY) - 1, 3, 3);
+        //g.drawOval((int) (p.x - 2), (int) (p.y - 2), 5, 5);
+        //g.drawRect((int)p.x, (int)p.y, 1, 1);
+        g.drawOval((int) (p.x - 1.5), (int) (p.y - 1.5), 3, 3);
       }
     }
+
+    // Paint svgScene Points
+    if(svgScene != null) {
+      svgScene.paintPoints(g2d);
+    }
+
+//    // Paint polygons
+//    for (Polygon polygon : polygons) {
+//      List<Point> p = polygon.getPoints();
+//      int[] xcoords = new int[p.size()];
+//      int[] ycoords = new int[p.size()];
+//      for (int i = 0; i < p.size(); i++) {
+//        xcoords[i] = (int) p.get(i).x;
+//        ycoords[i] = (int) p.get(i).y;
+//      }
+//
+//      g.setColor(Color.BLACK);
+//      g.drawPolygon(xcoords, ycoords, p.size());
+//    }
+    
+    if(mouse != null)
+    {
+    	//TODO: display correct values with zoom
+    	g.drawString("[" + mouse.x + " - " + mouse.y + "]", mouse.x-30, mouse.y+30);
+    }
+
   }
 
   /*
@@ -154,10 +187,14 @@ class PaintPanel
 
   @Override
   public void mouseEntered(MouseEvent e) {
+	  inFrame = true;
   }
 
   @Override
   public void mouseExited(MouseEvent e) {
+	  inFrame = false;
+	  mouse = null;
+	  repaint();
   }
 
   @Override
@@ -183,6 +220,8 @@ class PaintPanel
 
   @Override
   public void mouseMoved(MouseEvent e) {
+	  mouse = e.getPoint();
+	  repaint();
   }
 
   /*
@@ -217,4 +256,13 @@ class PaintPanel
       }
     }
   }
+
+  /* VisualisationControlListener methods. */
+  
+  @Override
+  public void onNewScene(Scene scene) {
+    svgScene = scene;
+    repaint();
+  }
+   
 }

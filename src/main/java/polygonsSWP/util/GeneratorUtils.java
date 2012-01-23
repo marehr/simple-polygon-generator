@@ -167,7 +167,7 @@ public class GeneratorUtils
 
     if (points.size() <= 3) return new OrderedListPolygon(points);
 
-    // compute the lower side of the convex hull
+    // compute the upper side of the convex hull
 
     hull.add(points.get(0));
     hull.add(points.get(1));
@@ -190,12 +190,12 @@ public class GeneratorUtils
       k += 1;
     }
 
-    // compute the upper side of the convex hull
+    // compute the lower side of the convex hull
 
     int lowerSize = k - 1;
     k = 1;
 
-    for (int i = n - 3; i >= 0; --i) {
+    for (int i = n - 2; i >= 0; --i) {
       pi = points.get(i);
 
       while (k >= 1) {
@@ -221,20 +221,35 @@ public class GeneratorUtils
    * Borders of polygon count as inside so lineSegments and Points coincident or
    * in lineSegment do not block sight.
    * 
+   * IMPORTANT: polygon must be in general position
+   * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
    * @param base
    * @param support
    * @param polygon
    */
   public static boolean
       isPolygonPointVisible(Point a, Point b, Polygon polygon) {
+
     List<Point[]> intersections = polygon.intersect(new LineSegment(a, b));
-    boolean visible = true;
-    for (Point[] points : intersections) {
-      if (points[0] == null && points[1] == null) {
-        visible = false;
-      }
-    }
-    return visible;
+
+    // sollte nie passieren, da immer ein Schnittpunkt zurueckgegeben
+    // werden muss, weil a oder b eine Kante des Polygon ist
+    if(intersections.size() == 0) throw new RuntimeException(
+        "should never happen, must be at least one intersection: a = " + a +
+        "; b = " + b + "\n" + polygon.getPoints());
+
+    if(intersections.size() > 1) return false;
+
+    Point[] points = intersections.get(0);
+
+    // es gibt eine schnittkante, dann ist dieser punkt aufjedenfall nicht
+    // sichtbar
+    if(points[0] == null) return false;
+
+    // konsistenz Pruefung, ob der einzige Schnittpunkt ein Eckpunkt
+    // des Polygons war
+    return points[1] == null && points[2] == null;
   }
 }

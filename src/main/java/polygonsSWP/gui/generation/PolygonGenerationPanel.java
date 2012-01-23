@@ -11,6 +11,8 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
@@ -40,6 +42,8 @@ public class PolygonGenerationPanel
   /* Generation worker thread. */
   private Thread t;
   private PolygonGenerationWorker worker;
+  private PolygonHistory steps;
+  private PolygonStatistics stats;
 
   public PolygonGenerationPanel(final PolygonGeneratorFactory[] polygon_algorithm_list) {
     observers = new LinkedList<PolygonGenerationPanelListener>();
@@ -101,7 +105,7 @@ public class PolygonGenerationPanel
   
   protected void emitPolygonGenerated(Polygon p) {
     for (PolygonGenerationPanelListener pgl : observers)
-      pgl.onPolygonGenerated(p, null);
+      pgl.onPolygonGenerated(p, stats, steps);
   }
 
 
@@ -111,6 +115,7 @@ public class PolygonGenerationPanel
    */
   @Override
   public void onFinished(Polygon polygon) {
+//    stats.stop();
     b_generate_polygon.setText("Generate");
     t = null;
     emitPolygonGenerated(polygon);
@@ -124,35 +129,24 @@ public class PolygonGenerationPanel
   }
   
   /**
-   * Checks parameters and starts a worker thread to generate
+   * Creates a generator and starts a worker thread to generate
    * the polygon.
    */
   protected void runGenerator() {
-    PolygonGeneratorFactory pgf = p_generator_config.getGeneratorFactory();
-    Map<Parameters, Object> params = p_generator_config.getParameters();
-    if(pgf == null || params == null)
-      return;
+    steps = new PolygonHistory();
+    stats = new PolygonStatistics();
+    PolygonGenerator pg = p_generator_config.createGenerator(stats, steps);
 
-    PolygonGenerator pg = null;
-    try {
-      pg = pgf.createInstance(params, null);
-    }
-    catch (IllegalParameterizationException e) {
-      JOptionPane.showMessageDialog(null,
-          "Could not create PolygonGenerator.\n" +
-          "Error was: " + e.getMessage() + "\n" + 
-          "For parameter: " + e.getIllegalParameter(),
-          "Parameterization error",
-          JOptionPane.ERROR_MESSAGE);  
+    if(pg == null)
       return;
-    }
-    
+        
     worker = new PolygonGenerationWorker(pg, this);
     t = new Thread(worker);
     b_generate_polygon.setText("Cancel");
     
     // TODO think about order
     emitPolygonGenerationStarted();
+//    stats.start();
     t.start();
   }
   

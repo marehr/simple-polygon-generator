@@ -11,7 +11,6 @@ import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
-import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
@@ -38,9 +37,9 @@ public class IncrementalConstructionAndBacktrackingFactory implements
 
 	@Override
 	public PolygonGenerator createInstance(Map<Parameters, Object> params,
+	    PolygonStatistics stats,
 			PolygonHistory steps) throws IllegalParameterizationException {
 		List<Point> points = GeneratorUtils.createOrUsePoints(params, true);
-		PolygonStatistics stats = (PolygonStatistics) params.get(Parameters.polygonStatistics);
 		return new IncrementalConstructionAndBacktracking(points, steps, stats);
 	}
 

@@ -13,6 +13,12 @@ import polygonsSWP.geometry.Point;
  */
 public class MathUtils
 {
+
+  public static int modulo(int i, int size) {
+    i = i % size;
+    return i < 0 ? size + i : i;
+  }
+
   /**
    * Randomly creates a set of n points in a square defined by edge length s,
    * where each point holds 0 <= x < s && 0 <= y < s and no point equals another
