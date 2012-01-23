@@ -304,7 +304,6 @@ public class OrderedListPolygon
       pointTree.add(tp);
 
     EdgeList eList = new EdgeList();
-    HashMap<LineSegment, Point> formerIsec = new HashMap<LineSegment, Point>();
     // For every Vertex in tree
     Iterator<PointType> iter = pointTree.iterator();
     while (iter.hasNext()) {
@@ -319,20 +318,16 @@ public class OrderedListPolygon
         // Add the edge curr.p with left or right neighbor.
         // where the neighbor with the lower y coordinate is choosen
         if (curr.left.y < curr.p.y) {
-          eList.insertEdge(new LineSegment(curr.p, curr.left));
-          formerIsec.put(new LineSegment(curr.p, curr.left), curr.p);
+          eList.insertEdge(curr.p, curr.left);
         }
         else {
-          eList.insertEdge(new LineSegment(curr.p, curr.right));
-          formerIsec.put(new LineSegment(curr.p, curr.right), curr.p);
+          eList.insertEdge(curr.p, curr.right);
         }
         break;
       case MAX:
         // Add both edges to right and left neighbour to edgelist
-        eList.insertEdge(new LineSegment(curr.p, curr.right));
-        formerIsec.put(new LineSegment(curr.p, curr.right), curr.p);
-        eList.insertEdge(new LineSegment(curr.p, curr.left));
-        formerIsec.put(new LineSegment(curr.p, curr.left), curr.p);
+        eList.insertEdge(curr.p, curr.right);
+        eList.insertEdge(curr.p, curr.left);
         break;
       case MIN:
         // Mark every edge with curr.p as endpoint for deletion
@@ -341,12 +336,10 @@ public class OrderedListPolygon
       case HMAX:
         // Insert only the non horizontal edge
         if (MathUtils.doubleEquals(curr.right.x, curr.p.x)) {
-          eList.insertEdge(new LineSegment(curr.p, curr.left));
-          formerIsec.put(new LineSegment(curr.p, curr.left), curr.p);
+          eList.insertEdge(curr.p, curr.left);
         }
         else {
-          eList.insertEdge(new LineSegment(curr.p, curr.right));
-          formerIsec.put(new LineSegment(curr.p, curr.right), curr.p);
+          eList.insertEdge(curr.p, curr.right);
         }
         break;
       case HMIN:
@@ -366,29 +359,32 @@ public class OrderedListPolygon
       if (curr.type == PointType.PointClass.INT) {
         // Calculate intersection point (only one is possible)
         LineSegment interEdge[] =
-            eList.searchIntersectingEdges(curr.p.x, curr.direct);
+            eList.searchIntersectingEdges(curr.p, curr.direct);
         Point[] intersections = sweepLineIntersect(curr, interEdge);
         // Form Polygon
         formMonontonPolygon(curr.p, intersections[0],
             eList.getIntersectionByEndPoint(curr.p)[0],
-            formerIsec.get(interEdge[0]), returnList);
+            eList.getIntersectionByEndPoint(intersections[0])[0], returnList);
         // Update intersection to calculated one
-        formerIsec.put(interEdge[0], intersections[0]);
+        eList.updateIntersection(interEdge[0]._b, interEdge[0]._a,
+            intersections[0]);
       }
       // If it is MAX
       else if (curr.type == PointType.PointClass.MAX) {
         if (curr.direct == PointType.Direction.BOTH) {
           // Calculate intersection points (only two are possbile)
           LineSegment interEdge[] =
-              eList.searchIntersectingEdges(curr.p.x, curr.direct);
+              eList.searchIntersectingEdges(curr.p, curr.direct);
           Point[] intersections = sweepLineIntersect(curr, interEdge);
           // Form Polygon
           formMonontonPolygon(intersections[0], intersections[1],
-              formerIsec.get(interEdge[0]), formerIsec.get(interEdge[1]),
-              returnList);
+              eList.getIntersectionByEndPoint(intersections[0])[0],
+              eList.getIntersectionByEndPoint(intersections[1])[0], returnList);
           // Update intersection to claculated ones
-          formerIsec.put(interEdge[0], intersections[0]);
-          formerIsec.put(interEdge[1], intersections[1]);
+          eList.updateIntersection(interEdge[0]._b, interEdge[0]._a,
+              intersections[0]);
+          eList.updateIntersection(interEdge[1]._b, interEdge[1]._a,
+              intersections[1]);
         }
       }
       // If it is MIN
@@ -396,21 +392,24 @@ public class OrderedListPolygon
         if (curr.direct == PointType.Direction.BOTH) {
           // Calculate intersection points (only two are possbile)
           LineSegment interEdge[] =
-              eList.searchIntersectingEdges(curr.p.x, curr.direct);
+              eList.searchIntersectingEdges(curr.p, curr.direct);
           Point[] intersections = sweepLineIntersect(curr, interEdge);
           // Form Polygon
           // Only form first polygon if it wasn't form before because of two MIN
           // on the same line
-          if (!formerIsec.get(interEdge[0]).equals(intersections[0]))
+          if (!eList.getIntersectionByEndPoint(intersections[0])[0].equals(intersections[0]))
             formMonontonPolygon(curr.p, intersections[0],
                 eList.getIntersectionByEndPoint(curr.p)[0],
-                formerIsec.get(interEdge[0]), returnList);
+                eList.getIntersectionByEndPoint(intersections[0])[0],
+                returnList);
           formMonontonPolygon(curr.p, intersections[1],
               eList.getIntersectionByEndPoint(curr.p)[1],
-              formerIsec.get(interEdge[1]), returnList);
+              eList.getIntersectionByEndPoint(intersections[1])[0], returnList);
           // Update former intersections
-          formerIsec.put(interEdge[0], intersections[0]);
-          formerIsec.put(interEdge[1], intersections[1]);
+          eList.updateIntersection(interEdge[0]._b, interEdge[0]._a,
+              intersections[0]);
+          eList.updateIntersection(interEdge[1]._b, interEdge[1]._a,
+              intersections[1]);
         }
       }
       // If it is HMAX
@@ -418,43 +417,46 @@ public class OrderedListPolygon
         if (curr.direct == PointType.Direction.LEFT) {
           // Calculate intersection points (only two are possbile)
           LineSegment interEdge[] =
-              eList.searchIntersectingEdges(curr.p.x, curr.direct);
+              eList.searchIntersectingEdges(curr.p, curr.direct);
           Point[] intersections = sweepLineIntersect(curr, interEdge);
           // If it is another HMAX calculate snd intersection and form polygon
           if (pointHash.get(curr.right).type == PointType.PointClass.HMAX) {
             LineSegment interEdgeSecond[] =
-                eList.searchIntersectingEdges(curr.right.x,
+                eList.searchIntersectingEdges(curr.right,
                     PointType.Direction.RIGHT);
             Point[] sndIntersections =
                 sweepLineIntersect(pointHash.get(curr.right), interEdgeSecond);
             formMonontonPolygon(intersections[0], sndIntersections[0],
-                formerIsec.get(interEdge[0]),
-                formerIsec.get(interEdgeSecond[0]), returnList);
+                eList.getIntersectionByEndPoint(intersections[0])[0],
+                eList.getIntersectionByEndPoint(sndIntersections[0])[0],
+                returnList);
             // Update FormerIntersections.
-            formerIsec.put(interEdge[0], intersections[0]);
-            formerIsec.put(interEdgeSecond[0], sndIntersections[0]);
+            eList.updateIntersection(interEdge[0]._b, interEdge[0]._a,
+                intersections[0]);
+            eList.updateIntersection(interEdgeSecond[0]._b,
+                interEdgeSecond[0]._a, sndIntersections[0]);
           }
           else {
             formMonontonPolygon(intersections[0], curr.right,
-                formerIsec.get(interEdge[0]),
-                eList.getIntersectionByEndPoint(curr.right)[0],
-                returnList);
+                eList.getIntersectionByEndPoint(intersections[0])[0],
+                eList.getIntersectionByEndPoint(curr.right)[0], returnList);
             // Update FormerIntersections.
-            formerIsec.put(interEdge[0], intersections[0]);
+            eList.updateIntersection(interEdge[0]._b, interEdge[0]._a,
+                intersections[0]);
           }
         }
         else if (curr.direct == PointType.Direction.RIGHT) {
           // Calculate intersection points (only two are possbile)
           LineSegment interEdge[] =
-              eList.searchIntersectingEdges(curr.p.x, curr.direct);
+              eList.searchIntersectingEdges(curr.p, curr.direct);
           Point[] intersections = sweepLineIntersect(curr, interEdge);
-          if (!formerIsec.get(interEdge[0]).equals(intersections[0])) {
+          if (!eList.getIntersectionByEndPoint(intersections[0])[0].equals(intersections[0])) {
             formMonontonPolygon(intersections[0], curr.left,
-                formerIsec.get(interEdge[0]),
-                eList.getIntersectionByEndPoint(curr.left)[0],
-                returnList);
+                eList.getIntersectionByEndPoint(intersections[0])[0],
+                eList.getIntersectionByEndPoint(curr.left)[0], returnList);
             // Update former intersections
-            formerIsec.put(interEdge[0], intersections[0]);
+            eList.updateIntersection(interEdge[0]._b, interEdge[0]._a,
+                intersections[0]);
           }
         }
       }
@@ -464,20 +466,20 @@ public class OrderedListPolygon
           if (pointHash.get(curr.right).type == PointType.PointClass.HMIN) {
             formMonontonPolygon(curr.p, curr.right,
                 eList.getIntersectionByEndPoint(curr.p)[0],
-                eList.getIntersectionByEndPoint(curr.right)[0],
-                returnList);
+                eList.getIntersectionByEndPoint(curr.right)[0], returnList);
           }
         }
         else {
           // Calculate intersection points (only two are possbile)
           LineSegment interEdge[] =
-              eList.searchIntersectingEdges(curr.p.x, curr.direct);
+              eList.searchIntersectingEdges(curr.p, curr.direct);
           Point[] intersections = sweepLineIntersect(curr, interEdge);
           formMonontonPolygon(curr.p, intersections[0],
               eList.getIntersectionByEndPoint(curr.p)[0],
-              formerIsec.get(interEdge[0]), returnList);
+              eList.getIntersectionByEndPoint(intersections[0])[0], returnList);
           // Update former intersections
-          formerIsec.put(interEdge[0], intersections[0]);
+          eList.updateIntersection(interEdge[0]._b, interEdge[0]._a,
+              intersections[0]);
         }
       }
 
@@ -613,52 +615,53 @@ public class OrderedListPolygon
 
   private static class EdgeList
   {
-    
-    private class EdgeComparator implements Comparator<Point>{
+
+    private class EdgeComparator
+      implements Comparator<Point>
+    {
 
       @Override
       public int compare(Point isec1, Point isec2) {
-        if (isec1.x > isec2.x + MathUtils.EPSILON)
-          return 1;
-        else if (isec1.x < isec2.x - MathUtils.EPSILON)
-          return -1;
-        else 
-          return 0;
+        if (isec1.x > isec2.x + MathUtils.EPSILON) return 1;
+        else if (isec1.x < isec2.x - MathUtils.EPSILON) return -1;
+        else return 0;
       }
-      
+
     }
-    
+
     private TreeMap<Point, Point[]> endStore = new TreeMap<Point, Point[]>();
-    private TreeMap<Point, Point> orderedEdges = new TreeMap<Point, Point>(new EdgeComparator());
+    private TreeMap<Point, Point> orderedEdges = new TreeMap<Point, Point>(
+        new EdgeComparator());
     private List<Point> markedEdges = new ArrayList<Point>();
-        
-    
-    public EdgeList(){
+
+    public EdgeList() {
     }
 
     /**
      * @param ls
      */
-    public void insertEdge(Point endPoint, Point isec) {
-      if(endStore.containsKey(endPoint))
-        //FIXME: check wether reference or not
-        endStore.get(endPoint)[1] = isec;
-      else{
-        Point[] isecs = {isec, null};
+    public void insertEdge(Point isec, Point endPoint) {
+      if (endStore.containsKey(endPoint))
+      // FIXME: check wether reference or not
+      endStore.get(endPoint)[1] = isec;
+      else {
+        Point[] isecs = { isec, null };
         endStore.put(endPoint, isecs);
       }
       orderedEdges.put(isec, endPoint);
-        
+
     }
-    
-    public void updateIntersection(Point endPoint, Point oldIsec, Point newIsec) {
+
+    public void
+        updateIntersection(Point endPoint, Point oldIsec, Point newIsec) {
       Point[] isecs = endStore.get(endPoint);
-      if (isecs[0] == oldIsec){
+      if (isecs[0] == oldIsec) {
         isecs[0] = newIsec;
         endStore.put(endPoint, isecs);
         orderedEdges.remove(oldIsec);
         orderedEdges.put(newIsec, endPoint);
-      }else {
+      }
+      else {
         isecs[1] = newIsec;
         endStore.put(endPoint, isecs);
         orderedEdges.remove(oldIsec);
@@ -684,27 +687,27 @@ public class OrderedListPolygon
         PointType.Direction direct) {
       LineSegment edge1;
       LineSegment edge2;
-      if(direct == PointType.Direction.LEFT){
+      if (direct == PointType.Direction.LEFT) {
         Entry<Point, Point> IsecEnd = orderedEdges.lowerEntry(p);
         edge1 = new LineSegment(IsecEnd.getKey(), IsecEnd.getValue());
-        LineSegment[] edges = {edge1 , null};
+        LineSegment[] edges = { edge1, null };
         return edges;
       }
       else if (direct == PointType.Direction.RIGHT) {
         Entry<Point, Point> IsecEnd = orderedEdges.higherEntry(p);
         edge1 = new LineSegment(IsecEnd.getKey(), IsecEnd.getValue());
-        LineSegment[] edges = {edge1 , null};
+        LineSegment[] edges = { edge1, null };
         return edges;
       }
-      else{
+      else {
         Entry<Point, Point> IsecEnd = orderedEdges.lowerEntry(p);
         edge1 = new LineSegment(IsecEnd.getKey(), IsecEnd.getValue());
         IsecEnd = orderedEdges.higherEntry(p);
         edge2 = new LineSegment(IsecEnd.getKey(), IsecEnd.getValue());
-        LineSegment[] edges = {edge1 , edge2};
+        LineSegment[] edges = { edge1, edge2 };
         return edges;
       }
-        
+
     }
 
     /**
