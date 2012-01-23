@@ -1,7 +1,6 @@
 package polygonsSWP.geometry;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -295,8 +294,11 @@ public class OrderedListPolygon
         new TreeSet<PointType>(new PointType.PointComparator());
     // Calculate type and direction for every Point and them to the tree
     // they are implicitly sorted then.
+    HashMap<Point, PointType> pointHash = new HashMap<Point, PointType>();
     for (Point p : _coords)
-      pointTree.add(categorizePointForSweepLine(p));
+      pointHash.put(p, categorizePointForSweepLine(p));
+    for (PointType tp : pointHash.values())
+      pointTree.add(tp);
 
     EdgeList eList = new EdgeList();
     HashMap<LineSegment, Point> formerIsec = new HashMap<LineSegment, Point>();
@@ -313,17 +315,21 @@ public class OrderedListPolygon
         eList.mark(curr.p);
         // Add the edge curr.p with left or right neighbor.
         // where the neighbor with the lower y coordinate is choosen
-        if (this.getPointInRange(_coords.indexOf(curr.p) + 1).y < curr.p.y) eList.insertEdge(new LineSegment(
-            curr.p, this.getPointInRange(_coords.indexOf(curr.p) + 1)));
-        else eList.insertEdge(new LineSegment(curr.p,
-            this.getPointInRange(_coords.indexOf(curr.p) - 1)));
+        if (curr.left.y < curr.p.y) {
+          eList.insertEdge(new LineSegment(curr.p, curr.left));
+          formerIsec.put(new LineSegment(curr.p, curr.left), curr.p);
+        }
+        else {
+          eList.insertEdge(new LineSegment(curr.p, curr.right));
+          formerIsec.put(new LineSegment(curr.p, curr.right), curr.p);
+        }
         break;
       case MAX:
         // Add both edges to right and left neighbour to edgelist
-        eList.insertEdge(new LineSegment(curr.p,
-            this.getPointInRange(_coords.indexOf(curr.p) + 1)));
-        eList.insertEdge(new LineSegment(curr.p,
-            this.getPointInRange(_coords.indexOf(curr.p) - 1)));
+        eList.insertEdge(new LineSegment(curr.p, curr.right));
+        formerIsec.put(new LineSegment(curr.p, curr.right), curr.p);
+        eList.insertEdge(new LineSegment(curr.p, curr.left));
+        formerIsec.put(new LineSegment(curr.p, curr.left), curr.p);
         break;
       case MIN:
         // Mark every edge with curr.p as endpoint for deletion
@@ -331,11 +337,14 @@ public class OrderedListPolygon
         break;
       case HMAX:
         // Insert only the non horizontal edge
-        if (MathUtils.doubleEquals(
-            this.getPointInRange(_coords.indexOf(curr.p) + 1).x, curr.p.x)) eList.insertEdge(new LineSegment(
-            curr.p, this.getPointInRange(_coords.indexOf(curr.p) - 1)));
-        else eList.insertEdge(new LineSegment(curr.p,
-            this.getPointInRange(_coords.indexOf(curr.p) + 1)));
+        if (MathUtils.doubleEquals(curr.right.x, curr.p.x)) {
+          eList.insertEdge(new LineSegment(curr.p, curr.left));
+          formerIsec.put(new LineSegment(curr.p, curr.left), curr.p);
+        }
+        else {
+          eList.insertEdge(new LineSegment(curr.p, curr.right));
+          formerIsec.put(new LineSegment(curr.p, curr.right), curr.p);
+        }
         break;
       case HMIN:
         // Mark only the non horizontal edge for deletion
@@ -345,152 +354,228 @@ public class OrderedListPolygon
         break;
       }
       // Step 2
-      // Get direction sweepline has to be thrown
-      PointType.Direction direction = curr.direct;
+      // - Get direction of sweepline.
+      // - determine intersecting edges of polygon and sweepline with edge list
+      // - or if no sweepline is thrown, just add points to formerIntersections
+      // and/or form trapezoids
 
-      // Step 3
-      // determine intersecting edges of polygon and sweepline with edge list
-      List<LineSegment> edges =
-          eList.searchIntersectingEdges(curr.p.x, curr.direct);
-      Point[] trapezoidPoints = new Point[4];
-      // Step 4
-      // Calculate intersections with edges and form trapezoids
-      for (LineSegment edge : edges) {
-        switch (curr.direct) {
-        case LEFT:
-          Ray r1 = new Ray(curr.p, new Point(curr.p.x - 1, curr.p.y));
-          Point isec1 = r1.intersect(edge)[0];
-          trapezoidPoints[0] = isec1;
-          trapezoidPoints[1] = curr.p;
-          trapezoidPoints[2] = formerIsec.get(eList.getEdgeByEndPoint(curr.p));
-          trapezoidPoints[3] = formerIsec.get(edge);
-          formerIsec.put(edge, isec1);
-          break;
-        case RIGHT:
-          Ray r2 = new Ray(curr.p, new Point(curr.p.x + 1, curr.p.y));
-          Point isec2 = r2.intersect(edge)[0];
-          trapezoidPoints[0] = curr.p;
-          trapezoidPoints[1] = isec2;
-          trapezoidPoints[2] = formerIsec.get(edge);
-          trapezoidPoints[3] = formerIsec.get(eList.getEdgeByEndPoint(curr.p));
-          formerIsec.put(edge, isec2);
-          break;
-        case BOTH:
-          Line l = new Line(curr.p, new Point(curr.p.x + 1, curr.p.y));
-          Point isec3 = l.intersect(edge)[0];
-          if (isec3.x < curr.p.x - MathUtils.EPSILON) {
-            trapezoidPoints[0] = isec3;
-            trapezoidPoints[3] = formerIsec.get(edge);
-          }
-          else {
-            trapezoidPoints[1] = isec3;
-            trapezoidPoints[2] = formerIsec.get(edge);
-          }
-          formerIsec.put(edge, isec3);
-          break;
-        default:
-          break;
+      // If it is INT
+      if (curr.type == PointType.PointClass.INT) {
+        // Calculate intersection point (only one is possible)
+        LineSegment interEdge[] =
+            eList.searchIntersectingEdges(curr.p.x, curr.direct);
+        Point[] intersections = sweepLineIntersect(curr, interEdge);
+        // Form Polygon
+        formMonontonPolygon(curr.p, intersections[0],
+            formerIsec.get(eList.getEdgesByEndPoint(curr.p)[0]),
+            formerIsec.get(interEdge[0]), returnList);
+        // Update intersection to calculated one
+        formerIsec.put(interEdge[0], intersections[0]);
+      }
+      // If it is MAX
+      else if (curr.type == PointType.PointClass.MAX) {
+        if (curr.direct == PointType.Direction.BOTH) {
+          // Calculate intersection points (only two are possbile)
+          LineSegment interEdge[] =
+              eList.searchIntersectingEdges(curr.p.x, curr.direct);
+          Point[] intersections = sweepLineIntersect(curr, interEdge);
+          // Form Polygon
+          formMonontonPolygon(intersections[0], intersections[1],
+              formerIsec.get(interEdge[0]), formerIsec.get(interEdge[1]),
+              returnList);
+          // Update intersection to claculated ones
+          formerIsec.put(interEdge[0], intersections[0]);
+          formerIsec.put(interEdge[1], intersections[1]);
         }
       }
-      
-      List<LineSegment> trapezoidEdges = new ArrayList<LineSegment>();
-      for (int i = 0; i < trapezoidPoints.length; i++) {
-        if (trapezoidPoints[i] != trapezoidPoints[(i+1)%4])
-        trapezoidEdges.add(new LineSegment(trapezoidPoints[i], trapezoidPoints[(i+1)%4]));
+      // If it is MIN
+      else if (curr.type == PointType.PointClass.MIN) {
+        if (curr.direct == PointType.Direction.BOTH) {
+          // Calculate intersection points (only two are possbile)
+          LineSegment interEdge[] =
+              eList.searchIntersectingEdges(curr.p.x, curr.direct);
+          Point[] intersections = sweepLineIntersect(curr, interEdge);
+          // Form Polygon
+          // Only form first polygon if it wasn't form before because of two MIN
+          // on the same line
+          if (!formerIsec.get(interEdge[0]).equals(intersections[0]))
+            formMonontonPolygon(curr.p, intersections[0],
+                formerIsec.get(eList.getEdgesByEndPoint(curr.p)[0]),
+                formerIsec.get(interEdge[0]), returnList);
+          formMonontonPolygon(curr.p, intersections[1],
+              formerIsec.get(eList.getEdgesByEndPoint(curr.p)[1]),
+              formerIsec.get(interEdge[1]), returnList);
+          // Update former intersections
+          formerIsec.put(interEdge[0], intersections[0]);
+          formerIsec.put(interEdge[1], intersections[1]);
+        }
       }
-      returnList.add(new MonotonPolygon(trapezoidEdges));
+      // If it is HMAX
+      else if (curr.type == PointType.PointClass.HMAX) {
+        if (curr.direct == PointType.Direction.LEFT) {
+          // Calculate intersection points (only two are possbile)
+          LineSegment interEdge[] =
+              eList.searchIntersectingEdges(curr.p.x, curr.direct);
+          Point[] intersections = sweepLineIntersect(curr, interEdge);
+          // If it is another HMAX calculate snd intersection and form polygon
+          if (pointHash.get(curr.right).type == PointType.PointClass.HMAX) {
+            LineSegment interEdgeSecond[] =
+                eList.searchIntersectingEdges(curr.right.x,
+                    PointType.Direction.RIGHT);
+            Point[] sndIntersections =
+                sweepLineIntersect(pointHash.get(curr.right), interEdgeSecond);
+            formMonontonPolygon(intersections[0], sndIntersections[0],
+                formerIsec.get(interEdge[0]),
+                formerIsec.get(interEdgeSecond[0]), returnList);
+            // Update FormerIntersections.
+            formerIsec.put(interEdge[0], intersections[0]);
+            formerIsec.put(interEdgeSecond[0], sndIntersections[0]);
+          }
+          else {
+            formMonontonPolygon(intersections[0], curr.right,
+                formerIsec.get(interEdge[0]),
+                formerIsec.get(eList.getEdgesByEndPoint(curr.right)[0]),
+                returnList);
+            // Update FormerIntersections.
+            formerIsec.put(interEdge[0], intersections[0]);
+          }
+        }
+        else if (curr.direct == PointType.Direction.RIGHT) {
+          // Calculate intersection points (only two are possbile)
+          LineSegment interEdge[] =
+              eList.searchIntersectingEdges(curr.p.x, curr.direct);
+          Point[] intersections = sweepLineIntersect(curr, interEdge);
+          if (!formerIsec.get(interEdge[0]).equals(intersections[0])) {
+            formMonontonPolygon(intersections[0], curr.left,
+                formerIsec.get(interEdge[0]),
+                formerIsec.get(eList.getEdgesByEndPoint(curr.left)[0]),
+                returnList);
+            // Update former intersections
+            formerIsec.put(interEdge[0], intersections[0]);
+          }
+        }
+      }
+      // If it is HMIN
+      else {
+        if (curr.direct == PointType.Direction.NONE) {
+          if (pointHash.get(curr.right).type == PointType.PointClass.HMIN) {
+            formMonontonPolygon(curr.p, curr.right,
+                formerIsec.get(eList.getEdgesByEndPoint(curr.p)[0]),
+                formerIsec.get(eList.getEdgesByEndPoint(curr.right)[0]),
+                returnList);
+          }
+        }
+        else {
+          // Calculate intersection points (only two are possbile)
+          LineSegment interEdge[] =
+              eList.searchIntersectingEdges(curr.p.x, curr.direct);
+          Point[] intersections = sweepLineIntersect(curr, interEdge);
+          formMonontonPolygon(curr.p, intersections[0],
+              formerIsec.get(eList.getEdgesByEndPoint(curr.p)[0]),
+              formerIsec.get(interEdge[0]), returnList);
+          // Update former intersections
+          formerIsec.put(interEdge[0], intersections[0]);
+        }
+      }
 
       // Step 5
-      // Remove Marked Edges from EdgeList
+      eList.removeMarkedEdges();
     }
-    // For every Vertex in tree:
-
     return returnList;
   }
 
+  private void formMonontonPolygon(Point a, Point b, Point c, Point d,
+      List<MonotonPolygon> returnList) {
+    List<LineSegment> tmpList = new LinkedList<LineSegment>();
+    tmpList.add(new LineSegment(a, b));
+    tmpList.add(new LineSegment(a, c));
+    tmpList.add(new LineSegment(b, d));
+    if (!c.equals(d)) tmpList.add(new LineSegment(c, d));
+    returnList.add(new MonotonPolygon(tmpList));
+  }
+
+  /**
+   * This method categorizes the points accordings to the paper and defines the
+   * direction for the sweep or scanline if one is thrown.
+   * 
+   * @param middle Point to categorize
+   * @return The Point with it neighbours and type and direction.
+   */
   private PointType categorizePointForSweepLine(Point middle) {
     Point left = this.getPoint((_coords.indexOf(middle) - 1) % _coords.size());
     Point right = this.getPoint((_coords.indexOf(middle) + 1) % _coords.size());
     // INT
     if (left.y > middle.y + MathUtils.EPSILON &&
         middle.y > right.y + MathUtils.EPSILON) {
-      return new PointType(middle, PointType.PointClass.INT,
+      return new PointType(middle, left, right, PointType.PointClass.INT,
           PointType.Direction.RIGHT);
     }
     else if (left.y < middle.y - MathUtils.EPSILON &&
         middle.y < right.y - MathUtils.EPSILON) {
-      return new PointType(middle, PointType.PointClass.INT,
+      return new PointType(middle, left, right, PointType.PointClass.INT,
           PointType.Direction.LEFT);
     }
     // MAX
     else if (left.y < middle.y - MathUtils.EPSILON &&
         right.y < middle.y - MathUtils.EPSILON) {
-      if (middle.x > left.x + MathUtils.EPSILON) {
-        return new PointType(middle, PointType.PointClass.MAX,
-            PointType.Direction.BOTH);
-      }
-      else if (middle.x < left.x - MathUtils.EPSILON) {
-        return new PointType(middle, PointType.PointClass.MAX,
-            PointType.Direction.NONE);
-      }
-      else {
-        if (middle.x < right.x - MathUtils.EPSILON) {
-          return new PointType(middle, PointType.PointClass.MAX,
-              PointType.Direction.BOTH);
-        }
-        else {
-          return new PointType(middle, PointType.PointClass.MAX,
-              PointType.Direction.NONE);
-        }
-      }
+      if (MathUtils.checkOrientation(left, right, middle) == 1) return new PointType(
+          middle, left, right, PointType.PointClass.MAX,
+          PointType.Direction.BOTH);
+      else return new PointType(middle, left, right, PointType.PointClass.MAX,
+          PointType.Direction.NONE);
     }
     // MIN
     else if (left.y > middle.y + MathUtils.EPSILON &&
         right.y > middle.y + MathUtils.EPSILON) {
-      if (middle.x > left.x + MathUtils.EPSILON) {
-        return new PointType(middle, PointType.PointClass.MAX,
-            PointType.Direction.NONE);
-      }
-      else if (middle.x < left.x - MathUtils.EPSILON) {
-        return new PointType(middle, PointType.PointClass.MAX,
-            PointType.Direction.BOTH);
-      }
-      else {
-        if (middle.x < right.x - MathUtils.EPSILON) {
-          return new PointType(middle, PointType.PointClass.MAX,
-              PointType.Direction.NONE);
-        }
-        else {
-          return new PointType(middle, PointType.PointClass.MAX,
-              PointType.Direction.BOTH);
-        }
-      }
+      if (MathUtils.checkOrientation(left, right, middle) == 1) return new PointType(
+          middle, left, right, PointType.PointClass.MAX,
+          PointType.Direction.BOTH);
+      else return new PointType(middle, left, right, PointType.PointClass.MAX,
+          PointType.Direction.NONE);
+
     }
     // IGNORE
     else if (MathUtils.doubleEquals(middle.y, right.y) &&
         MathUtils.doubleEquals(middle.y, left.y)) {
-      return new PointType(middle, PointType.PointClass.IGNORE,
+      return new PointType(middle, left, right, PointType.PointClass.IGNORE,
           PointType.Direction.NONE);
     }
-    // HMAX || HMIN
+    // H___
     else if (MathUtils.doubleEquals(middle.y, left.y)) {
-      if (right.y > left.y + MathUtils.EPSILON) {
-        return new PointType(middle, PointType.PointClass.HMIN,
+      // HMAX
+      if (left.y > right.y + MathUtils.EPSILON) {
+        if (MathUtils.checkOrientation(left, right, middle) == 1) return new PointType(
+            middle, left, right, PointType.PointClass.HMAX,
             PointType.Direction.RIGHT);
+        else return new PointType(middle, left, right,
+            PointType.PointClass.HMAX, PointType.Direction.NONE);
       }
+      // HMIN
       else {
-        return new PointType(middle, PointType.PointClass.HMAX,
-            PointType.Direction.RIGHT);
+        if (MathUtils.checkOrientation(left, right, middle) == 1) return new PointType(
+            middle, left, right, PointType.PointClass.HMIN,
+            PointType.Direction.LEFT);
+        else return new PointType(middle, left, right,
+            PointType.PointClass.HMIN, PointType.Direction.NONE);
       }
     }
+    // H___
     else if (MathUtils.doubleEquals(middle.y, right.y)) {
-      if (left.y > right.y + MathUtils.EPSILON) {
-        return new PointType(middle, PointType.PointClass.HMIN,
+      // HMAX
+      if (right.y > left.y + MathUtils.EPSILON) {
+        if (MathUtils.checkOrientation(left, right, middle) == 1) return new PointType(
+            middle, left, right, PointType.PointClass.HMAX,
             PointType.Direction.LEFT);
+        else return new PointType(middle, left, right,
+            PointType.PointClass.HMAX, PointType.Direction.NONE);
       }
+      // HMIN
       else {
-        return new PointType(middle, PointType.PointClass.HMAX,
-            PointType.Direction.LEFT);
+        if (MathUtils.checkOrientation(left, right, middle) == 1) return new PointType(
+            middle, left, right, PointType.PointClass.HMIN,
+            PointType.Direction.RIGHT);
+        else return new PointType(middle, left, right,
+            PointType.PointClass.HMIN, PointType.Direction.NONE);
       }
     }
     else {
@@ -499,26 +584,75 @@ public class OrderedListPolygon
     }
   }
 
+  private Point[] sweepLineIntersect(PointType p, LineSegment[] edges) {
+    // TODO: check if endpoints of lines count as intersections
+    if (p.direct == PointType.Direction.RIGHT) {
+      Ray sweepLine = new Ray(p.p, new Point(p.p.x + 1, p.p.y));
+      Point[] intersections = sweepLine.intersect(edges[0]);
+      return intersections;
+    }
+    else if (p.direct == PointType.Direction.LEFT) {
+      Ray sweepLine = new Ray(p.p, new Point(p.p.x - 1, p.p.y));
+      Point[] intersections = sweepLine.intersect(edges[0]);
+      return intersections;
+    }
+    else {
+      Point[] returnArray = new Point[2];
+      Line sweepLine = new Line(p.p, new Point(p.p.x + 1, p.p.y));
+      Point[] intersections = sweepLine.intersect(edges[0]);
+      returnArray[0] = intersections[0];
+      intersections = sweepLine.intersect(edges[1]);
+      returnArray[1] = intersections[0];
+      return intersections;
+    }
+  }
+
 
   private static class EdgeList
   {
 
+    /**
+     * @param ls
+     */
     public void insertEdge(LineSegment ls) {
 
     }
 
+    /**
+     * Mark edges, specified by endPoint for deletion
+     * 
+     * @param endPoint
+     */
     public void mark(Point endPoint) {
 
     }
 
-    public List<LineSegment> searchIntersectingEdges(double x,
+    /**
+     * @param x
+     * @param direct
+     * @return
+     */
+    public LineSegment[] searchIntersectingEdges(double x,
         PointType.Direction direct) {
       return null;
 
     }
 
-    public LineSegment getEdgeByEndPoint(Point endPoint) {
+    /**
+     * @param endPoint
+     * @return This Method returns all edges ending with 'endPoint'. This can
+     *         either be one for every PointClass except MIN, which would return
+     *         two edges.
+     */
+    public LineSegment[] getEdgesByEndPoint(Point endPoint) {
       return null;
+
+    }
+
+    /**
+     * Removes all marked edges from data structure.
+     */
+    public void removeMarkedEdges() {
 
     }
   }
@@ -535,12 +669,19 @@ public class OrderedListPolygon
       RIGHT, LEFT, BOTH, NONE
     }
 
-    public PointType(Point p, PointClass type, Direction direct) {
+    public PointType(Point p, Point left, Point right, PointClass type,
+        Direction direct) {
+
       this.type = type;
+      this.p = p;
+      this.left = left;
+      this.right = right;
       this.direct = direct;
     }
 
     public Point p;
+    public Point left; // index(p) - 1
+    public Point right; // index(p) + 1
     public PointClass type;
     public Direction direct;
 
@@ -558,8 +699,8 @@ public class OrderedListPolygon
         if (p1.y > p2.y + MathUtils.EPSILON) return 1;
         else if (p1.y < p2.y - MathUtils.EPSILON) return -1;
         else {
-          if (p1.x > p2.x + MathUtils.EPSILON) return 1;
-          else if (p1.x < p2.x - MathUtils.EPSILON) return -1;
+          if (p1.x < p2.x - MathUtils.EPSILON) return 1;
+          else if (p1.x > p2.x + MathUtils.EPSILON) return -1;
           else return 0;
         }
       }
