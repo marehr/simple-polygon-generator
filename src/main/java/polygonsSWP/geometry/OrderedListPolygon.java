@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Comparator;
 import java.util.TreeMap;
@@ -313,7 +315,7 @@ public class OrderedListPolygon
       switch (curr.type) {
       case INT:
         // mark every edge with curr.p as endpoint for deletion
-        eList.mark(curr.p);
+        eList.markEdge(curr.p);
         // Add the edge curr.p with left or right neighbor.
         // where the neighbor with the lower y coordinate is choosen
         if (curr.left.y < curr.p.y) {
@@ -334,7 +336,7 @@ public class OrderedListPolygon
         break;
       case MIN:
         // Mark every edge with curr.p as endpoint for deletion
-        eList.mark(curr.p);
+        eList.markEdge(curr.p);
         break;
       case HMAX:
         // Insert only the non horizontal edge
@@ -349,7 +351,7 @@ public class OrderedListPolygon
         break;
       case HMIN:
         // Mark only the non horizontal edge for deletion
-        eList.mark(curr.p);
+        eList.markEdge(curr.p);
         break;
       default:
         break;
@@ -612,20 +614,56 @@ public class OrderedListPolygon
   private static class EdgeList
   {
     
+    private class EdgeComparator implements Comparator<Point>{
+
+      @Override
+      public int compare(Point isec1, Point isec2) {
+        if (isec1.x > isec2.x + MathUtils.EPSILON)
+          return 1;
+        else if (isec1.x < isec2.x - MathUtils.EPSILON)
+          return -1;
+        else 
+          return 0;
+      }
+      
+    }
+    
     private TreeMap<Point, Point[]> endStore = new TreeMap<Point, Point[]>();
-    private TreeMap<Point, Point> orderedEdges = new TreeMap<Point, Point>();
+    private TreeMap<Point, Point> orderedEdges = new TreeMap<Point, Point>(new EdgeComparator());
     private List<Point> markedEdges = new ArrayList<Point>();
         
     
     public EdgeList(){
-      
     }
 
     /**
      * @param ls
      */
-    public void insertEdge(LineSegment ls) {
-
+    public void insertEdge(Point endPoint, Point isec) {
+      if(endStore.containsKey(endPoint))
+        //FIXME: check wether reference or not
+        endStore.get(endPoint)[1] = isec;
+      else{
+        Point[] isecs = {isec, null};
+        endStore.put(endPoint, isecs);
+      }
+      orderedEdges.put(isec, endPoint);
+        
+    }
+    
+    public void updateIntersection(Point endPoint, Point oldIsec, Point newIsec) {
+      Point[] isecs = endStore.get(endPoint);
+      if (isecs[0] == oldIsec){
+        isecs[0] = newIsec;
+        endStore.put(endPoint, isecs);
+        orderedEdges.remove(oldIsec);
+        orderedEdges.put(newIsec, endPoint);
+      }else {
+        isecs[1] = newIsec;
+        endStore.put(endPoint, isecs);
+        orderedEdges.remove(oldIsec);
+        orderedEdges.put(newIsec, endPoint);
+      }
     }
 
     /**
@@ -633,7 +671,7 @@ public class OrderedListPolygon
      * 
      * @param endPoint
      */
-    public void mark(Point endPoint) {
+    public void markEdge(Point endPoint) {
       markedEdges.add(endPoint);
     }
 
@@ -642,10 +680,31 @@ public class OrderedListPolygon
      * @param direct
      * @return
      */
-    public LineSegment[] searchIntersectingEdges(double x,
+    public LineSegment[] searchIntersectingEdges(Point p,
         PointType.Direction direct) {
-      return null;
-
+      LineSegment edge1;
+      LineSegment edge2;
+      if(direct == PointType.Direction.LEFT){
+        Entry<Point, Point> IsecEnd = orderedEdges.lowerEntry(p);
+        edge1 = new LineSegment(IsecEnd.getKey(), IsecEnd.getValue());
+        LineSegment[] edges = {edge1 , null};
+        return edges;
+      }
+      else if (direct == PointType.Direction.RIGHT) {
+        Entry<Point, Point> IsecEnd = orderedEdges.higherEntry(p);
+        edge1 = new LineSegment(IsecEnd.getKey(), IsecEnd.getValue());
+        LineSegment[] edges = {edge1 , null};
+        return edges;
+      }
+      else{
+        Entry<Point, Point> IsecEnd = orderedEdges.lowerEntry(p);
+        edge1 = new LineSegment(IsecEnd.getKey(), IsecEnd.getValue());
+        IsecEnd = orderedEdges.higherEntry(p);
+        edge2 = new LineSegment(IsecEnd.getKey(), IsecEnd.getValue());
+        LineSegment[] edges = {edge1 , edge2};
+        return edges;
+      }
+        
     }
 
     /**
@@ -655,7 +714,7 @@ public class OrderedListPolygon
      *         two edges.
      */
     public Point[] getIntersectionByEndPoint(Point endPoint) {
-      return null;
+      return endStore.get(endPoint);
 
     }
 
