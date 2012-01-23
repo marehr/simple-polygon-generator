@@ -507,8 +507,8 @@ public class OrderedListPolygon
    * @return The Point with it neighbours and type and direction.
    */
   private PointType categorizePointForSweepLine(Point middle) {
-    Point left = this.getPoint((_coords.indexOf(middle) - 1) % _coords.size());
-    Point right = this.getPoint((_coords.indexOf(middle) + 1) % _coords.size());
+    Point left = this.getPointInRange(_coords.indexOf(middle) - 1);
+    Point right = this.getPointInRange(_coords.indexOf(middle) + 1);
     // INT
     if (left.y > middle.y + MathUtils.EPSILON &&
         middle.y > right.y + MathUtils.EPSILON) {
