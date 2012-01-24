@@ -54,7 +54,8 @@ public class MonotonPolygon
   @Override
   public Polygon clone() {
     List<LineSegment> tmpList = new ArrayList<LineSegment>();
-    tmpList.addAll(_edges);
+    for (LineSegment item : _edges)
+      tmpList.add(item.clone());
     return new MonotonPolygon(tmpList);
   }
 

@@ -77,6 +77,7 @@ public class MainFrame
     gui_generator.addPointGenerationModeListener(gui_polygon_view);
   
     observers = new LinkedList<GUIModeListener>();
+    observers.add(gui_polygon_view);
     
     tabpane = new JTabbedPane();
     tabpane.add("Polygon Generation",gui_generator);
