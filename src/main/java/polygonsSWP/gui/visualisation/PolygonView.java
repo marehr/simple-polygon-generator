@@ -25,6 +25,7 @@ import polygonsSWP.geometry.MonotonPolygon;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
+import polygonsSWP.gui.GUIModeListener;
 import polygonsSWP.gui.generation.PointGenerationModeListener;
 import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
 import polygonsSWP.util.SeidelTrapezoidation;
@@ -32,7 +33,7 @@ import polygonsSWP.util.SeidelTrapezoidation;
 
 public class PolygonView
   extends JPanel
-  implements PolygonGenerationPanelListener, PointGenerationModeListener
+  implements PolygonGenerationPanelListener, PointGenerationModeListener, GUIModeListener
 {
   private static final long serialVersionUID = 1L;
 
@@ -248,4 +249,14 @@ public class PolygonView
           f.getName() + "\".", "Error", JOptionPane.ERROR_MESSAGE);
     }
   }
+
+	@Override
+	public void inGenerationMode() {
+		pp.setGUIinGenerationMode(true);		
+	}
+
+	@Override
+	public void inShortestPathMode() {
+		pp.setGUIinGenerationMode(false);
+	}
 }
