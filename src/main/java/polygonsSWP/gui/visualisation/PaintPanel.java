@@ -35,6 +35,7 @@ class PaintPanel
   private static final long serialVersionUID = 1L;
   private java.awt.Point mouse = null;
   private boolean inFrame = false;
+  private boolean GUIinGenerationMode = true;
   private final DecimalFormat df = new DecimalFormat("#0.00");
 
   /** list for point selection */
@@ -255,6 +256,10 @@ class PaintPanel
   public void onNewScene(Scene scene) {
     svgScene = scene;
     repaint();
+  }
+
+  public void setGUIinGenerationMode(boolean b) {
+	  GUIinGenerationMode = b;
   }
    
 }
