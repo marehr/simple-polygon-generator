@@ -195,9 +195,9 @@ public class RandomPolygonAlgorithmFactory
         
         // visibility of vi form Va and Vb
         boolean fromVa =
-            GeneratorUtils.isPolygonPointVisible(Va, vi, polygon);
+            GeneratorUtils.isPolygonVertexVisible(Va, vi, polygon);
         boolean fromVb =
-            GeneratorUtils.isPolygonPointVisible(Vb, vi, polygon);
+            GeneratorUtils.isPolygonVertexVisible(Vb, vi, polygon);
         
         // visibility of vi.prev (from P') from Va and Vb
         // therefore iterate backwards over clone and search for first point in
@@ -214,10 +214,10 @@ public class RandomPolygonAlgorithmFactory
           System.out.println("minorLoop2, find previous:" + current);
           if (polygonPoints.contains(current)) {
             prevFromVa =
-                GeneratorUtils.isPolygonPointVisible(current, Va,
+                GeneratorUtils.isPolygonVertexVisible(current, Va,
                     polygon);
             prevFromVb =
-                GeneratorUtils.isPolygonPointVisible(current, Vb,
+                GeneratorUtils.isPolygonVertexVisible(current, Vb,
                     polygon);
             break;
           }
@@ -253,23 +253,23 @@ public class RandomPolygonAlgorithmFactory
             Point u4 = r4.getPointClosestToBase(polygon.intersect(r4))[0];
 
             if (u1 != null &&
-                GeneratorUtils.isPolygonPointVisible(Va, u1, polygon) &&
-                GeneratorUtils.isPolygonPointVisible(Vb, u1, polygon)) {
+                GeneratorUtils.isPolygonVertexVisible(Va, u1, polygon) &&
+                GeneratorUtils.isPolygonVertexVisible(Vb, u1, polygon)) {
               cloneIterator.add(u1);
             }
             if (u2 != null &&
-                GeneratorUtils.isPolygonPointVisible(Va, u2, polygon) &&
-                GeneratorUtils.isPolygonPointVisible(Vb, u2, polygon)) {
+                GeneratorUtils.isPolygonVertexVisible(Va, u2, polygon) &&
+                GeneratorUtils.isPolygonVertexVisible(Vb, u2, polygon)) {
               cloneIterator.add(u2);
             }
             if (u3 != null &&
-                GeneratorUtils.isPolygonPointVisible(Va, u3, polygon) &&
-                GeneratorUtils.isPolygonPointVisible(Vb, u3, polygon)) {
+                GeneratorUtils.isPolygonVertexVisible(Va, u3, polygon) &&
+                GeneratorUtils.isPolygonVertexVisible(Vb, u3, polygon)) {
               cloneIterator.add(u3);
             }
             if (u4 != null &&
-                GeneratorUtils.isPolygonPointVisible(Va, u4, polygon) &&
-                GeneratorUtils.isPolygonPointVisible(Vb, u4, polygon)) {
+                GeneratorUtils.isPolygonVertexVisible(Va, u4, polygon) &&
+                GeneratorUtils.isPolygonVertexVisible(Vb, u4, polygon)) {
               cloneIterator.add(u4);
             }
             lastVisible = vi;
@@ -284,13 +284,13 @@ public class RandomPolygonAlgorithmFactory
             Point u2 = r2.getPointClosestToBase(polygon.intersect(r2))[0];
 
             if (u1 != null &&
-                GeneratorUtils.isPolygonPointVisible(Va, u1, polygon) &&
-                GeneratorUtils.isPolygonPointVisible(Vb, u1, polygon)) {
+                GeneratorUtils.isPolygonVertexVisible(Va, u1, polygon) &&
+                GeneratorUtils.isPolygonVertexVisible(Vb, u1, polygon)) {
               cloneIterator.add(u1);
             }
             if (u2 != null &&
-                GeneratorUtils.isPolygonPointVisible(Va, u2, polygon) &&
-                GeneratorUtils.isPolygonPointVisible(Vb, u2, polygon)) {
+                GeneratorUtils.isPolygonVertexVisible(Va, u2, polygon) &&
+                GeneratorUtils.isPolygonVertexVisible(Vb, u2, polygon)) {
               cloneIterator.add(u2);
             }
           }
@@ -304,13 +304,13 @@ public class RandomPolygonAlgorithmFactory
             Point u2 = r2.getPointClosestToBase(polygon.intersect(r2))[0];
 
             if (u1 != null &&
-                GeneratorUtils.isPolygonPointVisible(Va, u1, polygon) &&
-                GeneratorUtils.isPolygonPointVisible(Vb, u1, polygon)) {
+                GeneratorUtils.isPolygonVertexVisible(Va, u1, polygon) &&
+                GeneratorUtils.isPolygonVertexVisible(Vb, u1, polygon)) {
               cloneIterator.add(u1);
             }
             if (u2 != null &&
-                GeneratorUtils.isPolygonPointVisible(Va, u2, polygon) &&
-                GeneratorUtils.isPolygonPointVisible(Vb, u2, polygon)) {
+                GeneratorUtils.isPolygonVertexVisible(Va, u2, polygon) &&
+                GeneratorUtils.isPolygonVertexVisible(Vb, u2, polygon)) {
               cloneIterator.add(u2);
             }
           }

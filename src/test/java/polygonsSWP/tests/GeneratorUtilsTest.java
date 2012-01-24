@@ -15,6 +15,7 @@ import org.junit.Test;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
+import polygonsSWP.geometry.Ray;
 import polygonsSWP.util.GeneratorUtils;
 
 
@@ -125,11 +126,11 @@ public class GeneratorUtilsTest
 
     Point point = new Point(40, 30);
 
-    assertTrue(GeneratorUtils.isPolygonPointVisible(point, points.get(0),
+    assertTrue(GeneratorUtils.isPolygonVertexVisible(point, points.get(0),
         polygon));
-    assertTrue(GeneratorUtils.isPolygonPointVisible(point, points.get(2),
+    assertTrue(GeneratorUtils.isPolygonVertexVisible(point, points.get(2),
         polygon));
-    assertFalse(GeneratorUtils.isPolygonPointVisible(point, points.get(1),
+    assertFalse(GeneratorUtils.isPolygonVertexVisible(point, points.get(1),
         polygon));
 
     point = new Point(0, 25);
@@ -140,11 +141,11 @@ public class GeneratorUtilsTest
 
     // TODO: den letzten Fall vielleicht erlauben. (in GeneralPosition kann der
     // Fall nicht auftreten)
-    assertFalse(GeneratorUtils.isPolygonPointVisible(point, points.get(0),
+    assertFalse(GeneratorUtils.isPolygonVertexVisible(point, points.get(0),
         polygon));
-    assertFalse(GeneratorUtils.isPolygonPointVisible(point, points.get(2),
+    assertFalse(GeneratorUtils.isPolygonVertexVisible(point, points.get(2),
         polygon));
-    assertFalse(GeneratorUtils.isPolygonPointVisible(point, points.get(1),
+    assertFalse(GeneratorUtils.isPolygonVertexVisible(point, points.get(1),
         polygon));
   }
 
@@ -156,11 +157,25 @@ public class GeneratorUtilsTest
     Point point = new Point(0, 0);
 
     // letzter Testcase schlaegt fehl, obwohl eigentlich sichtbar.
-    assertTrue(GeneratorUtils.isPolygonPointVisible(point, points.get(0),
+    assertTrue(GeneratorUtils.isPolygonVertexVisible(point, points.get(0),
         polygon));
-    assertTrue(GeneratorUtils.isPolygonPointVisible(point, points.get(1),
+    assertTrue(GeneratorUtils.isPolygonVertexVisible(point, points.get(1),
         polygon));
-    assertFalse(GeneratorUtils.isPolygonPointVisible(point, points.get(2),
+    assertFalse(GeneratorUtils.isPolygonVertexVisible(point, points.get(2),
         polygon));
+  }
+  
+  @Test
+  public void testIsPointOnPolygonVisible(){
+    List<Point> polyognPoints = new ArrayList<Point>();
+    polyognPoints.add(new Point(0,0));
+    polyognPoints.add(new Point(2,0));
+    polyognPoints.add(new Point(2,1));
+    polyognPoints.add(new Point(3,0));
+    polyognPoints.add(new Point(3,2));
+    polyognPoints.add(new Point(0,2));
+    Polygon testPolygon = new OrderedListPolygon(polyognPoints);
+    assertTrue(GeneratorUtils.isPointOnPolygonVisible(new Point(0,0), new Point(0,2), testPolygon));
+    assertFalse(GeneratorUtils.isPointOnPolygonVisible(new Point(0,0), new Point(3,0), testPolygon));
   }
 }

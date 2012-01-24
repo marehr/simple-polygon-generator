@@ -245,7 +245,7 @@ public class SteadyGrowthFactory
         lastVisible = visible;
 
         base = points.get(i);
-        visible = GeneratorUtils.isPolygonPointVisible(base, a, polygon);
+        visible = GeneratorUtils.isPolygonVertexVisible(base, a, polygon);
         // System.out.println(b + " -> " + a + "; visible: " + visible +
         // "; lastVisible: " + lastVisible);
 

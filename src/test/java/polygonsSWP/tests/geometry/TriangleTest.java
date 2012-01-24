@@ -93,9 +93,11 @@ public class TriangleTest
 
   @Test
   public void createRandomPointTest() {
-    for (int i = 1; i < 1000; ++i)
-      assertTrue(testTriangle.containsPoint(testTriangle.createRandomPoint(),
+    for (int i = 1; i < 10000; ++i){
+      Point point = testTriangle.createRandomPoint();
+      assertTrue(testTriangle.containsPoint(point,
           true));
+    }
   }
 
   @Test

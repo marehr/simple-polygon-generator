@@ -13,6 +13,7 @@ import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
+import polygonsSWP.geometry.Ray;
 
 
 public class GeneratorUtils
@@ -218,19 +219,13 @@ public class GeneratorUtils
   }
 
   /**
-   * Borders of polygon count as inside so lineSegments and Points coincident or
-   * in lineSegment do not block sight.
-   * 
-   * IMPORTANT: polygon must be in general position
-   * 
-   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
-   * @param base
-   * @param support
+   * @param a
+   * @param b
    * @param polygon
    */
   public static boolean
-      isPolygonPointVisible(Point a, Point b, Polygon polygon) {
+      isPolygonVertexVisible(Point a, Point b, Polygon polygon) {
 
     List<Point[]> intersections = polygon.intersect(new LineSegment(a, b));
 
@@ -251,5 +246,25 @@ public class GeneratorUtils
     // konsistenz Pruefung, ob der einzige Schnittpunkt ein Eckpunkt
     // des Polygons war
     return points[1] == null && points[2] == null;
+  }
+  
+  /**
+   * @author jannis ihrig <jannis.ihrig@fu-berlin.de>
+   * @param base
+   * @param support
+   * @param polygon
+   * @return
+   */
+  public static boolean isPointOnPolygonVisible(Point point, Point polyPoint, Polygon polygon){
+    Ray r = new Ray(point, polyPoint);
+    // intersections ray polygon without base point of ray
+    List<Point[]> intersections = polygon.intersect(r, false);
+    Point[] isec = r.getPointClosestToBase(intersections);
+    if (isec == null || isec[0] == polyPoint){
+      // if intersection exists and is not equal to support point of ray
+      // colinear LineSegments don't block sight
+      return true;
+    }
+    return false;
   }
 }
