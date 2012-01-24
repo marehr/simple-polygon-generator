@@ -1,15 +1,14 @@
-package polygonsSWP.util;
+package polygonsSWP.geometry;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import polygonsSWP.geometry.Point;
+import polygonsSWP.util.MathUtils;
 
 
-public class SteadyGrowthConvexHull
-  implements Cloneable
+public class SteadyGrowthConvexHull extends Polygon
 {
 
   private ArrayList<Point> upperHull = new ArrayList<Point>(),
@@ -33,7 +32,7 @@ public class SteadyGrowthConvexHull
 
   @Override
   @SuppressWarnings("unchecked")
-  public Object clone() {
+  public Polygon clone() {
     SteadyGrowthConvexHull hull = new SteadyGrowthConvexHull();
     hull.lowerHull = (ArrayList<Point>) this.lowerHull.clone();
     hull.upperHull = (ArrayList<Point>) this.upperHull.clone();
@@ -41,11 +40,9 @@ public class SteadyGrowthConvexHull
   }
 
   public void addPoint(Point point) {
-    // System.out.println("containsPoint" + point + ": " +
-    // containsPoint(point));
-    // System.out.println("containsPoint" + point + ": lower: " + lowerHull);
-    // System.out.println("containsPoint" + point + ": upper: " + upperHull);
-    if (containsPoint(point)) return;
+    // wenn der punkt innerhalb convexen huelle ist,
+    // dann brauchen wir nichts aktualisieren
+    if (containsPoint(point, true)) return;
     points = null;
 
     addPoint(point, lowerHull, pointCmp);
@@ -56,7 +53,7 @@ public class SteadyGrowthConvexHull
       Comparator<Point> cmp) {
     int pos = Collections.binarySearch(hull, point, cmp);
 
-    // TODO: check if point is in collection - done?
+    // wenn der punkt in der collection, dann haben wir nichts zutun
     if (pos >= 0) return false;
 
     pos = -pos - 1;
@@ -91,25 +88,43 @@ public class SteadyGrowthConvexHull
     }
   }
 
-  public boolean containsPoint(Point point) {
+  @Override
+  public boolean containsPoint(Point point, boolean onLine) {
     if (size() <= 2) return false;
 
-    return containsPoint(point, upperHull) && containsPoint(point, lowerHull);
+    return containsPoint(point, upperHull, onLine) &&
+           containsPoint(point, lowerHull, onLine);
   }
 
-  private boolean containsPoint(Point point, ArrayList<Point> hull) {
+  private boolean containsPoint(Point point, ArrayList<Point> hull, boolean onLine) {
     Point a, b;
 
     for (int i = 1; i < hull.size(); ++i) {
       a = hull.get(i - 1);
       b = hull.get(i);
 
-      // ist auf der rechten seite oder auf der linie
-      if (MathUtils.checkOrientation(a, b, point) <= 0) return false;
+      // NOTE: hier muessen wir nicht auf LineSegment.containsPoint
+      // testen, da selbst wenn ein Punkt auf der Geraden a-b
+      // und ausserhalb der Huelle liegt, es bei einer anderen
+      // Kante der Huelle festgestellt wird, ob der Punkt wirklich
+      // innerhalb lag. Da eine ConvexeHuelle convex ist :D
+      int orients = MathUtils.checkOrientation(a, b, point);
+
+      // wir liegen auf einer Kante des Polygons und wir sagen,
+      // dass bei onLine = false der Punkt ausserhalb des Polygons liegt
+      if (!onLine && orients == 0) return false;
+
+      // bei Clockwise muessen alle Punkte RECHTS liegen, damit sie
+      // innerhalb des Polygons sind.
+
+      // Der Punkt ist aber auf der LINKen seite, also sicher ausserhalb des
+      // Polygons
+      if (orients < 0) return false;
     }
     return true;
   }
 
+  @Override
   public List<Point> getPoints() {
     if (points != null) return points;
 
@@ -124,7 +139,24 @@ public class SteadyGrowthConvexHull
     return points;
   }
 
+  @Override
   public int size() {
+    if(points != null) return points.size();
     return Math.max(upperHull.size(), upperHull.size() + lowerHull.size() - 2);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public double getSurfaceArea() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Point createRandomPoint() {
+    throw new UnsupportedOperationException();
   }
 }

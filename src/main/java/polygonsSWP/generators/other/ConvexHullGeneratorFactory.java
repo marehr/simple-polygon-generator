@@ -13,7 +13,6 @@ import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.util.GeneratorUtils;
-import polygonsSWP.util.SteadyGrowthConvexHull;
 
 
 public class ConvexHullGeneratorFactory
@@ -72,13 +71,13 @@ public class ConvexHullGeneratorFactory
         for (Point item : points) {
           initial.addPoint(item, true);
         }
-        initial.safe();
+        initial.save();
       }
 
       Polygon poly = GeneratorUtils.convexHull(points);
 
       if (steps != null)
-        steps.newScene().setBoundingBox(size, size).addPolygon(poly, true).safe();
+        steps.newScene().setBoundingBox(size, size).addPolygon(poly, true).save();
 
       return poly;
     }

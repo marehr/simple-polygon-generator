@@ -1,9 +1,10 @@
 package polygonsSWP.geometry;
 
+import polygonsSWP.util.MathUtils;
 import polygonsSWP.util.intersections.IntersectionUtils;
 import polygonsSWP.util.intersections.LineSegmentIntersectionMode;
 
-public class LineSegment
+public class LineSegment implements Cloneable
 {
   public Point _a;
   public Point _b;
@@ -34,14 +35,36 @@ public class LineSegment
   /**
    * Test if Point is in this LineSegment.
    * 
+   * NOTE: Does a orientation check beforehand, to see
+   * if the given point could lie on the LineSegment
+   * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
    * @param p Point that may be on this LineSegment.
    * @return true if p is in this LineSegment, else false.
    */
   public boolean containsPoint(Point p) {
+    if(MathUtils.checkOrientation(_a, _b, p) != 0) return false;
+
+    // return true if one of the corner points is the point p
+    if(_a.equals(p) || _b.equals(p)) return true;
+
     double length = _a.distanceTo(_b);
     double combinedDist = _a.distanceTo(p) + _b.distanceTo(p);
-    return Math.abs(combinedDist - length) < 0.0001;
+    return Math.abs(combinedDist - length) < MathUtils.EPSILON;
+  }
+
+  /**
+   * Get a point on this line segment a, b, whereas the factor
+   * is the percentage of the way from a to b
+   * 
+   * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+   * @param factor in [0, 1]
+   * @return Point
+   */
+  public Point getPointOnLineSegment(double factor){
+    return new Point(factor * (_a.x - _b.x) + _b.x,
+                     factor * (_a.y - _b.y) + _b.y);
   }
 
   /**
@@ -88,7 +111,8 @@ public class LineSegment
   public String toString() {
     return "[" + _a + "," + _b + "]";
   }
-  
+
+  @Override
   public LineSegment clone() {
     return new LineSegment(_a.clone(), _b.clone());
   }

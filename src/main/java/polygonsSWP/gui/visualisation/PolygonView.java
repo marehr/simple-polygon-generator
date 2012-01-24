@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -20,6 +21,8 @@ import javax.swing.filechooser.FileFilter;
 
 import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.data.PolygonStatistics;
+import polygonsSWP.geometry.MonotonPolygon;
+import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.gui.GUIModeListener;
@@ -66,7 +69,7 @@ public class PolygonView
     });
     saveButton.setEnabled(false);
     tb.add(saveButton);
-    
+
     trapezoidButton = new JToggleButton("Trapezoidation");
     trapezoidButton.addActionListener(new ActionListener() {
       @Override
@@ -110,7 +113,8 @@ public class PolygonView
   }
 
   @Override
-  public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats, PolygonHistory history) {
+  public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats,
+      PolygonHistory history) {
     pp.clearScene();
     // Remark: Commented out as we display the polygon through the
     // history object.
@@ -123,7 +127,7 @@ public class PolygonView
   }
 
   /* PointGenerationModeListener methods. */
-  
+
   @Override
   public void onPointGenerationModeSwitched(boolean randomPoints,
       List<Point> points) {
@@ -137,15 +141,20 @@ public class PolygonView
    */
   protected void trapezoidatePolygon() {
     assert (polygon != null);
-    if(trapezoidButton.isSelected()) {
-      List<Polygon> trapezoids = SeidelTrapezoidation.generateTrapezoidation(polygon);
+    if (trapezoidButton.isSelected()) {
+      List<MonotonPolygon> trapezoids =
+          ((OrderedListPolygon) polygon).sweepLine();
+      List<Polygon> tmp = new ArrayList<Polygon>();
+      for (MonotonPolygon item : trapezoids)
+        tmp.add(new OrderedListPolygon(item.getPoints()));
       pp.addPolygons(trapezoids);
-    } else {
+    }
+    else {
       pp.clearScene();
       pp.addPolygon(polygon);
     }
   }
-  
+
   /**
    * Takes care of user interaction through JFileChooser and writes the polygon
    * to a file.

@@ -1,18 +1,24 @@
 package polygonsSWP.generators.heuristics;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
+import polygonsSWP.geometry.Line;
+import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.OrderedListPolygon;
+import polygonsSWP.geometry.Ray;
 import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.data.PolygonStatistics;
+import polygonsSWP.data.Scene;
 import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 
@@ -51,10 +57,26 @@ public class SpacePartitioningFactory
     implements PolygonGenerator
   {
 
+    // TODO: set size properly
+    private int size = 600;
+    private Random rand = new Random();
+
     private List<Point> points;
-    private PolygonHistory steps = null;
+    private final PolygonHistory steps;
     private boolean doStop = false;
     private PolygonStatistics stats = null;
+
+    /**
+     * colors
+     */
+    private Color LEFT_POINTS = Color.RED;
+    private Color RIGHT_POINTS = Color.MAGENTA;
+    private Color MIDDLE_POINTS = Color.ORANGE;
+    private Color MIDDLE_LINE = Color.ORANGE;
+    private Color FIRST_LAST_EDGE = new Color(0x007426);
+
+    private Color LEFT_POLYGON = Color.GRAY;
+    private Color RIGHT_POLYGON = Color.LIGHT_GRAY;
 
     SpacePartitioning(List<Point> points, PolygonHistory steps,
         PolygonStatistics stats) {
@@ -63,9 +85,25 @@ public class SpacePartitioningFactory
       this.stats = stats;
     }
 
+    private Scene newScene(Polygon polygon){
+      return newScene(polygon, null);
+    }
+
+    private Scene newScene(Polygon polygon, Color color){
+      Scene scene = steps.newScene().setBoundingBox(size, size);
+      if(polygon == null) return scene;
+      if(color == null) return scene.addPolygon(polygon, true);
+
+      return scene.addPolygon(polygon, color);
+    }
+
     @Override
     public Polygon generate() {
       doStop = false;
+
+      if (steps != null) {
+        steps.clear();
+      }
 
       Polygon p = null;
       try {
@@ -76,15 +114,20 @@ public class SpacePartitioningFactory
       }
       catch (InterruptedException e) {}
 
+      if (steps != null) {
+        newScene(p).save();
+      }
+
       return doStop == true ? null : p;
     }
 
     private Polygon generate0()
       throws InterruptedException {
       // System.out.println("<------------------------- NEW GENERATE ------------------------->");
+      Scene scene = null;
 
-      Point first = GeneratorUtils.removeRandomPoint(points), last =
-          GeneratorUtils.removeRandomPoint(points);
+      Point first = GeneratorUtils.removeRandomPoint(points),
+             last = GeneratorUtils.removeRandomPoint(points);
       // System.out.println("first: " + first + ", last: "+ last);
 
       List<Point> left = new ArrayList<Point>(points.size()), right =
@@ -92,8 +135,41 @@ public class SpacePartitioningFactory
 
       partionateIn(left, right, points, first, last);
 
-      OrderedListPolygon leftPolygon = spacePartitioning(left, first, last), rightPolygon =
-          spacePartitioning(right, last, first);
+      if( steps != null ) {
+        newScene(null)
+        .addPoint(first, true)
+        .addPoint(last, true)
+        .addLine(new Line(first, last), true)
+        .addPoints(left, LEFT_POINTS)
+        .addPoints(right, RIGHT_POINTS)
+        .save();
+      }
+
+      OrderedListPolygon leftPolygon, rightPolygon;
+
+      if( steps != null) {
+        scene = newScene(null).addLine(new Line(first, last), true);
+      }
+
+      leftPolygon = spacePartitioning(left, first, last, scene);
+
+      if( steps != null) {
+        scene = newScene(leftPolygon).addLine(new Line(first, last), true);
+      }
+
+      rightPolygon = spacePartitioning(right, last, first, scene);
+
+      if( steps != null ) {
+        newScene(null)
+        .addPoint(first, true)
+        .addPoint(last, true)
+        .addLine(new Line(first, last), true)
+        .addPolygon(leftPolygon, LEFT_POLYGON)
+        .addPolygon(rightPolygon, RIGHT_POLYGON)
+        .addPoints(left, LEFT_POINTS)
+        .addPoints(right, RIGHT_POINTS)
+        .save();
+      }
 
       // System.out.println("\n\n");
       // System.out.println("result in generate");
@@ -171,10 +247,13 @@ public class SpacePartitioningFactory
     }
 
     private OrderedListPolygon spacePartitioning(List<Point> points,
-        Point first, Point last)
+        Point first, Point last, Scene leftScene)
       throws InterruptedException {
+      Scene oldScene = leftScene;
 
       if (doStop) throw new InterruptedException();
+
+      OrderedListPolygon polygon = null;
 
       // base size == 0
       if (points.size() == 0) {
@@ -187,7 +266,9 @@ public class SpacePartitioningFactory
         // System.out.println("last: "+ last);
         // System.out.println("draw segment: " + first + " to " + last);
         // System.out.println("------");
-        return new OrderedListPolygon(list);
+        polygon = new OrderedListPolygon(list);
+
+        return polygon;
       }
 
       // base size == 1
@@ -205,23 +286,82 @@ public class SpacePartitioningFactory
         // +
         // " to " + last);
         // System.out.println("------");
-        return new OrderedListPolygon(list);
+        polygon = new OrderedListPolygon(list);
+
+        return polygon;
       }
 
-      Point middle = GeneratorUtils.removeRandomPoint(points);
+      Point endMiddle = GeneratorUtils.removeRandomPoint(points),
+            startMiddle = new LineSegment(first, last)
+              .getPointOnLineSegment(rand.nextDouble());
 
       List<Point> left = new ArrayList<Point>(points.size()), right =
           new ArrayList<Point>(points.size());
 
       // String output =
-      partionateIn(left, right, points, first, middle);
+      partionateIn(left, right, points, startMiddle, endMiddle);
 
       boolean onLeftSide =
-          MathUtils.checkOrientation(first, last, middle) == -1;
+          MathUtils.checkOrientation(first, last, endMiddle) == -1;
 
-      OrderedListPolygon leftPolygon =
-          spacePartitioning(onLeftSide ? left : right, first, middle), rightPolygon =
-          spacePartitioning(onLeftSide ? right : left, middle, last);
+      OrderedListPolygon leftPolygon, rightPolygon;
+
+      if( steps != null ) {
+        newScene(null)
+        .mergeScene(oldScene)
+        .addPoint(first, true)
+        .addPoint(last, true)
+        .addLineSegment(new LineSegment(first, last), FIRST_LAST_EDGE)
+        .addPoint(startMiddle, MIDDLE_POINTS)
+        .addPoint(endMiddle, MIDDLE_POINTS)
+        .addLine(new Line(startMiddle, endMiddle), MIDDLE_LINE)
+        .addPoints(left, LEFT_POINTS)
+        .addPoints(right, RIGHT_POINTS)
+        .save();
+
+        leftScene = newScene(null)
+        .addLine(new Line(startMiddle, endMiddle), true)
+        .mergeScene(leftScene);
+      }
+
+      // compute left side of polygon
+      leftPolygon = spacePartitioning(onLeftSide ? left : right, first, endMiddle, leftScene);
+
+      if( steps != null ) {
+        newScene(leftPolygon, LEFT_POLYGON)
+        .mergeScene(leftScene)
+        .addPoint(first, true)
+        .addPoint(last, true)
+        .addLineSegment(new LineSegment(first, last), FIRST_LAST_EDGE)
+        .addPoint(startMiddle, MIDDLE_POINTS)
+        .addPoint(endMiddle, MIDDLE_POINTS)
+        .addLine(new Line(startMiddle, endMiddle), MIDDLE_LINE)
+        .addPoints(left, LEFT_POINTS)
+        .addPoints(right, RIGHT_POINTS)
+        .save();
+
+        leftScene = newScene(leftPolygon)
+        .mergeScene(leftScene);
+      }
+
+      rightPolygon = spacePartitioning(onLeftSide ? right : left, endMiddle, last, leftScene);
+
+      if( steps != null ) {
+        newScene(null)
+        .mergeScene(leftScene)
+        .addPoint(first, true)
+        .addPoint(last, true)
+        .addLineSegment(new LineSegment(first, last), FIRST_LAST_EDGE)
+        .addPoint(startMiddle, MIDDLE_POINTS)
+        .addPoint(endMiddle, MIDDLE_POINTS)
+        .addLine(new Line(startMiddle, endMiddle), MIDDLE_LINE)
+        .addPolygon(rightPolygon, RIGHT_POLYGON)
+        .addPoints(left, LEFT_POINTS)
+        .addPoints(right, RIGHT_POINTS)
+        .save();
+
+        points.add(endMiddle);
+      }
 
       // System.out.println("\n\n---general---\npoints: " + points +
       // ", ordered: "
@@ -235,6 +375,22 @@ public class SpacePartitioningFactory
       // System.out.println("right: " + rightPolygon.getPoints());
 
       OrderedListPolygon merge = merge(leftPolygon, rightPolygon);
+
+      if( steps != null ) {
+        newScene(null)
+        .mergeScene(oldScene)
+        .addPoint(first, true)
+        .addPoint(last, true)
+        .addLineSegment(new LineSegment(first, last), FIRST_LAST_EDGE)
+        .addPoint(startMiddle, MIDDLE_POINTS)
+        .addPoint(endMiddle, MIDDLE_POINTS)
+        .addLine(new Line(startMiddle, endMiddle), MIDDLE_LINE)
+        .addPolygon(merge, true)
+        .addPoints(left, LEFT_POINTS)
+        .addPoints(right, RIGHT_POINTS)
+        .save();
+      }
+
       // System.out.println("merge: " + merge.getPoints());
       // System.out.println("------");
 

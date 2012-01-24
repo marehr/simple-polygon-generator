@@ -2,6 +2,7 @@ package polygonsSWP.geometry;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import polygonsSWP.util.MathUtils;
@@ -23,7 +24,8 @@ public class MonotonPolygon
   private boolean isTriangulized = false;
 
   public MonotonPolygon(List<LineSegment> _list) {
-    _edges = _list;
+    _edges = new LinkedList<LineSegment>();
+    _edges.addAll(_list);
     _innerEdges = new ArrayList<LineSegment>();
   }
 

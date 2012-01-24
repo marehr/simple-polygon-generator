@@ -119,41 +119,49 @@ class PaintPanel
     Graphics2D g2d = (Graphics2D) g;
     
     initCanvas(g2d);
-    
-    // Paint svgScene.
-    if(svgScene != null)
-      svgScene.paint(g2d);
-    
-    // Paint polygons
-    for (Polygon polygon : polygons) {
-      List<Point> p = polygon.getPoints();
-      int[] xcoords = new int[p.size()];
-      int[] ycoords = new int[p.size()];
-      for (int i = 0; i < p.size(); i++) {
-        xcoords[i] = (int) p.get(i).x;
-        ycoords[i] = (int) p.get(i).y;
-      }
 
-      g.setColor(Color.BLACK);
-      g.drawPolygon(xcoords, ycoords, p.size());
+    // Paint svgScene.
+    if(svgScene != null) {
+      svgScene.paint(g2d);
     }
 
     // Paint the points
-    if (drawMode) {
+    if (drawMode && points != null) {
       assert (points != null);
 
       g.setColor(new Color(80, 0, 90));
       for (Point p : points) {
-        g.drawOval((int) (p.x - 2), (int) (p.y - 2), 5, 5);
-        g.drawOval((int) (p.x - 1), (int) (p.y - 1), 3, 3);
+        //g.drawOval((int) (p.x - 2), (int) (p.y - 2), 5, 5);
+        //g.drawRect((int)p.x, (int)p.y, 1, 1);
+        g.drawOval((int) (p.x - 1.5), (int) (p.y - 1.5), 3, 3);
       }
     }
+
+    // Paint svgScene Points
+    if(svgScene != null) {
+      svgScene.paintPoints(g2d);
+    }
+
+//    // Paint polygons
+//    for (Polygon polygon : polygons) {
+//      List<Point> p = polygon.getPoints();
+//      int[] xcoords = new int[p.size()];
+//      int[] ycoords = new int[p.size()];
+//      for (int i = 0; i < p.size(); i++) {
+//        xcoords[i] = (int) p.get(i).x;
+//        ycoords[i] = (int) p.get(i).y;
+//      }
+//
+//      g.setColor(Color.BLACK);
+//      g.drawPolygon(xcoords, ycoords, p.size());
+//    }
     
     if(mouse != null)
     {
     	//TODO: display correct values with zoom
     	g.drawString("[" + mouse.x + " - " + mouse.y + "]", mouse.x-30, mouse.y+30);
     }
+
   }
 
   /*

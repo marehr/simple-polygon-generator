@@ -29,6 +29,7 @@ import polygonsSWP.geometry.Ray;
  * higlighted objects are painted according to their class.
  * 
  * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
  */
 
 public class HistoryScene
@@ -42,15 +43,19 @@ public class HistoryScene
    */
   private class Box<T>
   {
-    private boolean _highlight;
+    private Color _highlight;
     private T _object;
 
-    public Box(T object, boolean highlight) {
+    public Box(T object, Color highlight) {
       _highlight = highlight;
       _object = object;
     }
 
     public boolean isHighlighted() {
+      return _highlight != null;
+    }
+
+    public Color getHighlight() {
       return _highlight;
     }
 
@@ -58,6 +63,15 @@ public class HistoryScene
       return _object;
     }
   }
+
+  //light blue for polygons
+  public final Color polyColor = new Color(0xa2cdfd);
+
+  // red for lines (rays, linesegment...)
+  public final Color lineColor = new Color(0xae0000);
+
+  // green for points
+  public final Color pointColor = new Color(0x007426);
 
   private LinkedList<Box<Polygon>> _polyList;
   private LinkedList<Box<Line>> _lineList;
@@ -88,9 +102,23 @@ public class HistoryScene
    * Generates SVG from current state and add the scene to the history object.
    */
   @Override
-  public void safe() {
+  public void save() {
     this.toSvg();
     _history.addScene(this);
+  }
+
+  @Override
+  public void paintPoints(Graphics2D g2d) {
+    // Every Point
+    for (Box<Point> item : _pointList) {
+      Point tmp = item.openBox();
+      if (item.isHighlighted()) g2d.setColor(item.getHighlight());
+      else g2d.setColor(Color.BLACK);
+      g2d.drawLine((int) (tmp.x + 2), (int) (tmp.y + 2), 
+          (int) (tmp.x - 2), (int) (tmp.y - 2));
+      g2d.drawLine((int) (tmp.x - 2), (int) (tmp.y + 2), 
+          (int) (tmp.x + 2), (int) (tmp.y - 2));
+    }
   }
 
   /**
@@ -99,13 +127,6 @@ public class HistoryScene
    * @param g2d
    */
   public void paint(Graphics2D g2d) {
-    
-    // light blue for polygons
-    Color polyColor = new Color(0xa2cdfd);
-    // red for lines (rays, linesegment...)
-    Color lineColor = new Color(0xae0000);
-    // green for points
-    Color pointColor = new Color(0x007426);
     
     // First of all draw bounding Box:
     g2d.setColor(Color.BLACK);
@@ -137,7 +158,7 @@ public class HistoryScene
       }
 
       if (item.isHighlighted()) {
-        g2d.setColor(polyColor);
+        g2d.setColor(item.getHighlight());
         g2d.fillPolygon(xcoords, ycoords, p.size());
       }
       g2d.setColor(Color.BLACK);
@@ -146,7 +167,7 @@ public class HistoryScene
     
     // Every Line
     for (Box<Line> item : _lineList) {
-      if (item.isHighlighted()) g2d.setColor(lineColor);
+      if (item.isHighlighted()) g2d.setColor(item.getHighlight());
       else g2d.setColor(Color.BLACK);
       // Calculate intersections to keep line inside of bounding box
       List<Point[]> returnList;
@@ -159,7 +180,7 @@ public class HistoryScene
     // Every LineSegment
     for (Box<LineSegment> item : _lineSegmentList) {
       LineSegment tmp = item.openBox();
-      if (item.isHighlighted()) g2d.setColor(lineColor);
+      if (item.isHighlighted()) g2d.setColor(item.getHighlight());
       else g2d.setColor(Color.BLACK);
       // We assume all geometry elements are chosen to be inside the box if
       // they are not infinite to one side
@@ -171,7 +192,7 @@ public class HistoryScene
     // Every Ray
     for (Box<Ray> item : _rayList) {
       Ray tmp = item.openBox();
-      if (item.isHighlighted()) g2d.setColor(lineColor);
+      if (item.isHighlighted()) g2d.setColor(item.getHighlight());
       else g2d.setColor(Color.BLACK);
       // Calculate intersection
       List<Point[]> returnList;
@@ -188,46 +209,88 @@ public class HistoryScene
             (int) returnList.get(1)[0].y);
       }
     }
-    
-    // Every Point
-    for (Box<Point> item : _pointList) {
-      Point tmp = item.openBox();
-      if (item.isHighlighted()) g2d.setColor(pointColor);
-      else g2d.setColor(Color.BLACK);
-      g2d.drawLine((int) (tmp.x + 2), (int) (tmp.y + 2), 
-          (int) (tmp.x - 2), (int) (tmp.y - 2));
-      g2d.drawLine((int) (tmp.x - 2), (int) (tmp.y + 2), 
-          (int) (tmp.x + 2), (int) (tmp.y - 2));
-    }
+  }
+
+
+  @Override
+  public Scene mergeScene(Scene scene) {
+    if(!(scene instanceof HistoryScene)) return _self;
+    HistoryScene that = (HistoryScene)scene;
+
+    _lineList.addAll(that._lineList);
+    _lineSegmentList.addAll(that._lineSegmentList);
+    _polyList.addAll(that._polyList);
+    _pointList.addAll(that._pointList);
+    _rayList.addAll(that._rayList);
+    return _self;
   }
 
   @Override
   public Scene addPolygon(Polygon polygon, Boolean highlight) {
-    _polyList.add(new Box<Polygon>(polygon.clone(), highlight));
+    return addPolygon(polygon, highlight ? polyColor : null);
+  }
+
+  @Override
+  public Scene addPolygon(Polygon polygon, Color color) {
+    _polyList.add(new Box<Polygon>(polygon.clone(), color));
     return _self;
   }
 
   @Override
   public Scene addLine(Line line, Boolean highlight) {
-    _lineList.add(new Box<Line>(line.clone(), highlight));
+    return addLine(line, highlight ? lineColor : null);
+  }
+
+  @Override
+  public Scene addLine(Line line, Color color) {
+    _lineList.add(new Box<Line>(line.clone(), color));
     return _self;
   }
 
   @Override
   public Scene addLineSegment(LineSegment linesegment, Boolean highlight) {
-    _lineSegmentList.add(new Box<LineSegment>(linesegment.clone(), highlight));
+    return addLineSegment(linesegment, highlight ? lineColor : null);
+  }
+
+  @Override
+  public Scene addLineSegment(LineSegment linesegment, Color color) {
+    _lineSegmentList.add(new Box<LineSegment>(linesegment.clone(), color));
     return _self;
   }
 
   @Override
   public Scene addRay(Ray ray, Boolean highlight) {
-    _rayList.add(new Box<Ray>(ray.clone(), highlight));
+    return addRay(ray, highlight ? lineColor : null);
+  }
+
+  @Override
+  public Scene addRay(Ray ray, Color color) {
+    _rayList.add(new Box<Ray>(ray.clone(), color));
+    return _self;
+  }
+
+  @Override
+  public Scene addPoint(Point point, Color color) {
+    _pointList.add(new Box<Point>(point.clone(), color));
     return _self;
   }
 
   @Override
   public Scene addPoint(Point point, Boolean highlight) {
-    _pointList.add(new Box<Point>(point.clone(), highlight));
+    return addPoint(point, highlight? pointColor : null);
+  }
+
+  @Override
+  public Scene addPoints(List<Point> points, Boolean highlight) {
+    return addPoints(points, highlight? pointColor : null);
+  }
+
+  @Override
+  public Scene addPoints(List<Point> points, Color color) {
+    if(points == null) return _self;
+    for(Point point: points){
+      addPoint(point, color);
+    }
     return _self;
   }
 
@@ -265,4 +328,5 @@ public class HistoryScene
     _boundingBox = new Circle(radius, new Point(radius, radius));
     return _self;
   }
+
 }
