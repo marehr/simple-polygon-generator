@@ -43,7 +43,8 @@ public class Triangle
   @Override
   public Polygon clone() {
     List<Point> tmpList = new ArrayList<Point>();
-    tmpList.addAll(_coords);
+    for (Point item : tmpList)
+      tmpList.add(item.clone());
     return new Triangle(tmpList);
   }
 
