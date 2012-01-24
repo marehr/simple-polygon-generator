@@ -21,7 +21,7 @@ import javax.swing.filechooser.FileFilter;
 
 import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.data.PolygonStatistics;
-import polygonsSWP.geometry.MonotonPolygon;
+import polygonsSWP.geometry.Trapezoid;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -143,7 +143,7 @@ public class PolygonView
   protected void trapezoidatePolygon() {
     assert (polygon != null);
     if (trapezoidButton.isSelected()) {
-      List<MonotonPolygon> trapezoids =
+      List<Trapezoid> trapezoids =
           ((OrderedListPolygon) polygon).sweepLine();
       pp.clearScene();
       pp.addPolygons(trapezoids);

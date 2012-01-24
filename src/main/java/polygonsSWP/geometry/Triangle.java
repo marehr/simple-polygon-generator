@@ -93,7 +93,7 @@ public class Triangle
     Vector v1 = new Vector(_coords.get(1).x, _coords.get(1).y);
     Vector v2 = new Vector(_coords.get(2).x, _coords.get(2).y);
 
-    //TODO: real [0,1]
+    // TODO: real [0,1]
     double random1 = random.nextDouble();
     double random2 = random.nextDouble();
     Vector x1 = v1.subb(v0).mult(random1).add(v2.subb(v0).mult(random2));
@@ -109,12 +109,8 @@ public class Triangle
     return point;
   }
 
-  public MonotonPolygon getMonotonPolygon() {
-    List<LineSegment> tmpList = new ArrayList<LineSegment>();
-    tmpList.add(new LineSegment(_coords.get(0), _coords.get(1)));
-    tmpList.add(new LineSegment(_coords.get(1), _coords.get(2)));
-    tmpList.add(new LineSegment(_coords.get(2), _coords.get(0)));
-    return new MonotonPolygon(tmpList);
+  public Trapezoid getMonotonPolygon() {
+    return new Trapezoid(_coords);
   }
 
   public OrderedListPolygon getOrderedListPolygon() {

@@ -292,20 +292,18 @@ public class OrderedListPolygon
   }
 
   /**
-   * TODO: remove me after Trapzblah fertig und SweepLineTestFactory
-   * Fuer Steve, damit er auf konstanten Polygonen sweepline testen kann
-   * wenn weniger als 3 Punkte angegeben werden, dann wird einfach
-   * SpacePartitioning auf die GUI Settings ausgefuehrt
+   * TODO: remove me after Trapzblah fertig und SweepLineTestFactory Fuer Steve,
+   * damit er auf konstanten Polygonen sweepline testen kann wenn weniger als 3
+   * Punkte angegeben werden, dann wird einfach SpacePartitioning auf die GUI
+   * Settings ausgefuehrt
    */
-  public static OrderedListPolygon sweepLineTestPolygon = new OrderedListPolygon(
-    new ArrayList<Point>(Arrays.asList(
-      //new Point(100, 100), new Point(200, 250), new Point(100, 400)
-      new Point(100, 100), new Point(300, 100), new Point(300, 300)
-  )))
-  ;
+  public static OrderedListPolygon sweepLineTestPolygon =
+      new OrderedListPolygon(new ArrayList<Point>(Arrays.asList(
+      // new Point(100, 100), new Point(200, 250), new Point(100, 400)
+          new Point(100, 100), new Point(300, 100), new Point(300, 300))));
 
-  public List<MonotonPolygon> sweepLine() {
-    List<MonotonPolygon> returnList = new ArrayList<MonotonPolygon>();
+  public List<Trapezoid> sweepLine() {
+    List<Trapezoid> returnList = new ArrayList<Trapezoid>();
     // Add comparator
     TreeSet<PointType> pointTree =
         new TreeSet<PointType>(new PointType.PointComparator());
@@ -531,15 +529,15 @@ public class OrderedListPolygon
   }
 
   private void formMonontonPolygon(Point a, Point b, Point c, Point d,
-      List<MonotonPolygon> returnList) {
+      List<Trapezoid> returnList) {
     System.out.println("Point to Paint: " + a + " " + b + " " + d + " " + c);
     List<Point> tmpList = new LinkedList<Point>();
     tmpList.add(a);
     tmpList.add(b);
     tmpList.add(d);
     if (!c.equals(d)) tmpList.add(c);
-    System.out.println("Formed Polygon: " + new MonotonPolygon(tmpList));
-    returnList.add(new MonotonPolygon(tmpList));
+    System.out.println("Formed Polygon: " + new Trapezoid(tmpList));
+    returnList.add(new Trapezoid(tmpList));
   }
 
   /**
