@@ -21,17 +21,22 @@ public class MonotonPolygon
 {
   protected List<LineSegment> _edges;
   private List<LineSegment> _innerEdges;
+  private List<Point> _points;
   private boolean isTriangulized = false;
 
-  public MonotonPolygon(List<LineSegment> _list) {
-    _edges = new LinkedList<LineSegment>();
-    _edges.addAll(_list);
-    _innerEdges = new ArrayList<LineSegment>();
+  public MonotonPolygon(List<Point> list) {
+    _points = list;
   }
 
-  public MonotonPolygon() {
-    this(new ArrayList<LineSegment>());
-  }
+  // public MonotonPolygon(List<LineSegment> _list) {
+  // _edges = new LinkedList<LineSegment>();
+  // _edges.addAll(_list);
+  // _innerEdges = new ArrayList<LineSegment>();
+  // }
+
+  // public MonotonPolygon() {
+  // this(new ArrayList<LineSegment>());
+  // }
 
   public List<Point> getSortedPoints() {
     List<Point> pointList = new ArrayList<Point>();
@@ -43,8 +48,17 @@ public class MonotonPolygon
     return pointList;
   }
 
+  @Override
+  public String toString() {
+    String retVal = "[";
+    for (LineSegment edge : _edges)
+      retVal += edge + ",";
+    retVal += "]";
+    return retVal;
+  }
+
   public List<Point> getPoints() {
-    return null;
+    return _points;
   }
 
   public List<LineSegment> getEdges() {
@@ -56,7 +70,7 @@ public class MonotonPolygon
     List<LineSegment> tmpList = new ArrayList<LineSegment>();
     for (LineSegment item : _edges)
       tmpList.add(item.clone());
-    return new MonotonPolygon(tmpList);
+    return new MonotonPolygon(null);
   }
 
   @Override
@@ -262,6 +276,6 @@ public class MonotonPolygon
 
   @Override
   public int size() {
-    return _edges.size();
+    return _points.size();
   }
 }

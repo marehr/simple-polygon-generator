@@ -33,7 +33,8 @@ import polygonsSWP.util.SeidelTrapezoidation;
 
 public class PolygonView
   extends JPanel
-  implements PolygonGenerationPanelListener, PointGenerationModeListener, GUIModeListener
+  implements PolygonGenerationPanelListener, PointGenerationModeListener,
+  GUIModeListener
 {
   private static final long serialVersionUID = 1L;
 
@@ -144,9 +145,7 @@ public class PolygonView
     if (trapezoidButton.isSelected()) {
       List<MonotonPolygon> trapezoids =
           ((OrderedListPolygon) polygon).sweepLine();
-      List<Polygon> tmp = new ArrayList<Polygon>();
-      for (MonotonPolygon item : trapezoids)
-        tmp.add(new OrderedListPolygon(item.getPoints()));
+      pp.clearScene();
       pp.addPolygons(trapezoids);
     }
     else {
@@ -250,13 +249,13 @@ public class PolygonView
     }
   }
 
-	@Override
-	public void inGenerationMode() {
-		pp.setGUIinGenerationMode(true);		
-	}
+  @Override
+  public void inGenerationMode() {
+    pp.setGUIinGenerationMode(true);
+  }
 
-	@Override
-	public void inShortestPathMode() {
-		pp.setGUIinGenerationMode(false);
-	}
+  @Override
+  public void inShortestPathMode() {
+    pp.setGUIinGenerationMode(false);
+  }
 }
