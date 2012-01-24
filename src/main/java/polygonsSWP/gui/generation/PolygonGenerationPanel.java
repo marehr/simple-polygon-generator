@@ -24,7 +24,7 @@ import polygonsSWP.geometry.Polygon;
  * Panel which controls the polygon generation.
  * 
  * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
- * @author Sebastian Thobe <sebastianthobe@googlemail.com>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
  */
 public class PolygonGenerationPanel
   extends JPanel

@@ -68,6 +68,7 @@ public class MainFrame
     // init shortest path configuration panel
     gui_shortest_path = new ShortestPathPanel();
     gui_shortest_path.setBorder(BorderFactory.createTitledBorder("Shortest Path"));
+    gui_shortest_path.addPointGenerationModeListener(gui_polygon_view);
     
     // init generator configuration panel
     gui_generator = new PolygonGenerationPanel(polygon_algorithm_list);

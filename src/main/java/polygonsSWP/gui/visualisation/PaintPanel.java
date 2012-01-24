@@ -25,7 +25,7 @@ import polygonsSWP.geometry.Polygon;
  * Component for drawing our geometry objects. This one features drawing a
  * polygon as well as points plus zooming and dragging stuff around.
  * 
- * @author Sebastian Thobe <sebastianthobe@googlemail.com>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
  * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
  */
 class PaintPanel
@@ -56,7 +56,6 @@ class PaintPanel
 
   /** DrawMode indicates whether we're allowed to select points. */
   protected boolean drawMode;
-
   public PaintPanel() {
     polygons = new LinkedList<Polygon>();
     addMouseListener(this);
@@ -173,12 +172,34 @@ class PaintPanel
     // Set point if in draw mode and right mouse button clicked.
     if (drawMode && e.getButton() == MouseEvent.BUTTON3) {
       assert (points != null);
-
-      double x = (e.getX() - offsetX) / zoom;
-      double y = (e.getY() - offsetY) / zoom;
-      points.add(new Point(x, y));
-
-      repaint();
+      
+      if(GUIinGenerationMode)
+      {
+          double x = (e.getX() - offsetX) / zoom;
+          double y = (e.getY() - offsetY) / zoom;
+          points.add(new Point(x, y));
+          repaint();
+      }
+      else
+      {
+          double x = (e.getX() - offsetX) / zoom;
+          double y = (e.getY() - offsetY) / zoom;
+          Point newPoint = new Point(x,y);
+          //TODO: check if new Point lies in currentPolygon (i cannot find)
+          //if(CURRENTPOLYGON?!?!.containsPoint(newPoint, true))
+          //{
+        	  if(points.size() == 2)
+        	  {
+        		  points.set(0, points.get(1));
+        		  points.set(1, newPoint);        	  
+        	  }
+        	  else
+        	  {
+        		  points.add(newPoint);
+        	  }
+        	  repaint();  
+          //}
+      }
     }
     else if (e.getButton() == MouseEvent.BUTTON2) {
       // Reset view on middle button click
