@@ -75,7 +75,11 @@ public abstract class Polygon implements Cloneable
    *         vertex of the polygon.
    */
   public List<Point[]> intersect(Ray r) {
-    return abstractIntersect(r._base, r._support, new RayIntersectionMode(true));
+    return intersect(r, true);
+  }
+  
+  public List<Point[]> intersect(Ray r, boolean includeEndPoint) {
+    return abstractIntersect(r._base, r._support, new RayIntersectionMode(includeEndPoint));
   }
   
   /**

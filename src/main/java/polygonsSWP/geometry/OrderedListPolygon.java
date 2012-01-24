@@ -1107,6 +1107,7 @@ public class OrderedListPolygon
       Triangle chosenTriangle =
           Triangle.selectRandomTriangleBySize(triangularization);
 
+      System.out.println(chosenTriangle);
       // Return randomly chosen Point in chosen Triangle.
       point = chosenTriangle.createRandomPoint();
 

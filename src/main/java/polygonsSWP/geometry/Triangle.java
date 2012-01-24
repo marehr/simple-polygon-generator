@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import polygonsSWP.util.MathUtils;
+import polygonsSWP.util.RandomNumbers;
+
 
 /**
  * This class just represents the smallest kind of polygon, a triangle. It
@@ -43,7 +46,8 @@ public class Triangle
   @Override
   public Polygon clone() {
     List<Point> tmpList = new ArrayList<Point>();
-    tmpList.addAll(_coords);
+    for (Point item : tmpList)
+      tmpList.add(item.clone());
     return new Triangle(tmpList);
   }
 
@@ -80,28 +84,27 @@ public class Triangle
    */
   @Override
   public Point createRandomPoint() {
-    // TODO: real random !!
-    Random random = new Random(System.currentTimeMillis());
+    Random random = new RandomNumbers(System.currentTimeMillis());
 
     // Choose random Point in rectangle with length of edges according to
     // length
     // of vector. Then scale Point to actual Point in Parallelogram.
-    Vector v0 = new Vector(new Point(0, 0), _coords.get(0));
-    Vector v1 = new Vector(new Point(0, 0), _coords.get(1));
-    Vector v2 = new Vector(new Point(0, 0), _coords.get(2));
+    Vector v0 = new Vector(_coords.get(0).x, _coords.get(0).y);
+    Vector v1 = new Vector(_coords.get(1).x, _coords.get(1).y);
+    Vector v2 = new Vector(_coords.get(2).x, _coords.get(2).y);
 
+    //TODO: real [0,1]
+    double random1 = random.nextDouble();
     double random2 = random.nextDouble();
-    Vector x = v1.subb(v0).mult(random2).add(v2.subb(v0).mult(random2));
+    Vector x1 = v1.subb(v0).mult(random1).add(v2.subb(v0).mult(random2));
 
     // check if Ox is in triangle
     Vector v3 = v1.subb(v0).add(v2.subb(v0));
-    Point point = new Point(x.v1, x.v2);
+    Point point = new Point(x1.v1, x1.v2);
 
     if (!containsPoint(point, true)) {
-      x = v0.add(x.subb(v3));
-      point = new Point(x.v1, x.v2);
-      if (!containsPoint(point, true))
-        System.out.println("generated point still not in triangle!!!");
+      Vector x2 = v0.add(x1.subb(v3));
+      point = new Point(-x2.v1, -x2.v2);
     }
     return point;
   }
@@ -167,22 +170,20 @@ public class Triangle
     // currently looking at (the one whose weight you just added).
 
     // TODO: real random !!!
-    Random random = new Random(System.currentTimeMillis());
-    HashMap<Triangle, Long> surfaceAreaTriangles =
-        new HashMap<Triangle, Long>();
-    long totalSurfaceArea = 0;
+    Random random = new RandomNumbers(System.currentTimeMillis());
+    HashMap<Triangle, Double> surfaceAreaTriangles =
+        new HashMap<Triangle, Double>();
+    double total = 0;
     for (Triangle triangle : triangles) {
-      long polygon2SurfaceArea =
-          Math.round(Math.ceil(triangle.getSurfaceArea()));
-      totalSurfaceArea += polygon2SurfaceArea;
-      surfaceAreaTriangles.put(triangle, polygon2SurfaceArea);
+      double triangleSurface = triangle.getSurfaceArea();
+      total += triangleSurface;
+      surfaceAreaTriangles.put(triangle, triangleSurface);
     }
-    long randomValue =
-        Math.round(Math.ceil(random.nextDouble() * totalSurfaceArea));
-    long runningTotal = 0;
-    for (Triangle polygon2 : triangles) {
-      runningTotal += surfaceAreaTriangles.get(polygon2);
-      if (runningTotal >= randomValue) { return polygon2; }
+    double randomValue = random.nextDouble() * total;
+    double runningTotal = 0;
+    for (Triangle triangle : triangles) {
+      runningTotal += surfaceAreaTriangles.get(triangle);
+      if (runningTotal >= randomValue - MathUtils.EPSILON) { return triangle; }
     }
     return null;
   }

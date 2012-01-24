@@ -1,14 +1,18 @@
 package polygonsSWP.gui.visualisation;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -36,7 +40,9 @@ class PaintPanel
   private java.awt.Point mouse = null;
   private boolean inFrame = false;
   private boolean GUIinGenerationMode = true;
+  
   private final DecimalFormat df = new DecimalFormat("#0.00");
+  private final AffineTransform tx = new AffineTransform();
 
   /** list for point selection */
   private List<Point> points;
@@ -98,19 +104,30 @@ class PaintPanel
     // Clear panel
     g.setColor(Color.WHITE);
     g.fillRect(0, 0, getWidth(), getHeight());
-    
+               
+    // Set translation & scale.
+    tx.translate(offsetX, offsetY);
+    tx.scale(zoom, zoom);
+    g.setTransform(tx);
+    g.setStroke(new TransformedStroke(new BasicStroke(1f), tx));
+  }
+  
+  protected void finishCanvas(Graphics2D g) {
+    // Reset translation & scale.
+    tx.setToIdentity();
+    g.setTransform(tx);
+    g.setStroke(new BasicStroke(1f));
+
     // Paint the yardstick
     g.setColor(Color.BLUE);
     g.drawRect(5, 5, 3, 9);
     g.drawRect(8, 8, 44, 3);
     g.drawRect(52, 5, 3, 9);
     g.drawString(df.format(50 / zoom), 60, 14);
-        
-    // Set translation & scale.
-    AffineTransform tx = new AffineTransform();
-    tx.translate(offsetX, offsetY);
-    tx.scale(zoom, zoom);
-    g.setTransform(tx);
+    
+    // Paint the coordinates. 
+    if(mouse != null)
+      g.drawString("[" + mouse.x + " - " + mouse.y + "]", mouse.x-30, mouse.y+30);
   }
 
   @Override
@@ -140,6 +157,9 @@ class PaintPanel
     if(svgScene != null) {
       svgScene.paintPoints(g2d);
     }
+    
+    // Draw additional stuff.
+    finishCanvas(g2d);
 
 //    // Paint polygons
 //    for (Polygon polygon : polygons) {
@@ -154,13 +174,6 @@ class PaintPanel
 //      g.setColor(Color.BLACK);
 //      g.drawPolygon(xcoords, ycoords, p.size());
 //    }
-    
-    if(mouse != null)
-    {
-    	//TODO: display correct values with zoom
-    	g.drawString("[" + mouse.x + " - " + mouse.y + "]", mouse.x-30, mouse.y+30);
-    }
-
   }
 
   /*
@@ -291,4 +304,39 @@ class PaintPanel
 	  GUIinGenerationMode = b;
   }
    
+  /**
+   * A implementation of {@link Stroke} which transforms another Stroke
+   * with an {@link AffineTransform} before stroking with it.
+   * 
+   * Found here:
+   * http://stackoverflow.com/questions/5046088/affinetransform-without-transforming-stroke
+   */
+  public class TransformedStroke
+    implements Stroke
+  {
+    private static final long serialVersionUID = 1;
+    private AffineTransform transform;
+    private AffineTransform inverse;
+    private Stroke stroke;
+    public TransformedStroke(Stroke base, AffineTransform at) {
+      this.transform = new AffineTransform(at);
+      try {
+        this.inverse = transform.createInverse();
+      }
+      catch (NoninvertibleTransformException e) {
+        // Shouldn't happen.
+        throw new RuntimeException(e);
+      }
+      this.stroke = base;
+    }
+
+    public Shape createStrokedShape(Shape s) {
+      Shape sTrans = transform.createTransformedShape(s);
+      Shape sTransStroked = stroke.createStrokedShape(sTrans);
+      Shape sStroked = inverse.createTransformedShape(sTransStroked);
+      return sStroked;
+    }
+  }
+
+      
 }

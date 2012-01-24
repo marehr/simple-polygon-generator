@@ -54,8 +54,12 @@ public class Ray
    *         intersection otherwise.
    */
   public Point[] intersect(Ray r) {
+    return intersect(r, true);
+  }
+  
+  public Point[] intersect(Ray r, boolean includeEndPoint) {
     return IntersectionUtils.intersect(_base, _support, r._base, r._support,
-        new RayIntersectionMode(true), new RayIntersectionMode(true));
+        new RayIntersectionMode(true), new RayIntersectionMode(includeEndPoint));
   }
 
   /**
@@ -79,12 +83,14 @@ public class Ray
   public Point[] getPointClosestToBase(List<Point[]> intersections) {
     Point[] closest = null;
     double distance = Double.MAX_VALUE;
-    for (Point[] points : intersections) {
-      if (points[0] != null) {
-        double newDistance = points[0].distanceTo(_base);
-        if (newDistance < distance) {
-          closest = points;
-          distance = newDistance;
+    if(intersections != null){
+      for (Point[] points : intersections) {
+        if (points[0] != null) {
+          double newDistance = points[0].distanceTo(_base);
+          if (newDistance < distance) {
+            closest = points;
+            distance = newDistance;
+          }
         }
       }
     }
