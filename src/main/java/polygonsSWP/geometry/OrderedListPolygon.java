@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Comparator;
@@ -276,7 +275,8 @@ public class OrderedListPolygon
   @Override
   public Polygon clone() {
     List<Point> nList = new ArrayList<Point>();
-    nList.addAll(_coords);
+    for (Point item : _coords)
+      nList.add(item.clone());
     return new OrderedListPolygon(nList);
   }
 
