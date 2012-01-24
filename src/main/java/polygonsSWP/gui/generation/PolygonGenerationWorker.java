@@ -28,13 +28,19 @@ class PolygonGenerationWorker
 
   @Override
   public void run() {
-	showDialog();
     Polygon p = pg.generate();
     if(p == null)
       cb.onCancelled();
     else
       cb.onFinished(p);
-    dialog.setVisible(false);
+
+//	showDialog();
+//    Polygon p = pg.generate();
+//    if(p == null)
+//      cb.onCancelled();
+//    else
+//      cb.onFinished(p);
+//    dialog.setVisible(false);
   }
   
   private void showDialog()

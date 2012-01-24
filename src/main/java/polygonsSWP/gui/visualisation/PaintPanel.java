@@ -107,8 +107,9 @@ class PaintPanel
     g.fillRect(0, 0, getWidth(), getHeight());
 
     // Set translation & scale.
-    tx.translate(offsetX, offsetY);
-    tx.scale(zoom, zoom);
+    tx.translate(offsetX, getHeight() + offsetY);
+    tx.scale(zoom, -zoom);
+
     g.setTransform(tx);
     g.setStroke(new TransformedStroke(new BasicStroke(1f), tx));
   }
@@ -126,10 +127,12 @@ class PaintPanel
     g.drawRect(52, 5, 3, 9);
     g.drawString(df.format(50 / zoom), 60, 14);
 
-    // Paint the coordinates.
-    if (mouse != null)
-      g.drawString("[" + mouse.x + " - " + mouse.y + "]", mouse.x - 30,
-          mouse.y + 30);
+    // Paint the coordinates. 
+    if(mouse != null){
+      double[] coords = coords(mouse.x, mouse.y);
+      int y = mouse.y+30 < getHeight() ? mouse.y+30 : mouse.y-10;
+      g.drawString("[" + (int)coords[0] + " - " + (int)coords[1] + "]", mouse.x-30, y);
+    }
   }
 
   @Override
@@ -160,22 +163,29 @@ class PaintPanel
       svgScene.paintPoints(g2d);
     }
 
-    // Draw additional stuff.
-    finishCanvas(g2d);
-
     // // Paint polygons
     // for (Polygon polygon : polygons) {
-    // List<Point> p = polygon.getPoints();
-    // int[] xcoords = new int[p.size()];
-    // int[] ycoords = new int[p.size()];
-    // for (int i = 0; i < p.size(); i++) {
-    // xcoords[i] = (int) p.get(i).x;
-    // ycoords[i] = (int) p.get(i).y;
-    // }
+    //   List<Point> p = polygon.getPoints();
+    //   int[] xcoords = new int[p.size()];
+    //   int[] ycoords = new int[p.size()];
+    //   for (int i = 0; i < p.size(); i++) {
+    //     xcoords[i] = (int) p.get(i).x;
+    //     ycoords[i] = (int) p.get(i).y;
+    //   }
     //
-    // g.setColor(Color.BLACK);
-    // g.drawPolygon(xcoords, ycoords, p.size());
+    //   g.setColor(Color.BLACK);
+    //   g.drawPolygon(xcoords, ycoords, p.size());
     // }
+
+    // Draw additional stuff.
+    finishCanvas(g2d);
+  }
+
+  private double[] coords(int x, int y){
+    return new double[] {
+      (x - offsetX) / zoom,
+      (getHeight() - y + offsetY) / zoom
+    };
   }
 
   /*
@@ -188,29 +198,26 @@ class PaintPanel
     if (drawMode && e.getButton() == MouseEvent.BUTTON3) {
       assert (points != null);
 
-      if (GUIinGenerationMode) {
-        double x = (e.getX() - offsetX) / zoom;
-        double y = (e.getY() - offsetY) / zoom;
-        points.add(new Point(x, y));
-        repaint();
-      }
-      else {
-        double x = (e.getX() - offsetX) / zoom;
-        double y = (e.getY() - offsetY) / zoom;
-        Point newPoint = new Point(x, y);
-        // TODO: check if new Point lies in currentPolygon (i cannot find)
-        // if(CURRENTPOLYGON?!?!.containsPoint(newPoint, true))
-        // {
-        if (points.size() == 2) {
+      double coords[] = coords(e.getX(), e.getY());
+      Point newPoint = new Point(coords[0], coords[1]);
+
+      if(GUIinGenerationMode) {
+        points.add(newPoint);
+      } else {
+
+        //TODO: check if new Point lies in currentPolygon (i cannot find)
+        //if(CURRENTPOLYGON?!?!.containsPoint(newPoint, true))
+        //{
+        if(points.size() == 2) {
           points.set(0, points.get(1));
           points.set(1, newPoint);
-        }
-        else {
+        } else {
           points.add(newPoint);
         }
-        repaint();
-        // }
+
+        //}
       }
+      repaint();
     }
     else if (e.getButton() == MouseEvent.BUTTON2) {
       // Reset view on middle button click
@@ -282,8 +289,10 @@ class PaintPanel
       }
 
       if (nz != -1) {
-        offsetX = (int) (e.getX() - (e.getX() - offsetX) / zoom * nz);
-        offsetY = (int) (e.getY() - (e.getY() - offsetY) / zoom * nz);
+        int x = e.getX(), y = getHeight() - e.getY();
+
+        offsetX = (int) (x - (x - offsetX) / zoom * nz);
+        offsetY = (int) (-y + (y + offsetY) / zoom * nz);
         zoom = nz;
         repaint();
       }

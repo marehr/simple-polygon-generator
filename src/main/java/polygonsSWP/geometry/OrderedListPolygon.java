@@ -1,6 +1,7 @@
 package polygonsSWP.geometry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -289,6 +290,19 @@ public class OrderedListPolygon
   public boolean containsVertex(Point p) {
     return getPoints().contains(p);
   }
+
+  /**
+   * TODO: remove me after Trapzblah fertig und SweepLineTestFactory
+   * Fuer Steve, damit er auf konstanten Polygonen sweepline testen kann
+   * wenn weniger als 3 Punkte angegeben werden, dann wird einfach
+   * SpacePartitioning auf die GUI Settings ausgefuehrt
+   */
+  public static OrderedListPolygon sweepLineTestPolygon = new OrderedListPolygon(
+    new ArrayList<Point>(Arrays.asList(
+      //new Point(100, 100), new Point(200, 250), new Point(100, 400)
+      new Point(100, 100), new Point(300, 100), new Point(300, 300)
+  )))
+  ;
 
   public List<MonotonPolygon> sweepLine() {
     List<MonotonPolygon> returnList = new ArrayList<MonotonPolygon>();
