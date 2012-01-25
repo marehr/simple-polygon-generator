@@ -103,7 +103,6 @@ public class HistoryScene
    */
   @Override
   public void save() {
-    this.toSvg();
     _history.addScene(this);
   }
 
