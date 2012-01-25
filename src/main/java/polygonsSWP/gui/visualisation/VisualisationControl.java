@@ -10,8 +10,6 @@ import javax.swing.JToolBar;
 
 import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.data.Scene;
-import polygonsSWP.geometry.Polygon;
-
 
 /**
  * Controls the step-by-step visualisation of the generator run. Provides play,

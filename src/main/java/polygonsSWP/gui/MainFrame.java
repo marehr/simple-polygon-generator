@@ -1,7 +1,6 @@
 package polygonsSWP.gui;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.LinkedList;
@@ -9,7 +8,6 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -25,7 +23,6 @@ import polygonsSWP.generators.other.PermuteAndRejectFactory;
 import polygonsSWP.generators.other.SweepLineTestFactory;
 import polygonsSWP.generators.rpa.RandomPolygonAlgorithmFactory;
 import polygonsSWP.gui.generation.PolygonGenerationPanel;
-import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
 import polygonsSWP.gui.visualisation.PolygonView;
 
 /**
@@ -81,20 +78,19 @@ public class MainFrame
   
     observers = new LinkedList<GUIModeListener>();
     observers.add(gui_polygon_view);
+    observers.add(gui_shortest_path);
+    observers.add(gui_generator);
     
     tabpane = new JTabbedPane();
     tabpane.add("Polygon Generation",gui_generator);
     tabpane.add("Shortest Path Generation",gui_shortest_path);
     
     tabpane.addChangeListener(new ChangeListener() {
-		public void stateChanged(ChangeEvent arg0) {
-			inGenerationMode = !inGenerationMode;
-			if(inGenerationMode)
-				emitInGenerationMode();
-			else
-				emitInShortestPathMode();
-		}
-	});
+    	public void stateChanged(ChangeEvent arg0) {
+    		inGenerationMode = !inGenerationMode;
+    		emitGUIModeChanged(inGenerationMode);
+    	}
+    });
     
     // Layout the main window.
     setLayout(new BorderLayout(5, 5));
@@ -112,16 +108,9 @@ public class MainFrame
     setVisible(true);
   }
   
-  private void emitInGenerationMode()
+  private void emitGUIModeChanged(boolean generatorMode)
   {
-	  for(GUIModeListener l:observers)
-		  l.inGenerationMode();
-  }
-  
-  private void emitInShortestPathMode()
-  {
-	  for(GUIModeListener l:observers)
-		  l.inShortestPathMode();
-  }
-  
+	  for(GUIModeListener l : observers)
+		  l.onGUIModeChanged(generatorMode);
+  }  
 }

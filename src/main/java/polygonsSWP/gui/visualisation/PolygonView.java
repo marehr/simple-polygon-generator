@@ -109,6 +109,13 @@ public class PolygonView
       List<Point> points) {
     pp.setDrawMode(!randomPoints, points);
   }
+  
+  /* GUIModeListener methods. */
+
+  @Override
+  public void onGUIModeChanged(boolean generatorMode) {
+    pp.setGUIinGenerationMode(generatorMode);
+  }
 
   /* Internals. */
 
@@ -205,15 +212,5 @@ public class PolygonView
       JOptionPane.showMessageDialog(this, "Could not write to \"" +
           f.getName() + "\".", "Error", JOptionPane.ERROR_MESSAGE);
     }
-  }
-
-  @Override
-  public void inGenerationMode() {
-    pp.setGUIinGenerationMode(true);
-  }
-
-  @Override
-  public void inShortestPathMode() {
-    pp.setGUIinGenerationMode(false);
   }
 }
