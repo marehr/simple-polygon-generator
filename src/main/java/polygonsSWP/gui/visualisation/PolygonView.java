@@ -38,12 +38,13 @@ public class PolygonView
   private final JButton saveButton;
   private final JButton centerViewButton;
   private final VisualisationControl visControl;
-
+  private PaintPanelStatusBar ppsb;
+  
   private Polygon polygon;
 
   public PolygonView() {
-    pp = new PaintPanel();
-
+    ppsb = new PaintPanelStatusBar();  
+    pp = new PaintPanel(ppsb);
     tb = new JToolBar();
 
     centerViewButton = new JButton("Center View");
@@ -67,7 +68,7 @@ public class PolygonView
 
     visControl = new VisualisationControl(tb);
     visControl.addVisualisationControlListener(pp);
-
+        
     layoutControls();
   }
 
@@ -78,6 +79,7 @@ public class PolygonView
 
     add(tb, BorderLayout.PAGE_START);
     add(pp, BorderLayout.CENTER);
+    add(ppsb, BorderLayout.PAGE_END);
   }
 
   /* PolygonGenerationPanelListener methods. */

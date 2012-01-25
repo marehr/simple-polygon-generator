@@ -36,7 +36,6 @@ class PaintPanel
   VisualisationControlListener
 {
   private static final long serialVersionUID = 1L;
-  private java.awt.Point mouse = null;
   private boolean inGenerationMode = true;
 
   private final DecimalFormat df = new DecimalFormat("#0.00");
@@ -51,6 +50,9 @@ class PaintPanel
   /** the current polygon (used for point-in-polygon tests) */
   private Polygon polygon;
 
+  /** Reference to our status bar. */
+  private final PaintPanelStatusBar statusbar;
+  
   /* current display offsets & co. */
   protected double zoom = 1.0d;
   protected int offsetX = 0;
@@ -61,7 +63,8 @@ class PaintPanel
   /** DrawMode indicates whether we're allowed to select points. */
   protected boolean drawMode;
 
-  public PaintPanel() {
+  public PaintPanel(PaintPanelStatusBar ppsb) {
+    statusbar = ppsb;
     addMouseListener(this);
     addMouseMotionListener(this);
     addMouseWheelListener(this);
@@ -89,7 +92,7 @@ class PaintPanel
   void setGUIinGenerationMode(boolean b) {
     inGenerationMode = b;
   }
-
+  
   /* Painting */
 
   protected void initCanvas(Graphics2D g) {
@@ -117,13 +120,12 @@ class PaintPanel
     g.drawRect(8, 8, 44, 3);
     g.drawRect(52, 5, 3, 9);
     g.drawString(df.format(50 / zoom), 60, 14);
-
-    // Paint the coordinates. 
-    if(mouse != null){
-      double[] coords = coords(mouse.x, mouse.y);
-      int y = mouse.y+30 < getHeight() ? mouse.y+30 : mouse.y-10;
-      g.drawString("[" + (int)coords[0] + " - " + (int)coords[1] + "]", mouse.x-30, y);
-    }
+    
+    // Commented out as we may need this again (while hovering over a point)
+    /*
+    int y = mouse.y+30 < getHeight() ? mouse.y+30 : mouse.y-10;
+    g.drawString("[" + (int)coords[0] + " - " + (int)coords[1] + "]", mouse.x-30, y);
+    */
   }
 
   @Override
@@ -213,8 +215,6 @@ class PaintPanel
 
   @Override
   public void mouseExited(MouseEvent e) {
-    mouse = null;
-    repaint();
   }
 
   @Override
@@ -240,8 +240,8 @@ class PaintPanel
 
   @Override
   public void mouseMoved(MouseEvent e) {
-    mouse = e.getPoint();
-    repaint();
+    double[] coords = coords(e.getX(), e.getY());
+    statusbar.setStatusMsg("[" + (int)coords[0] + " - " + (int)coords[1] + "]");
   }
 
   /*
@@ -326,5 +326,4 @@ class PaintPanel
       return sStroked;
     }
   }
-
 }
