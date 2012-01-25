@@ -129,23 +129,25 @@ public class HistoryScene
     
     // First of all draw bounding Box:
     g2d.setColor(Color.BLACK);
-    if (_boundingBox instanceof OrderedListPolygon) {
-      int[] xcoords = new int[_boundingBox.size()];
-      int[] ycoords = new int[_boundingBox.size()];
-      for (int i = 0; i < _boundingBox.size(); i++) {
-        xcoords[i] = (int) _boundingBox.getPoints().get(i).x;
-        ycoords[i] = (int) _boundingBox.getPoints().get(i).y;
+    if(_boundingBox != null) {
+      if (_boundingBox instanceof OrderedListPolygon) {
+        int[] xcoords = new int[_boundingBox.size()];
+        int[] ycoords = new int[_boundingBox.size()];
+        for (int i = 0; i < _boundingBox.size(); i++) {
+          xcoords[i] = (int) _boundingBox.getPoints().get(i).x;
+          ycoords[i] = (int) _boundingBox.getPoints().get(i).y;
+        }
+  
+        g2d.setColor(Color.BLACK);
+        g2d.drawPolygon(xcoords, ycoords, _boundingBox.size());
       }
-
-      g2d.setColor(Color.BLACK);
-      g2d.drawPolygon(xcoords, ycoords, _boundingBox.size());
+      else {
+        g2d.drawOval(0, 0, 
+            (int) (2 * ((Circle) _boundingBox).getRadius()), 
+            (int) (2 * ((Circle) _boundingBox).getRadius()));
+      }
     }
-    else {
-      g2d.drawOval(0, 0, 
-          (int) (2 * ((Circle) _boundingBox).getRadius()), 
-          (int) (2 * ((Circle) _boundingBox).getRadius()));
-    }
-
+    
     // Afterwards every polygon:
     for (Box<Polygon> item : _polyList) {
       List<Point> p = item.openBox().getPoints();
