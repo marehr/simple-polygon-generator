@@ -9,6 +9,8 @@ import javax.swing.JButton;
 import javax.swing.JToolBar;
 
 import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.Scene;
+import polygonsSWP.geometry.Polygon;
 
 
 /**
@@ -112,6 +114,13 @@ class VisualisationControl
       // Enable anything.
       changeStates(true);
     }
+  }
+  
+  /**
+   * @return the current scene
+   */
+  public Scene getCurrentScene() {
+    return (history == null) ? null : history.getScenes().get(sceneIdx);
   }
   
   /* Helpers. */

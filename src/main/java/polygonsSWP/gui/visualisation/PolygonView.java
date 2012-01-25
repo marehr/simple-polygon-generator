@@ -182,7 +182,7 @@ public class PolygonView
     }
 
     String data;
-    if (jfc.getFileFilter().equals(svgFilter)) data = polygon.toSVG();
+    if (jfc.getFileFilter().equals(svgFilter)) data = visControl.getCurrentScene().toSvg();
     else data = polygon.toString();
 
     osw = new OutputStreamWriter(fos);

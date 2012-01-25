@@ -182,30 +182,6 @@ public abstract class Polygon implements Cloneable
     }
     return sb.toString();
   }
-  
-  /**
-   * @return a SVG representation of the polygon contained in a string
-   */
-  public String toSVG() {
-    StringBuilder sb = new StringBuilder();
-    List<Point> points = getPoints();
-
-    sb.append("<?xml version=\"1.0\"?>\n");
-    sb.append("<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n");
-    sb.append("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n");
-    if (points.size() != 0) {
-      sb.append("<polygon points=\"");
-      for (Point p : points) {
-        sb.append(p.x);
-        sb.append(",");
-        sb.append(p.y);
-        sb.append(" ");
-      }
-      sb.append("\" style=\"fill:lime;stroke:purple;stroke-width:1\" />\n");
-    }
-    sb.append("</svg>\n");
-    return sb.toString();
-  }
 
   /**
    * @return Center of mass of Polygon points.
