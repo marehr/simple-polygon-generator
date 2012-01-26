@@ -15,7 +15,7 @@ import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.OrderedListPolygon;
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
 import polygonsSWP.util.GeneratorUtils;
@@ -43,7 +43,7 @@ public class SpacePartitioningFactory
 
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonStatistics stats, PolygonHistory steps)
+      PolygonStatistics stats, History steps)
     throws IllegalParameterizationException {
 
     List<Point> points = GeneratorUtils.createOrUsePoints(params);
@@ -61,7 +61,7 @@ public class SpacePartitioningFactory
     private Random rand = new Random();
 
     private List<Point> points;
-    private final PolygonHistory steps;
+    private final History steps;
     private boolean doStop = false;
 
     /**
@@ -76,7 +76,7 @@ public class SpacePartitioningFactory
     private Color LEFT_POLYGON = Color.GRAY;
     private Color RIGHT_POLYGON = Color.LIGHT_GRAY;
 
-    SpacePartitioning(List<Point> points, PolygonHistory steps, int size) {
+    SpacePartitioning(List<Point> points, History steps, int size) {
       this.size = size;
       this.points = points;
       this.steps = steps;

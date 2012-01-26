@@ -9,7 +9,6 @@ import javax.swing.JButton;
 import javax.swing.JToolBar;
 
 import polygonsSWP.data.History;
-import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.data.Scene;
 import polygonsSWP.data.listener.HistoryListener;
 
@@ -61,7 +60,7 @@ class VisualisationControl implements HistoryListener
   }
 
   /* The history */
-  private PolygonHistory history;
+  private History history;
   private int sceneIdx;
   
   VisualisationControl(JToolBar toolbar) {
@@ -129,7 +128,7 @@ class VisualisationControl implements HistoryListener
    * @param ph the polygon history object. May be null, in which case the
    *          controls should be disabled.
    */
-  synchronized void setHistory(PolygonHistory ph) {
+  synchronized void setHistory(History ph) {
     history = ph;
     if(history == null || history.getScenes().size() < 1) {
       // Disable anything.

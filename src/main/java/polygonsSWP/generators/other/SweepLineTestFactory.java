@@ -1,21 +1,17 @@
 package polygonsSWP.generators.other;
 
-import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
-import polygonsSWP.data.Scene;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.heuristics.SpacePartitioningFactory;
 import polygonsSWP.geometry.OrderedListPolygon;
-import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
-import polygonsSWP.util.GeneratorUtils;
 
 
 public class SweepLineTestFactory
@@ -38,7 +34,7 @@ public class SweepLineTestFactory
 
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonStatistics stats, final PolygonHistory steps)
+      PolygonStatistics stats, final History steps)
     throws IllegalParameterizationException {
 
     final OrderedListPolygon polygon, constPoly = OrderedListPolygon.sweepLineTestPolygon;

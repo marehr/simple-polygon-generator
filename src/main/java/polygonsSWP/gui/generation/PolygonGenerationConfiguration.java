@@ -20,7 +20,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
@@ -233,7 +233,7 @@ class PolygonGenerationConfiguration
   }
 
   public PolygonGenerator createGenerator(PolygonStatistics stats,
-      PolygonHistory steps) {
+      History steps) {
 
     PolygonGeneratorFactory pgf = (PolygonGeneratorFactory) cb_polygon_algorithm_chooser.getSelectedItem();    
     Map<Parameters, Object> params = new HashMap<Parameters, Object>();

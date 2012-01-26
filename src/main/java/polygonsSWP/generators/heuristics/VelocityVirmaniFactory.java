@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
 import polygonsSWP.generators.IllegalParameterizationException;
@@ -40,7 +40,7 @@ public class VelocityVirmaniFactory
   }
 
   @Override
-  public PolygonGenerator createInstance(Map<Parameters, Object> params, PolygonStatistics stats, PolygonHistory steps)
+  public PolygonGenerator createInstance(Map<Parameters, Object> params, PolygonStatistics stats, History steps)
     throws IllegalParameterizationException {
 
     Long radius = (Long) params.get(Parameters.radius);
@@ -74,12 +74,12 @@ public class VelocityVirmaniFactory
     private int runs;
     private int maxVelo;
     private int bound;
-    private PolygonHistory steps;
+    private History steps;
     private PolygonStatistics statistics;
 
     private boolean stop = false;
 
-    VelocityVirmani(int n, long radius, int runs, int bound, int maxVelo, PolygonHistory steps, PolygonStatistics statistics) {
+    VelocityVirmani(int n, long radius, int runs, int bound, int maxVelo, History steps, PolygonStatistics statistics) {
       this.rand = new Random();
       this.n = n;
       this.radius = radius;

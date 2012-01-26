@@ -2,19 +2,14 @@ package polygonsSWP.tests;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.junit.Test;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.Scene;
-import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.generators.other.PermuteAndRejectFactory;
-import polygonsSWP.geometry.OrderedListPolygon;
-import polygonsSWP.geometry.Point;
 
 public class HistorySceneTest
 {
@@ -25,7 +20,7 @@ public class HistorySceneTest
     HashMap<Parameters, Object> params = new HashMap<Parameters, Object>();
     params.put(Parameters.n, 7);
     params.put(Parameters.size, 600);
-    PolygonHistory hist = new PolygonHistory();
+    History hist = new History();
     PolygonGenerator inst;
     try {
       inst = fac.createInstance(params, null, hist);

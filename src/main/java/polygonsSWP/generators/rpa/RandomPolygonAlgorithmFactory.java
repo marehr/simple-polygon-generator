@@ -1,20 +1,18 @@
 package polygonsSWP.generators.rpa;
 
 import java.awt.Color;
-import java.util.Currency;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Random;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
 import polygonsSWP.generators.IllegalParameterizationException;
-import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGenerator;
-import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
+import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -46,7 +44,7 @@ public class RandomPolygonAlgorithmFactory
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
       PolygonStatistics stats,
-      PolygonHistory steps)
+      History steps)
     throws IllegalParameterizationException {
     Integer n = (Integer) params.get(Parameters.n);
     if (n == null)
@@ -68,10 +66,10 @@ public class RandomPolygonAlgorithmFactory
     private boolean dostop = false;
     private int _n;
     private int _size;
-    private final PolygonHistory steps;
+    private final History steps;
     private final PolygonStatistics statistics;
     
-    RandomPolygonAlgorithm(int n, int size, PolygonHistory steps, PolygonStatistics statistics) {
+    RandomPolygonAlgorithm(int n, int size, History steps, PolygonStatistics statistics) {
       this._n = n;
       this._size = size;
       this.steps = steps;
