@@ -274,8 +274,8 @@ public class OrderedListPolygon
   }
 
   @Override
-  public Polygon clone() {
-    List<Point> nList = new ArrayList<Point>();
+  public OrderedListPolygon clone() {
+    List<Point> nList = new ArrayList<Point>(_coords.size());
     for (Point item : _coords)
       nList.add(item.clone());
     return new OrderedListPolygon(nList);

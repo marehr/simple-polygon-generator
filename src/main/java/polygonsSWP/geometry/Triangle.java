@@ -44,11 +44,11 @@ public class Triangle
   }
 
   @Override
-  public Polygon clone() {
-    List<Point> tmpList = new ArrayList<Point>();
-    for (Point item : tmpList)
-      tmpList.add(item.clone());
-    return new Triangle(tmpList);
+  public Triangle clone() {
+    List<Point> nList = new ArrayList<Point>(_coords.size());
+    for (Point item : _coords)
+      nList.add(item.clone());
+    return new Triangle(nList);
   }
 
   @Override
