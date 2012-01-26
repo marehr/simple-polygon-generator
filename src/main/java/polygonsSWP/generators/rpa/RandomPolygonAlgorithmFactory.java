@@ -19,6 +19,7 @@ import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.Ray;
+import polygonsSWP.geometry.Triangle;
 import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 
@@ -88,6 +89,12 @@ public class RandomPolygonAlgorithmFactory
               3, _size, true));
 
       List<Point> polygonPoints = polygon.getPoints();
+      
+      if (steps != null) {
+        Scene scene = steps.newScene();
+        scene.addPolygon(polygon, true);
+        scene.save();          
+      }
 
       // 2. n-3 times:
       for (int i = 0; i < _n - 3; i++) {
@@ -105,17 +112,46 @@ public class RandomPolygonAlgorithmFactory
         System.out.println("visible region: " + visibleRegion.getPoints() + "\n");
         if (steps != null) {
           Scene scene = steps.newScene();
-          scene.addPolygon(polygon, Color.GRAY);
-          scene.addPolygon(polygon, Color.LIGHT_GRAY);
+          scene.addPolygon(polygon, true);
+          scene.addPolygon(visibleRegion, Color.LIGHT_GRAY);
           scene.save();          
         }
         // 2.c randomly select point Vc in P'
-        Point randomPoint = visibleRegion.createRandomPoint();
+        Triangle selectedTriangle;
+        if (visibleRegion.size() > 3) {
+          List<Triangle> triangles = ((OrderedListPolygon)visibleRegion).triangulate();
+          System.out.println("Triangulation: ");
+          for (Triangle triangle : triangles) {
+            System.out.println(triangle.getPoints());
+          }
+          selectedTriangle = Triangle.selectRandomTriangleBySize(triangles);
+          System.out.println("selectedTriangle: " + selectedTriangle);
+        } else {
+          selectedTriangle = new Triangle(polygonPoints);
+          System.out.println("SelectedRegion is whole polygon.");
+        }
+        Point randomPoint = selectedTriangle.createRandomPoint();
         System.out.println("random point: " + randomPoint);
+        if (steps != null) {
+          Scene scene = steps.newScene();
+          scene.addPolygon(polygon, true);
+//          for (Triangle triangle : triangles) {
+//            scene.addPolygon(triangle, false);
+//            System.out.println(triangle.size());
+//          }
+          scene.addPolygon(new OrderedListPolygon(selectedTriangle.getPoints()), Color.LIGHT_GRAY);
+          scene.addPoint(randomPoint, true);
+          scene.save();          
+        }
         // 2.d add line segments VaVc and VcVb (delete line segment VaVb)
         polygonPoints.add(randomIndex, randomPoint);
         System.out.println("new polygon" + polygon.getPoints());
         System.out.println("-----------------\n");
+        if (steps != null) {
+          Scene scene = steps.newScene();
+          scene.addPolygon(polygon, Color.BLUE);
+          scene.save();          
+        }
       }
 
       if (dostop) return null;

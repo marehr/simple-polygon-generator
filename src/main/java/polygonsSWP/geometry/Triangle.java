@@ -104,7 +104,7 @@ public class Triangle
 
     if (!containsPoint(point, true)) {
       Vector x2 = v0.add(x1.subb(v3));
-      point = new Point(-x2.v1, -x2.v2);
+      point = new Point(x2.v1, x2.v2);
     }
     return point;
   }
@@ -165,7 +165,8 @@ public class Triangle
     // 4. as soon as running total >= random value, select the item you're
     // currently looking at (the one whose weight you just added).
 
-    // TODO: real random !!!
+    System.out.println("-----------------\n");
+    System.out.println("selectRandomTriangleBySize");
     Random random = new RandomNumbers(System.currentTimeMillis());
     HashMap<Triangle, Double> surfaceAreaTriangles =
         new HashMap<Triangle, Double>();
