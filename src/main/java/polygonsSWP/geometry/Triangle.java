@@ -104,7 +104,7 @@ public class Triangle
 
     if (!containsPoint(point, true)) {
       Vector x2 = v0.add(x1.subb(v3));
-      point = new Point(x2.v1, x2.v2);
+      point = new Point(-x2.v1, -x2.v2);
     }
     return point;
   }
