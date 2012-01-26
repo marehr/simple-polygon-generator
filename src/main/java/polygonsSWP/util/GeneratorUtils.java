@@ -260,7 +260,7 @@ public class GeneratorUtils
     // intersections ray polygon without base point of ray
     List<Point[]> intersections = polygon.intersect(r, false);
     Point[] isec = r.getPointClosestToBase(intersections);
-    if (isec == null || isec[0] == polyPoint){
+    if (isec == null || isec[0].equals(polyPoint)){
       // if intersection exists and is not equal to support point of ray
       // colinear LineSegments don't block sight
       return true;
