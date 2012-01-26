@@ -109,7 +109,7 @@ public class VelocityVirmaniFactory
         // PolygonHistory: New Scene object is generated and added to the History
         scene = null;
         if (steps != null) 
-          steps.addScene(scene = steps.newScene().setBoundingBox(bound, bound));
+          scene = steps.newScene().setBoundingBox(bound, bound);
         
         for (int i = 0; i < n; i++) // Looping through the Points
         {
@@ -135,10 +135,13 @@ public class VelocityVirmaniFactory
               rejections++;
             }
           }
-          else if (steps != null) scene.addPoint(poly.getPoint(i), false);// PolygonHistory: Just adds a Points without Highlighting
-
+          else if (steps != null)
+            scene.addPoint(poly.getPoint(i), false);// PolygonHistory: Just adds a Points without Highlighting
         }
         runs--;
+        
+        if(steps != null)
+          scene.save();
       }
       if (stop) return null;// If stop is called and this was finished. Give back null.
 
@@ -149,6 +152,10 @@ public class VelocityVirmaniFactory
         statistics.radius = statistics.radius;
         statistics.rejections = rejections;
       }
+      
+      if(steps != null)
+        steps.newScene().addPolygon(poly, false).save();
+      
       return poly;
     }
 
