@@ -28,8 +28,8 @@ public class Ray
   public boolean containsPoint(Point p) {
     Vector oa = new Vector(new Point(0, 0), _base);
     Vector ab = new Vector(_base, _support);
-    double lambda1 = ((p.x - oa.v1) / ab.v1);
-    double lambda2 = ((p.y - oa.v2) / ab.v2);
+    double lambda1 = ((p.x - oa.x) / ab.x);
+    double lambda2 = ((p.y - oa.y) / ab.y);
     return MathUtils.doubleEquals(lambda1, lambda2) && lambda1 >= 0;
   }
 

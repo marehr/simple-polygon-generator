@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -154,8 +152,23 @@ public class TriangleTest
   public void createRandomPointTest() {
     for (int i = 1; i < 10000; ++i){
       Point point = testTriangle.createRandomPoint();
-      assertTrue(testTriangle.containsPoint(point,
-          true));
+      //System.out.println("triangle: " + point);
+      assertTrue(testTriangle.containsPoint(point, true));
+    }
+  }
+
+  @Test
+  public void createRandomPointTest2() {
+    Triangle triangle = new Triangle(new Point(0, 1), new Point(4, 4), new Point(6, 0));
+    for (int i = 1; i < 10000; ++i){
+      Point point = triangle.createRandomPoint();
+      assertTrue(triangle.containsPoint(point, true));
+    }
+
+    triangle = new Triangle(new Point(269.808,137.508), new Point(521.891,145.39), new Point(116.261,541.005));
+    for (int i = 1; i < 10000; ++i){
+      Point point = triangle.createRandomPoint();
+      assertTrue(triangle.containsPoint(point, true));
     }
   }
 
