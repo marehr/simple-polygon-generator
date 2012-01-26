@@ -16,10 +16,10 @@ public class PolygonStatistics
   public Long timestamp = null;//System.currentTimeMillis();, use at start of algorithm
   public Double time_for_creating_polygon = null; //in Millisecs
   
-  //Permute & Reject + IC&BT + Virmani  
+  //Permute & Reject + IC&BT + Virmani + SteadyGrowth
   public Integer iterations = null;
  
-  //Permute & Reject + Virmani
+  //Permute & Reject + Virmani + SteadyGrowth
   public Integer rejections = null;
   
   //RPA
@@ -33,4 +33,7 @@ public class PolygonStatistics
   public Double radius = null;
   public Double avg_velocity_without_collisions = null;
   
+  // SteadyGrowth
+  public Integer initializeRejections = null;
+  public Integer maximumRejections = null;
 }

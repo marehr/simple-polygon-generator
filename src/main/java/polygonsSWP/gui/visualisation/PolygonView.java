@@ -8,32 +8,32 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.filechooser.FileFilter;
 
 import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.data.PolygonStatistics;
-import polygonsSWP.geometry.MonotonPolygon;
-import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.gui.GUIModeListener;
 import polygonsSWP.gui.generation.PointGenerationModeListener;
 import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
-import polygonsSWP.util.SeidelTrapezoidation;
 
-
+/**
+ * TODO: describe me
+ * 
+ * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ */
 public class PolygonView
   extends JPanel
-  implements PolygonGenerationPanelListener, PointGenerationModeListener, GUIModeListener
+  implements PolygonGenerationPanelListener, PointGenerationModeListener,
+  GUIModeListener
 {
   private static final long serialVersionUID = 1L;
 
@@ -41,14 +41,14 @@ public class PolygonView
   private final JToolBar tb;
   private final JButton saveButton;
   private final JButton centerViewButton;
-  private final JToggleButton trapezoidButton;
   private final VisualisationControl visControl;
-
+  private PaintPanelStatusBar ppsb;
+  
   private Polygon polygon;
 
   public PolygonView() {
-    pp = new PaintPanel();
-
+    ppsb = new PaintPanelStatusBar();  
+    pp = new PaintPanel(ppsb);
     tb = new JToolBar();
 
     centerViewButton = new JButton("Center View");
@@ -70,19 +70,9 @@ public class PolygonView
     saveButton.setEnabled(false);
     tb.add(saveButton);
 
-    trapezoidButton = new JToggleButton("Trapezoidation");
-    trapezoidButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent arg0) {
-        trapezoidatePolygon();
-      }
-    });
-    trapezoidButton.setEnabled(false);
-    tb.add(trapezoidButton);
-
     visControl = new VisualisationControl(tb);
     visControl.addVisualisationControlListener(pp);
-
+        
     layoutControls();
   }
 
@@ -93,19 +83,19 @@ public class PolygonView
 
     add(tb, BorderLayout.PAGE_START);
     add(pp, BorderLayout.CENTER);
+    add(ppsb, BorderLayout.PAGE_END);
   }
 
   /* PolygonGenerationPanelListener methods. */
 
   @Override
-  public void onPolygonGenerationStarted() {
+  public void onPolygonGenerationStarted(PolygonStatistics stats, PolygonHistory steps) {
     saveButton.setEnabled(false);
-    trapezoidButton.setEnabled(false);
-    trapezoidButton.setSelected(false);
     polygon = null;
+    visControl.setHistory(steps);
 
-    pp.clearScene();
-    visControl.setHistory(null);
+    // add observer
+    if(steps != null) steps.setHistoryListener(visControl);
   }
 
   @Override
@@ -115,15 +105,10 @@ public class PolygonView
   @Override
   public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats,
       PolygonHistory history) {
-    pp.clearScene();
-    // Remark: Commented out as we display the polygon through the
-    // history object.
-    // pp.addPolygon(newPolygon);
+    pp.setCurrentPolygon(newPolygon);
     visControl.setHistory(history);
-
     polygon = newPolygon;
     saveButton.setEnabled(true);
-    trapezoidButton.setEnabled(true);
   }
 
   /* PointGenerationModeListener methods. */
@@ -133,27 +118,15 @@ public class PolygonView
       List<Point> points) {
     pp.setDrawMode(!randomPoints, points);
   }
+  
+  /* GUIModeListener methods. */
+
+  @Override
+  public void onGUIModeChanged(boolean generatorMode) {
+    pp.setGUIinGenerationMode(generatorMode);
+  }
 
   /* Internals. */
-
-  /**
-   * Calls trapezoidation and displays trapezoids.
-   */
-  protected void trapezoidatePolygon() {
-    assert (polygon != null);
-    if (trapezoidButton.isSelected()) {
-      List<MonotonPolygon> trapezoids =
-          ((OrderedListPolygon) polygon).sweepLine();
-      List<Polygon> tmp = new ArrayList<Polygon>();
-      for (MonotonPolygon item : trapezoids)
-        tmp.add(new OrderedListPolygon(item.getPoints()));
-      pp.addPolygons(trapezoids);
-    }
-    else {
-      pp.clearScene();
-      pp.addPolygon(polygon);
-    }
-  }
 
   /**
    * Takes care of user interaction through JFileChooser and writes the polygon
@@ -225,7 +198,7 @@ public class PolygonView
     }
 
     String data;
-    if (jfc.getFileFilter().equals(svgFilter)) data = polygon.toSVG();
+    if (jfc.getFileFilter().equals(svgFilter)) data = visControl.getCurrentScene().toSvg();
     else data = polygon.toString();
 
     osw = new OutputStreamWriter(fos);
@@ -249,14 +222,4 @@ public class PolygonView
           f.getName() + "\".", "Error", JOptionPane.ERROR_MESSAGE);
     }
   }
-
-	@Override
-	public void inGenerationMode() {
-		pp.setGUIinGenerationMode(true);		
-	}
-
-	@Override
-	public void inShortestPathMode() {
-		pp.setGUIinGenerationMode(false);
-	}
 }

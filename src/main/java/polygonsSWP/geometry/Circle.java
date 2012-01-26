@@ -170,25 +170,6 @@ public class Circle
   }
 
   @Override
-  public String toSVG() {
-    StringBuilder sb = new StringBuilder();
-
-    sb.append("<?xml version=\"1.0\"?>\n");
-    sb.append("<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n");
-    sb.append("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n");
-    sb.append("<circle cx=\"");
-    sb.append(_center.x);
-    sb.append("\" cy=\"");
-    sb.append(_center.y);
-    sb.append("\" r=\"");
-    sb.append(_radius);
-    sb.append("\" style=\"fill:lime;stroke:purple;stroke-width:1\" />\n");
-
-    sb.append("</svg>\n");
-    return sb.toString();
-  }
-
-  @Override
   public Point centerOfMass() {
     return _center;
   }

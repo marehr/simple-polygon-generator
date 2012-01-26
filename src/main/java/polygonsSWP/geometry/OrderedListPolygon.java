@@ -1,6 +1,7 @@
 package polygonsSWP.geometry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -290,8 +291,19 @@ public class OrderedListPolygon
     return getPoints().contains(p);
   }
 
-  public List<MonotonPolygon> sweepLine() {
-    List<MonotonPolygon> returnList = new ArrayList<MonotonPolygon>();
+  /**
+   * TODO: remove me after Trapzblah fertig und SweepLineTestFactory Fuer Steve,
+   * damit er auf konstanten Polygonen sweepline testen kann wenn weniger als 3
+   * Punkte angegeben werden, dann wird einfach SpacePartitioning auf die GUI
+   * Settings ausgefuehrt
+   */
+  public static OrderedListPolygon sweepLineTestPolygon =
+      new OrderedListPolygon(new ArrayList<Point>(Arrays.asList(
+      // new Point(100, 100), new Point(200, 250), new Point(100, 400)
+          new Point(100, 100), new Point(300, 100), new Point(300, 300))));
+
+  public List<Trapezoid> sweepLine() {
+    List<Trapezoid> returnList = new ArrayList<Trapezoid>();
     // Add comparator
     TreeSet<PointType> pointTree =
         new TreeSet<PointType>(new PointType.PointComparator());
@@ -300,12 +312,8 @@ public class OrderedListPolygon
     HashMap<Point, PointType> pointHash = new HashMap<Point, PointType>();
     for (Point p : _coords)
       pointHash.put(p, categorizePointForSweepLine(p));
-    for (PointType tp : pointHash.values()) {
-      System.out.println("Categorizing Points: ");
-      System.out.println("Point : " + tp.p + " Categeory: " + tp.type +
-          " Direction: " + tp.direct);
+    for (PointType tp : pointHash.values())
       pointTree.add(tp);
-    }
 
     EdgeList eList = new EdgeList();
     // For every Vertex in tree
@@ -428,6 +436,12 @@ public class OrderedListPolygon
           eList.updateIntersection(interEdge[1]._b, interEdge[1]._a,
               intersections[1]);
         }
+        else {
+          formMonontonPolygon(curr.p,
+              eList.getIntersectionByEndPoint(curr.p)[0],
+              eList.getIntersectionByEndPoint(curr.p)[1],
+              eList.getIntersectionByEndPoint(curr.p)[1], returnList);
+        }
       }
       // If it is HMAX
       else if (curr.type == PointType.PointClass.HMAX) {
@@ -515,13 +529,15 @@ public class OrderedListPolygon
   }
 
   private void formMonontonPolygon(Point a, Point b, Point c, Point d,
-      List<MonotonPolygon> returnList) {
-    List<LineSegment> tmpList = new LinkedList<LineSegment>();
-    tmpList.add(new LineSegment(a, b));
-    tmpList.add(new LineSegment(a, c));
-    tmpList.add(new LineSegment(b, d));
-    if (!c.equals(d)) tmpList.add(new LineSegment(c, d));
-    returnList.add(new MonotonPolygon(tmpList));
+      List<Trapezoid> returnList) {
+    System.out.println("Point to Paint: " + a + " " + b + " " + d + " " + c);
+    List<Point> tmpList = new LinkedList<Point>();
+    tmpList.add(a);
+    tmpList.add(b);
+    tmpList.add(d);
+    if (!c.equals(d)) tmpList.add(c);
+    System.out.println("Formed Polygon: " + new Trapezoid(tmpList));
+    returnList.add(new Trapezoid(tmpList));
   }
 
   /**
@@ -642,57 +658,78 @@ public class OrderedListPolygon
   {
 
     private class EdgeComparator
-      implements Comparator<Point>
+      implements Comparator<LineSegment>
     {
 
       @Override
-      public int compare(Point isec1, Point isec2) {
-        if (isec1.x > isec2.x + MathUtils.EPSILON) return 1;
-        else if (isec1.x < isec2.x - MathUtils.EPSILON) return -1;
-        else return 0;
+      public int compare(LineSegment isec1, LineSegment isec2) {
+        System.out.println("isec1: " + isec1);
+        System.out.println("isec2: " + isec2);
+        if (isec1.equals(isec2)) {
+          System.out.println("return: 0");
+          return 0;
+        }
+        // Choose right endpoint
+        Point p = null;
+        if (isec1._a.y < isec1._b.y) p = isec1._a;
+        else p = isec1._b;
+        // Construct p inf
+        Point pInf = new Point(Double.MAX_VALUE, p.y);
+        // Orientation Test
+        int fstOrient = MathUtils.checkOrientation(isec2._a, isec2._b, p);
+        System.out.println("orient 1:" + fstOrient);
+        int sndOrient = MathUtils.checkOrientation(isec2._a, isec2._b, pInf);
+        System.out.println("orient 2:" + sndOrient);
+        if (sndOrient == 1 && fstOrient == 1) {
+          System.out.println("return: 1");
+          return 1;
+        }
+        System.out.println("return: -1");
+        return -1;
       }
 
     }
 
-    private TreeMap<Point, Point[]> endStore = new TreeMap<Point, Point[]>() {
-      /**
+    private TreeMap<Point, LineSegment[]> endStore =
+        new TreeMap<Point, LineSegment[]>() {
+          /**
        * 
        */
-      private static final long serialVersionUID = 1L;
+          private static final long serialVersionUID = 1L;
 
-      @Override
-      public String toString() {
-        String reValue = "";
-        reValue += "{";
-        for (Entry<Point, Point[]> item : this.entrySet()) {
-          reValue += "(" + item.getKey() + ")=[";
-          for (Point p : item.getValue())
-            reValue += p + ",";
-          reValue += "]\n";
-        }
-        return reValue;
-      }
-    };
-    private TreeMap<Point, Point[]> orderedEdges = new TreeMap<Point, Point[]>(
-        new EdgeComparator()) {
-      /**
+          @Override
+          public String toString() {
+            String reValue = "";
+            reValue += "{";
+            for (Entry<Point, LineSegment[]> item : this.entrySet()) {
+              reValue += "(" + item.getKey() + ")=[";
+              for (LineSegment p : item.getValue())
+                reValue += p + ",";
+              reValue += "]\n";
+            }
+            return reValue;
+          }
+        };
+    private TreeMap<LineSegment, Point[]> orderedEdges =
+        new TreeMap<LineSegment, Point[]>(new EdgeComparator()) {
+          /**
            * 
            */
-      private static final long serialVersionUID = 1L;
+          private static final long serialVersionUID = 1L;
 
-      @Override
-      public String toString() {
-        String reValue = "";
-        reValue += "{";
-        for (Entry<Point, Point[]> item : this.entrySet()) {
-          reValue += "(" + item.getKey() + ")=[";
-          for (Point p : item.getValue())
-            reValue += p + ",";
-          reValue += "]\n";
-        }
-        return reValue;
-      }
-    };
+          @Override
+          public String toString() {
+            String reValue = "";
+            reValue += "{";
+            for (Entry<LineSegment, Point[]> item : this.entrySet()) {
+              reValue += "(" + item.getKey() + ")=[";
+              for (Point p : item.getValue())
+                reValue += p + ",";
+              reValue += "]\n";
+            }
+            return reValue;
+          }
+        };
     private List<Point> markedEdges = new ArrayList<Point>();
 
     public EdgeList() {
@@ -705,28 +742,28 @@ public class OrderedListPolygon
       System.out.println("INSERT: Insert: " + endPoint + " with intersection " +
           isec);
       if (endStore.containsKey(endPoint)) {
-        Point[] tmpArray = endStore.remove(endPoint);
-        tmpArray[1] = isec;
+        LineSegment[] tmpArray = endStore.remove(endPoint);
+        tmpArray[1] = new LineSegment(isec, endPoint);
         endStore.put(endPoint, tmpArray);
         System.out.println("  EndStore contained " + endPoint + " added " +
             isec);
       }
       else {
-        Point[] isecs = { isec, null };
+        LineSegment[] isecs = { new LineSegment(isec, endPoint), null };
         endStore.put(endPoint, isecs);
         System.out.println("  Endstore didnt contain " + endPoint + " added " +
             isec);
       }
-      if (orderedEdges.containsKey(isec)) {
-        Point[] tmpArray = orderedEdges.remove(isec);
+      if (orderedEdges.containsKey(new LineSegment(isec, endPoint))) {
+        Point[] tmpArray = orderedEdges.remove(new LineSegment(isec, endPoint));
         tmpArray[1] = endPoint;
-        orderedEdges.put(isec, tmpArray);
+        orderedEdges.put(new LineSegment(isec, endPoint), tmpArray);
         System.out.println("  OrderedStore contained " + isec + " added " +
             endPoint);
       }
       else {
         Point[] tmpArray = { endPoint, null };
-        orderedEdges.put(isec, tmpArray);
+        orderedEdges.put(new LineSegment(isec, endPoint), tmpArray);
         System.out.println("  OrderedStore didnt contain " + isec + " added " +
             endPoint);
       }
@@ -739,43 +776,45 @@ public class OrderedListPolygon
       System.out.println("  Storage:");
       System.out.println("   End: " + endStore);
       System.out.println("   Ord: " + orderedEdges);
-      Point[] isecs = endStore.get(endPoint);
-      if (isecs[0] == oldIsec) {
-        isecs[0] = newIsec;
+      LineSegment[] isecs = endStore.get(endPoint);
+      if (isecs[0].equals(new LineSegment(oldIsec, endPoint))) {
+        isecs[0] = new LineSegment(newIsec, endPoint);
         endStore.put(endPoint, isecs);
         System.out.println("EndStore updated " + endPoint + " with " + newIsec);
       }
       else {
-        isecs[1] = newIsec;
+        isecs[1] = new LineSegment(newIsec, endPoint);
         endStore.put(endPoint, isecs);
         orderedEdges.remove(oldIsec);
         Point[] tmpArray = { endPoint, null };
-        orderedEdges.put(newIsec, tmpArray);
+        orderedEdges.put(new LineSegment(newIsec, endPoint), tmpArray);
         System.out.println("EndStore added " + endPoint + " with " + newIsec);
       }
-      isecs = orderedEdges.remove(oldIsec);
-      if (isecs[0].equals(endPoint)) {
+      Point[] EndPoints = orderedEdges.remove(oldIsec);
+      for (Point item : EndPoints)
+        System.out.println("      " + item);
+      if (EndPoints[0].equals(endPoint)) {
         Point[] tmpArray = { endPoint, null };
-        orderedEdges.put(newIsec, tmpArray);
+        orderedEdges.put(new LineSegment(newIsec, endPoint), tmpArray);
         System.out.println("OrederedStore updated " + newIsec + " with " +
             endPoint);
-        if (isecs[1] != null) {
-          Point[] sndArray = { isecs[1], null };
-          orderedEdges.put(oldIsec, sndArray);
+        if (EndPoints[1] != null) {
+          Point[] sndArray = { EndPoints[1], null };
+          orderedEdges.put(new LineSegment(oldIsec, endPoint), sndArray);
           System.out.println("OrderedStore readded " + oldIsec + " with " +
-              isecs[1]);
+              EndPoints[1]);
         }
       }
       else {
         Point[] tmpArray = { endPoint, null };
-        orderedEdges.put(newIsec, tmpArray);
+        orderedEdges.put(new LineSegment(newIsec, endPoint), tmpArray);
         System.out.println("OrederedStore updated " + newIsec + " with " +
             endPoint);
-        if (isecs[0] != null) {
-          Point[] sndArray = { isecs[0], null };
-          orderedEdges.put(oldIsec, sndArray);
+        if (EndPoints[0] != null) {
+          Point[] sndArray = { EndPoints[0], null };
+          orderedEdges.put(new LineSegment(oldIsec, endPoint), sndArray);
           System.out.println("OrderedStore readded " + oldIsec + " with " +
-              isecs[0]);
+              EndPoints[0]);
         }
       }
     }
@@ -791,39 +830,25 @@ public class OrderedListPolygon
     }
 
     private LineSegment getNearestLeftLineSegment(Point currP) {
-      Entry<Point, Point[]> frstIsec = orderedEdges.lowerEntry(currP);
-      if (frstIsec.getValue()[0].equals(currP)) {
-        if (frstIsec.getValue()[1] != null) {
-          return new LineSegment(frstIsec.getKey(), frstIsec.getValue()[1]);
-        }
-        else {
-          frstIsec = orderedEdges.lowerEntry(frstIsec.getKey());
-          if (!frstIsec.getValue()[0].equals(currP)) return new LineSegment(
-              frstIsec.getKey(), frstIsec.getValue()[0]);
-          else return new LineSegment(frstIsec.getKey(), frstIsec.getValue()[1]);
-        }
-      }
-      else {
-        return new LineSegment(frstIsec.getKey(), frstIsec.getValue()[0]);
-      }
+      Entry<LineSegment, Point[]> frstIsec =
+          orderedEdges.lowerEntry(new LineSegment(currP, new Point(0,
+              currP.y - 1)));
+      System.out.println("    Left found entry: ");
+      System.out.println("      Key: " + frstIsec.getKey());
+      for (Point item : frstIsec.getValue())
+        System.out.println("        Value: " + item);
+      return frstIsec.getKey();
     }
 
     private LineSegment getNearestRightLineSegment(Point currP) {
-      Entry<Point, Point[]> frstIsec = orderedEdges.higherEntry(currP);
-      if (frstIsec.getValue()[0].equals(currP)) {
-        if (frstIsec.getValue()[1] != null) {
-          return new LineSegment(frstIsec.getKey(), frstIsec.getValue()[1]);
-        }
-        else {
-          frstIsec = orderedEdges.higherEntry(frstIsec.getKey());
-          if (!frstIsec.getValue()[0].equals(currP)) return new LineSegment(
-              frstIsec.getKey(), frstIsec.getValue()[0]);
-          else return new LineSegment(frstIsec.getKey(), frstIsec.getValue()[1]);
-        }
-      }
-      else {
-        return new LineSegment(frstIsec.getKey(), frstIsec.getValue()[0]);
-      }
+      Entry<LineSegment, Point[]> frstIsec =
+          orderedEdges.higherEntry(new LineSegment(currP, new Point(0,
+              currP.y - 1)));
+      System.out.println("    Right found entry: ");
+      System.out.println("      Key: " + frstIsec.getKey());
+      for (Point item : frstIsec.getValue())
+        System.out.println("        Value: " + item);
+      return frstIsec.getKey();
     }
 
     /**
@@ -869,25 +894,21 @@ public class OrderedListPolygon
      *         two edges.
      */
     public Point[] getIntersectionByEndPoint(Point endPoint) {
-      System.out.println("GET BY ENDPOINT: " + endPoint);
-      System.out.println("  Point: " + endStore.get(endPoint));
-      return endStore.get(endPoint);
+      LineSegment[] tmpArray = endStore.get(endPoint);
+      Point[] retArray = new Point[2];
+      retArray[0] = tmpArray[0]._a;
+      if (tmpArray[1] != null) retArray[1] = tmpArray[1]._a;
+      return retArray;
     }
 
     /**
      * Removes all marked edges from data structure.
      */
     public void removeMarkedEdges() {
-      System.out.println("REMOVE");
       for (Point endPoint : markedEdges) {
-        System.out.println("  EndStore removed " + endPoint);
-        Point[] isecPoints = endStore.remove(endPoint);
-        for (int i = 0; i < isecPoints.length; i++) {
-          if (isecPoints[i] != null) {
-            System.out.println("  OrderedStore removed " + isecPoints[i]);
-            orderedEdges.remove(isecPoints[i]);
-          }
-        }
+        LineSegment[] isecPoints = endStore.remove(endPoint);
+        for (int i = 0; i < isecPoints.length; i++)
+          if (isecPoints[i] != null) orderedEdges.remove(isecPoints[i]);
       }
       markedEdges.clear();
     }

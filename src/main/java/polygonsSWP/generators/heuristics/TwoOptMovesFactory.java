@@ -68,8 +68,14 @@ public class TwoOptMovesFactory
       // Step 2: Generate random permutation in case given set was ordered somehow.
       p.permute();
       
-      steps.clear();
-      steps.newScene();
+      // Initialize history & statistics.
+      if(steps != null) {
+        steps.clear();
+        steps.newScene().addPolygon(p, false).save();
+      }
+      if(statistics != null) {
+        statistics.iterations = 0;
+      }
       
       Integer[] intersection = null;
       while(!doStop && (intersection = p.findRandomIntersection()) != null) {
@@ -95,6 +101,12 @@ public class TwoOptMovesFactory
           np.add(op.get(i));
         
         p.setPoints(np);
+        
+        if(steps != null)
+          steps.newScene().addPolygon(p, false).save();
+        
+        if(statistics != null)
+          statistics.iterations++;
       }
       
       if(doStop)

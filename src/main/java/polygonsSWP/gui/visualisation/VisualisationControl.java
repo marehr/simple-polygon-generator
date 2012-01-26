@@ -8,16 +8,19 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JToolBar;
 
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonHistory;
-
+import polygonsSWP.data.Scene;
+import polygonsSWP.data.listener.HistoryListener;
 
 /**
  * Controls the step-by-step visualisation of the generator run. Provides play,
  * pause, step forward/backward controls.
  * 
  * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
  */
-class VisualisationControl
+class VisualisationControl implements HistoryListener
 {
   private final List<VisualisationControlListener> observers;
 
@@ -27,7 +30,36 @@ class VisualisationControl
 //  private JButton b_playpause;
   private JButton b_next;
   private JButton b_last;
-  
+
+  private boolean autoPlay = true;
+
+  final private Thread newSceneEmitterThread = new Thread(new Runnable() {
+
+    @Override
+    public void run() {
+      while(true){
+        try {
+          synchronized (newSceneEmitterThread) {
+            newSceneEmitterThread.wait();
+          }
+        } catch (InterruptedException e) {
+        }
+
+        synchronized (this) {
+          if(autoPlay) last();
+          else changeStates(true);
+        }
+      }
+    }
+  });
+
+  @Override
+  public void onHistorySave(History history, Scene scene) {
+    synchronized (newSceneEmitterThread) {
+      newSceneEmitterThread.notify();
+    }
+  }
+
   /* The history */
   private PolygonHistory history;
   private int sceneIdx;
@@ -52,6 +84,7 @@ class VisualisationControl
     toolbar.add(b_last);
     
     registerListeners();
+    newSceneEmitterThread.start();
   }
   
   private void registerListeners() {
@@ -96,7 +129,7 @@ class VisualisationControl
    * @param ph the polygon history object. May be null, in which case the
    *          controls should be disabled.
    */
-  void setHistory(PolygonHistory ph) {   
+  synchronized void setHistory(PolygonHistory ph) {
     history = ph;
     if(history == null || history.getScenes().size() < 1) {
       // Disable anything.
@@ -114,8 +147,15 @@ class VisualisationControl
     }
   }
   
+  /**
+   * @return the current scene
+   */
+  public Scene getCurrentScene() {
+    return (history == null) ? null : history.getScenes().get(sceneIdx);
+  }
+  
   /* Helpers. */
-  private void changeStates(boolean enable) {
+  synchronized private void changeStates(boolean enable) {
     boolean first, prev, next, last;
     
     if(enable) {
@@ -158,27 +198,32 @@ class VisualisationControl
       vcl.onNewScene(history.getScenes().get(sceneIdx));
   }
   
-  private void first() {
+  synchronized private void first() {
     sceneIdx = 0;
+    autoPlay = false;
     changeStates(true);
     emitCurrentScene();
   }
   
-  private void previous() {
+  synchronized private void previous() {
     sceneIdx--;
+    autoPlay = false;
     changeStates(true);
     emitCurrentScene();
   }
   
-  private void next() {
+  synchronized private void next() {
     sceneIdx++;
+    autoPlay = false;
     changeStates(true);
     emitCurrentScene();
   }
   
-  private void last() {
+  synchronized private void last() {
     sceneIdx = history.getScenes().size() - 1;
+    autoPlay = true;
     changeStates(true);
     emitCurrentScene();
   }
+
 }

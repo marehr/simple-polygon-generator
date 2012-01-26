@@ -35,6 +35,7 @@ public class PolygonTest
     poly.addPoint(new Point(70, 40));
     poly.addPoint(new Point(70, 70));
     poly.addPoint(new Point(50, 80));
+    poly.addPoint(new Point(50, 60));
     poly.addPoint(new Point(40, 60));
     poly.addPoint(new Point(20, 80));
     poly.addPoint(new Point(10, 50));

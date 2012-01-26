@@ -3,9 +3,12 @@ package polygonsSWP.data;
 import java.util.Iterator;
 import java.util.List;
 
+import polygonsSWP.data.listener.HistoryListener;
+
 
 /**
  * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
  */
 
 public interface History
@@ -17,6 +20,12 @@ public interface History
    * @return the new scene
    */
   public Scene newScene();
+
+  /**
+   * TODO: describe me
+   * @param listener
+   */
+  public void setHistoryListener(HistoryListener listener);
 
   /**
    * This adds the scene to the history object.

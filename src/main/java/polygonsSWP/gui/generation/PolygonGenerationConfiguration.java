@@ -219,6 +219,15 @@ class PolygonGenerationConfiguration
   
   /* API */
   
+  void onGeneratorMode() {
+    if(rb_polygonByGenerator.isSelected()) {
+      emitPointGenerationModeSwitched(true, null);
+    } else {
+      assert(points != null);
+      emitPointGenerationModeSwitched(false, points);
+    }
+  }
+  
   void addPointGenerationModeListener(PointGenerationModeListener listener) {
     observers.add(listener);
   }
