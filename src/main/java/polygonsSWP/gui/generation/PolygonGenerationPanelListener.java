@@ -8,8 +8,12 @@ public interface PolygonGenerationPanelListener
 {
   /**
    * Event emitted when the polygon generation was started.
+   * @param stats statistical information about generated polygon
+   *        and the generator's run. May be null.
+   * @param history the step-by-step visualisation of the generation.
+   *        May be null.
    */
-  public void onPolygonGenerationStarted();
+  public void onPolygonGenerationStarted(PolygonStatistics stats, PolygonHistory steps);
   
   /**
    * Event emitted when the polygon generation was cancelled

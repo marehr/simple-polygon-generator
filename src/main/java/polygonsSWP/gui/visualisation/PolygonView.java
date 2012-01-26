@@ -25,7 +25,11 @@ import polygonsSWP.gui.GUIModeListener;
 import polygonsSWP.gui.generation.PointGenerationModeListener;
 import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
 
-
+/**
+ * TODO: describe me
+ * 
+ * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ */
 public class PolygonView
   extends JPanel
   implements PolygonGenerationPanelListener, PointGenerationModeListener,
@@ -85,10 +89,13 @@ public class PolygonView
   /* PolygonGenerationPanelListener methods. */
 
   @Override
-  public void onPolygonGenerationStarted() {
+  public void onPolygonGenerationStarted(PolygonStatistics stats, PolygonHistory steps) {
     saveButton.setEnabled(false);
     polygon = null;
-    visControl.setHistory(null);
+    visControl.setHistory(steps);
+
+    // add observer
+    if(steps != null) steps.setHistoryListener(visControl);
   }
 
   @Override

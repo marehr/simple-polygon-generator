@@ -1,8 +1,11 @@
 package polygonsSWP.data;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+
+import polygonsSWP.data.listener.HistoryListener;
 
 
 /**
@@ -10,16 +13,13 @@ import java.util.List;
  * them and display them.
  * 
  * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
  */
 
-public class PolygonHistory
-  implements History
+public class PolygonHistory implements History
 {
-  private LinkedList<Scene> sceneList;
-
-  public PolygonHistory() {
-    sceneList = new LinkedList<Scene>();
-  }
+  private List<Scene> sceneList = Collections.synchronizedList(new ArrayList<Scene>());
+  private HistoryListener listener = null;
 
   @Override
   public Scene newScene() {
@@ -27,8 +27,16 @@ public class PolygonHistory
   }
 
   @Override
+  public void setHistoryListener(HistoryListener listener) {
+    this.listener = listener;
+  }
+
+  @Override
   public void addScene(Scene newScene) {
     sceneList.add(newScene);
+
+    if(listener != null)
+      listener.onHistorySave(this, newScene);
   }
 
   @Override

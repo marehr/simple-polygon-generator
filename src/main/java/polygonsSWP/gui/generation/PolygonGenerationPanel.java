@@ -92,7 +92,7 @@ public class PolygonGenerationPanel
 
   protected void emitPolygonGenerationStarted() {
     for (PolygonGenerationPanelListener pgl : observers)
-      pgl.onPolygonGenerationStarted();
+      pgl.onPolygonGenerationStarted(stats, steps);
   }
 
   protected void emitPolygonGenerationCanceled() {
@@ -146,7 +146,7 @@ public class PolygonGenerationPanel
     worker = new PolygonGenerationWorker(pg, this);
     t = new Thread(worker);
     b_generate_polygon.setText("Cancel");
-    
+
     // TODO think about order
     emitPolygonGenerationStarted();
 //    stats.start();

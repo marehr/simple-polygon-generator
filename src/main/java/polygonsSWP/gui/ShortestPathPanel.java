@@ -132,11 +132,22 @@ class ShortestPathPanel extends JPanel implements PolygonGenerationPanelListener
   }
 
   // Listener methods
-  public void onPolygonGenerationStarted() {b_calc_shortest_path.setEnabled(false);}
-  public void onPolygonGenerationCancelled() {b_calc_shortest_path.setEnabled(true);}
+
+  @Override
+  public void onPolygonGenerationStarted(PolygonStatistics stats,
+      PolygonHistory steps) {
+    b_calc_shortest_path.setEnabled(false);
+  }
+
+  @Override
+  public void onPolygonGenerationCancelled() {
+    b_calc_shortest_path.setEnabled(true);
+  }
+
+  @Override
   public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats, PolygonHistory history) {
-	  b_calc_shortest_path.setEnabled(true);
-	  currentPolygon = newPolygon;
+    b_calc_shortest_path.setEnabled(true);
+    currentPolygon = newPolygon;
   }
 
   @Override
@@ -151,5 +162,4 @@ class ShortestPathPanel extends JPanel implements PolygonGenerationPanelListener
     }
   }
 
-  
 }
