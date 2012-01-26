@@ -1,7 +1,5 @@
 package polygonsSWP.geometry;
 
-import polygonsSWP.util.MathUtils;
-
 public class Vector extends Point
 {
   

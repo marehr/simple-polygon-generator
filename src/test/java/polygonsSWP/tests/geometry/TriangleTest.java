@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +13,7 @@ import org.junit.Test;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Triangle;
+import polygonsSWP.util.GeneratorUtils;
 
 
 public class TriangleTest
@@ -166,6 +169,14 @@ public class TriangleTest
     }
 
     triangle = new Triangle(new Point(269.808,137.508), new Point(521.891,145.39), new Point(116.261,541.005));
+    for (int i = 1; i < 10000; ++i){
+      Point point = triangle.createRandomPoint();
+      assertTrue(triangle.containsPoint(point, true));
+    }
+
+    List<Point> points = GeneratorUtils.createRandomSetOfPointsInSquare(3, 100, false);
+    triangle = new Triangle(points);
+
     for (int i = 1; i < 10000; ++i){
       Point point = triangle.createRandomPoint();
       assertTrue(triangle.containsPoint(point, true));

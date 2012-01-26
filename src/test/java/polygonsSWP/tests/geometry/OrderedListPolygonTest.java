@@ -10,7 +10,6 @@ import org.junit.Test;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Triangle;
-import polygonsSWP.util.GeneratorUtils;
 
 
 public class OrderedListPolygonTest
