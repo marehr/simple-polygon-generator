@@ -120,22 +120,39 @@ public class HistoryScene
     }
   }
 
+  static private int[] xcoords = new int[128], ycoords = new int[128];
+
+  private void checkCoordinateBufferSize(int size) {
+    int newsize = xcoords.length;
+
+    if(size <= newsize) return;
+
+    while(newsize < size)
+      newsize *= 2;
+
+    xcoords = new int[newsize];
+    ycoords = new int[newsize];
+  }
+
   /**
    * Doodling.
    * 
    * @param g2d
    */
   public void paint(Graphics2D g2d) {
-    
+
     // First of all draw bounding Box:
     g2d.setColor(Color.BLACK);
     if(_boundingBox != null) {
       if (_boundingBox instanceof OrderedListPolygon) {
-        int[] xcoords = new int[_boundingBox.size()];
-        int[] ycoords = new int[_boundingBox.size()];
-        for (int i = 0; i < _boundingBox.size(); i++) {
-          xcoords[i] = (int) _boundingBox.getPoints().get(i).x;
-          ycoords[i] = (int) _boundingBox.getPoints().get(i).y;
+
+        checkCoordinateBufferSize(_boundingBox.size());
+
+        int i = 0;
+        for(Point point: _boundingBox.getPoints()){
+          xcoords[i] = (int) point.x;
+          ycoords[i] = (int) point.y;
+          i++;
         }
   
         g2d.setColor(Color.BLACK);
@@ -147,57 +164,68 @@ public class HistoryScene
             (int) (2 * ((Circle) _boundingBox).getRadius()));
       }
     }
-    
+
     // Afterwards every polygon:
     for (Box<Polygon> item : _polyList) {
-      List<Point> p = item.openBox().getPoints();
-      int[] xcoords = new int[p.size()];
-      int[] ycoords = new int[p.size()];
-      for (int i = 0; i < p.size(); i++) {
-        xcoords[i] = (int) p.get(i).x;
-        ycoords[i] = (int) p.get(i).y;
+      List<Point> points = item.openBox().getPoints();
+
+      checkCoordinateBufferSize(points.size());
+
+      int i = 0;
+      for(Point point: points){
+        xcoords[i] = (int) point.x;
+        ycoords[i] = (int) point.y;
+        i++;
       }
 
       if (item.isHighlighted()) {
         g2d.setColor(item.getHighlight());
-        g2d.fillPolygon(xcoords, ycoords, p.size());
+        g2d.fillPolygon(xcoords, ycoords, points.size());
       }
+
       g2d.setColor(Color.BLACK);
-      g2d.drawPolygon(xcoords, ycoords, p.size());
+      g2d.drawPolygon(xcoords, ycoords, points.size());
     }
-    
+
     // Every Line
     for (Box<Line> item : _lineList) {
+
       if (item.isHighlighted()) g2d.setColor(item.getHighlight());
       else g2d.setColor(Color.BLACK);
+
       // Calculate intersections to keep line inside of bounding box
-      List<Point[]> returnList;
-      returnList = _boundingBox.intersect(item.openBox());
+      List<Point[]> returnList = _boundingBox.intersect(item.openBox());
+
       g2d.drawLine((int) returnList.get(0)[0].x,
           (int) returnList.get(0)[0].y,
           (int) returnList.get(1)[0].x,
           (int) returnList.get(1)[0].y);
     }
+
     // Every LineSegment
     for (Box<LineSegment> item : _lineSegmentList) {
+
       LineSegment tmp = item.openBox();
       if (item.isHighlighted()) g2d.setColor(item.getHighlight());
       else g2d.setColor(Color.BLACK);
+
       // We assume all geometry elements are chosen to be inside the box if
       // they are not infinite to one side
       g2d.drawLine((int) tmp._a.x, (int) tmp._a.y,
           (int) tmp._b.x,
           (int) tmp._b.y);
     }
-    
+
     // Every Ray
     for (Box<Ray> item : _rayList) {
+
       Ray tmp = item.openBox();
       if (item.isHighlighted()) g2d.setColor(item.getHighlight());
       else g2d.setColor(Color.BLACK);
+
       // Calculate intersection
-      List<Point[]> returnList;
-      returnList = _boundingBox.intersect(item.openBox());
+      List<Point[]> returnList = _boundingBox.intersect(item.openBox());
+
       if (returnList.size() == 1) {
         g2d.drawLine((int) tmp._base.x, (int) tmp._base.y, 
             (int) returnList.get(0)[0].x,

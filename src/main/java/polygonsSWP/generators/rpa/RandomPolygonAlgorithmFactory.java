@@ -81,8 +81,8 @@ public class RandomPolygonAlgorithmFactory
 
       // 1. generate 3 rand points -> polygon P
       OrderedListPolygon polygon =
-          new OrderedListPolygon(MathUtils.createRandomSetOfPointsInSquare(3,
-              _size));
+          new OrderedListPolygon(GeneratorUtils.createRandomSetOfPointsInSquare(
+              3, _size, true));
 
       List<Point> polygonPoints = polygon.getPoints();
 
