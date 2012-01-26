@@ -13,7 +13,6 @@ import org.apache.batik.svggen.SVGGraphics2DIOException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
-import polygonsSWP.geometry.Circle;
 import polygonsSWP.geometry.Line;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
@@ -157,11 +156,6 @@ public class HistoryScene
   
         g2d.setColor(Color.BLACK);
         g2d.drawPolygon(xcoords, ycoords, _boundingBox.size());
-      }
-      else {
-        g2d.drawOval(0, 0, 
-            (int) (2 * ((Circle) _boundingBox).getRadius()), 
-            (int) (2 * ((Circle) _boundingBox).getRadius()));
       }
     }
 
@@ -351,11 +345,4 @@ public class HistoryScene
     _boundingBox = new OrderedListPolygon(tmpLst);
     return _self;
   }
-
-  @Override
-  public Scene setBoundingBox(int radius) {
-    _boundingBox = new Circle(radius, new Point(radius, radius));
-    return _self;
-  }
-
 }
