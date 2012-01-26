@@ -15,7 +15,6 @@ import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.OrderedListPolygon;
-import polygonsSWP.geometry.Ray;
 import polygonsSWP.data.PolygonHistory;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
@@ -48,8 +47,9 @@ public class SpacePartitioningFactory
     throws IllegalParameterizationException {
 
     List<Point> points = GeneratorUtils.createOrUsePoints(params);
+    int size = (Integer) params.get(Parameters.size);
 
-    return new SpacePartitioning(points, steps, stats);
+    return new SpacePartitioning(points, steps, size);
   }
 
 
@@ -57,14 +57,12 @@ public class SpacePartitioningFactory
     implements PolygonGenerator
   {
 
-    // TODO: set size properly
     private int size = 600;
     private Random rand = new Random();
 
     private List<Point> points;
     private final PolygonHistory steps;
     private boolean doStop = false;
-    private PolygonStatistics stats = null;
 
     /**
      * colors
@@ -78,11 +76,10 @@ public class SpacePartitioningFactory
     private Color LEFT_POLYGON = Color.GRAY;
     private Color RIGHT_POLYGON = Color.LIGHT_GRAY;
 
-    SpacePartitioning(List<Point> points, PolygonHistory steps,
-        PolygonStatistics stats) {
+    SpacePartitioning(List<Point> points, PolygonHistory steps, int size) {
+      this.size = size;
       this.points = points;
       this.steps = steps;
-      this.stats = stats;
     }
 
     private Scene newScene(Polygon polygon){

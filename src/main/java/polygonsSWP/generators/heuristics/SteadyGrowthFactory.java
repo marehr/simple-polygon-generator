@@ -55,8 +55,6 @@ public class SteadyGrowthFactory
     implements PolygonGenerator
   {
 
-    private static int calls = 0;
-
     private List<Point> points;
     final private PolygonHistory steps;
     private boolean doStop = false;
@@ -66,9 +64,6 @@ public class SteadyGrowthFactory
     private int maximumRejections = 0;
     private int rejections = 0;
     private int runs = 0;
-
-    // TODO: get from parameters
-    private int size = 600;
 
     private final Color OLD_HULL = Color.LIGHT_GRAY;
     private final Color POLYGON_HULL = new Color(0xDCDCDC);
@@ -90,7 +85,7 @@ public class SteadyGrowthFactory
     }
 
     private Scene newScene(Polygon polygon, Color color){
-      Scene scene = steps.newScene().setBoundingBox(size, size);
+      Scene scene = steps.newScene();
       if(polygon == null) return scene;
       if(color == null) return scene.addPolygon(polygon, true);
 
@@ -99,14 +94,6 @@ public class SteadyGrowthFactory
 
     @Override
     public Polygon generate() {
-      int called = 0;
-
-      synchronized (SteadyGrowthFactory.class) {
-        called = calls++;
-      }
-
-      System.out.println(called + ".: started generation");
-      System.out.println("points: " + points);
 
       if (steps != null) {
         steps.clear();
