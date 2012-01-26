@@ -25,7 +25,7 @@ public class Vector
     return new Vector(v1 + u.v1, v2 + u.v2);
   }
   
-  public Vector subb(Vector u){
+  public Vector sub(Vector u){
     return new Vector(v1 - u.v1, v2 - u.v2);
   }
   

@@ -96,14 +96,14 @@ public class Triangle
     // TODO: real [0,1]
     double random1 = random.nextDouble();
     double random2 = random.nextDouble();
-    Vector x1 = v1.subb(v0).mult(random1).add(v2.subb(v0).mult(random2));
+    Vector x1 = v1.sub(v0).mult(random1).add(v2.sub(v0).mult(random2));
 
     // check if Ox is in triangle
-    Vector v3 = v1.subb(v0).add(v2.subb(v0));
+    Vector v3 = v1.sub(v0).add(v2.sub(v0));
     Point point = new Point(x1.v1, x1.v2);
 
     if (!containsPoint(point, true)) {
-      Vector x2 = v0.add(x1.subb(v3));
+      Vector x2 = v0.add(x1.sub(v3));
       point = new Point(-x2.v1, -x2.v2);
     }
     return point;
