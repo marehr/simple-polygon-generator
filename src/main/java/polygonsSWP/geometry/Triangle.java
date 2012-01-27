@@ -165,8 +165,6 @@ public class Triangle
     // 4. as soon as running total >= random value, select the item you're
     // currently looking at (the one whose weight you just added).
 
-    System.out.println("-----------------\n");
-    System.out.println("selectRandomTriangleBySize");
     Random random = new RandomNumbers(System.currentTimeMillis());
     HashMap<Triangle, Double> surfaceAreaTriangles =
         new HashMap<Triangle, Double>();

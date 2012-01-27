@@ -109,6 +109,8 @@ public class RandomPolygonAlgorithmFactory
         // 2.b determine visible region to VaVb -> P'
         Polygon visibleRegion =
             visiblePolygonRegionFromLineSegment(polygon, Va, Vb);
+        
+        
         System.out.println("visible region: " + visibleRegion.getPoints() + "\n");
         if (steps != null) {
           Scene scene = steps.newScene();
@@ -116,40 +118,55 @@ public class RandomPolygonAlgorithmFactory
           scene.addPolygon(visibleRegion, Color.LIGHT_GRAY);
           scene.save();          
         }
+        
+        
         // 2.c randomly select point Vc in P'
+        
+        Scene scene2 = null;
+        if (steps != null) {
+          scene2 = steps.newScene();
+          scene2.addPolygon(polygon, true);
+        }
+        
         Triangle selectedTriangle;
         if (visibleRegion.size() > 3) {
           List<Triangle> triangles = ((OrderedListPolygon)visibleRegion).triangulate();
           System.out.println("Triangulation: ");
           for (Triangle triangle : triangles) {
             System.out.println(triangle.getPoints());
+            if (steps != null) {
+              scene2.addPolygon(triangle, false);
+            }
           }
           selectedTriangle = Triangle.selectRandomTriangleBySize(triangles);
           System.out.println("selectedTriangle: " + selectedTriangle);
+          if(steps != null){
+            scene2.addPolygon(new OrderedListPolygon(selectedTriangle.getPoints()), Color.LIGHT_GRAY);
+          }
         } else {
           selectedTriangle = new Triangle(polygonPoints);
           System.out.println("SelectedRegion is whole polygon.");
+          if (steps != null){
+            scene2.addPolygon(new OrderedListPolygon(selectedTriangle.getPoints()), Color.LIGHT_GRAY);
+          }
         }
         Point randomPoint = selectedTriangle.createRandomPoint();
         System.out.println("random point: " + randomPoint);
-        if (steps != null) {
-          Scene scene = steps.newScene();
-          scene.addPolygon(polygon, true);
-//          for (Triangle triangle : triangles) {
-//            scene.addPolygon(triangle, false);
-//            System.out.println(triangle.size());
-//          }
-          scene.addPolygon(new OrderedListPolygon(selectedTriangle.getPoints()), Color.LIGHT_GRAY);
-          scene.addPoint(randomPoint, true);
-          scene.save();          
+        if (scene2 != null){
+          scene2.addPoint(randomPoint, true);
+          scene2.save();
         }
+        
+        
         // 2.d add line segments VaVc and VcVb (delete line segment VaVb)
         polygonPoints.add(randomIndex, randomPoint);
         System.out.println("new polygon" + polygon.getPoints());
         System.out.println("-----------------\n");
+        
+        
         if (steps != null) {
           Scene scene = steps.newScene();
-          scene.addPolygon(polygon, Color.BLUE);
+          scene.addPolygon(polygon, true);
           scene.save();          
         }
       }
@@ -249,12 +266,12 @@ public class RandomPolygonAlgorithmFactory
         prevFromVb = GeneratorUtils.isPointOnPolygonVisible(prev, Va, polygon);
         
         System.out.println("after minorLoop2");
-        System.out.println("found current: " + prev);
+        System.out.println("found prev: " + prev);
         System.out.println("fromVa: " + fromVa + ", fromVb: " + fromVb + ", prevFromVa: " + prevFromVa + ", prevFromVa: " + prevFromVb);
         
-        // vi not visible from va and vb
+        // vi not visible from va or vb
         if (!fromVa || !fromVb) {
-          System.out.println("not visible form va, vb: remove vi");
+          System.out.println("not visible form va or vb: remove vi");
           cloneIter.remove();
         }
         // vi visible from va and vb
@@ -266,7 +283,7 @@ public class RandomPolygonAlgorithmFactory
             lastVisible = vi;
           }
           // case 2 viPrev not visible from va and vb
-          if (!prevFromVa && !prevFromVb) {
+          else if (!prevFromVa && !prevFromVb) {
             System.out.println("case 2: 4 intersections, keep 2");
             Ray r1 = new Ray(Va, lastVisible);
             Ray r2 = new Ray(Vb, lastVisible);
@@ -306,7 +323,7 @@ public class RandomPolygonAlgorithmFactory
           }
           // case 3+4 viPrev visible to one of va and vb
           else if (prevFromVa || prevFromVb) {
-            System.out.println("case 3: from va visible, 2 intersections");
+            System.out.println("case 3 4: from va visible, 2 intersections");
             Point vx;
             if(prevFromVa)
               vx = Va;
@@ -333,7 +350,6 @@ public class RandomPolygonAlgorithmFactory
             }
           }
         }
-        cloneIter = clonePoints.listIterator(clonePoints.indexOf(vi));
         System.out.println("end of minorLoop1 \n");
       }
       return clone;
