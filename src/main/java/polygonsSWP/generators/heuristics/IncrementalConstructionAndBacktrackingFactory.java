@@ -48,8 +48,8 @@ public class IncrementalConstructionAndBacktrackingFactory implements
 			PolygonGenerator {
 		private boolean doStop;
 		private List<Point> points;
-		private History steps;
-		private PolygonStatistics statistics = null;
+		final private History steps;
+		final private PolygonStatistics statistics;
 		
 		IncrementalConstructionAndBacktracking(List<Point> points,
 		    History steps, PolygonStatistics statistics) {
@@ -112,7 +112,7 @@ public class IncrementalConstructionAndBacktrackingFactory implements
 			
 			// Update visualization.
 			if(steps != null)
-			  steps.newScene().addPolygon(olp, false).save();
+			  steps.newScene().addPolygon(olp, true).save();
 			
 			// Update statistics.
 			if(statistics != null)
