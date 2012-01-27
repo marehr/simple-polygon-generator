@@ -14,7 +14,6 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.text.DecimalFormat;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -37,9 +36,7 @@ class PaintPanel
   VisualisationControlListener
 {
   private static final long serialVersionUID = 1L;
-  private java.awt.Point mouse = null;
-  private boolean inFrame = false;
-  private boolean GUIinGenerationMode = true;
+  private boolean inGenerationMode = true;
 
   private final DecimalFormat df = new DecimalFormat("#0.00");
   private final AffineTransform tx = new AffineTransform();
@@ -50,9 +47,12 @@ class PaintPanel
   /** SVG scene from history object. */
   private Scene svgScene;
 
-  /** Our own scene objects */
-  private List<Polygon> polygons;
+  /** the current polygon (used for point-in-polygon tests) */
+  private Polygon polygon;
 
+  /** Reference to our status bar. */
+  private final PaintPanelStatusBar statusbar;
+  
   /* current display offsets & co. */
   protected double zoom = 1.0d;
   protected int offsetX = 0;
@@ -63,8 +63,8 @@ class PaintPanel
   /** DrawMode indicates whether we're allowed to select points. */
   protected boolean drawMode;
 
-  public PaintPanel() {
-    polygons = new LinkedList<Polygon>();
+  public PaintPanel(PaintPanelStatusBar ppsb) {
+    statusbar = ppsb;
     addMouseListener(this);
     addMouseMotionListener(this);
     addMouseWheelListener(this);
@@ -72,18 +72,8 @@ class PaintPanel
 
   /* API */
 
-  void clearScene() {
-    polygons.clear();
-  }
-
-  void addPolygon(Polygon p) {
-    polygons.add(p);
-    repaint();
-  }
-
-  void addPolygons(List<? extends Polygon> ps) {
-    polygons.addAll(ps);
-    repaint();
+  void setCurrentPolygon(Polygon p) {
+    polygon = p;
   }
 
   void setDrawMode(boolean d, List<Point> p) {
@@ -98,7 +88,11 @@ class PaintPanel
     offsetY = 0;
     repaint();
   }
-
+  
+  void setGUIinGenerationMode(boolean b) {
+    inGenerationMode = b;
+  }
+  
   /* Painting */
 
   protected void initCanvas(Graphics2D g) {
@@ -126,13 +120,12 @@ class PaintPanel
     g.drawRect(8, 8, 44, 3);
     g.drawRect(52, 5, 3, 9);
     g.drawString(df.format(50 / zoom), 60, 14);
-
-    // Paint the coordinates. 
-    if(mouse != null){
-      double[] coords = coords(mouse.x, mouse.y);
-      int y = mouse.y+30 < getHeight() ? mouse.y+30 : mouse.y-10;
-      g.drawString("[" + (int)coords[0] + " - " + (int)coords[1] + "]", mouse.x-30, y);
-    }
+    
+    // Commented out as we may need this again (while hovering over a point)
+    /*
+    int y = mouse.y+30 < getHeight() ? mouse.y+30 : mouse.y-10;
+    g.drawString("[" + (int)coords[0] + " - " + (int)coords[1] + "]", mouse.x-30, y);
+    */
   }
 
   @Override
@@ -163,24 +156,18 @@ class PaintPanel
       svgScene.paintPoints(g2d);
     }
 
-    // // Paint polygons
-    // for (Polygon polygon : polygons) {
-    //   List<Point> p = polygon.getPoints();
-    //   int[] xcoords = new int[p.size()];
-    //   int[] ycoords = new int[p.size()];
-    //   for (int i = 0; i < p.size(); i++) {
-    //     xcoords[i] = (int) p.get(i).x;
-    //     ycoords[i] = (int) p.get(i).y;
-    //   }
-    //
-    //   g.setColor(Color.BLACK);
-    //   g.drawPolygon(xcoords, ycoords, p.size());
-    // }
-
     // Draw additional stuff.
     finishCanvas(g2d);
   }
-
+  
+  /**
+   * Translates (x,y) coordinates on screen into double (x,y) coordinates
+   * in the polygon plane.
+   * 
+   * @param x the x-coordinate on screen as returned by event.getX()
+   * @param y dto.
+   * @return translated coordinates
+   */
   private double[] coords(int x, int y){
     return new double[] {
       (x - offsetX) / zoom,
@@ -201,21 +188,18 @@ class PaintPanel
       double coords[] = coords(e.getX(), e.getY());
       Point newPoint = new Point(coords[0], coords[1]);
 
-      if(GUIinGenerationMode) {
+      if(inGenerationMode) {
         points.add(newPoint);
       } else {
 
-        //TODO: check if new Point lies in currentPolygon (i cannot find)
-        //if(CURRENTPOLYGON?!?!.containsPoint(newPoint, true))
-        //{
-        if(points.size() == 2) {
-          points.set(0, points.get(1));
-          points.set(1, newPoint);
-        } else {
-          points.add(newPoint);
+        if(polygon.containsPoint(newPoint, true)) {
+          if(points.size() == 2) {
+            points.set(0, points.get(1));
+            points.set(1, newPoint);
+          } else {
+            points.add(newPoint);
+          }
         }
-
-        //}
       }
       repaint();
     }
@@ -227,14 +211,10 @@ class PaintPanel
 
   @Override
   public void mouseEntered(MouseEvent e) {
-    inFrame = true;
   }
 
   @Override
   public void mouseExited(MouseEvent e) {
-    inFrame = false;
-    mouse = null;
-    repaint();
   }
 
   @Override
@@ -260,8 +240,8 @@ class PaintPanel
 
   @Override
   public void mouseMoved(MouseEvent e) {
-    mouse = e.getPoint();
-    repaint();
+    double[] coords = coords(e.getX(), e.getY());
+    statusbar.setStatusMsg("[" + (int)coords[0] + " - " + (int)coords[1] + "]");
   }
 
   /*
@@ -299,7 +279,9 @@ class PaintPanel
     }
   }
 
-  /* VisualisationControlListener methods. */
+  /* 
+   * VisualisationControlListener methods. 
+   */
 
   @Override
   public void onNewScene(Scene scene) {
@@ -307,10 +289,9 @@ class PaintPanel
     repaint();
   }
 
-  public void setGUIinGenerationMode(boolean b) {
-    GUIinGenerationMode = b;
-  }
-
+  /* 
+   * Helper class. 
+   */
 
   /**
    * A implementation of {@link Stroke} which transforms another Stroke with an
@@ -321,7 +302,6 @@ class PaintPanel
   public class TransformedStroke
     implements Stroke
   {
-    private static final long serialVersionUID = 1;
     private AffineTransform transform;
     private AffineTransform inverse;
     private Stroke stroke;
@@ -345,5 +325,4 @@ class PaintPanel
       return sStroked;
     }
   }
-
 }

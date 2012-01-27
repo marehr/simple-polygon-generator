@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
+import polygonsSWP.data.Scene;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
@@ -38,7 +39,7 @@ public class IncrementalConstructionAndBacktrackingFactory implements
 	@Override
 	public PolygonGenerator createInstance(Map<Parameters, Object> params,
 	    PolygonStatistics stats,
-			PolygonHistory steps) throws IllegalParameterizationException {
+			History steps) throws IllegalParameterizationException {
 		List<Point> points = GeneratorUtils.createOrUsePoints(params, true);
 		return new IncrementalConstructionAndBacktracking(points, steps, stats);
 	}
@@ -47,11 +48,11 @@ public class IncrementalConstructionAndBacktrackingFactory implements
 			PolygonGenerator {
 		private boolean doStop;
 		private List<Point> points;
-		private PolygonHistory steps;
+		private History steps;
 		private PolygonStatistics statistics = null;
 		
 		IncrementalConstructionAndBacktracking(List<Point> points,
-				PolygonHistory steps, PolygonStatistics statistics) {
+		    History steps, PolygonStatistics statistics) {
 			this.points = points;
 			this.steps = steps;
 			this.doStop = false;
@@ -65,6 +66,16 @@ public class IncrementalConstructionAndBacktrackingFactory implements
 
 		@Override
 		public Polygon generate() {
+		  
+		  // Initialize visualization & statistics.
+		  if(steps != null) {
+		    steps.clear();
+		  }
+		  if(statistics != null) {
+		    statistics.iterations = 0;
+		    statistics.count_of_backtracks = 0;
+		  }
+		  
 			// Precalculate the convex hull of points
 			OrderedListPolygon ch = GeneratorUtils.convexHull(points);
 
@@ -98,6 +109,14 @@ public class IncrementalConstructionAndBacktrackingFactory implements
 			OrderedListPolygon olp = new OrderedListPolygon();
 			while (!polygon.isEmpty())
 				olp.addPoint(points.get(polygon.remove(0)));
+			
+			// Update visualization.
+			if(steps != null)
+			  steps.newScene().addPolygon(olp, false).save();
+			
+			// Update statistics.
+			if(statistics != null)
+			  statistics.count_of_backtracks = statistics.iterations - olp.size();
 
 			return olp;
 		}
@@ -118,9 +137,14 @@ public class IncrementalConstructionAndBacktrackingFactory implements
 
 			List<Integer> polygon = null;
 
-			addPointLoop: while (!doStop && polygon == null
+			addPointLoop: 
+			while (!doStop && polygon == null
 					&& used.size() < remaining.size()) {
 
+			  // Update statistics.
+			  if(statistics != null)
+			    statistics.iterations++;
+			  
 				// Last point
 				Integer lp = chain.get(chain.size() - 1);
 
@@ -197,6 +221,16 @@ public class IncrementalConstructionAndBacktrackingFactory implements
 					// as on the hull.
 					do_backtracking = do_backtracking
 							|| !condition3(pp, convexHull, points);
+					
+					// Update visualization.
+					if(steps != null) {
+					  Scene s = steps.newScene();
+					  for(int i = 0; i < pp.size() - 2; i++)
+					    s.addLineSegment(new LineSegment(points.get(pp.get(i)), points.get(pp.get(i + 1))), false);
+					  s.addLineSegment(new LineSegment(points.get(pp.get(pp.size() - 2)), 
+					      points.get(pp.get(pp.size() - 1))), true);
+					  s.save();
+					}
 
 					// Now, if all conditions are satisfied, try to add another
 					// point.

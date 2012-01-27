@@ -3,6 +3,7 @@ package polygonsSWP.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -30,11 +31,8 @@ public class GeneratorUtils
    */
   public static boolean isInGeneralPosition(List<Point> pointSet) {
     // First condition: No 2 points are the same.
-    for (int i = 0; i < pointSet.size() - 1; i++) {
-      for (int j = i + 1; j < pointSet.size(); j++) {
-        if (pointSet.get(i).equals(pointSet.get(j))) return false;
-      }
-    }
+    HashSet<Point> hashSet = new HashSet<Point>(pointSet);
+    if(hashSet.size() != pointSet.size()) return false;
 
     // Second condition: No 3 points are colinear.
     for (int i = 0; i < pointSet.size() - 2; i++) {
@@ -82,10 +80,7 @@ public class GeneratorUtils
 
     if (s == null) {
 
-      do {
-        s = MathUtils.createRandomSetOfPointsInSquare(n, size);
-      }
-      while (ensureGeneralPosition && !isInGeneralPosition(s));
+      s = createRandomSetOfPointsInSquare(n, size, ensureGeneralPosition);
 
     } else {
 
@@ -100,6 +95,32 @@ public class GeneratorUtils
     // the same list object in several containers (eg in the GUI and
     // in the computed Polygon).
     return new ArrayList<Point>(s);
+  }
+
+  /**
+   * Randomly creates a set of n points in a square defined by edge length s,
+   * where each point holds 0 <= x < s && 0 <= y < s
+   * 
+   * @param n number of points
+   * @param size length of edges of square
+   * @return array of randomly distributed Points out of s^2, length of array ==
+   *         n.
+   */
+  public static List<Point> createRandomSetOfPointsInSquare(int n, int size,
+      boolean ensureGeneralPosition) {
+    Random r = new Random(System.currentTimeMillis());
+
+    List<Point> points;
+    do {
+      points = new ArrayList<Point>(n);
+      for (int i = 0; i < n; i++) {
+        Point p = new Point(r.nextDouble() * size, r.nextDouble() * size);
+        points.add(p);
+      }
+    }
+    while (ensureGeneralPosition && !isInGeneralPosition(points));
+
+    return points;
   }
 
   /**
@@ -260,7 +281,7 @@ public class GeneratorUtils
     // intersections ray polygon without base point of ray
     List<Point[]> intersections = polygon.intersect(r, false);
     Point[] isec = r.getPointClosestToBase(intersections);
-    if (isec == null || isec[0] == polyPoint){
+    if (isec == null || isec[0].equals(polyPoint)){
       // if intersection exists and is not equal to support point of ray
       // colinear LineSegments don't block sight
       return true;

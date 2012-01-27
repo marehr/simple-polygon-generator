@@ -5,19 +5,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
-import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
-import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.Polygon;
+import polygonsSWP.gui.GUIModeListener;
 
 
 /**
@@ -28,7 +25,7 @@ import polygonsSWP.geometry.Polygon;
  */
 public class PolygonGenerationPanel
   extends JPanel
-  implements PolygonGenerationWorkerListener
+  implements PolygonGenerationWorkerListener, GUIModeListener
 {
   private static final long serialVersionUID = 1L;
 
@@ -42,7 +39,7 @@ public class PolygonGenerationPanel
   /* Generation worker thread. */
   private Thread t;
   private PolygonGenerationWorker worker;
-  private PolygonHistory steps;
+  private History steps;
   private PolygonStatistics stats;
 
   public PolygonGenerationPanel(final PolygonGeneratorFactory[] polygon_algorithm_list) {
@@ -95,7 +92,7 @@ public class PolygonGenerationPanel
 
   protected void emitPolygonGenerationStarted() {
     for (PolygonGenerationPanelListener pgl : observers)
-      pgl.onPolygonGenerationStarted();
+      pgl.onPolygonGenerationStarted(stats, steps);
   }
 
   protected void emitPolygonGenerationCanceled() {
@@ -128,12 +125,18 @@ public class PolygonGenerationPanel
     emitPolygonGenerationCanceled();
   }
   
+  @Override
+  public void onGUIModeChanged(boolean generatorMode) {
+    if(generatorMode)
+      p_generator_config.onGeneratorMode();
+  }
+  
   /**
    * Creates a generator and starts a worker thread to generate
    * the polygon.
    */
   protected void runGenerator() {
-    steps = new PolygonHistory();
+    steps = new History();
     stats = new PolygonStatistics();
     PolygonGenerator pg = p_generator_config.createGenerator(stats, steps);
 
@@ -143,7 +146,7 @@ public class PolygonGenerationPanel
     worker = new PolygonGenerationWorker(pg, this);
     t = new Thread(worker);
     b_generate_polygon.setText("Cancel");
-    
+
     // TODO think about order
     emitPolygonGenerationStarted();
 //    stats.start();

@@ -1,15 +1,17 @@
 package polygonsSWP.generators.heuristics;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
+import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -36,7 +38,7 @@ public class TwoOptMovesFactory
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
       PolygonStatistics stats,
-      PolygonHistory steps) throws IllegalParameterizationException {
+      History steps) throws IllegalParameterizationException {
     List<Point> points = GeneratorUtils.createOrUsePoints(params, true);
     return new TwoOptMoves(points, steps, stats);
   }
@@ -45,14 +47,14 @@ public class TwoOptMovesFactory
     
     private boolean doStop = false;
     private List<Point> points;
-    private PolygonHistory steps;
-    private PolygonStatistics statistics = null;
+    final private History steps;
+    final private PolygonStatistics statistics;
     
-    TwoOptMoves(List<Point> points, PolygonHistory steps, PolygonStatistics statistics) {
+    TwoOptMoves(List<Point> points, History steps, PolygonStatistics statistics) {
       this.points = points;
       this.steps = steps;
-      this.doStop = false;
       this.statistics = statistics;
+      this.doStop = false;
     }
     
     @Override
@@ -68,9 +70,16 @@ public class TwoOptMovesFactory
       // Step 2: Generate random permutation in case given set was ordered somehow.
       p.permute();
       
-      steps.clear();
-      steps.newScene();
-      
+      // Initialize history & statistics.
+      if(steps != null) {
+        steps.clear();
+        steps.newScene().addPolygon(p, true).save();
+      }
+
+      if(statistics != null) {
+        statistics.iterations = 0;
+      }
+
       Integer[] intersection = null;
       while(!doStop && (intersection = p.findRandomIntersection()) != null) {
         // Step 3: Replace intersection (vi,vi+1),(vj,vj+1) 
@@ -82,6 +91,14 @@ public class TwoOptMovesFactory
         List<Point> op = p.getPoints();
         List<Point> np = new ArrayList<Point>(op.size());
         
+        if(steps != null){
+          steps.newScene().addPolygon(p, true).addLineSegment(
+            new LineSegment(op.get(vi), op.get((vi + 1) % op.size())), Color.RED
+          ).addLineSegment(
+            new LineSegment(op.get(vj), op.get((vj + 1) % op.size())), Color.MAGENTA
+          ).save();
+        }
+
         // first add all points prior to vi (including vi)
         for(int i = 0; i <= vi; i++)
           np.add(op.get(i));
@@ -95,11 +112,17 @@ public class TwoOptMovesFactory
           np.add(op.get(i));
         
         p.setPoints(np);
+        
+        if(steps != null)
+          steps.newScene().addPolygon(p, true).save();
+        
+        if(statistics != null)
+          statistics.iterations++;
       }
       
       if(doStop)
         return null;
-      
+
       return p;
     }
     

@@ -35,6 +35,7 @@ public class PolygonTest
     poly.addPoint(new Point(70, 40));
     poly.addPoint(new Point(70, 70));
     poly.addPoint(new Point(50, 80));
+    poly.addPoint(new Point(50, 60));
     poly.addPoint(new Point(40, 60));
     poly.addPoint(new Point(20, 80));
     poly.addPoint(new Point(10, 50));
@@ -126,5 +127,27 @@ public class PolygonTest
       assertFalse(poly.containsPoint(isec, false));
       assertTrue(poly.containsPoint(isec, true));
     }
+  }
+
+  @Test
+  public void testIsClockWise() {
+    OrderedListPolygon poly = new OrderedListPolygon();
+    poly.addPoint(new Point(20, 20));
+    poly.addPoint(new Point(40, 40));
+    poly.addPoint(new Point(60, 20));
+    poly.addPoint(new Point(70, 40));
+    poly.addPoint(new Point(70, 70));
+    poly.addPoint(new Point(50, 80));
+    poly.addPoint(new Point(50, 60));
+    poly.addPoint(new Point(40, 60));
+    poly.addPoint(new Point(20, 80));
+    poly.addPoint(new Point(10, 50));
+
+    // is counter clockwise
+    assertEquals(-1, poly.isClockwise());
+
+    poly.reverse();
+    // is counter clockwise
+    assertEquals(1, poly.isClockwise());
   }
 }

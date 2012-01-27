@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +13,7 @@ import org.junit.Test;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Triangle;
+import polygonsSWP.util.GeneratorUtils;
 
 
 public class TriangleTest
@@ -44,6 +47,7 @@ public class TriangleTest
     assertFalse(Triangle.formsTriangle(new LineSegment(new Point(0, 0),
         new Point(10, 0)), new LineSegment(new Point(10, 0), new Point(0, 0)),
         new LineSegment(new Point(10, 10), new Point(10, 10))));
+
     // Identical Points
     // assertFalse(Triangle.formsTriangle(new LineSegment(new Point(0, 0), new
     // Point(0, 0)),
@@ -75,6 +79,62 @@ public class TriangleTest
   }
 
   @Test
+  public void containsPointTest2(){
+    Triangle triangle = new Triangle(new Point(0, 1), new Point(4, 4), new Point(6, 0));
+
+    /**
+     * contains
+     */
+    assertEquals(true, triangle.containsPoint(new Point(3, 3), false));
+    assertEquals(true, triangle.containsPoint(new Point(3, 3), true));
+
+    assertEquals(true, triangle.containsPoint(new Point(5, 1), false));
+    assertEquals(true, triangle.containsPoint(new Point(5, 1), true));
+
+    /**
+     * does not contains
+     */
+    assertEquals(false, triangle.containsPoint(new Point(1, 2), false));
+    assertEquals(false, triangle.containsPoint(new Point(1, 2), true));
+
+    assertEquals(false, triangle.containsPoint(new Point(3, 0), false));
+    assertEquals(false, triangle.containsPoint(new Point(3, 0), true));
+
+    assertEquals(false, triangle.containsPoint(new Point(5, 3), false));
+    assertEquals(false, triangle.containsPoint(new Point(5, 3), true));
+
+    assertEquals(false, triangle.containsPoint(new Point(8, 7), false));
+    assertEquals(false, triangle.containsPoint(new Point(8, 7), true));
+
+    /**
+     * online
+     */
+
+    assertEquals(false, triangle.containsPoint(new Point(0, 1), false));
+    assertEquals(true, triangle.containsPoint(new Point(0, 1), true));
+
+    assertEquals(false, triangle.containsPoint(new Point(4, 4), false));
+    assertEquals(true, triangle.containsPoint(new Point(4, 4), true));
+
+    assertEquals(false, triangle.containsPoint(new Point(6, 0), false));
+    assertEquals(true, triangle.containsPoint(new Point(6, 0), true));
+
+    assertEquals(false, triangle.containsPoint(new Point(5, 2), false));
+    assertEquals(true, triangle.containsPoint(new Point(5, 2), true));
+
+    LineSegment seg1 = new LineSegment(new Point(0, 1), new Point(6, 0)),
+                seg2 = new LineSegment(new Point(2, 0), new Point(2, 1));
+    Point[] isec = seg1.intersect(seg2);
+
+    assertEquals(false, triangle.containsPoint(isec[0], false));
+    assertEquals(true, triangle.containsPoint(isec[0], true));
+
+    Triangle triangle2 = new Triangle(new Point(308, 434), new Point(145, 386), new Point(102, 516));
+    assertEquals(false, triangle2.containsPoint(new Point(490, 400), false));
+    assertEquals(false, triangle2.containsPoint(new Point(490, 400), true));
+  }
+
+  @Test
   public void getSurfaceAreaTest() {
     assertEquals(50, testTriangle.getSurfaceArea(), 0);
   }
@@ -95,8 +155,31 @@ public class TriangleTest
   public void createRandomPointTest() {
     for (int i = 1; i < 10000; ++i){
       Point point = testTriangle.createRandomPoint();
-      assertTrue(testTriangle.containsPoint(point,
-          true));
+      //System.out.println("triangle: " + point);
+      assertTrue(testTriangle.containsPoint(point, true));
+    }
+  }
+
+  @Test
+  public void createRandomPointTest2() {
+    Triangle triangle = new Triangle(new Point(0, 1), new Point(4, 4), new Point(6, 0));
+    for (int i = 1; i < 10000; ++i){
+      Point point = triangle.createRandomPoint();
+      assertTrue(triangle.containsPoint(point, true));
+    }
+
+    triangle = new Triangle(new Point(269.808,137.508), new Point(521.891,145.39), new Point(116.261,541.005));
+    for (int i = 1; i < 10000; ++i){
+      Point point = triangle.createRandomPoint();
+      assertTrue(triangle.containsPoint(point, true));
+    }
+
+    List<Point> points = GeneratorUtils.createRandomSetOfPointsInSquare(3, 100, false);
+    triangle = new Triangle(points);
+
+    for (int i = 1; i < 10000; ++i){
+      Point point = triangle.createRandomPoint();
+      assertTrue(triangle.containsPoint(point, true));
     }
   }
 

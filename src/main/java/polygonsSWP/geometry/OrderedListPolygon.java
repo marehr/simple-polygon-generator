@@ -128,28 +128,19 @@ public class OrderedListPolygon
    */
   public int isClockwise() {
     int n = size();
-    int i, j, k;
-    int count = 0;
-    double z;
-
     if (n < 3) return 0;
 
-    for (i = 0; i < n; i++) {
-      j = (i + 1) % n;
-      k = (i + 2) % n;
-      z =
-          (_coords.get(i).x - _coords.get(i).x) *
-              (_coords.get(k).y - _coords.get(j).y);
-      z -=
-          (_coords.get(j).y - _coords.get(i).y) *
-              (_coords.get(k).x - _coords.get(j).x);
-      if (z < 0) count--;
-      else if (z > 0) count++;
+    // source:
+    // http://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
+    double doubleArea = 0;
+    for (int j = 0, i = n-1; j < n; i = j++) {
+      doubleArea += (_coords.get(j).x - _coords.get(i).x) *
+              (_coords.get(j).y + _coords.get(i).y);
     }
 
-    if (count > 0) return -1;
-    else if (count < 0) return 1;
-    else return 0;
+    if(doubleArea < 0) return -1;
+    if(doubleArea > 0) return 1;
+    return 0;
   }
 
   /**
@@ -274,8 +265,8 @@ public class OrderedListPolygon
   }
 
   @Override
-  public Polygon clone() {
-    List<Point> nList = new ArrayList<Point>();
+  public OrderedListPolygon clone() {
+    List<Point> nList = new ArrayList<Point>(_coords.size());
     for (Point item : _coords)
       nList.add(item.clone());
     return new OrderedListPolygon(nList);
@@ -974,6 +965,7 @@ public class OrderedListPolygon
    */
   public List<Triangle> triangulate() {
     assert (isSimple());
+    if(isClockwise() != -1) reverse();
     assert (isClockwise() == -1);
 
     List<Triangle> returnList = new ArrayList<Triangle>();

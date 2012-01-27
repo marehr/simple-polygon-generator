@@ -1,46 +1,48 @@
 package polygonsSWP.data;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import polygonsSWP.data.listener.HistoryListener;
 
 
 /**
  * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
  */
 
-public interface History
+public class History
 {
+  private List<Scene> sceneList = Collections.synchronizedList(new ArrayList<Scene>());
+  private HistoryListener listener = null;
 
-  /**
-   * This method creates a new scene and returns it.
-   * 
-   * @return the new scene
-   */
-  public Scene newScene();
+  public Scene newScene() {
+    return new HistoryScene(this);
+  }
 
-  /**
-   * This adds the scene to the history object.
-   * 
-   * @param newScene the new scene
-   */
-  public void addScene(Scene newScene);
+  public void setHistoryListener(HistoryListener listener) {
+    this.listener = listener;
+  }
 
-  /**
-   * Returns a ordered list of all scenes
-   * 
-   * @return ordered list of scenes
-   */
-  public List<Scene> getScenes();
+  public void addScene(Scene newScene) {
+    sceneList.add(newScene);
 
-  /**
-   * Returns an iterator for all the scenes in the history object
-   * 
-   * @return
-   */
-  public Iterator<Scene> getSceneIterator();
+    if(listener != null)
+      listener.onHistorySave(this, newScene);
+  }
 
-  /**
-   * Clear out every scene data so the history can be reused.
-   */
-  public void clear();
+  public List<Scene> getScenes() {
+    return sceneList;
+  }
+
+  public Iterator<Scene> getSceneIterator() {
+    return sceneList.iterator();
+  }
+
+  public void clear() {
+    sceneList.clear();
+  }
+
 }

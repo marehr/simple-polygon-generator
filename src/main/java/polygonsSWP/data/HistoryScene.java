@@ -13,7 +13,6 @@ import org.apache.batik.svggen.SVGGraphics2DIOException;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
-import polygonsSWP.geometry.Circle;
 import polygonsSWP.geometry.Line;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
@@ -103,7 +102,6 @@ public class HistoryScene
    */
   @Override
   public void save() {
-    this.toSvg();
     _history.addScene(this);
   }
 
@@ -121,82 +119,107 @@ public class HistoryScene
     }
   }
 
+  static private int[] xcoords = new int[128], ycoords = new int[128];
+
+  private void checkCoordinateBufferSize(int size) {
+    int newsize = xcoords.length;
+
+    if(size <= newsize) return;
+
+    while(newsize < size)
+      newsize *= 2;
+
+    xcoords = new int[newsize];
+    ycoords = new int[newsize];
+  }
+
   /**
    * Doodling.
    * 
    * @param g2d
    */
   public void paint(Graphics2D g2d) {
-    
+
     // First of all draw bounding Box:
     g2d.setColor(Color.BLACK);
-    if (_boundingBox instanceof OrderedListPolygon) {
-      int[] xcoords = new int[_boundingBox.size()];
-      int[] ycoords = new int[_boundingBox.size()];
-      for (int i = 0; i < _boundingBox.size(); i++) {
-        xcoords[i] = (int) _boundingBox.getPoints().get(i).x;
-        ycoords[i] = (int) _boundingBox.getPoints().get(i).y;
-      }
+    if(_boundingBox != null) {
+      if (_boundingBox instanceof OrderedListPolygon) {
 
-      g2d.setColor(Color.BLACK);
-      g2d.drawPolygon(xcoords, ycoords, _boundingBox.size());
-    }
-    else {
-      g2d.drawOval(0, 0, 
-          (int) (2 * ((Circle) _boundingBox).getRadius()), 
-          (int) (2 * ((Circle) _boundingBox).getRadius()));
+        checkCoordinateBufferSize(_boundingBox.size());
+
+        int i = 0;
+        for(Point point: _boundingBox.getPoints()){
+          xcoords[i] = (int) point.x;
+          ycoords[i] = (int) point.y;
+          i++;
+        }
+  
+        g2d.setColor(Color.BLACK);
+        g2d.drawPolygon(xcoords, ycoords, _boundingBox.size());
+      }
     }
 
     // Afterwards every polygon:
     for (Box<Polygon> item : _polyList) {
-      List<Point> p = item.openBox().getPoints();
-      int[] xcoords = new int[p.size()];
-      int[] ycoords = new int[p.size()];
-      for (int i = 0; i < p.size(); i++) {
-        xcoords[i] = (int) p.get(i).x;
-        ycoords[i] = (int) p.get(i).y;
+      List<Point> points = item.openBox().getPoints();
+
+      checkCoordinateBufferSize(points.size());
+
+      int i = 0;
+      for(Point point: points){
+        xcoords[i] = (int) point.x;
+        ycoords[i] = (int) point.y;
+        i++;
       }
 
       if (item.isHighlighted()) {
         g2d.setColor(item.getHighlight());
-        g2d.fillPolygon(xcoords, ycoords, p.size());
+        g2d.fillPolygon(xcoords, ycoords, points.size());
       }
+
       g2d.setColor(Color.BLACK);
-      g2d.drawPolygon(xcoords, ycoords, p.size());
+      g2d.drawPolygon(xcoords, ycoords, points.size());
     }
-    
+
     // Every Line
     for (Box<Line> item : _lineList) {
+
       if (item.isHighlighted()) g2d.setColor(item.getHighlight());
       else g2d.setColor(Color.BLACK);
+
       // Calculate intersections to keep line inside of bounding box
-      List<Point[]> returnList;
-      returnList = _boundingBox.intersect(item.openBox());
+      List<Point[]> returnList = _boundingBox.intersect(item.openBox());
+
       g2d.drawLine((int) returnList.get(0)[0].x,
           (int) returnList.get(0)[0].y,
           (int) returnList.get(1)[0].x,
           (int) returnList.get(1)[0].y);
     }
+
     // Every LineSegment
     for (Box<LineSegment> item : _lineSegmentList) {
+
       LineSegment tmp = item.openBox();
       if (item.isHighlighted()) g2d.setColor(item.getHighlight());
       else g2d.setColor(Color.BLACK);
+
       // We assume all geometry elements are chosen to be inside the box if
       // they are not infinite to one side
       g2d.drawLine((int) tmp._a.x, (int) tmp._a.y,
           (int) tmp._b.x,
           (int) tmp._b.y);
     }
-    
+
     // Every Ray
     for (Box<Ray> item : _rayList) {
+
       Ray tmp = item.openBox();
       if (item.isHighlighted()) g2d.setColor(item.getHighlight());
       else g2d.setColor(Color.BLACK);
+
       // Calculate intersection
-      List<Point[]> returnList;
-      returnList = _boundingBox.intersect(item.openBox());
+      List<Point[]> returnList = _boundingBox.intersect(item.openBox());
+
       if (returnList.size() == 1) {
         g2d.drawLine((int) tmp._base.x, (int) tmp._base.y, 
             (int) returnList.get(0)[0].x,
@@ -322,11 +345,4 @@ public class HistoryScene
     _boundingBox = new OrderedListPolygon(tmpLst);
     return _self;
   }
-
-  @Override
-  public Scene setBoundingBox(int radius) {
-    _boundingBox = new Circle(radius, new Point(radius, radius));
-    return _self;
-  }
-
 }

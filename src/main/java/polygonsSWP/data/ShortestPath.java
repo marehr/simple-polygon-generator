@@ -8,9 +8,8 @@ import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.Ray;
+import polygonsSWP.geometry.Trapezoid;
 import polygonsSWP.util.MathUtils;
-import polygonsSWP.util.SeidelTrapezoidation;
-
 
 /**
  * Implementation of the shortest path object. Assumption is, that every
@@ -86,24 +85,23 @@ public class ShortestPath
   }
 
   public List<Point> generateShortestPath() {
-    // TODO: implement
-    List<Polygon> plist = SeidelTrapezoidation.generateTrapezoidation(_polygon);
+    List<Trapezoid> plist = _polygon.sweepLine();
 
-    Polygon startPolygon = null;
-    for (Polygon p : plist) {
+    Trapezoid startTrapezoid = null;
+    for (Trapezoid p : plist) {
       if (p.containsPoint(_path.get(0), true)) {
         if (p.containsPoint(_path.get(_path.size() - 1), true)) {
           return _path;
         }
         else {
-          startPolygon = p;
+          startTrapezoid = p;
           break;
         }
       }
       // TODO: do we need: e(t) ?
     }
 
-    initVars((OrderedListPolygon) startPolygon);
+    initVars((OrderedListPolygon) startTrapezoid);
     parray[0] = _path.get(0);
     while (_polygon.intersect(
         new LineSegment(parray[0], _path.get(_path.size() - 1))).size() != 0) {

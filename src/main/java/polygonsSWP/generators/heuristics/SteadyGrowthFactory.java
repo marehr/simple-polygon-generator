@@ -15,7 +15,7 @@ import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.SteadyGrowthConvexHull;
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
 import polygonsSWP.util.GeneratorUtils;
@@ -43,7 +43,7 @@ public class SteadyGrowthFactory
 
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonStatistics stats, PolygonHistory steps)
+      PolygonStatistics stats, History steps)
     throws IllegalParameterizationException {
 
     List<Point> points = GeneratorUtils.createOrUsePoints(params);
@@ -55,10 +55,8 @@ public class SteadyGrowthFactory
     implements PolygonGenerator
   {
 
-    private static int calls = 0;
-
     private List<Point> points;
-    final private PolygonHistory steps;
+    final private History steps;
     private boolean doStop = false;
     private PolygonStatistics stats = null;
 
@@ -66,9 +64,6 @@ public class SteadyGrowthFactory
     private int maximumRejections = 0;
     private int rejections = 0;
     private int runs = 0;
-
-    // TODO: get from parameters
-    private int size = 600;
 
     private final Color OLD_HULL = Color.LIGHT_GRAY;
     private final Color POLYGON_HULL = new Color(0xDCDCDC);
@@ -78,7 +73,7 @@ public class SteadyGrowthFactory
     private final Color NEW_EDGE_POINT = Color.GREEN;
     private final Color VALID_HULL = Color.GREEN;
 
-    public SteadyGrowth(List<Point> points, PolygonHistory steps,
+    public SteadyGrowth(List<Point> points, History steps,
         PolygonStatistics stats) {
       this.points = points;
       this.steps = steps;
@@ -90,7 +85,7 @@ public class SteadyGrowthFactory
     }
 
     private Scene newScene(Polygon polygon, Color color){
-      Scene scene = steps.newScene().setBoundingBox(size, size);
+      Scene scene = steps.newScene();
       if(polygon == null) return scene;
       if(color == null) return scene.addPolygon(polygon, true);
 
@@ -99,14 +94,6 @@ public class SteadyGrowthFactory
 
     @Override
     public Polygon generate() {
-      int called = 0;
-
-      synchronized (SteadyGrowthFactory.class) {
-        called = calls++;
-      }
-
-      System.out.println(called + ".: started generation");
-      System.out.println("points: " + points);
 
       if (steps != null) {
         steps.clear();
@@ -125,14 +112,12 @@ public class SteadyGrowthFactory
         newScene(polygon).save();
       }
 
-      System.out.println(called + ".: rejections: ");
-      System.out.println(called + ".: \tintialize = " + initializeRejections);
-      System.out.println(called + ".: \ttotal = " + rejections);
-      System.out.println(called + ".: \tmaximum = " + maximumRejections);
-      System.out.println(called + ".: while repeated: " + runs);
-      System.out.println(called + ".: finished generation");
-      if(polygon != null) System.out.println(called + ".: polygon: " + polygon.getPoints());
-      System.out.println();
+      if(stats != null){
+        stats.iterations = runs;
+        stats.rejections = rejections;
+        stats.maximumRejections = maximumRejections;
+        stats.initializeRejections = initializeRejections;
+      }
 
       return polygon;
     }
@@ -143,9 +128,6 @@ public class SteadyGrowthFactory
       SteadyGrowthConvexHull hull = initialize(), copy;
       ArrayList<Point> polygon = new ArrayList<Point>(points.size());
       polygon.addAll(hull.getPoints());
-
-      // System.out.println("points: " + points);
-      // System.out.println("current hull: " + hull.getPoints());
 
       Random rand = new Random();
 
@@ -161,14 +143,7 @@ public class SteadyGrowthFactory
         Point a = points.get(index);
         copy = (SteadyGrowthConvexHull) hull.clone();
 
-        // System.out.println("\n\n");
-        // System.out.println("points: " + points);
-        // System.out.println("index: " + index);
-        // System.out.println("polygon: " + polygon);
-        // System.out.println("add " + a + " to current hull: " +
-        // hull.getPoints());
         hull.addPoint(a);
-        // System.out.println("current hull: " + hull.getPoints());
 
         // sind jetzt irgendwelche punkte in der neuen konvexen huelle?
         // - wenn ja, dann akzeptieren wir den gewaehlten punkt nicht
@@ -176,6 +151,9 @@ public class SteadyGrowthFactory
         Point containsPoint = containsAnyPoint(hull);
         if (containsPoint != null) {
 
+          /**
+           * VISUALISATION
+           */
           if( steps != null ) {
             Polygon poly = new OrderedListPolygon(polygon);
             newScene(hull, OLD_HULL)
@@ -188,14 +166,12 @@ public class SteadyGrowthFactory
           rejections++;
           rejected++;
 
-          // System.out.println("reject: " + a + "\n\n");
           hull = copy;
           continue;
         }
 
         maximumRejections = Math.max(rejected, maximumRejections);
         rejected = 0;
-        // System.out.println("accept: " + a);
 
         points.remove(index);
 
@@ -203,6 +179,9 @@ public class SteadyGrowthFactory
         int startIndex = rand.nextInt(polygon.size());
         int insertIndex = getIndexOfVisibleEdge(polygon, a, startIndex);
 
+        /**
+         * VISUALISATION
+         */
         if( steps != null ) {
           Point pk = polygon.get(MathUtils.modulo(insertIndex-1, polygon.size())),
                 pl = polygon.get(insertIndex);
@@ -227,7 +206,6 @@ public class SteadyGrowthFactory
 
           scene.save();
         }
-        // System.out.println("insertIndex: " + insertIndex);
         polygon.add(insertIndex, a);
       }
 
@@ -246,8 +224,6 @@ public class SteadyGrowthFactory
 
         base = points.get(i);
         visible = GeneratorUtils.isPolygonVertexVisible(base, a, polygon);
-        // System.out.println(b + " -> " + a + "; visible: " + visible +
-        // "; lastVisible: " + lastVisible);
 
         if (!lastVisible || !visible) continue;
         return i;
@@ -288,9 +264,6 @@ public class SteadyGrowthFactory
         }
 
         initializeRejections++;
-
-        // System.out.println("reject hull: " + hull.getPoints());
-        // System.out.println();
 
         points.add(a);
         points.add(b);
