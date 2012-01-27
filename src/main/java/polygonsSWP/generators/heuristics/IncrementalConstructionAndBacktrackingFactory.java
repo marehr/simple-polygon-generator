@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
 import polygonsSWP.generators.IllegalParameterizationException;
@@ -39,7 +39,7 @@ public class IncrementalConstructionAndBacktrackingFactory implements
 	@Override
 	public PolygonGenerator createInstance(Map<Parameters, Object> params,
 	    PolygonStatistics stats,
-			PolygonHistory steps) throws IllegalParameterizationException {
+			History steps) throws IllegalParameterizationException {
 		List<Point> points = GeneratorUtils.createOrUsePoints(params, true);
 		return new IncrementalConstructionAndBacktracking(points, steps, stats);
 	}
@@ -48,11 +48,11 @@ public class IncrementalConstructionAndBacktrackingFactory implements
 			PolygonGenerator {
 		private boolean doStop;
 		private List<Point> points;
-		private PolygonHistory steps;
+		private History steps;
 		private PolygonStatistics statistics = null;
 		
 		IncrementalConstructionAndBacktracking(List<Point> points,
-				PolygonHistory steps, PolygonStatistics statistics) {
+		    History steps, PolygonStatistics statistics) {
 			this.points = points;
 			this.steps = steps;
 			this.doStop = false;

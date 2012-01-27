@@ -15,7 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.ShortestPath;
 import polygonsSWP.geometry.Point;
@@ -135,7 +135,7 @@ class ShortestPathPanel extends JPanel implements PolygonGenerationPanelListener
 
   @Override
   public void onPolygonGenerationStarted(PolygonStatistics stats,
-      PolygonHistory steps) {
+      History steps) {
     b_calc_shortest_path.setEnabled(false);
   }
 
@@ -145,7 +145,7 @@ class ShortestPathPanel extends JPanel implements PolygonGenerationPanelListener
   }
 
   @Override
-  public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats, PolygonHistory history) {
+  public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats, History history) {
     b_calc_shortest_path.setEnabled(true);
     currentPolygon = newPolygon;
   }

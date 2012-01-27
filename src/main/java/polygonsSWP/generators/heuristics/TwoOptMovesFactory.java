@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
@@ -38,7 +38,7 @@ public class TwoOptMovesFactory
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
       PolygonStatistics stats,
-      PolygonHistory steps) throws IllegalParameterizationException {
+      History steps) throws IllegalParameterizationException {
     List<Point> points = GeneratorUtils.createOrUsePoints(params, true);
     return new TwoOptMoves(points, steps, stats);
   }
@@ -47,10 +47,10 @@ public class TwoOptMovesFactory
     
     private boolean doStop = false;
     private List<Point> points;
-    final private PolygonHistory steps;
+    final private History steps;
     final private PolygonStatistics statistics;
     
-    TwoOptMoves(List<Point> points, PolygonHistory steps, PolygonStatistics statistics) {
+    TwoOptMoves(List<Point> points, History steps, PolygonStatistics statistics) {
       this.points = points;
       this.steps = steps;
       this.statistics = statistics;

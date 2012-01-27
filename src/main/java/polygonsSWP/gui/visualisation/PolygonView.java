@@ -17,7 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.filechooser.FileFilter;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -89,7 +89,7 @@ public class PolygonView
   /* PolygonGenerationPanelListener methods. */
 
   @Override
-  public void onPolygonGenerationStarted(PolygonStatistics stats, PolygonHistory steps) {
+  public void onPolygonGenerationStarted(PolygonStatistics stats, History steps) {
     saveButton.setEnabled(false);
     polygon = null;
     visControl.setHistory(steps);
@@ -104,7 +104,7 @@ public class PolygonView
 
   @Override
   public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats,
-      PolygonHistory history) {
+      History history) {
     pp.setCurrentPolygon(newPolygon);
     visControl.setHistory(history);
     polygon = newPolygon;

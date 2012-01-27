@@ -4,12 +4,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
-import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -38,7 +37,7 @@ public class PermuteAndRejectFactory
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
       PolygonStatistics stats,
-      PolygonHistory steps)
+      History steps)
     throws IllegalParameterizationException {
     List<Point> points = GeneratorUtils.createOrUsePoints(params, true);
     return new PermuteAndReject(points, steps, (Integer) params.get(Parameters.size), stats);
@@ -50,12 +49,12 @@ public class PermuteAndRejectFactory
   {
 
     private boolean doStop = false;
-    private PolygonHistory steps = null;
+    private History steps = null;
     private List<Point> points;
     private int _size;
     private PolygonStatistics statistics;
     
-    PermuteAndReject(List<Point> points, PolygonHistory steps, int size, PolygonStatistics statistics) {
+    PermuteAndReject(List<Point> points, History steps, int size, PolygonStatistics statistics) {
       this.points = points;
       this.steps = steps;
       this.doStop = false;

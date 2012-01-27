@@ -10,7 +10,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.MonotonPolygon;
 import polygonsSWP.geometry.Point;
 
@@ -19,11 +18,11 @@ public class MonotonPolygonTest
   private MonotonPolygon testPoly;
   @Before
   public void setup() {
-    List<LineSegment> tmpList = new ArrayList<LineSegment>();
-    tmpList.add(new LineSegment(new Point(0,0), new Point(10,-10)));
-    tmpList.add(new LineSegment(new Point(10,-10), new Point(20,0)));
-    tmpList.add(new LineSegment(new Point(20,0), new Point(10,10)));
-    tmpList.add(new LineSegment(new Point(10,10), new Point(0,0)));
+    List<Point> tmpList = new ArrayList<Point>();
+    tmpList.add(new Point(0,0));
+    tmpList.add(new Point(10,-10));
+    tmpList.add(new Point(20,0));
+    tmpList.add(new Point(10,10));
     testPoly = new MonotonPolygon(tmpList);
   }
   

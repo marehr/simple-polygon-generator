@@ -302,7 +302,6 @@ class PaintPanel
   public class TransformedStroke
     implements Stroke
   {
-    private static final long serialVersionUID = 1;
     private AffineTransform transform;
     private AffineTransform inverse;
     private Stroke stroke;

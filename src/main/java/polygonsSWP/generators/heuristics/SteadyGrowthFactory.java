@@ -15,7 +15,7 @@ import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.SteadyGrowthConvexHull;
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
 import polygonsSWP.util.GeneratorUtils;
@@ -43,7 +43,7 @@ public class SteadyGrowthFactory
 
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonStatistics stats, PolygonHistory steps)
+      PolygonStatistics stats, History steps)
     throws IllegalParameterizationException {
 
     List<Point> points = GeneratorUtils.createOrUsePoints(params);
@@ -56,7 +56,7 @@ public class SteadyGrowthFactory
   {
 
     private List<Point> points;
-    final private PolygonHistory steps;
+    final private History steps;
     private boolean doStop = false;
     private PolygonStatistics stats = null;
 
@@ -73,7 +73,7 @@ public class SteadyGrowthFactory
     private final Color NEW_EDGE_POINT = Color.GREEN;
     private final Color VALID_HULL = Color.GREEN;
 
-    public SteadyGrowth(List<Point> points, PolygonHistory steps,
+    public SteadyGrowth(List<Point> points, History steps,
         PolygonStatistics stats) {
       this.points = points;
       this.steps = steps;

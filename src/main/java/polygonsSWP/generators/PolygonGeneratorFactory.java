@@ -3,7 +3,7 @@ package polygonsSWP.generators;
 import java.util.List;
 import java.util.Map;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 
 public interface PolygonGeneratorFactory
@@ -28,7 +28,7 @@ public interface PolygonGeneratorFactory
    * @throws IllegalParameterizationException in case the given parameters
    *         did not meet the PolygonGenerator's requirements.
    */
-  public PolygonGenerator createInstance(Map<Parameters, Object> params, PolygonStatistics stats, PolygonHistory steps) throws IllegalParameterizationException;
+  public PolygonGenerator createInstance(Map<Parameters, Object> params, PolygonStatistics stats, History steps) throws IllegalParameterizationException;
   
   /**
    * Specifies whether the generator can handle a set of

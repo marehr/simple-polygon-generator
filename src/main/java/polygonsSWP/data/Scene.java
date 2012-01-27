@@ -32,13 +32,6 @@ public interface Scene
   public Scene setBoundingBox(int height, int width);
 
   /**
-   * Sets a circular bounding box
-   * 
-   * @param radius
-   */
-  public Scene setBoundingBox(int radius);
-
-  /**
    * Merges another scene in this scene
    * 
    * @param scene

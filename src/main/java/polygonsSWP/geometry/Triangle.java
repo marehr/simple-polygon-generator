@@ -16,6 +16,7 @@ import polygonsSWP.util.RandomNumbers;
  * interface and documentation of OrderedListPolygon.
  * 
  * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
  */
 
 public class Triangle
@@ -76,7 +77,7 @@ public class Triangle
     List<Point> trianglePoints = this.getPoints();
     Vector u = new Vector(trianglePoints.get(0), trianglePoints.get(1));
     Vector v = new Vector(trianglePoints.get(0), trianglePoints.get(2));
-    return Math.abs(u.v1 * v.v2 - u.v2 * v.v1) / 2.0;
+    return Math.abs(u.x * v.y - u.y * v.x) / 2.0;
   }
 
   /**
@@ -86,27 +87,21 @@ public class Triangle
   public Point createRandomPoint() {
     Random random = new RandomNumbers(System.currentTimeMillis());
 
-    // Choose random Point in rectangle with length of edges according to
-    // length
-    // of vector. Then scale Point to actual Point in Parallelogram.
-    Vector v0 = new Vector(_coords.get(0).x, _coords.get(0).y);
-    Vector v1 = new Vector(_coords.get(1).x, _coords.get(1).y);
-    Vector v2 = new Vector(_coords.get(2).x, _coords.get(2).y);
+    Point a = _coords.get(0), b = _coords.get(1) , c = _coords.get(2);
 
-    // TODO: real [0,1]
+    // Choose random Point in rectangle with length of edges according to
+    // length of vector. Then scale Point to actual Point in Parallelogram.
+    Vector v1 = new Vector(a, b);
+    Vector v2 = new Vector(a, c);
+
     double random1 = random.nextDouble();
     double random2 = random.nextDouble();
-    Vector x1 = v1.subb(v0).mult(random1).add(v2.subb(v0).mult(random2));
 
-    // check if Ox is in triangle
-    Vector v3 = v1.subb(v0).add(v2.subb(v0));
-    Point point = new Point(x1.v1, x1.v2);
+    Vector p = v1.mult(random1).add(v2.mult(random2)).add(a);
 
-    if (!containsPoint(point, true)) {
-      Vector x2 = v0.add(x1.subb(v3));
-      point = new Point(x2.v1, x2.v2);
-    }
-    return point;
+    if(containsPoint(p, true)) return p;
+
+    return v1.add(v2).sub(p.sub(a)).add(a);
   }
 
   public Trapezoid getMonotonPolygon() {

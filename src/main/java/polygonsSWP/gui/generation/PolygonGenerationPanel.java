@@ -9,7 +9,7 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import polygonsSWP.data.PolygonHistory;
+import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
@@ -39,7 +39,7 @@ public class PolygonGenerationPanel
   /* Generation worker thread. */
   private Thread t;
   private PolygonGenerationWorker worker;
-  private PolygonHistory steps;
+  private History steps;
   private PolygonStatistics stats;
 
   public PolygonGenerationPanel(final PolygonGeneratorFactory[] polygon_algorithm_list) {
@@ -136,7 +136,7 @@ public class PolygonGenerationPanel
    * the polygon.
    */
   protected void runGenerator() {
-    steps = new PolygonHistory();
+    steps = new History();
     stats = new PolygonStatistics();
     PolygonGenerator pg = p_generator_config.createGenerator(stats, steps);
 
