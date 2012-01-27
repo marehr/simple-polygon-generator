@@ -11,12 +11,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import polygonsSWP.geometry.LineSegment;
-import polygonsSWP.geometry.MonotonPolygon;
+import polygonsSWP.geometry.Trapezoid;
 import polygonsSWP.geometry.Point;
 
 public class MonotonPolygonTest
 {
-  private MonotonPolygon testPoly;
+  private Trapezoid testPoly;
   @Before
   public void setup() {
     List<LineSegment> tmpList = new ArrayList<LineSegment>();
@@ -24,7 +24,7 @@ public class MonotonPolygonTest
     tmpList.add(new LineSegment(new Point(10,-10), new Point(20,0)));
     tmpList.add(new LineSegment(new Point(20,0), new Point(10,10)));
     tmpList.add(new LineSegment(new Point(10,10), new Point(0,0)));
-    testPoly = new MonotonPolygon(tmpList);
+    testPoly = new Trapezoid(tmpList);
   }
   
   @After
