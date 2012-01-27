@@ -57,7 +57,6 @@ class PolygonGenerationConfiguration
     // init spinners
     sp_edges = new JSpinner(new SpinnerNumberModel(5, 3, 10000, 1));
     sp_size = new JSpinner(new SpinnerNumberModel(600, 1, 10000, 20));
-    // TODO max/min values? steps?!?
     sp_runs = new JSpinner(new SpinnerNumberModel(100, 1, 10000, 1));
     sp_runs.setEnabled(false);
     sp_radius = new JSpinner(new SpinnerNumberModel(150, 1, 10000, 10));
@@ -235,7 +234,7 @@ class PolygonGenerationConfiguration
   public PolygonGenerator createGenerator(PolygonStatistics stats,
       History steps) {
 
-    PolygonGeneratorFactory pgf = (PolygonGeneratorFactory) cb_polygon_algorithm_chooser.getSelectedItem();    
+    PolygonGeneratorFactory pgf = (PolygonGeneratorFactory) cb_polygon_algorithm_chooser.getSelectedItem();
     Map<Parameters, Object> params = new HashMap<Parameters, Object>();
     
     Integer size = (Integer) sp_size.getValue();
@@ -278,7 +277,10 @@ class PolygonGenerationConfiguration
           throw new RuntimeException(e);
         }
       } else {
-        
+        // clear the points in the gui
+        points = null;
+        emitPointGenerationModeSwitched(true, points);
+
         // If not, let the generator do the work (-> RPA, Velocity).
         params.put(Parameters.n, edges);
         
