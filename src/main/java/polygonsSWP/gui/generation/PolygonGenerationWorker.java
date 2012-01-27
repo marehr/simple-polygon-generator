@@ -18,9 +18,14 @@ class PolygonGenerationWorker
 
   @Override
   public void run() {
-    Polygon p = pg.generate();
-    if (p == null) cb.onCancelled();
-    else cb.onFinished(p);
+    try{
+      Polygon p = pg.generate();
+      if (p == null) cb.onCancelled();
+      else cb.onFinished(p);
+    } catch(Exception e){
+      e.printStackTrace();
+      cb.onCancelled();
+    }
   }
 
   public void stop() {

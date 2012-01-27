@@ -74,6 +74,10 @@ class PaintPanel
 
   void setCurrentPolygon(Polygon p) {
     polygon = p;
+
+    // show points on random polygons
+    if(points == null)
+      points = p.getPoints();
   }
 
   void setDrawMode(boolean d, List<Point> p) {
@@ -140,7 +144,7 @@ class PaintPanel
     }
 
     // Paint the points
-    if (drawMode && points != null) {
+    if (points != null) {
       assert (points != null);
 
       g.setColor(new Color(80, 0, 90));
