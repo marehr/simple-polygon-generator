@@ -170,7 +170,7 @@ public class VelocityVirmaniFactory
     {
       int size = polygon.size();
       int min = (indexToCheck-1+size) % size;
-      int max = indexToCheck+1 % size;
+      int max = (indexToCheck + 1) % size;
       LineSegment l1 = new LineSegment(polygon.getPoint(min), polygon.getPoint(indexToCheck));
       LineSegment l2 = new LineSegment(polygon.getPoint(indexToCheck), polygon.getPoint(max));
       LineSegment otherLine;
