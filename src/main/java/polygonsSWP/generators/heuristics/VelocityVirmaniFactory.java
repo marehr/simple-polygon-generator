@@ -11,6 +11,7 @@ import polygonsSWP.data.Scene;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
+import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -126,7 +127,7 @@ public class VelocityVirmaniFactory
           poly.getPoint(i).y += veloy;
 
           // If its not simple anymore, revert the modifications
-          if (!poly.isSimple()) {
+          if (!isSimple(poly, i)) {
             poly.getPoint(i).x -= velox;
             poly.getPoint(i).y -= veloy;
             if (steps != null) scene.addPoint(poly.getPoint(i), true);// PolygonHistory: Highlights a Point if he doesnt move
@@ -158,6 +159,40 @@ public class VelocityVirmaniFactory
       
       return poly;
     }
+    
+    /**
+     * Check for simple. Checks only 1 Point with the Others.
+     * @param polygon Polygon
+     * @param indexToCheck
+     * @return
+     */
+    private boolean isSimple(OrderedListPolygon polygon, int indexToCheck)
+    {
+      int size = polygon.size();
+      int min = (indexToCheck-1+size) % size;
+      int max = indexToCheck+1 % size;
+      LineSegment l1 = new LineSegment(polygon.getPoint(min), polygon.getPoint(indexToCheck));
+      LineSegment l2 = new LineSegment(polygon.getPoint(indexToCheck), polygon.getPoint(max));
+      LineSegment otherLine;
+      Point[] res1, res2;
+      
+      for(int i = 0; i < size; i++)
+      {
+        if(indexToCheck == i || (i+1) % size == indexToCheck) //Shouldnt compare to its own lines 
+          continue;
+        
+        otherLine = new LineSegment(polygon.getPoint(i), polygon.getPoint((i+1)%size));
+        res1 = l1.intersect(otherLine, true);
+        res2 = l2.intersect(otherLine, true);
+        
+        if(res1 == null && res2 == null)
+          continue;//continue to check
+        return false;//not simple
+        
+      }
+      return true;//every combination checked. Its simple.
+    }
+
 
     /**
      * Generates a regularPolygon
