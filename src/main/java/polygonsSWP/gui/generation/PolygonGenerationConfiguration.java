@@ -55,14 +55,14 @@ class PolygonGenerationConfiguration
     cb_polygon_algorithm_chooser = new GeneratorChooser(polygon_algorithm_list, true);
 
     // init spinners
-    sp_edges = new JSpinner(new SpinnerNumberModel(5, 3, 1000, 1));
+    sp_edges = new JSpinner(new SpinnerNumberModel(5, 3, 10000, 1));
     sp_size = new JSpinner(new SpinnerNumberModel(600, 1, 10000, 20));
     // TODO max/min values? steps?!?
-    sp_runs = new JSpinner(new SpinnerNumberModel());
+    sp_runs = new JSpinner(new SpinnerNumberModel(100, 1, 10000, 1));
     sp_runs.setEnabled(false);
-    sp_radius = new JSpinner(new SpinnerNumberModel());
+    sp_radius = new JSpinner(new SpinnerNumberModel(150, 1, 10000, 10));
     sp_radius.setEnabled(false);
-    sp_velocity = new JSpinner(new SpinnerNumberModel());
+    sp_velocity = new JSpinner(new SpinnerNumberModel(15, 1, 10000, 1));
     sp_velocity.setEnabled(false);
     
     // init buttons
