@@ -56,54 +56,124 @@ public class LineSegmentTest
   public void containsPoint() {
     LineSegment seg, seg2;
 
-    seg = new LineSegment(new Point(5, 0), new Point(10, 0));
+    {
+      seg = new LineSegment(new Point(1, 1), new Point(5, 7));
 
-    // die ecken sollten "enthalten"
-    assertTrue(seg.containsPoint(new Point(5, 0)));
-    assertTrue(seg.containsPoint(new Point(10, 0)));
+      // die ecken solten "enthalten"
+      assertTrue(seg.containsPoint(new Point(1, 1)));
+      assertTrue(seg.containsPoint(new Point(5, 7)));
 
-    // die mitte sollte als drauf erkannt werden
-    assertTrue(seg.containsPoint(new Point(7.5, 0)));
+      // die mitte sollte als drauf erkannt werden
+      assertTrue(seg.containsPoint(new Point(3, 4)));
 
-    // die sind links bzw. rechts von der Strecke
-    assertFalse(seg.containsPoint(new Point(0, 0)));
-    assertFalse(seg.containsPoint(new Point(15, 0)));
+      // die sind links bzw. rechts von der Strecke
+      assertFalse(seg.containsPoint(new Point(-1, -2)));
+      assertFalse(seg.containsPoint(new Point(7, 10)));
 
-    // die sind alle parrallel zu der Strecke
-    assertFalse(seg.containsPoint(new Point(0, 15)));
-    assertFalse(seg.containsPoint(new Point(5, 15)));
-    assertFalse(seg.containsPoint(new Point(7.5, 15)));
-    assertFalse(seg.containsPoint(new Point(10, 15)));
-    assertFalse(seg.containsPoint(new Point(15, 15)));
+      // irgendwo liegend
+      assertFalse(seg.containsPoint(new Point(0, 0)));
+      assertFalse(seg.containsPoint(new Point(10, 15)));
 
 
+      // lassen ein Paar Strecken schneiden und schauen, ob diese Schnittpunkte
+      // auf der Strecke liegt
+      for(int i = 0; i < 7; ++i){
+        seg2 = new LineSegment(new Point(i - 1, i + 1), new Point(i + 1, i + 1));
+        Point[] isec = seg.intersect(seg2);
 
-    seg = new LineSegment(new Point(1, 1), new Point(5, 7));
+        assertEquals(1, isec.length);
+        assertTrue(seg.containsPoint(isec[0]));
+      }
+    }
 
-    // die ecken solten "enthalten"
-    assertTrue(seg.containsPoint(new Point(1, 1)));
-    assertTrue(seg.containsPoint(new Point(5, 7)));
+    /**
+     * horizontale strecke
+     */
+    {
+      seg = new LineSegment(new Point(5, 12), new Point(10, 12));
 
-    // die mitte sollte als drauf erkannt werden
-    assertTrue(seg.containsPoint(new Point(3, 4)));
+      // die ecken sollten "enthalten"
+      assertTrue(seg.containsPoint(new Point(5, 12)));
+      assertTrue(seg.containsPoint(new Point(10, 12)));
 
-    // die sind links bzw. rechts von der Strecke
-    assertFalse(seg.containsPoint(new Point(-1, -2)));
-    assertFalse(seg.containsPoint(new Point(7, 10)));
+      // die mitte sollte als drauf erkannt werden
+      assertTrue(seg.containsPoint(new Point(7.5, 12)));
 
-    // irgendwo liegend
-    assertFalse(seg.containsPoint(new Point(0, 0)));
-    assertFalse(seg.containsPoint(new Point(10, 15)));
+      // die sind links bzw. rechts von der Strecke
+      assertFalse(seg.containsPoint(new Point(0, 12)));
+      assertFalse(seg.containsPoint(new Point(15, 12)));
 
+      // die sind alle parrallel zu der Strecke
+      assertFalse(seg.containsPoint(new Point(0, 15)));
+      assertFalse(seg.containsPoint(new Point(5, 15)));
+      assertFalse(seg.containsPoint(new Point(7.5, 15)));
+      assertFalse(seg.containsPoint(new Point(10, 15)));
+      assertFalse(seg.containsPoint(new Point(15, 15)));
+    }
 
-    // lassen ein Paar Strecken schneiden und schauen, ob diese Schnittpunkte
-    // auf der Strecke liegt
-    for(int i = 0; i < 7; ++i){
-      seg2 = new LineSegment(new Point(i - 1, i + 1), new Point(i + 1, i + 1));
-      Point[] isec = seg.intersect(seg2);
+    {
+      seg = new LineSegment(new Point(5, 0), new Point(10, 0));
 
-      assertEquals(1, isec.length);
-      assertTrue(seg.containsPoint(isec[0]));
+      // die ecken sollten "enthalten"
+      assertTrue(seg.containsPoint(new Point(5, 0)));
+      assertTrue(seg.containsPoint(new Point(10, 0)));
+
+      // die mitte sollte als drauf erkannt werden
+      assertTrue(seg.containsPoint(new Point(7.5, 0)));
+
+      // die sind links bzw. rechts von der Strecke
+      assertFalse(seg.containsPoint(new Point(0, 0)));
+      assertFalse(seg.containsPoint(new Point(15, 0)));
+
+      // die sind alle parrallel zu der Strecke
+      assertFalse(seg.containsPoint(new Point(0, 15)));
+      assertFalse(seg.containsPoint(new Point(5, 15)));
+      assertFalse(seg.containsPoint(new Point(7.5, 15)));
+      assertFalse(seg.containsPoint(new Point(10, 15)));
+      assertFalse(seg.containsPoint(new Point(15, 15)));
+    }
+
+    /**
+     * vertical LineSegment
+     */
+    {
+      LineSegment vLineSegment = new LineSegment(new Point(15, 5), new Point(15, 25));
+
+      // eckpunkte
+      assertEquals(true, vLineSegment.containsPoint(new Point(15, 5)));
+      assertEquals(true, vLineSegment.containsPoint(new Point(15, 25)));
+
+      // punkte die auf dem strahl liegen
+      assertEquals(true, vLineSegment.containsPoint(new Point(15, 20)));
+
+      // punkte die NICHT auf dem strahl liegen
+      assertEquals(false, vLineSegment.containsPoint(new Point(15, -5)));
+      assertEquals(false, vLineSegment.containsPoint(new Point(15, 30)));
+
+      // punkte die neben der geraden des linesegments liegen
+      assertEquals(false, vLineSegment.containsPoint(new Point(16, 20)));
+      assertEquals(false, vLineSegment.containsPoint(new Point(16, -5)));
+      assertEquals(false, vLineSegment.containsPoint(new Point(16, 30)));
+    }
+
+    {
+      LineSegment vLineSegment = new LineSegment(new Point(0, 5), new Point(0, 25));
+
+      // eckpunkte
+      assertEquals(true, vLineSegment.containsPoint(new Point(0, 5)));
+      assertEquals(true, vLineSegment.containsPoint(new Point(0, 25)));
+
+      // punkte die auf dem strahl liegen
+      assertEquals(true, vLineSegment.containsPoint(new Point(0, 20)));
+
+      // punkte die NICHT auf dem strahl liegen
+      assertEquals(false, vLineSegment.containsPoint(new Point(0, -5)));
+      assertEquals(false, vLineSegment.containsPoint(new Point(0, 30)));
+
+      // punkte die neben der geraden des linesegments liegen
+      assertEquals(false, vLineSegment.containsPoint(new Point(16, 20)));
+      assertEquals(false, vLineSegment.containsPoint(new Point(16, -5)));
+      assertEquals(false, vLineSegment.containsPoint(new Point(16, 30)));
     }
   }
 
