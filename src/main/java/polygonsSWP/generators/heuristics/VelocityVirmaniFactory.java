@@ -7,7 +7,6 @@ import java.util.Random;
 
 import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
-import polygonsSWP.data.Scene;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
@@ -75,8 +74,8 @@ public class VelocityVirmaniFactory
     private int runs;
     private int maxVelo;
     private int bound;
-    private History steps;
-    private PolygonStatistics statistics;
+    final private History steps;
+    final private PolygonStatistics statistics;
 
     private boolean stop = false;
 
@@ -96,21 +95,24 @@ public class VelocityVirmaniFactory
 
       OrderedListPolygon poly = regularPolygon(n, radius, bound);
 
+      if(steps != null){
+        steps.clear();
+
+        steps.newScene()
+        .addPoints(poly.getPoints(), true)
+        .addPolygon(poly, true)
+        .save();
+      }
+
       double velox, veloy;
 
       int rejections = 0;
       int iterations = runs;
       double avgspeed_without_rejections = 0;
-      Scene scene;
       
-      if(steps != null) steps.clear();
       
       while (runs > 0 && !stop) // The Loop for the Number of Iterations. Stops if "stop" is true.
       {
-        // PolygonHistory: New Scene object is generated and added to the History
-        scene = null;
-        if (steps != null) 
-          scene = steps.newScene().setBoundingBox(bound, bound);
         
         for (int i = 0; i < n; i++) // Looping through the Points
         {
@@ -130,19 +132,21 @@ public class VelocityVirmaniFactory
           if (!isSimple(poly, i)) {
             poly.getPoint(i).x -= velox;
             poly.getPoint(i).y -= veloy;
-            if (steps != null) scene.addPoint(poly.getPoint(i), true);// PolygonHistory: Highlights a Point if he doesnt move
+
             if (statistics != null) {
               avgspeed_without_rejections += velox + veloy; // To Calculate the Average velocity without collisions
               rejections++;
             }
           }
-          else if (steps != null)
-            scene.addPoint(poly.getPoint(i), false);// PolygonHistory: Just adds a Points without Highlighting
         }
         runs--;
         
-        if(steps != null)
-          scene.save();
+        if(steps != null){
+          steps.newScene()
+          .addPoints(poly.getPoints(), true)
+          .addPolygon(poly, true)
+          .save();
+        }
       }
       if (stop) return null;// If stop is called and this was finished. Give back null.
 
@@ -155,7 +159,7 @@ public class VelocityVirmaniFactory
       }
       
       if(steps != null)
-        steps.newScene().addPolygon(poly, false).save();
+        steps.newScene().addPolygon(poly, true).save();
       
       return poly;
     }

@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 
 import polygonsSWP.data.History;
@@ -26,27 +27,34 @@ class VisualisationControl implements HistoryListener
   /* Buttons. */
   private JButton b_first;
   private JButton b_prev;
-//  private JButton b_playpause;
+  private JButton b_playpause;
   private JButton b_next;
   private JButton b_last;
 
   private boolean autoPlay = true;
+  private boolean inPlayMode = false;
+  private int framesFrecuency = 1000/25;
 
   final private Thread newSceneEmitterThread = new Thread(new Runnable() {
 
     @Override
     public void run() {
       while(true){
+        long waitTime = inPlayMode ? framesFrecuency: 0;
         try {
           synchronized (newSceneEmitterThread) {
-            newSceneEmitterThread.wait();
+            newSceneEmitterThread.wait(waitTime);
           }
         } catch (InterruptedException e) {
         }
 
         synchronized (this) {
-          if(autoPlay) last();
-          else changeStates(true);
+          if(inPlayMode){
+            next();
+          } else {
+            if(autoPlay) last();
+            else changeStates(true);
+          }
         }
       }
     }
@@ -65,6 +73,12 @@ class VisualisationControl implements HistoryListener
   
   VisualisationControl(JToolBar toolbar) {
     observers = new LinkedList<VisualisationControlListener>();
+    
+    toolbar.add(new JSeparator(JSeparator.VERTICAL));
+    
+    b_playpause = new JButton("Play");
+    b_playpause.setEnabled(false);
+    toolbar.add(b_playpause);
     
     b_first = new JButton("First");
     b_first.setEnabled(false);
@@ -114,6 +128,13 @@ class VisualisationControl implements HistoryListener
         last();
       }
     });
+    
+    b_playpause.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent arg0) {
+        playOrPause();
+      }
+    });
   }
 
   /* API. */
@@ -149,42 +170,39 @@ class VisualisationControl implements HistoryListener
   /**
    * @return the current scene
    */
-  public Scene getCurrentScene() {
+  synchronized public Scene getCurrentScene() {
     return (history == null) ? null : history.getScenes().get(sceneIdx);
   }
   
   /* Helpers. */
   synchronized private void changeStates(boolean enable) {
-    boolean first, prev, next, last;
+    boolean first = false, prev = false, next = false, last = false;
     
     if(enable) {
       if(sceneIdx > 0) {
         first = true;
         prev = true;
-      } else {
-        first = false;
-        prev = false;
       }
       
       if(sceneIdx < history.getScenes().size() - 1) {
         next = true;
         last = true;
       } else {
-        next = false;
-        last = false;
+        inPlayMode = false;
       }
       
     } else {
-      first = false;
-      prev = false;
-      next = false;
-      last = false;
+      sceneIdx = 0;
+      autoPlay = true;
+      inPlayMode = false;
     }
     
     b_first.setEnabled(first);
     b_prev.setEnabled(prev);
     b_next.setEnabled(next);
     b_last.setEnabled(last);
+    b_playpause.setEnabled(first || last);
+    b_playpause.setText(inPlayMode ? "Pause" : "Play");
   }
   
   private void emitNoScene() {
@@ -192,7 +210,7 @@ class VisualisationControl implements HistoryListener
       vcl.onNewScene(null);
   }
   
-  private void emitCurrentScene() {
+  synchronized private void emitCurrentScene() {
     for(VisualisationControlListener vcl : observers)
       vcl.onNewScene(history.getScenes().get(sceneIdx));
   }
@@ -205,6 +223,8 @@ class VisualisationControl implements HistoryListener
   }
   
   synchronized private void previous() {
+    if(sceneIdx <= 0) return;
+
     sceneIdx--;
     autoPlay = false;
     changeStates(true);
@@ -212,6 +232,8 @@ class VisualisationControl implements HistoryListener
   }
   
   synchronized private void next() {
+    if(sceneIdx >= history.getScenes().size() - 1) return;
+
     sceneIdx++;
     autoPlay = false;
     changeStates(true);
@@ -224,5 +246,13 @@ class VisualisationControl implements HistoryListener
     changeStates(true);
     emitCurrentScene();
   }
+  
+  synchronized private void playOrPause() {
+    inPlayMode = !inPlayMode;
 
+    changeStates(true);
+    synchronized (newSceneEmitterThread) {
+      newSceneEmitterThread.notify();
+    }
+  }
 }

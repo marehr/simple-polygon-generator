@@ -35,23 +35,27 @@ public class LineSegment implements Cloneable
   /**
    * Test if Point is in this LineSegment.
    * 
-   * NOTE: Does a orientation check beforehand, to see
-   * if the given point could lie on the LineSegment
-   * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
    * @param p Point that may be on this LineSegment.
    * @return true if p is in this LineSegment, else false.
    */
   public boolean containsPoint(Point p) {
-    if(MathUtils.checkOrientation(_a, _b, p) != 0) return false;
+    Vector ap = new Vector(_a, p);
+    Vector ab = new Vector(_a, _b);
 
-    // return true if one of the corner points is the point p
-    if(_a.equals(p) || _b.equals(p)) return true;
+    double lambda1 = ab.x == 0 ? 0 : (ap.x / ab.x) ;
+    double lambda2 = ab.y == 0 ? 0 : (ap.y / ab.y);
 
-    double length = _a.distanceTo(_b);
-    double combinedDist = _a.distanceTo(p) + _b.distanceTo(p);
-    return Math.abs(combinedDist - length) < MathUtils.EPSILON;
+    // catch horizontal lines
+    if(MathUtils.doubleZero(ab.y))
+      return MathUtils.doubleZero(ap.y) && lambda1 >= 0 && lambda1 <= 1;
+
+    // catch vertical lines
+    if(MathUtils.doubleZero(ab.x))
+      return MathUtils.doubleZero(ap.x) && lambda2 >= 0 && lambda2 <= 1;
+
+    return MathUtils.doubleEquals(lambda1, lambda2) && lambda1 >= 0 && lambda1 <= 1;
   }
 
   /**

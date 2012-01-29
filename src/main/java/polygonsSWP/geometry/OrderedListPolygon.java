@@ -964,11 +964,17 @@ public class OrderedListPolygon
    * @return List of triangulars
    */
   public List<Triangle> triangulate() {
+    assert size() >= 3;
     assert (isSimple());
-    if(isClockwise() != -1) reverse();
+    //if(isClockwise() != -1) reverse();
     assert (isClockwise() == -1);
 
     List<Triangle> returnList = new ArrayList<Triangle>();
+
+    if(size() == 3){
+      returnList.add(new Triangle(getPoints()));
+      return returnList;
+    }
 
     /* Manage a list of indices. */
     int[] V = new int[size()];
