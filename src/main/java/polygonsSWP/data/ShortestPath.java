@@ -33,9 +33,24 @@ public class ShortestPath
    * @param end End point of path.
    */
   public ShortestPath(Polygon polygon, Point start, Point end) {
-    _polygon = (OrderedListPolygon) polygon;
-    _path.add(start);
-    _path.add(end);
+//    _polygon = (OrderedListPolygon) polygon;
+//    _path.add(start);
+//    _path.add(end);
+	  OrderedListPolygon p = new OrderedListPolygon();
+	  p.addPoint(new Point(38.0,260.0));
+	  p.addPoint(new Point(294.0,535.0));//
+	  p.addPoint(new Point(346.0,533.0));
+	  p.addPoint(new Point(318.0,525.0));
+	  p.addPoint(new Point(190.0,186.0));
+	  p.addPoint(new Point(536.0,207.0));
+	  p.addPoint(new Point(409.0,538.0));
+	  p.addPoint(new Point(258.0,587.0));//
+	  
+	  Point startPoint = new Point(90.0,330.0);
+	  Point endPoint = new Point(220.0,210.0);
+      _polygon = p;
+      _path.add(startPoint);
+      _path.add(endPoint);
   }
 
   /**
@@ -85,27 +100,29 @@ public class ShortestPath
   }
 
   public List<Point> generateShortestPath() {
-    List<Trapezoid> plist = _polygon.sweepLine();
-
-    Trapezoid startTrapezoid = null;
-    for (Trapezoid p : plist) {
-      if (p.containsPoint(_path.get(0), true)) {
-        if (p.containsPoint(_path.get(_path.size() - 1), true)) {
-          return _path;
-        }
-        else {
-          startTrapezoid = p;
-          break;
-        }
-      }
-      // TODO: do we need: e(t) ?
-    }
-
-    initVars((OrderedListPolygon) startTrapezoid);
+//    List<Trapezoid> plist = _polygon.sweepLine();
+//
+//    Trapezoid startTrapezoid = null;
+//    for (Trapezoid p : plist) {
+//      if (p.containsPoint(_path.get(0), true)) {
+//        if (p.containsPoint(_path.get(_path.size() - 1), true)) {
+//          return _path;
+//        }
+//        else {
+//          startTrapezoid = p;
+//          break;
+//        }
+//      }
+//      // TODO: do we need: e(t) ?
+//    }
+//
+//    initVars((OrderedListPolygon) startTrapezoid);
+    parray[1] = new Point(294.0,535.0);
+    parray[2] = new Point(258.0,587.0);
+	  
     parray[0] = _path.get(0);
-    while (_polygon.intersect(
-        new LineSegment(parray[0], _path.get(_path.size() - 1))).size() != 0) {
-      parray = makeStep(parray[0], parray[2], parray[2]);
+    while (_polygon.intersect(new LineSegment(parray[0], _path.get(_path.size() - 1))).size() != 0) {
+      parray = makeStep(parray[0], parray[1], parray[2]);
     }
 
     return _path;
@@ -136,8 +153,7 @@ public class ShortestPath
    */
   private Point[] makeStep(Point p, Point q1, Point q2) {
     reducePolygon(p, q1, q2);
-    if (isConcaveVertex(q1, p, _polygon)) {
-      // TODO: cannot be null?
+    if (isConcaveVertex(p, q1, _polygon)) {
       Point newP = findRayPolygonIntersection(p, q1, _polygon);
       if (tLiesInSubPolygon(q1, newP)) {
         Point[] returnArray = { q1, succ(q1), newP };
@@ -150,7 +166,7 @@ public class ShortestPath
         return returnArray;
       }
     }
-    else if (isConcaveVertex(q2, p, _polygon)) {
+    else if (isConcaveVertex(p, q2, _polygon)) {
       Point newP = findRayPolygonIntersection(p, q2, _polygon);
       if (tLiesInSubPolygon(q2, newP)) {
         Point[] returnArray = { q2, newP, pred(q1) };
@@ -193,18 +209,15 @@ public class ShortestPath
     }
   }
 
-  private boolean rayLiesInWedge(Point p, Point succP, Point q1, Point p2,
-      Point q2) {
-    return ((MathUtils.checkOrientation(p, q2, succP) <= 0) && (MathUtils.checkOrientation(
-        p, q1, succP) >= 0));
+  private boolean rayLiesInWedge(Point p, Point succP, Point q1, Point p2, Point q2) {
+    return ((MathUtils.checkOrientation(p, q2, succP) <= 0) && (MathUtils.checkOrientation(p, q1, succP) >= 0));
   }
 
   private Point succ(Point p) {
     List<Point> list = _polygon.getPoints();
     for (int i = 0; i < list.size(); i++) {
       if (list.get(i).compareTo(p) == 0) {
-        if (i < list.size() - 1) return list.get(i + 1);
-        else return list.get(0);
+        return list.get((i + 1)%list.size());
       }
     }
     return null;
@@ -222,19 +235,18 @@ public class ShortestPath
    * creates a ray starting from p with direction q1 and
    * @return the intersection with given polygon or null
    */
-  private Point findRayPolygonIntersection(Point p, Point q1,
-      OrderedListPolygon polygon) {
+  private Point findRayPolygonIntersection(Point p, Point q1, OrderedListPolygon polygon) {
     Ray ray = new Ray(p, q1);
     Point newP = null;
-    for (int i = 0; i < polygon.getPoints().size() - 1; i++) {
-      Point[] intersectingPoints =
-          ray.intersect(new LineSegment(polygon.getPoint(i),
-              polygon.getPoint(i + 1)));
+    List<Point> pointList = polygon.getPoints();
+    pointList = sortList(q1,pointList);
+    for (int i = 1; i < pointList.size() - 1; i++) {
+      Point[] intersectingPoints = ray.intersect(new LineSegment(pointList.get(i),pointList.get(i + 1)));
       // TODO: Why does Ray.intersect(LineSegment) method return an array?
-      if (intersectingPoints.length > 0) {
-        newP = intersectingPoints[0];
-        break;
-      }
+      if ((intersectingPoints != null) && (intersectingPoints.length > 0)) {
+	        newP = intersectingPoints[0];
+	        break;
+	      }
     }
     return newP;
   }
@@ -269,26 +281,21 @@ public class ShortestPath
    * Sorts a list of point and
    * @return same list with given point at first position
    */
-  private List<Point> sortList(Point q1, List<Point> list) {
+  public static List<Point> sortList(Point q1, List<Point> list) {
     int index = getIndexOfPoint(q1, list);
 
     if (index == 0) {
       return list;
-    }
-    else if (index == list.size() - 1) {
+    } else {
       List<Point> tmp = new ArrayList<Point>();
-      tmp.add(list.get(list.size() - 1));
-      tmp.addAll(list.subList(0, list.size() - 2));
-      return tmp;
-    }
-    else {
-      List<Point> tmp = new ArrayList<Point>();
-      tmp.addAll(list.subList(index, list.size() - 1));
-      tmp.addAll(list.subList(0, index - 1));
+	  tmp.addAll(list.subList(index, list.size()));
+	  tmp.addAll(list.subList(0, index));
       return tmp;
     }
   }
 
+  // This works only if q1 is counter clockwise the next point after p
+  // is this sufficient?
   private OrderedListPolygon reducePolygon(Point p, Point q1, Point q2) {
     // TODO: may not work at start (if q1 = q2)
     OrderedListPolygon reducedPolygon = new OrderedListPolygon();
@@ -297,14 +304,15 @@ public class ShortestPath
 
     plist = sortList(q1, plist);
 
-    for (int i = 0; i < plist.size() - 1; i++) {
+    for (int i = 1; i < plist.size() - 1; i++) {
       LineSegment ls = new LineSegment(plist.get(i), plist.get(i + 1));
       if (ls.containsPoint(q2)) {
-        if (plist.get(i).compareTo(q2) != 0)
+        if (plist.get(i).compareTo(q2) != 0){
           reducedPolygon.addPoint(plist.get(i));
-        reducedPolygon.addPoint(q2);
-        reducedPolygon.addPoint(p);
-        break;
+          reducedPolygon.addPoint(q2);
+          reducedPolygon.addPoint(p);
+          break;
+        }
       }
       else {
         reducedPolygon.addPoint(plist.get(i));
@@ -326,7 +334,7 @@ public class ShortestPath
   /*
    * @return index of point in polygon path list, -1 if not in list
    */
-  private int getIndexOfPoint(Point q, List<Point> list) {
+  private static int getIndexOfPoint(Point q, List<Point> list) {
     int index = -1;
     for (int i = 0; i < list.size(); i++) {
       if (q.compareTo(list.get(i)) == 0) {
@@ -343,35 +351,19 @@ public class ShortestPath
    * pred(q) (!= p) is visible from q
    * @return true if concave, false if convex
    */
-  private boolean isConcaveVertex(Point q, Point p, OrderedListPolygon polygon) {
-    // Doubling the pointlist to prevent the three searched points to get
-    // splitted.
-    List<Point> temp = new ArrayList<Point>();
-    temp.addAll(polygon.getPoints());
-    temp.addAll(polygon.getPoints());
-    Point[] polygonPoints = (Point[]) temp.toArray();
-
-    for (int i = 0; i < polygonPoints.length; i++) {
-      if (polygonPoints[i].compareTo(q) == 0) {
-        if (polygonPoints[i + 1].compareTo(p) == 0) {
-          if (MathUtils.checkOrientation(q, p, polygonPoints[i - 1]) == -1)
-            return false;
-          if (MathUtils.checkOrientation(q, p, polygonPoints[i - 1]) == 1)
-            return true;
-        }
-        else if (polygonPoints[i - 1].compareTo(p) == 0) {
-          if (MathUtils.checkOrientation(q, p, polygonPoints[i + 1]) == -1)
-            return true;
-          if (MathUtils.checkOrientation(q, p, polygonPoints[i + 1]) == 1)
-            return false;
-        }
-        else {
-          // should never happen
-          System.out.println("Something went wrong here!");
-        }
-      }
+  private boolean isConcaveVertex(Point p, Point q, OrderedListPolygon polygon) {
+    List<Point> temp = polygon.getPoints();
+    temp = sortList(p,temp);
+    if(temp.get(1).compareTo(q) == 0)
+    	return (MathUtils.checkOrientation(p, q, temp.get(2)) == 1);
+    else if(temp.get(temp.size()-1).compareTo(q) == 0)
+    	return (MathUtils.checkOrientation(p, q, temp.get(temp.size()-2)) == -1);
+    else
+    {
+        System.out.println("Polygon has not been reduced correctly");
+        return false;
     }
-    return false;
+    
   }
 
   /*

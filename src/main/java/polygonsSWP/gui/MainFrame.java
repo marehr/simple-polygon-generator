@@ -47,9 +47,9 @@ public class MainFrame
   private final List<GUIModeListener> observers;
 
   private PolygonGeneratorFactory[] polygon_algorithm_list = {
-      new SweepLineTestFactory(),
+	  new PermuteAndRejectFactory(),
       new SpacePartitioningFactory(),
-      new PermuteAndRejectFactory(),
+      new SweepLineTestFactory(),
       new TwoOptMovesFactory(), 
       new RandomPolygonAlgorithmFactory(), 
       new IncrementalConstructionAndBacktrackingFactory(), 
