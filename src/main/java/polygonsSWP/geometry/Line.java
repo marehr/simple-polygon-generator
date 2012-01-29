@@ -20,14 +20,22 @@ public class Line
    * Check if given Point is in this line.
    * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
    * @param p
    * @return
    */
   public boolean containsPoint(Point p) {
-    Vector oa = new Vector(new Point(0, 0), _a);
+    Vector ap = new Vector(_a, p);
     Vector ab = new Vector(_a, _b);
-    double lambda1 = ((p.x - oa.x) / ab.x);
-    double lambda2 = ((p.y - oa.y) / ab.y);
+
+    // catch horizontal lines
+    if(MathUtils.doubleZero(ab.y)) return MathUtils.doubleZero(ap.y);
+
+    // catch vertical lines
+    if(MathUtils.doubleZero(ab.x)) return MathUtils.doubleZero(ap.x);
+
+    double lambda1 = (ap.x / ab.x);
+    double lambda2 = (ap.y / ab.y);
     return MathUtils.doubleEquals(lambda1, lambda2);
   }
 

@@ -76,8 +76,9 @@ class PaintPanel
     polygon = p;
 
     // show points on random polygons
-    if(points == null)
-      points = p.getPoints();
+    if(points == null){
+      setDrawMode(drawMode, p.getPoints());
+    }
   }
 
   void setDrawMode(boolean d, List<Point> p) {

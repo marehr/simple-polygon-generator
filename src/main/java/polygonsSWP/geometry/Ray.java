@@ -26,10 +26,20 @@ public class Ray
    * @return
    */
   public boolean containsPoint(Point p) {
-    Vector oa = new Vector(new Point(0, 0), _base);
+    Vector ap = new Vector(_base, p);
     Vector ab = new Vector(_base, _support);
-    double lambda1 = ((p.x - oa.x) / ab.x);
-    double lambda2 = ((p.y - oa.y) / ab.y);
+
+    double lambda1 = ab.x == 0 ? 0 : (ap.x / ab.x) ;
+    double lambda2 = ab.y == 0 ? 0 : (ap.y / ab.y);
+
+    // catch horizontal lines
+    if(MathUtils.doubleZero(ab.y))
+      return MathUtils.doubleZero(ap.y) && lambda1 >= 0;
+
+    // catch vertical lines
+    if(MathUtils.doubleZero(ab.x))
+      return MathUtils.doubleZero(ap.x) && lambda2 >= 0;
+
     return MathUtils.doubleEquals(lambda1, lambda2) && lambda1 >= 0;
   }
 
