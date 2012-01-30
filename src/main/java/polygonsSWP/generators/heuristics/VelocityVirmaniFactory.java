@@ -7,10 +7,10 @@ import java.util.Random;
 
 import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
-import polygonsSWP.data.Scene;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
+import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -74,8 +74,8 @@ public class VelocityVirmaniFactory
     private int runs;
     private int maxVelo;
     private int bound;
-    private History steps;
-    private PolygonStatistics statistics;
+    final private History steps;
+    final private PolygonStatistics statistics;
 
     private boolean stop = false;
 
@@ -95,21 +95,24 @@ public class VelocityVirmaniFactory
 
       OrderedListPolygon poly = regularPolygon(n, radius, bound);
 
+      if(steps != null){
+        steps.clear();
+
+        steps.newScene()
+        .addPoints(poly.getPoints(), true)
+        .addPolygon(poly, true)
+        .save();
+      }
+
       double velox, veloy;
 
       int rejections = 0;
       int iterations = runs;
       double avgspeed_without_rejections = 0;
-      Scene scene;
       
-      if(steps != null) steps.clear();
       
       while (runs > 0 && !stop) // The Loop for the Number of Iterations. Stops if "stop" is true.
       {
-        // PolygonHistory: New Scene object is generated and added to the History
-        scene = null;
-        if (steps != null) 
-          scene = steps.newScene().setBoundingBox(bound, bound);
         
         for (int i = 0; i < n; i++) // Looping through the Points
         {
@@ -126,22 +129,24 @@ public class VelocityVirmaniFactory
           poly.getPoint(i).y += veloy;
 
           // If its not simple anymore, revert the modifications
-          if (!poly.isSimple()) {
+          if (!isSimple(poly, i)) {
             poly.getPoint(i).x -= velox;
             poly.getPoint(i).y -= veloy;
-            if (steps != null) scene.addPoint(poly.getPoint(i), true);// PolygonHistory: Highlights a Point if he doesnt move
+
             if (statistics != null) {
               avgspeed_without_rejections += velox + veloy; // To Calculate the Average velocity without collisions
               rejections++;
             }
           }
-          else if (steps != null)
-            scene.addPoint(poly.getPoint(i), false);// PolygonHistory: Just adds a Points without Highlighting
         }
         runs--;
         
-        if(steps != null)
-          scene.save();
+        if(steps != null){
+          steps.newScene()
+          .addPoints(poly.getPoints(), true)
+          .addPolygon(poly, true)
+          .save();
+        }
       }
       if (stop) return null;// If stop is called and this was finished. Give back null.
 
@@ -154,10 +159,44 @@ public class VelocityVirmaniFactory
       }
       
       if(steps != null)
-        steps.newScene().addPolygon(poly, false).save();
+        steps.newScene().addPolygon(poly, true).save();
       
       return poly;
     }
+    
+    /**
+     * Check for simple. Checks only 1 Point with the Others.
+     * @param polygon Polygon
+     * @param indexToCheck
+     * @return
+     */
+    private boolean isSimple(OrderedListPolygon polygon, int indexToCheck)
+    {
+      int size = polygon.size();
+      int min = (indexToCheck-1+size) % size;
+      int max = (indexToCheck + 1) % size;
+      LineSegment l1 = new LineSegment(polygon.getPoint(min), polygon.getPoint(indexToCheck));
+      LineSegment l2 = new LineSegment(polygon.getPoint(indexToCheck), polygon.getPoint(max));
+      LineSegment otherLine;
+      Point[] res1, res2;
+      
+      for(int i = 0; i < size; i++)
+      {
+        if(indexToCheck == i || (i+1) % size == indexToCheck) //Shouldnt compare to its own lines 
+          continue;
+        
+        otherLine = new LineSegment(polygon.getPoint(i), polygon.getPoint((i+1)%size));
+        res1 = l1.intersect(otherLine, true);
+        res2 = l2.intersect(otherLine, true);
+        
+        if(res1 == null && res2 == null)
+          continue;//continue to check
+        return false;//not simple
+        
+      }
+      return true;//every combination checked. Its simple.
+    }
+
 
     /**
      * Generates a regularPolygon
