@@ -72,31 +72,6 @@ public class Ray
     return new Line(_base, _support);
   }
 
-  /**
-   * Get Point on Ray that is closest to its initial base point. Does not return
-   * coincident LineSegments/Rays/Lines.
-   * 
-   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
-   * @param intersections
-   * @return Point[] triple of Points.
-   */
-  public Point[] getPointClosestToBase(List<Point[]> intersections) {
-    Point[] closest = null;
-    double distance = Double.MAX_VALUE;
-    if(intersections != null){
-      for (Point[] points : intersections) {
-        if (points[0] != null) {
-          double newDistance = points[0].distanceTo(_base);
-          if (newDistance < distance) {
-            closest = points;
-            distance = newDistance;
-          }
-        }
-      }
-    }
-    return closest;
-  }
-
   public Ray clone() {
     return new Ray(_base.clone(), _support.clone());
   }
