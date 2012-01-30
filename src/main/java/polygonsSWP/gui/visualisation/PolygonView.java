@@ -1,6 +1,7 @@
 package polygonsSWP.gui.visualisation;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -14,16 +15,21 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.filechooser.FileFilter;
 
 import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
+import polygonsSWP.data.Scene;
+import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
+import polygonsSWP.geometry.Trapezoid;
 import polygonsSWP.gui.GUIModeListener;
 import polygonsSWP.gui.generation.PointGenerationModeListener;
 import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
+
 
 /**
  * TODO: describe me
@@ -41,13 +47,14 @@ public class PolygonView
   private final JToolBar tb;
   private final JButton saveButton;
   private final JButton centerViewButton;
+  private final JToggleButton trapezoidButton;
   private final VisualisationControl visControl;
   private PaintPanelStatusBar ppsb;
-  
+
   private Polygon polygon;
 
   public PolygonView() {
-    ppsb = new PaintPanelStatusBar();  
+    ppsb = new PaintPanelStatusBar();
     pp = new PaintPanel(ppsb);
     tb = new JToolBar();
 
@@ -70,9 +77,19 @@ public class PolygonView
     saveButton.setEnabled(false);
     tb.add(saveButton);
 
+    trapezoidButton = new JToggleButton("Trapezoidation");
+    trapezoidButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent arg0) {
+        trapezoidatePolygon();
+      }
+    });
+    trapezoidButton.setEnabled(false);
+    tb.add(trapezoidButton);
+
     visControl = new VisualisationControl(tb);
     visControl.addVisualisationControlListener(pp);
-        
+
     layoutControls();
   }
 
@@ -89,13 +106,16 @@ public class PolygonView
   /* PolygonGenerationPanelListener methods. */
 
   @Override
-  public void onPolygonGenerationStarted(PolygonStatistics stats, History steps) {
+  public void
+      onPolygonGenerationStarted(PolygonStatistics stats, History steps) {
     saveButton.setEnabled(false);
+    trapezoidButton.setEnabled(true);
+    trapezoidButton.setSelected(false);
     polygon = null;
     visControl.setHistory(steps);
 
     // add observer
-    if(steps != null) steps.setHistoryListener(visControl);
+    if (steps != null) steps.setHistoryListener(visControl);
   }
 
   @Override
@@ -118,12 +138,32 @@ public class PolygonView
       List<Point> points) {
     pp.setDrawMode(!randomPoints, points);
   }
-  
+
   /* GUIModeListener methods. */
 
   @Override
   public void onGUIModeChanged(boolean generatorMode) {
     pp.setGUIinGenerationMode(generatorMode);
+  }
+
+  /**
+   * Calls trapezoidation and displays trapezoids. this quick and dirty and
+   * needs to be adapted to gui but dont remove it!
+   */
+
+  protected void trapezoidatePolygon() {
+    assert (polygon != null);
+    if (trapezoidButton.isSelected()) {
+      List<Trapezoid> trapezoids = ((OrderedListPolygon) polygon).sweepLine();
+      History hist = new History();
+      Scene scene = hist.newScene().setBoundingBox(600, 600);
+      for (Trapezoid item : trapezoids)
+        scene.addPolygon(item, Color.DARK_GRAY);
+      pp.onNewScene(scene);
+    }
+    else {
+
+    }
   }
 
   /* Internals. */
@@ -198,7 +238,8 @@ public class PolygonView
     }
 
     String data;
-    if (jfc.getFileFilter().equals(svgFilter)) data = visControl.getCurrentScene().toSvg();
+    if (jfc.getFileFilter().equals(svgFilter)) data =
+        visControl.getCurrentScene().toSvg();
     else data = polygon.toString();
 
     osw = new OutputStreamWriter(fos);
