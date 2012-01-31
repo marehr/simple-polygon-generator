@@ -94,11 +94,11 @@ public abstract class Polygon
 
   /**
    * @return list of point triplets. first of each triple is an intersection
-   *         point, the following are the points representing the line segment
+   *         point, the following points x, y represent the line segment
    *         containing the intersection point. Returns empty list if there is
-   *         no intersection. Returns a Point-array {null, a, b} if the line
-   *         segment a, b is coincident with given line segment. It is assured,
-   *         that the points a, b are in the same order as in the polygon.
+   *         no intersection. Returns a Point-array {null, x, y} if the line
+   *         segment x, y is coincident with given line segment. It is assured,
+   *         that the points x, y are in the same order as in the polygon.
    *         Finally it returns {x, null, null} if the intersections is a vertex
    *         of the polygon.
    */
@@ -127,13 +127,13 @@ public abstract class Polygon
             // but we add it only once.
 
             // Real intersection.
-            intersections.add(new Point[] { isec[0], a, b });
+            intersections.add(new Point[] { isec[0], vj, vi });
           }
 
         }
         else {
           // Coincident with polygon edge.
-          intersections.add(new Point[] { null, a, b });
+          intersections.add(new Point[] { null, vj, vi });
         }
       }
     }
