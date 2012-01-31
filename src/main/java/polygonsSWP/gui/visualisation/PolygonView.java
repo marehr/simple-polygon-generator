@@ -27,6 +27,8 @@ import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.Trapezoid;
 import polygonsSWP.gui.GUIModeListener;
+import polygonsSWP.gui.generation.HistorySceneChooser.HistorySceneMode;
+import polygonsSWP.gui.generation.HistorySceneModeListener;
 import polygonsSWP.gui.generation.PointGenerationModeListener;
 import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
 
@@ -39,7 +41,7 @@ import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
 public class PolygonView
   extends JPanel
   implements PolygonGenerationPanelListener, PointGenerationModeListener,
-  GUIModeListener
+  HistorySceneModeListener, GUIModeListener
 {
   private static final long serialVersionUID = 1L;
 
@@ -126,6 +128,13 @@ public class PolygonView
   public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats,
       History history) {
     pp.setCurrentPolygon(newPolygon);
+
+    // history disabled? create a new history and add the final polygon
+    if(history == null){
+      history = new History(0);
+      history.newScene().addPolygon(newPolygon, true).save();
+    }
+
     visControl.setHistory(history);
     polygon = newPolygon;
     saveButton.setEnabled(true);
@@ -137,6 +146,11 @@ public class PolygonView
   public void onPointGenerationModeSwitched(boolean randomPoints,
       List<Point> points) {
     pp.setDrawMode(!randomPoints, points);
+  }
+
+  @Override
+  public void onHistorySceneModeSwitched(HistorySceneMode mode) {
+    visControl.onHistorySceneModeSwitched(mode);
   }
 
   /* GUIModeListener methods. */
@@ -266,4 +280,5 @@ public class PolygonView
           f.getName() + "\".", "Error", JOptionPane.ERROR_MESSAGE);
     }
   }
+
 }

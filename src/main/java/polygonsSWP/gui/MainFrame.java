@@ -83,6 +83,7 @@ public class MainFrame
     gui_generator.addPolygonGenerationPanelListener(gui_polygon_view);
     gui_generator.addPolygonGenerationPanelListener(gui_shortest_path);
     gui_generator.addPointGenerationModeListener(gui_polygon_view);
+    gui_generator.addHistorySceneModeListener(gui_polygon_view);
   
     observers = new LinkedList<GUIModeListener>();
     observers.add(gui_polygon_view);

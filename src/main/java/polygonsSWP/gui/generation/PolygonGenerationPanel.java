@@ -15,6 +15,7 @@ import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.gui.GUIModeListener;
+import polygonsSWP.gui.generation.HistorySceneChooser.HistorySceneMode;
 
 
 /**
@@ -25,7 +26,8 @@ import polygonsSWP.gui.GUIModeListener;
  */
 public class PolygonGenerationPanel
   extends JPanel
-  implements PolygonGenerationWorkerListener, GUIModeListener
+  implements PolygonGenerationWorkerListener, GUIModeListener,
+  HistorySceneModeListener
 {
   private static final long serialVersionUID = 1L;
 
@@ -41,6 +43,7 @@ public class PolygonGenerationPanel
   private PolygonGenerationWorker worker;
   private History steps;
   private PolygonStatistics stats;
+  private HistorySceneMode historySceneMode = HistorySceneMode.standard();
 
   public PolygonGenerationPanel(final PolygonGeneratorFactory[] polygon_algorithm_list) {
     observers = new LinkedList<PolygonGenerationPanelListener>();
@@ -63,6 +66,8 @@ public class PolygonGenerationPanel
     setLayout(new BorderLayout());
     add(p_generator_config, BorderLayout.CENTER);
     add(b_generate_polygon, BorderLayout.PAGE_END);
+
+    addHistorySceneModeListener(this);
   }
 
   /* API */
@@ -88,6 +93,17 @@ public class PolygonGenerationPanel
     p_generator_config.addPointGenerationModeListener(listener);
   }
 
+  /**
+   * Register an HistorySceneModeListener.
+   * 
+   * @param listener Class that would like to be notified when the history scene
+   *                 mode has changed.
+   */
+  public void addHistorySceneModeListener(HistorySceneModeListener listener) {
+    // Redirect to generator configuration panel.
+    p_generator_config.addHistorySceneModeListener(listener);
+  }
+
   /* Internals. */
 
   protected void emitPolygonGenerationStarted() {
@@ -105,6 +121,10 @@ public class PolygonGenerationPanel
       pgl.onPolygonGenerated(p, stats, steps);
   }
 
+  @Override
+  public void onHistorySceneModeSwitched(HistorySceneMode mode) {
+    historySceneMode = mode;
+  }
 
   /**
    * Called by polygon generation worker upon successful 
@@ -137,20 +157,24 @@ public class PolygonGenerationPanel
    */
   protected void runGenerator() {
     int boundingBox = p_generator_config.getBoundingBoxSize();
+    steps = null;
 
-    steps = new History(boundingBox);
+    if(historySceneMode.shouldHistoryBeCreated())
+      steps = new History(boundingBox);
+
     stats = new PolygonStatistics();
     PolygonGenerator pg = p_generator_config.createGenerator(stats, steps);
 
     if(pg == null)
       return;
-        
+
     worker = new PolygonGenerationWorker(pg, this);
     t = new Thread(worker);
     b_generate_polygon.setText("Cancel");
 
     // TODO think about order
     emitPolygonGenerationStarted();
+
 //    stats.start();
     t.start();
   }

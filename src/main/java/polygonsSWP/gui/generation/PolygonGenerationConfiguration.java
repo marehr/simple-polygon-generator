@@ -27,6 +27,7 @@ import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.Point;
+import polygonsSWP.gui.generation.HistorySceneChooser.HistorySceneMode;
 import polygonsSWP.util.GeneratorUtils;
 
 
@@ -36,20 +37,23 @@ class PolygonGenerationConfiguration
   private static final long serialVersionUID = 1L;
 
   /* Observers. */
-  private final List<PointGenerationModeListener> observers;
+  private final List<PointGenerationModeListener> pointGenerationModeListener;
+  private final List<HistorySceneModeListener> historySceneModeListener;
   
   /* Controls. */
   private final JRadioButton rb_polygonByUser, rb_polygonByGenerator;
   private final GeneratorChooser cb_polygon_algorithm_chooser;
+  private final HistorySceneChooser cb_historySceneChooser;
   private final JSpinner sp_edges, sp_size, sp_runs, sp_radius, sp_velocity;
   private final JButton b_load_points;
-  private final JLabel lbl_size, lbl_runs, lbl_radius, lbl_velocity;
+  private final JLabel lbl_size, lbl_runs, lbl_radius, lbl_velocity, lbl_historyScenes;
   
   /* the list of user-selected points */
   private List<Point> points = null;
   
   PolygonGenerationConfiguration(PolygonGeneratorFactory[] polygon_algorithm_list) {
-    observers = new LinkedList<PointGenerationModeListener>();
+    pointGenerationModeListener = new LinkedList<PointGenerationModeListener>();
+    historySceneModeListener = new LinkedList<HistorySceneModeListener>();
     
     // init combobox
     cb_polygon_algorithm_chooser = new GeneratorChooser(polygon_algorithm_list, true);
@@ -81,6 +85,9 @@ class PolygonGenerationConfiguration
     rb_polygonByUser = new JRadioButton("Set Points");
     polygon_menu.add(rb_polygonByGenerator);
     polygon_menu.add(rb_polygonByUser);
+    
+    lbl_historyScenes = new JLabel("History Scenes");
+    cb_historySceneChooser = new HistorySceneChooser();
     
     // Layout controls on panel.
     layoutControls();
@@ -151,18 +158,25 @@ class PolygonGenerationConfiguration
     gbc.gridy = 6;
     gbc.gridwidth = 2;
     add(cb_polygon_algorithm_chooser, gbc);
+
+    gbc.gridx = 0;
+    gbc.gridy = 7;
+    add(lbl_historyScenes, gbc);
+
+    gbc.gridx = 1;
+    gbc.gridy = 7;
+    add(cb_historySceneChooser, gbc);
   }
   
   final private void registerListeners() {
     
-    // Combobox
+    // Generator Combobox
     cb_polygon_algorithm_chooser.addActionListener(new ActionListener() {
 
       @Override
       public void actionPerformed(ActionEvent arg0) {
-        PolygonGeneratorFactory pgf = 
-            (PolygonGeneratorFactory) cb_polygon_algorithm_chooser.getSelectedItem();
-        
+        PolygonGeneratorFactory pgf = cb_polygon_algorithm_chooser.getSelectedItem();
+
         // Enable/Disable controls based on Generator parameterization.
         List<Parameters> addparams = pgf.getAdditionalParameters();
         sp_runs.setEnabled(addparams.contains(Parameters.runs));
@@ -172,7 +186,17 @@ class PolygonGenerationConfiguration
       }
       
     });
-    
+
+    // History Scene combobox
+    cb_historySceneChooser.addActionListener(new ActionListener() {
+
+      @Override
+      public void actionPerformed(ActionEvent arg0) {
+        HistorySceneMode mode = cb_historySceneChooser.getSelectedItem();
+        emitHistorySceneModeSwitched(mode);
+      }
+    });
+
     // Load points button
     b_load_points.addActionListener(new ActionListener() {
       @Override
@@ -212,8 +236,13 @@ class PolygonGenerationConfiguration
   
   protected void emitPointGenerationModeSwitched(boolean randomPoints,
       List<Point> points) {
-    for (PointGenerationModeListener pgml : observers)
+    for (PointGenerationModeListener pgml : pointGenerationModeListener)
       pgml.onPointGenerationModeSwitched(randomPoints, points);
+  }
+
+  protected void emitHistorySceneModeSwitched(HistorySceneMode mode) {
+    for (HistorySceneModeListener pgml : historySceneModeListener)
+      pgml.onHistorySceneModeSwitched(mode);
   }
   
   /* API */
@@ -228,7 +257,11 @@ class PolygonGenerationConfiguration
   }
   
   void addPointGenerationModeListener(PointGenerationModeListener listener) {
-    observers.add(listener);
+    pointGenerationModeListener.add(listener);
+  }
+
+  void addHistorySceneModeListener(HistorySceneModeListener listener) {
+    historySceneModeListener.add(listener);
   }
 
   public int getBoundingBoxSize(){

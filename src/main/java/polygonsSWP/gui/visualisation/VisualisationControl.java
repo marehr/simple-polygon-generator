@@ -12,6 +12,8 @@ import javax.swing.JToolBar;
 import polygonsSWP.data.History;
 import polygonsSWP.data.Scene;
 import polygonsSWP.data.listener.HistoryListener;
+import polygonsSWP.gui.generation.HistorySceneChooser.HistorySceneMode;
+import polygonsSWP.gui.generation.HistorySceneModeListener;
 
 /**
  * Controls the step-by-step visualisation of the generator run. Provides play,
@@ -20,7 +22,7 @@ import polygonsSWP.data.listener.HistoryListener;
  * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
  * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
  */
-class VisualisationControl implements HistoryListener
+class VisualisationControl implements HistoryListener, HistorySceneModeListener
 {
   private final List<VisualisationControlListener> observers;
 
@@ -34,6 +36,7 @@ class VisualisationControl implements HistoryListener
   private boolean autoPlay = true;
   private boolean inPlayMode = false;
   private int framesFrecuency = 1000/25;
+  private HistorySceneMode historySceneMode = HistorySceneMode.standard();
 
   final private Thread newSceneEmitterThread = new Thread(new Runnable() {
 
@@ -60,11 +63,23 @@ class VisualisationControl implements HistoryListener
     }
   });
 
+  /**
+   * observer methods
+   */
+
   @Override
   public void onHistorySave(History history, Scene scene) {
+    if(!autoPlay) return;
+
     synchronized (newSceneEmitterThread) {
       newSceneEmitterThread.notify();
     }
+  }
+
+  @Override
+  synchronized public void onHistorySceneModeSwitched(HistorySceneMode mode) {
+    historySceneMode = mode;
+    setAutoPlay(autoPlay);
   }
 
   /* The history */
@@ -150,6 +165,26 @@ class VisualisationControl implements HistoryListener
    *          controls should be disabled.
    */
   synchronized void setHistory(History ph) {
+    if ( ph != null && ph == history ) {
+
+      /*
+       * if auto play is enabled, switch to last history scene
+       * but if auto play is not enabled, the user is currently navigating
+       * through the history scenes and therefore don't want to change the scene
+       */
+      if(autoPlay) last();
+
+      /*
+       * if we just create the history and don't show the results immediately
+       * then this callback means, that an polygon was generated and we
+       * should jump to the last scene, to show the completed polygon
+       */
+      if(historySceneMode.inCreateOnlyMode())
+        last();
+
+      return;
+    }
+
     history = ph;
     if(history == null || history.getScenes().size() < 1) {
       // Disable anything.
@@ -161,9 +196,6 @@ class VisualisationControl implements HistoryListener
     } else {
       // Initially show last scene.
       last();
-      
-      // Enable anything.
-      changeStates(true);
     }
   }
   
@@ -177,26 +209,26 @@ class VisualisationControl implements HistoryListener
   /* Helpers. */
   synchronized private void changeStates(boolean enable) {
     boolean first = false, prev = false, next = false, last = false;
-    
+
     if(enable) {
       if(sceneIdx > 0) {
         first = true;
         prev = true;
       }
-      
+
       if(sceneIdx < history.getScenes().size() - 1) {
         next = true;
         last = true;
       } else {
         inPlayMode = false;
       }
-      
+
     } else {
       sceneIdx = 0;
-      autoPlay = true;
+      setAutoPlay(true);
       inPlayMode = false;
     }
-    
+
     b_first.setEnabled(first);
     b_prev.setEnabled(prev);
     b_next.setEnabled(next);
@@ -217,7 +249,7 @@ class VisualisationControl implements HistoryListener
   
   synchronized private void first() {
     sceneIdx = 0;
-    autoPlay = false;
+    setAutoPlay(false);
     changeStates(true);
     emitCurrentScene();
   }
@@ -226,7 +258,7 @@ class VisualisationControl implements HistoryListener
     if(sceneIdx <= 0) return;
 
     sceneIdx--;
-    autoPlay = false;
+    setAutoPlay(false);
     changeStates(true);
     emitCurrentScene();
   }
@@ -235,14 +267,15 @@ class VisualisationControl implements HistoryListener
     if(sceneIdx >= history.getScenes().size() - 1) return;
 
     sceneIdx++;
-    autoPlay = false;
+    setAutoPlay(false);
     changeStates(true);
     emitCurrentScene();
   }
   
   synchronized private void last() {
     sceneIdx = history.getScenes().size() - 1;
-    autoPlay = true;
+    setAutoPlay(true);
+
     changeStates(true);
     emitCurrentScene();
   }
@@ -254,5 +287,9 @@ class VisualisationControl implements HistoryListener
     synchronized (newSceneEmitterThread) {
       newSceneEmitterThread.notify();
     }
+  }
+
+  private void setAutoPlay(boolean enable){
+    autoPlay = enable && historySceneMode.inCreateAndShowMode();
   }
 }
