@@ -170,7 +170,6 @@ public class ShortestPathTest {
 	  poly.addPoint(new Point(409.0,538.0));
 	  poly.addPoint(q2);
 	  
-	  List<Point> polygonPoints = poly.getPoints();
 
 	    List<Point> temp = poly.getPoints();
 	    temp = ShortestPath.sortList(p,temp);
@@ -183,6 +182,32 @@ public class ShortestPathTest {
 	        System.out.println("Polygon has not been reduced correctly");
 	        System.out.println("false");
 	    }
+  }
+  
+  @Test
+  public void polygonIntersection()
+  {
+	  OrderedListPolygon poly = new OrderedListPolygon();
+	  Point q1 = new Point(294.0,535.0);
+	  Point q2 = new Point(258.0,587.0);
+	  Point p = new Point(346.0,533.0);
+	  
+	  poly.addPoint(new Point(90.0,330.0));
+	  poly.addPoint(q1);
+	  poly.addPoint(p);
+	  poly.addPoint(new Point(318.0,525.0));
+	  poly.addPoint(new Point(190.0,186.0));
+	  poly.addPoint(new Point(536.0,207.0));
+	  poly.addPoint(new Point(409.0,538.0));
+	  poly.addPoint(q2);
+	  
+	  List<Point[]> list = poly.intersect(new LineSegment(p, new Point(220.0,210.0)));
+	  for(Point[] i : list)
+	  {
+		  for (int j = 0; j < i.length; j++) {
+			  System.out.println(i[j].x + " " + i[j].y);
+		  }
+	  }
   }
 	
 //  @Test

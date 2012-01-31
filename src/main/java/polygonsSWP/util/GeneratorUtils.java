@@ -32,7 +32,7 @@ public class GeneratorUtils
   public static boolean isInGeneralPosition(List<Point> pointSet) {
     // First condition: No 2 points are the same.
     HashSet<Point> hashSet = new HashSet<Point>(pointSet);
-    if(hashSet.size() != pointSet.size()) return false;
+    if (hashSet.size() != pointSet.size()) return false;
 
     // Second condition: No 3 points are colinear.
     for (int i = 0; i < pointSet.size() - 2; i++) {
@@ -58,23 +58,22 @@ public class GeneratorUtils
    * 
    * @param params params as handled over to the Generator
    * @param ensureGeneralPosition if set, this methods makes sure that the
-   *          returned set of points is in general position. 
+   *          returned set of points is in general position.
    * @return either the given set of points or a randomly created set if size n.
-   * @throws IllegalParameterizationException in case of
-   *         a) if none of or
-   *         b) if both 'n' and 'points' parameters are given.
-   *         c) if 'points' is given and ensureGeneralPosition
-   *            is set but point set is not in GP.
+   * @throws IllegalParameterizationException in case of a) if none of or b) if
+   *           both 'n' and 'points' parameters are given. c) if 'points' is
+   *           given and ensureGeneralPosition is set but point set is not in
+   *           GP.
    */
   @SuppressWarnings("unchecked")
   public static List<Point> createOrUsePoints(Map<Parameters, Object> params,
-      boolean ensureGeneralPosition) throws IllegalParameterizationException {
+      boolean ensureGeneralPosition)
+    throws IllegalParameterizationException {
     Integer n = (Integer) params.get(Parameters.n);
     Integer size = (Integer) params.get(Parameters.size);
     List<Point> s = (List<Point>) params.get(Parameters.points);
 
-    if ((s == null && n == null) || 
-        (s != null && n != null))
+    if ((s == null && n == null) || (s != null && n != null))
       throw new IllegalParameterizationException(
           "You have to specify either the 'n' or the 'points' parameter.");
 
@@ -82,12 +81,12 @@ public class GeneratorUtils
 
       s = createRandomSetOfPointsInSquare(n, size, ensureGeneralPosition);
 
-    } else {
+    }
+    else {
 
       if (ensureGeneralPosition && !isInGeneralPosition(s))
         throw new IllegalParameterizationException(
-            "User-defined set of points not in GP.", 
-            Parameters.points);
+            "User-defined set of points not in GP.", Parameters.points);
 
     }
 
@@ -126,7 +125,8 @@ public class GeneratorUtils
   /**
    * Compatibility method for above.
    */
-  public static List<Point> createOrUsePoints(Map<Parameters, Object> params) throws IllegalParameterizationException {
+  public static List<Point> createOrUsePoints(Map<Parameters, Object> params)
+    throws IllegalParameterizationException {
     return createOrUsePoints(params, false);
   }
 
@@ -252,40 +252,43 @@ public class GeneratorUtils
 
     // sollte nie passieren, da immer ein Schnittpunkt zurueckgegeben
     // werden muss, weil a oder b eine Kante des Polygon ist
-    if(intersections.size() == 0) throw new RuntimeException(
-        "should never happen, must be at least one intersection: a = " + a +
-        "; b = " + b + "\n" + polygon.getPoints());
+    if (intersections.size() == 0)
+      throw new RuntimeException(
+          "should never happen, must be at least one intersection: a = " + a +
+              "; b = " + b + "\n" + polygon.getPoints());
 
-    if(intersections.size() > 1) return false;
+    if (intersections.size() > 1) return false;
 
     Point[] points = intersections.get(0);
 
     // es gibt eine schnittkante, dann ist dieser punkt aufjedenfall nicht
     // sichtbar
-    if(points[0] == null) return false;
+    if (points[0] == null) return false;
 
     // konsistenz Pruefung, ob der einzige Schnittpunkt ein Eckpunkt
     // des Polygons war
     return points[1] == null && points[2] == null;
   }
-  
+
   /**
-   * @author jannis ihrig <jannis.ihrig@fu-berlin.de>
-   * @param base
-   * @param support
+   * Checks if line segments of given polygon intersect with line segment ab.
+   * Colliniars and end points don't count as intersections.
+   * 
+   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   * @param a
+   * @param b
    * @param polygon
    * @return
    */
-  public static boolean isPointOnPolygonVisible(Point point, Point polyPoint, Polygon polygon){
-    Ray r = new Ray(point, polyPoint);
-    // intersections ray polygon without base point of ray
-    List<Point[]> intersections = polygon.intersect(r, false);
-    Point[] isec = r.getPointClosestToBase(intersections);
-    if (isec == null || isec[0].equals(polyPoint)){
-      // if intersection exists and is not equal to support point of ray
-      // colinear LineSegments don't block sight
-      return true;
+  public static boolean isPolygonVertexVisibleNoBlockingColliniears(Point a,
+      Point b, Polygon polygon) {
+
+    List<Point[]> intersections =
+        polygon.intersect(new LineSegment(a, b), false);
+
+    for (Point[] points : intersections) {
+      if (points[0] != null) { return false; }
     }
-    return false;
+    return true;
   }
 }

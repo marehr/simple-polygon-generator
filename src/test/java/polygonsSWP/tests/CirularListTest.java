@@ -72,9 +72,11 @@ public class CirularListTest
     list1 = new CircularList<Point>();
     list1.add(new Point(0,0));
     list1.add(new Point(1,1));
-    list1.add(new Point(2,2));
+    list1.add(new Point(3,3));
     circIter1 = list1.listIterator(1);
     System.out.println(circIter1.next());
+    list1.add(2, new Point(2,2));
+    System.out.println(list1.toString());
   }
   
 

@@ -49,7 +49,7 @@ public class ShortestPath
 	  Point startPoint = new Point(90.0,330.0);
 	  Point endPoint = new Point(220.0,210.0);
       _polygon = p;
-      _path.add(startPoint);
+      //_path.add(startPoint);
       _path.add(endPoint);
   }
 
@@ -120,15 +120,17 @@ public class ShortestPath
     parray[1] = new Point(294.0,535.0);
     parray[2] = new Point(258.0,587.0);
 	  
-    parray[0] = _path.get(0);
-    while (_polygon.intersect(new LineSegment(parray[0], _path.get(_path.size() - 1))).size() != 0) {
+    parray[0] = new Point(90.0,330.0);
+    while (!existsDirectConnection()) {
       parray = makeStep(parray[0], parray[1], parray[2]);
     }
 
     return _path;
   }
 
-  private void initVars(OrderedListPolygon startPolygon) {
+
+
+private void initVars(OrderedListPolygon startPolygon) {
     List<Point> list = startPolygon.sortByY();
     int len = list.size();
 
@@ -147,6 +149,23 @@ public class ShortestPath
     // init q1,q2 (parray[1],parray[2])
     // Figure 9 p. 17
   }
+
+	private boolean existsDirectConnection() {
+		List<Point[]> list = _polygon.intersect(new LineSegment(parray[0], _path.get(_path.size() - 1)));
+		if(list.size() == 0)
+		{
+			addPointToPath(parray[0]);
+			return true;
+		}
+		else if((list.size() == 1) && (list.get(0)[0].compareTo(parray[0]) == 0))
+		{
+			addPointToPath(parray[0]);
+			return true;
+		}
+		else
+			return false;
+	}
+
 
   /*
    * TODO: description
@@ -169,7 +188,7 @@ public class ShortestPath
     else if (isConcaveVertex(p, q2, _polygon)) {
       Point newP = findRayPolygonIntersection(p, q2, _polygon);
       if (tLiesInSubPolygon(q2, newP)) {
-        Point[] returnArray = { q2, newP, pred(q1) };
+        Point[] returnArray = { q2, newP, pred(q2) };
         addPointToPath(p);
         return returnArray;
       }
@@ -355,9 +374,9 @@ public class ShortestPath
     List<Point> temp = polygon.getPoints();
     temp = sortList(p,temp);
     if(temp.get(1).compareTo(q) == 0)
-    	return (MathUtils.checkOrientation(p, q, temp.get(2)) == 1);
+    	return (MathUtils.checkOrientation(p, q, temp.get(2)) == -1);
     else if(temp.get(temp.size()-1).compareTo(q) == 0)
-    	return (MathUtils.checkOrientation(p, q, temp.get(temp.size()-2)) == -1);
+    	return (MathUtils.checkOrientation(p, q, temp.get(temp.size()-2)) == 1);
     else
     {
         System.out.println("Polygon has not been reduced correctly");
