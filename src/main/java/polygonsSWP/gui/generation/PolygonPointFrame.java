@@ -30,7 +30,7 @@ public class PolygonPointFrame extends JDialog {
 	private JScrollPane scrollPane;
 	private JButton okbutton = new JButton("OK");
 	private JButton button;
-	private int x,y;
+	private double x,y;
   protected List<Point> pointList;
 	
 	public PolygonPointFrame(boolean modal)
@@ -63,14 +63,14 @@ public class PolygonPointFrame extends JDialog {
 				try {
 					BufferedReader br = new BufferedReader(new FileReader(f));
 					String line = null;
+					StringBuilder pointString = new StringBuilder("");
 					while((line = br.readLine()) != null)
 					{			
 						if(line.equals(""))
 						  continue;
-					  x = Integer.valueOf(line.split(" ")[0]);
-						y = Integer.valueOf(line.split(" ")[1]);
-						addLine(x + " " + y);
+						pointString.append(line + "\n");
 					}
+					addLine(pointString.toString());
 				} catch (Exception e1) {
 					JOptionPane.showMessageDialog (null, "An error occured while reading the file.\nYou may should check the point format.", "Error", JOptionPane.ERROR_MESSAGE);
 					e1.printStackTrace();
@@ -86,8 +86,8 @@ public class PolygonPointFrame extends JDialog {
 					String pointString = textArea.getText();
 					String [] a = pointString.split("\n");
 					for (int i = 0; i < a.length; i++) {
-						x = Integer.valueOf(a[i].split(" ")[0]);
-						y = Integer.valueOf(a[i].split(" ")[1]);
+						x = Double.valueOf(a[i].split(" ")[0]);
+						y = Double.valueOf(a[i].split(" ")[1]);
 						pointList.add(new polygonsSWP.geometry.Point(x,y));
 					}
 					if(pointList.size() >= 3)
@@ -128,7 +128,7 @@ public class PolygonPointFrame extends JDialog {
 		String tmp = textArea.getText();
 		textArea.setText(tmp + text + "\n");
 	}
-	
+		
 	public void clearText()
 	{
 		textArea.setText("");
