@@ -4,50 +4,54 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import polygonsSWP.analysis.Option.DynamicParameter;
+import polygonsSWP.analysis.Option.StaticParameter;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 
-public class OptionCombination
+public class OptionCombinator
 {
-  ArrayList<Option> options = new ArrayList<Option>();
+
+  
+  private ArrayList<StaticParameter> staticparams = new ArrayList<StaticParameter>();
+  private ArrayList<DynamicParameter> dynparams = new ArrayList<DynamicParameter>();
   
   
-  void add(Option option)
+  void add(DynamicParameter dynParam)
   {
-    for(Option opt : options)
+    if(checkIfParamAlreadyExists(dynParam.param));
+      dynparams.add(dynParam);
+  }
+  
+  void add(StaticParameter statParam)
+  {
+    if(checkIfParamAlreadyExists(statParam.param));
+      staticparams.add(statParam);
+  }
+  
+  
+  private boolean checkIfParamAlreadyExists(Parameters p)
+  {
+    for(DynamicParameter opt : dynparams)
     {
-      if(option.param == opt.param)//Checks if the Option already exists
+      if(p == opt.param)//Checks if the Option already exists
         throw new RuntimeException("Parameter already exists");
     }
-    options.add(option);
-  }
-  
-  private boolean nextInitiated = false;
-  ArrayList<Option> staticparams = new ArrayList<Option>();
-  ArrayList<DynamicParameter> dynparams = new ArrayList<DynamicParameter>();
-  
-  private void initNext()
-  {
-    nextInitiated = true;
-    for(Option opt : options)
+    for(StaticParameter opt : staticparams)
     {
-      if(opt.getClass().equals(DynamicParameter.class))
-        dynparams.add((DynamicParameter) opt);
-      else
-        staticparams.add(opt);
+      if(p == opt.param)//Checks if the Option already exists
+        throw new RuntimeException("Parameter already exists");
     }
+    return true;
   }
-  
+
   
   private boolean maxed = false;
   HashMap<Parameters, Number> next()
   {
     if(maxed)//If there is no other Combination, dont calculate further
       return null;
-    if(!nextInitiated)
-      initNext();
     HashMap<Parameters, Number> params = new HashMap<Parameters, Number>();
     
-    for(Option o : staticparams)
+    for(StaticParameter o : staticparams)
       params.put(o.param, o.current);
     
     
@@ -66,7 +70,7 @@ public class OptionCombination
         if(i+1 == dynparams.size())//There exist no Combination more
         {
           maxed = true;
-          return null;
+          return params;
         }
         dynparams.get(i).resetToMin();
         continue;

@@ -9,7 +9,7 @@ class Option
   Parameters param;
   Number current;
   
-  static class StaticParameter extends Option
+  public static class StaticParameter extends Option
   {
     public StaticParameter(){}
     public StaticParameter(Parameters param, Number value)
