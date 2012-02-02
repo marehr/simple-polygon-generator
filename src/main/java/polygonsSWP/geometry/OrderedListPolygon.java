@@ -121,30 +121,6 @@ public class OrderedListPolygon
   }
 
   /**
-   * Determines whether this polygon is in clockwise orientation.
-   * 
-   * @return -1 if counterclockwise, 1 if clockwise, or 0 if this is not
-   *         decidable
-   */
-  public int isClockwise() {
-    int n = size();
-    if (n < 3) return 0;
-
-    // source:
-    // http://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
-    double doubleArea = 0;
-    for (int j = 0, i = n - 1; j < n; i = j++) {
-      doubleArea +=
-          (_coords.get(j).x - _coords.get(i).x) *
-              (_coords.get(j).y + _coords.get(i).y);
-    }
-
-    if (doubleArea < 0) return -1;
-    if (doubleArea > 0) return 1;
-    return 0;
-  }
-
-  /**
    * Calculates the set of all intersections found in the polygon.
    * 
    * @return a list of intersections, where each item is an array of the two

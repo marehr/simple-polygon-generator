@@ -182,6 +182,31 @@ public abstract class Polygon
   }
 
   /**
+   * Determines whether this polygon is in clockwise orientation.
+   * 
+   * @return -1 if counterclockwise, 1 if clockwise, or 0 if this is not
+   *         decidable
+   */
+  public int isClockwise() {
+    int n = size();
+    if (n < 3) return 0;
+
+    List<Point> points = getPoints();
+
+    // source:
+    // http://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
+    double doubleArea = 0;
+    for (int j = 0, i = n - 1; j < n; i = j++) {
+      doubleArea += (points.get(j).x - points.get(i).x) *
+                    (points.get(j).y + points.get(i).y);
+    }
+
+    if (doubleArea < 0) return -1;
+    if (doubleArea > 0) return 1;
+    return 0;
+  }
+
+  /**
    * Print the polygon in our own file format.
    */
   public String toString() {
