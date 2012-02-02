@@ -272,7 +272,7 @@ public class GeneratorUtils
 
   /**
    * Checks if line segments of given polygon intersect with line segment ab.
-   * Colliniars and end points don't count as intersections.
+   * Colliniars, vertices of Polygon and end points don't count as intersections.
    * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @param a
@@ -287,7 +287,10 @@ public class GeneratorUtils
         polygon.intersect(new LineSegment(a, b), false);
 
     for (Point[] points : intersections) {
-      if (points[0] != null) { return false; }
+      // more efficiency !!
+      if (points[0] != null && !polygon.getPoints().contains(points[0]) && !points[0].equals(a) && !points[0].equals(a)) { 
+        return false; 
+        }
     }
     return true;
   }
