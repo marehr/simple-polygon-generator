@@ -36,11 +36,11 @@ public class PermuteAndRejectFactory
 
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonStatistics stats,
-      History steps)
+      PolygonStatistics stats, History steps)
     throws IllegalParameterizationException {
+
     List<Point> points = GeneratorUtils.createOrUsePoints(params, true);
-    return new PermuteAndReject(points, steps, (Integer) params.get(Parameters.size), stats);
+    return new PermuteAndReject(points, steps, stats);
   }
 
 
@@ -49,16 +49,14 @@ public class PermuteAndRejectFactory
   {
 
     private boolean doStop = false;
-    private History steps = null;
     private List<Point> points;
-    private int _size;
-    private PolygonStatistics statistics;
+
+    final private History steps;
+    final private PolygonStatistics statistics;
     
-    PermuteAndReject(List<Point> points, History steps, int size, PolygonStatistics statistics) {
+    PermuteAndReject(List<Point> points, History steps, PolygonStatistics statistics) {
       this.points = points;
       this.steps = steps;
-      this.doStop = false;
-      this._size = size;
       this.statistics = statistics;
     }
 
@@ -70,29 +68,35 @@ public class PermuteAndRejectFactory
       // Step 1: Generate polygon of given point set.
       OrderedListPolygon p = new OrderedListPolygon(points);
       
-      // TODO: Do we have always the same BoundingBox with float?
-      // Add a new scene, set Bounding Box and add the polygon.
+
+      // Add a new scene and add the polygon.
       if (steps != null)
-        steps.newScene().setBoundingBox(_size, _size).addPolygon(p, false).save();
+        steps.newScene().addPolygon(p, true).save();
 
       if(statistics != null)
         statistics.iterations = 0;
-      
-      while (!doStop) {
+
+      do {
+        // Step 3: Accept only simple polygons
+        if (p.isSimple()){
+          //if not in counterclockwise orientation, reverse orientation
+          if(p.isClockwise() == -1) p.reverse();
+
+          break;
+        }
+
         // Step 2: Permute those n points to construct a Polygon
         p.permute();
-        
+
         // Create a new scene for every polygon which is created.
         if (steps != null)
-          steps.newScene().setBoundingBox(_size, _size).addPolygon(p, true).save();
+          steps.newScene().addPolygon(p, true).save();
 
         if(statistics != null)
           statistics.iterations++;
-        
-        // Step 3: Accept only simple polygons in counterclockwise orientation.
-        if (p.isSimple() && (p.isClockwise() == -1)) break;
-      }
-      
+
+      } while (!doStop);
+
       if (doStop) return null;
       else return p;
     }
