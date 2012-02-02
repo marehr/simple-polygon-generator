@@ -21,7 +21,6 @@ public class EdgeList
     /**
      * The comparator now compares the endpoint and the starting point of isec1
      * with isec2 based on a orientation test.
-     * 
      */
     @Override
     public int compare(LineSegment isec1, LineSegment isec2) {
@@ -103,59 +102,144 @@ public class EdgeList
   }
 
   /**
-   * @param ls
+   * This methods adds the line to the orderedStore.
+   * 
+   * @param isec
+   * @param endPoint
    */
-  public void insertEdge(Point isec, Point endPoint) {
-    System.out.println(isecStore);
+  private void insertInOrderedStore(Point isec, Point endPoint) {
+    orderedEdges.add(new LineSegment(endPoint, isec));
+  }
+
+  /**
+   * This methods adds the edge to the endstore, but if it already contains the
+   * endpoint adds it to the array.
+   * 
+   * @param isec
+   * @param endPoint
+   */
+  private void insertInEndStore(Point isec, Point endPoint) {
     if (endStore.containsKey(endPoint)) {
       LineSegment[] tmpArray = endStore.remove(endPoint);
-      tmpArray[1] = new LineSegment(endPoint, isec);
+      if (tmpArray[0] == null) tmpArray[0] = new LineSegment(endPoint, isec);
+      else if (tmpArray[1] == null)
+        tmpArray[1] = new LineSegment(endPoint, isec);
       endStore.put(endPoint, tmpArray);
     }
     else {
       LineSegment[] isecs = { new LineSegment(endPoint, isec), null };
       endStore.put(endPoint, isecs);
     }
-    if (isecStore.containsKey(isec)) {
-      LineSegment[] tmpArray = isecStore.remove(isec);
-      tmpArray[1] = new LineSegment(endPoint, isec);
+  }
+
+  /**
+   * This methods adds the edge to the isecStore, but if it already contains the
+   * isec adds it to the array.
+   * 
+   * @param isec
+   * @param endPoint
+   */
+  private void insertInIsecStore(Point isec, Point endPoint) {
+    // If the isecStore doesn't contain the isec, just add it
+    System.out.println("IsecStoreInsert:");
+    System.out.println("Before: " + isecStore);
+    if (!isecStore.containsKey(isec)) {
+      System.out.println("ContainsKey!");
+      LineSegment[] tmpArray = { new LineSegment(endPoint, isec), null };
       isecStore.put(isec, tmpArray);
     }
+    // If the isecStore contains the isec, check which one of the
+    // edges is null and replace it with the new one
     else {
-      LineSegment[] isecs = { new LineSegment(endPoint, isec), null };
-      isecStore.put(isec, isecs);
+      System.out.println("Doesn't contain Key");
+      LineSegment[] tmpArray = isecStore.remove(isec);
+      if (tmpArray[0] == null) tmpArray[0] = new LineSegment(endPoint, isec);
+      else if (tmpArray[1] == null)
+        tmpArray[1] = new LineSegment(endPoint, isec);
+      isecStore.put(isec, tmpArray);
     }
-    orderedEdges.add(new LineSegment(endPoint, isec));
+    System.out.println("After: " + isecStore);
+  }
+
+  /**
+   * Add the edge to all the stores according to the assumptions.
+   * 
+   * @param isec
+   * @param endPoint
+   */
+  public void insertEdge(Point isec, Point endPoint) {
+    System.out.println("Add to Store: " + endPoint + " " + isec);
+    insertInEndStore(isec, endPoint);
+    insertInIsecStore(isec, endPoint);
+    insertInOrderedStore(isec, endPoint);
+  }
+
+  private void updateIsecStore(Point endPoint, Point oldIsec, Point newIsec) {
+    assert (isecStore.containsKey(oldIsec));
+    System.out.println("IsecStore: ");
+    System.out.println(isecStore);
+    LineSegment[] tmpArray = isecStore.remove(oldIsec);
+    if (tmpArray[0] != null &&
+        tmpArray[0].equals(new LineSegment(endPoint, oldIsec))) {
+      if (tmpArray[1] == null) {
+        tmpArray[0] = new LineSegment(endPoint, newIsec);
+        isecStore.put(newIsec, tmpArray);
+      }
+      else {
+        LineSegment[] oldTmp = { tmpArray[1], null };
+        LineSegment[] newTmp = { new LineSegment(endPoint, newIsec), null };
+        isecStore.put(oldIsec, oldTmp);
+        isecStore.put(newIsec, newTmp);
+      }
+    }
+    else if (tmpArray[1] != null &&
+        tmpArray[1].equals(new LineSegment(endPoint, oldIsec))) {
+      if (tmpArray[0] == null) {
+        LineSegment[] newTmp = { new LineSegment(endPoint, newIsec), null };
+        isecStore.put(newIsec, newTmp);
+      }
+      else {
+        LineSegment[] oldTmp = { tmpArray[0], null };
+        LineSegment[] newTmp = { new LineSegment(endPoint, newIsec), null };
+        isecStore.put(oldIsec, oldTmp);
+        isecStore.put(newIsec, newTmp);
+      }
+    }
     System.out.println(isecStore);
   }
 
-  private void addToIsecStore(Point endPoint, Point oldIsec, Point newIsec) {
-    if (isecStore.containsKey(oldIsec)) {
-      LineSegment[] isecs = isecStore.remove(oldIsec);
-      if (isecs[0].equals(new LineSegment(endPoint, oldIsec)) &&
-          isecs[1] == null) {
-        isecs[0] = new LineSegment(endPoint, newIsec);
-        isecStore.put(newIsec, isecs);
-      }
-      else if (isecs[0].equals(new LineSegment(endPoint, oldIsec)) &&
-          isecs[1] != null) {
-        LineSegment[] tmp = { new LineSegment(endPoint, newIsec), null };
-        isecStore.put(newIsec, tmp);
-        isecs[0] = isecs[1];
-        isecs[1] = null;
-        isecStore.put(oldIsec, isecs);
+  private void updateOrderedStore(Point endPoint, Point oldIsec, Point newIsec) {
+    removeOrderedStore(new LineSegment(endPoint, oldIsec));
+    orderedEdges.add(new LineSegment(endPoint, newIsec));
+  }
+
+  private void updateEndStore(Point endPoint, Point oldIsec, Point newIsec) {
+    assert (endStore.containsKey(endPoint));
+    System.out.println("ENDSTORE:--------------");
+    System.out.println(endStore);
+    LineSegment[] isecs = endStore.remove(endPoint);
+    if (isecs[0] != null && isecs[0].equals(new LineSegment(endPoint, oldIsec))) {
+      if (isecs[1] == null) {
+        LineSegment[] newTmp = { new LineSegment(endPoint, newIsec), null };
+        endStore.put(endPoint, newTmp);
       }
       else {
-        LineSegment[] tmp = { new LineSegment(endPoint, newIsec), null };
-        isecStore.put(newIsec, tmp);
-        isecs[1] = null;
-        isecStore.put(oldIsec, isecs);
+        LineSegment[] oldTmp = { new LineSegment(endPoint, newIsec), isecs[1] };
+        endStore.put(endPoint, oldTmp);
       }
     }
-    else {
-      LineSegment[] tmp = { new LineSegment(endPoint, newIsec), null };
-      isecStore.put(newIsec, tmp);
+    else if (isecs[1] != null &&
+        isecs[1].equals(new LineSegment(endPoint, oldIsec))) {
+      if (isecs[0] == null) {
+        LineSegment[] newTmp = { new LineSegment(endPoint, newIsec), null };
+        endStore.put(endPoint, newTmp);
+      }
+      else {
+        LineSegment[] newTmp = { isecs[0], new LineSegment(endPoint, newIsec) };
+        endStore.put(endPoint, newTmp);
+      }
     }
+    System.out.println(endStore);
   }
 
   /**
@@ -167,21 +251,11 @@ public class EdgeList
    * @param newIsec
    */
   public void updateIntersection(Point endPoint, Point oldIsec, Point newIsec) {
-    System.out.println(oldIsec + " " + endPoint + " " + newIsec);
-    System.out.println(isecStore);
-    LineSegment[] isecs = endStore.get(endPoint);
-    if (isecs[0].equals(new LineSegment(endPoint, oldIsec))) {
-      isecs[0] = new LineSegment(endPoint, newIsec);
-      endStore.put(endPoint, isecs);
-    }
-    else {
-      isecs[1] = new LineSegment(endPoint, newIsec);
-      endStore.put(endPoint, isecs);
-    }
-    addToIsecStore(endPoint, oldIsec, newIsec);
-    orderedEdges.remove(new LineSegment(endPoint, oldIsec));
-    orderedEdges.add(new LineSegment(endPoint, newIsec));
-    System.out.println(isecStore);
+    System.out.println("Upate store with :" + oldIsec + " " + endPoint + " " +
+        newIsec);
+    updateEndStore(endPoint, oldIsec, newIsec);
+    updateIsecStore(endPoint, oldIsec, newIsec);
+    updateOrderedStore(endPoint, oldIsec, newIsec);
   }
 
   /**
@@ -214,6 +288,16 @@ public class EdgeList
       LineSegment edge = orderedEdges.lower(edges[0]);
       return edge;
     }
+  }
+  
+  public LineSegment getLeftEdge(Point currP, Point endPoint) {
+    LineSegment edge = new LineSegment(endPoint, currP);
+    return orderedEdges.lower(edge);
+  }
+  
+  public LineSegment getRightEdge(Point currP, Point endPoint) {
+    LineSegment edge = new LineSegment(endPoint, currP);
+    return orderedEdges.higher(edge);
   }
 
   private LineSegment getNearestRightLineSegment(Point currP) {
@@ -274,44 +358,50 @@ public class EdgeList
     return retArray;
   }
 
+  private void removeIsec(Point isec, Point endPoint) {
+    assert (isecStore.containsKey(isec));
+    LineSegment[] tmpEdges = isecStore.remove(isec);
+    if (tmpEdges[0] != null &&
+        tmpEdges[0].equals(new LineSegment(endPoint, isec))) {
+      if (tmpEdges[1] == null) return;
+      else {
+        LineSegment[] tmpArray = { tmpEdges[1], null };
+        isecStore.put(isec, tmpArray);
+      }
+    }
+    else if (tmpEdges[1] != null &&
+        tmpEdges[1].equals(new LineSegment(endPoint, isec))) {
+      if (tmpEdges[0] == null) return;
+      else {
+        LineSegment[] tmpArray = { tmpEdges[0], null };
+        isecStore.put(isec, tmpArray);
+      }
+    }
+  }
+
+  private void removeOrderedStore(LineSegment edge) {
+    Object[] tmp = orderedEdges.toArray();
+    orderedEdges.clear();
+    for (Object item : tmp) {
+      if (!item.equals(edge)) orderedEdges.add((LineSegment) item);
+    }
+  }
+
   /**
    * Removes all marked edges from data structure. TODO: fix this crapy remove,
    * but there for the comparator needs to be valid!
    */
   public void removeMarkedEdges() {
-    System.out.println("-------------remove");
+    System.out.println("Remove all marked edges.");
     for (Point endPoint : markedEdges) {
       LineSegment[] edges = endStore.remove(endPoint);
       for (LineSegment edge : edges) {
         if (edge != null) {
           removeIsec(edge._b, endPoint);
-          Object[] tmp = orderedEdges.toArray();
-          orderedEdges.clear();
-          for (Object item : tmp) {
-            if (!item.equals(edge)) orderedEdges.add((LineSegment) item);
-          }
+          removeOrderedStore(edge);
         }
       }
     }
     markedEdges.clear();
-  }
-
-  private void removeIsec(Point isec, Point endPoint) {
-    LineSegment[] tmpEdges = isecStore.remove(isec);
-    if (tmpEdges != null) {
-      if (tmpEdges[0].equals(new LineSegment(endPoint, isec))) {
-        if (tmpEdges[1] == null) return;
-        else {
-          tmpEdges[0] = tmpEdges[1];
-          tmpEdges[1] = null;
-          isecStore.put(isec, tmpEdges);
-          return;
-        }
-      }
-      else {
-        tmpEdges[1] = null;
-        isecStore.put(isec, tmpEdges);
-      }
-    }
   }
 }
