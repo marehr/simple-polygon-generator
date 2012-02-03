@@ -82,7 +82,7 @@ public class RandomPolygonAlgorithmFactory
     @Override
     public Polygon generate() {
 
-      Random random = new Random(System.currentTimeMillis());
+      Random random = GeneratorUtils.rand_;
 
       // 1. generate 3 rand points -> polygon P
       // TODO: nicer way to choose points

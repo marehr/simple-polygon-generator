@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 import polygonsSWP.util.RandomNumbers;
 
@@ -85,7 +86,7 @@ public class Triangle
    */
   @Override
   public Point createRandomPoint() {
-    Random random = new RandomNumbers(System.currentTimeMillis());
+    Random random = GeneratorUtils.rand_;
 
     Point a = _coords.get(0), b = _coords.get(1) , c = _coords.get(2);
 
@@ -160,7 +161,7 @@ public class Triangle
     // 4. as soon as running total >= random value, select the item you're
     // currently looking at (the one whose weight you just added).
 
-    Random random = new RandomNumbers(System.currentTimeMillis());
+    Random random = GeneratorUtils.rand_;
     HashMap<Triangle, Double> surfaceAreaTriangles =
         new HashMap<Triangle, Double>();
     double total = 0;

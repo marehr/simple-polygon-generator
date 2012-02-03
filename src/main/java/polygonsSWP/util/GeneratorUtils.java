@@ -19,7 +19,13 @@ import polygonsSWP.geometry.Ray;
 
 public class GeneratorUtils
 {
-  private static Random rand_ = new Random();
+  private static long func(long j){
+    long i = System.currentTimeMillis();
+    System.out.println(i);
+    return j;
+  }
+
+  public static Random rand_ = new Random(func(1322691L));
 
   /**
    * Tests whether a given set of points is in general position, which means
@@ -107,7 +113,7 @@ public class GeneratorUtils
    */
   public static List<Point> createRandomSetOfPointsInSquare(int n, int size,
       boolean ensureGeneralPosition) {
-    Random r = new Random(System.currentTimeMillis());
+    Random r = GeneratorUtils.rand_;
 
     List<Point> points;
     do {
