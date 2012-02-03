@@ -46,15 +46,20 @@ public class RandomPolygonAlgorithmFactory
 
   @Override
   public PolygonGenerator createInstance(Map<Parameters, Object> params,
-      PolygonStatistics stats,
-      History steps)
+      PolygonStatistics stats, History steps)
     throws IllegalParameterizationException {
+
     Integer n = (Integer) params.get(Parameters.n);
     if (n == null)
       throw new IllegalParameterizationException("Number of points not set.",
           Parameters.n);
-    
-    return new RandomPolygonAlgorithm(n, steps, stats);
+
+    Integer size = (Integer) params.get(Parameters.size);
+    if (size == null)
+      throw new IllegalParameterizationException(
+          "Size of bounding box not set.", Parameters.size);
+
+    return new RandomPolygonAlgorithm(n, size, steps, stats);
   }
 
 
@@ -67,8 +72,9 @@ public class RandomPolygonAlgorithmFactory
     private final History steps;
     private final PolygonStatistics statistics;
     
-    RandomPolygonAlgorithm(int n, History steps, PolygonStatistics statistics) {
+    RandomPolygonAlgorithm(int n, int size, History steps, PolygonStatistics statistics) {
       this._n = n;
+      this._size = size;
       this.steps = steps;
       this.statistics = statistics;
     }
