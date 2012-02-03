@@ -12,9 +12,12 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Path2D;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.ListIterator;
 
 import javax.swing.JPanel;
 
@@ -141,23 +144,20 @@ class PaintPanel
 
     // Paint svgScene.
     if (svgScene != null) {
-      svgScene.paint(g2d, Math.max(getWidth(), getHeight()));
+      svgScene.paint(g2d);
     }
 
     // Paint the points
     if (points != null) {
-      assert (points != null);
-
       g.setColor(new Color(80, 0, 90));
       for (Point p : points) {
-        // g.drawOval((int) (p.x - 2), (int) (p.y - 2), 5, 5);
-        // g.drawRect((int)p.x, (int)p.y, 1, 1);
-        g.drawOval((int) (p.x - 1.5), (int) (p.y - 1.5), 3, 3);
+        g2d.draw(new Ellipse2D.Double(p.x - 1.5, p.y - 1.5, 3, 3));
       }
     }
 
     // Paint svgScene Points
     if (svgScene != null) {
+      g2d.setStroke(new TransformedStroke(new BasicStroke(2.5f), tx));
       svgScene.paintPoints(g2d);
     }
 
@@ -292,42 +292,5 @@ class PaintPanel
   public void onNewScene(Scene scene) {
     svgScene = scene;
     repaint();
-  }
-
-  /* 
-   * Helper class. 
-   */
-
-  /**
-   * A implementation of {@link Stroke} which transforms another Stroke with an
-   * {@link AffineTransform} before stroking with it. Found here:
-   * http://stackoverflow
-   * .com/questions/5046088/affinetransform-without-transforming-stroke
-   */
-  public class TransformedStroke
-    implements Stroke
-  {
-    private AffineTransform transform;
-    private AffineTransform inverse;
-    private Stroke stroke;
-
-    public TransformedStroke(Stroke base, AffineTransform at) {
-      this.transform = new AffineTransform(at);
-      try {
-        this.inverse = transform.createInverse();
-      }
-      catch (NoninvertibleTransformException e) {
-        // Shouldn't happen.
-        throw new RuntimeException(e);
-      }
-      this.stroke = base;
-    }
-
-    public Shape createStrokedShape(Shape s) {
-      Shape sTrans = transform.createTransformedShape(s);
-      Shape sTransStroked = stroke.createStrokedShape(sTrans);
-      Shape sStroked = inverse.createTransformedShape(sTransStroked);
-      return sStroked;
-    }
   }
 }

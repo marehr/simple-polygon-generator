@@ -151,7 +151,7 @@ public interface Scene
   /**
    * Doodle.
    */
-  public void paint(Graphics2D g2d, int boundingBox);
+  public void paint(Graphics2D g2d);
 
   /**
    * Doodle Points.

@@ -3,8 +3,10 @@ package polygonsSWP.gui.generation;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -13,6 +15,7 @@ import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
+import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.gui.GUIModeListener;
 import polygonsSWP.gui.generation.HistorySceneChooser.HistorySceneMode;
@@ -43,6 +46,8 @@ public class PolygonGenerationPanel
   private PolygonGenerationWorker worker;
   private History steps;
   private PolygonStatistics stats;
+  private Map<Parameters, Object> params;
+
   private HistorySceneMode historySceneMode = HistorySceneMode.standard();
 
   public PolygonGenerationPanel(final PolygonGeneratorFactory[] polygon_algorithm_list) {
@@ -108,7 +113,7 @@ public class PolygonGenerationPanel
 
   protected void emitPolygonGenerationStarted() {
     for (PolygonGenerationPanelListener pgl : observers)
-      pgl.onPolygonGenerationStarted(stats, steps);
+      pgl.onPolygonGenerationStarted(stats, steps, params);
   }
 
   protected void emitPolygonGenerationCanceled() {
@@ -118,7 +123,7 @@ public class PolygonGenerationPanel
   
   protected void emitPolygonGenerated(Polygon p) {
     for (PolygonGenerationPanelListener pgl : observers)
-      pgl.onPolygonGenerated(p, stats, steps);
+      pgl.onPolygonGenerated(p, stats, steps, params);
   }
 
   @Override
@@ -162,11 +167,16 @@ public class PolygonGenerationPanel
     if(historySceneMode.shouldHistoryBeCreated())
       steps = new History(boundingBox);
 
+    params = new HashMap<Parameters, Object>();
     stats = new PolygonStatistics();
-    PolygonGenerator pg = p_generator_config.createGenerator(stats, steps);
+    PolygonGenerator pg = p_generator_config.createGenerator(stats, steps, params);
 
-    if(pg == null)
+    if(pg == null){
+      steps = null;
+      params = null;
+      stats = null;
       return;
+    }
 
     worker = new PolygonGenerationWorker(pg, this);
     t = new Thread(worker);
