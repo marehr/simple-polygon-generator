@@ -20,7 +20,7 @@ public class HistorySceneTest
     HashMap<Parameters, Object> params = new HashMap<Parameters, Object>();
     params.put(Parameters.n, 7);
     params.put(Parameters.size, 600);
-    History hist = new History();
+    History hist = new History(600);
     PolygonGenerator inst;
     try {
       inst = fac.createInstance(params, null, hist);

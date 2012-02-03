@@ -47,17 +47,14 @@ public class SpacePartitioningFactory
     throws IllegalParameterizationException {
 
     List<Point> points = GeneratorUtils.createOrUsePoints(params);
-    int size = (Integer) params.get(Parameters.size);
 
-    return new SpacePartitioning(points, steps, size);
+    return new SpacePartitioning(points, steps);
   }
 
 
   private static class SpacePartitioning
     implements PolygonGenerator
   {
-
-    private int size = 600;
     private Random rand = new Random();
 
     private List<Point> points;
@@ -76,8 +73,7 @@ public class SpacePartitioningFactory
     private Color LEFT_POLYGON = Color.GRAY;
     private Color RIGHT_POLYGON = Color.LIGHT_GRAY;
 
-    SpacePartitioning(List<Point> points, History steps, int size) {
-      this.size = size;
+    SpacePartitioning(List<Point> points, History steps) {
       this.points = points;
       this.steps = steps;
     }
@@ -87,7 +83,7 @@ public class SpacePartitioningFactory
     }
 
     private Scene newScene(Polygon polygon, Color color){
-      Scene scene = steps.newScene().setBoundingBox(size, size);
+      Scene scene = steps.newScene();
       if(polygon == null) return scene;
       if(color == null) return scene.addPolygon(polygon, true);
 

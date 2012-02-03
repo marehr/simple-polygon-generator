@@ -155,8 +155,11 @@ public class PolygonView
     assert (polygon != null);
     if (trapezoidButton.isSelected()) {
       List<Trapezoid> trapezoids = ((OrderedListPolygon) polygon).sweepLine();
-      History hist = new History();
-      Scene scene = hist.newScene().setBoundingBox(600, 600);
+
+      int boundingBox = 600;
+      History hist = new History(boundingBox);
+
+      Scene scene = hist.newScene();
       for (Trapezoid item : trapezoids)
         scene.addPolygon(item, Color.DARK_GRAY);
       pp.onNewScene(scene);

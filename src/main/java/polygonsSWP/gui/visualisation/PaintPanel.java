@@ -141,7 +141,7 @@ class PaintPanel
 
     // Paint svgScene.
     if (svgScene != null) {
-      svgScene.paint(g2d);
+      svgScene.paint(g2d, Math.max(getWidth(), getHeight()));
     }
 
     // Paint the points

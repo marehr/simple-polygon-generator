@@ -48,11 +48,10 @@ public class SweepLineTestFactory
 
       @Override
       public Polygon generate() {
-        int size = 600;
 
         if (steps != null) {
           steps.clear();
-          steps.newScene().setBoundingBox(size, size).addPolygon(polygon, true).save();
+          steps.newScene().addPolygon(polygon, true).save();
         }
 
         try{

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -138,25 +139,29 @@ public class HistoryScene
    * 
    * @param g2d
    */
-  public void paint(Graphics2D g2d) {
+  public void paint(Graphics2D g2d, int boundingBox) {
+    Polygon _boundingBox = this._boundingBox;
 
     // First of all draw bounding Box:
     g2d.setColor(Color.BLACK);
-    if(_boundingBox != null) {
-      if (_boundingBox instanceof OrderedListPolygon) {
 
-        checkCoordinateBufferSize(_boundingBox.size());
+    if(_boundingBox != null && _boundingBox instanceof Polygon) {
 
-        int i = 0;
-        for(Point point: _boundingBox.getPoints()){
-          xcoords[i] = (int) point.x;
-          ycoords[i] = (int) point.y;
-          i++;
-        }
-  
-        g2d.setColor(Color.BLACK);
-        g2d.drawPolygon(xcoords, ycoords, _boundingBox.size());
+      checkCoordinateBufferSize(_boundingBox.size());
+
+      int i = 0;
+      for(Point point: _boundingBox.getPoints()){
+        xcoords[i] = (int) point.x;
+        ycoords[i] = (int) point.y;
+        i++;
       }
+
+      g2d.setColor(Color.BLACK);
+      g2d.drawPolygon(xcoords, ycoords, _boundingBox.size());
+
+    } else {
+      
+      _boundingBox = createBoundingBox(boundingBox, boundingBox);
     }
 
     // Afterwards every polygon:
@@ -218,7 +223,7 @@ public class HistoryScene
       else g2d.setColor(Color.BLACK);
 
       // Calculate intersection
-      List<Point[]> returnList = _boundingBox.intersect(item.openBox());
+      List<Point[]> returnList = _boundingBox.intersect(tmp);
 
       if (returnList.size() == 1) {
         g2d.drawLine((int) tmp._base.x, (int) tmp._base.y, 
@@ -324,7 +329,8 @@ public class HistoryScene
     Document document =
         domImpl.createDocument("http://www.w3.org/2000/svg", "svg", null);
     svg = new SVGGraphics2D(document);
-    this.paint(svg);
+    this.paint(svg, _history.boundingBox);
+
     Writer out = new StringWriter();
     try {
       svg.stream(out, true);
@@ -336,13 +342,24 @@ public class HistoryScene
   }
 
   @Override
-  public Scene setBoundingBox(int height, int width) {
-    List<Point> tmpLst = new LinkedList<Point>();
+  public Scene setBoundingBox(Polygon polygon){
+    _boundingBox = polygon.clone();
+    return _self;
+  }
+
+  private Polygon createBoundingBox(int height, int width){
+
+    List<Point> tmpLst = new ArrayList<Point>();
     tmpLst.add(new Point(0, 0));
     tmpLst.add(new Point(0, height));
     tmpLst.add(new Point(width, height));
     tmpLst.add(new Point(width, 0));
-    _boundingBox = new OrderedListPolygon(tmpLst);
-    return _self;
+    return new OrderedListPolygon(tmpLst);
+  }
+
+  @Override
+  public Scene setBoundingBox(int height, int width) {
+
+    return setBoundingBox(createBoundingBox(height, width));
   }
 }

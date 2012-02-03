@@ -231,13 +231,17 @@ class PolygonGenerationConfiguration
     observers.add(listener);
   }
 
+  public int getBoundingBoxSize(){
+    return (Integer) sp_size.getValue();
+  }
+
   public PolygonGenerator createGenerator(PolygonStatistics stats,
       History steps) {
 
     PolygonGeneratorFactory pgf = (PolygonGeneratorFactory) cb_polygon_algorithm_chooser.getSelectedItem();
     Map<Parameters, Object> params = new HashMap<Parameters, Object>();
     
-    Integer size = (Integer) sp_size.getValue();
+    int size = getBoundingBoxSize();
     params.put(Parameters.size, size);
     
     // Random points?

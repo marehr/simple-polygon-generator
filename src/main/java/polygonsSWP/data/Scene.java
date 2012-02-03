@@ -32,6 +32,13 @@ public interface Scene
   public Scene setBoundingBox(int height, int width);
 
   /**
+   * Sets a polygon as bounding box.
+   * 
+   * @param polygon
+   */
+  public Scene setBoundingBox(Polygon polygon);
+
+  /**
    * Merges another scene in this scene
    * 
    * @param scene
@@ -144,7 +151,7 @@ public interface Scene
   /**
    * Doodle.
    */
-  public void paint(Graphics2D g2d);
+  public void paint(Graphics2D g2d, int boundingBox);
 
   /**
    * Doodle Points.

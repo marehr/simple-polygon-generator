@@ -53,13 +53,8 @@ public class RandomPolygonAlgorithmFactory
     if (n == null)
       throw new IllegalParameterizationException("Number of points not set.",
           Parameters.n);
-
-    Integer size = (Integer) params.get(Parameters.size);
-    if (size == null)
-      throw new IllegalParameterizationException(
-          "Size of bounding box not set.", Parameters.size);
     
-    return new RandomPolygonAlgorithm(n, size, steps, stats);
+    return new RandomPolygonAlgorithm(n, steps, stats);
   }
 
 
@@ -72,9 +67,8 @@ public class RandomPolygonAlgorithmFactory
     private final History steps;
     private final PolygonStatistics statistics;
     
-    RandomPolygonAlgorithm(int n, int size, History steps, PolygonStatistics statistics) {
+    RandomPolygonAlgorithm(int n, History steps, PolygonStatistics statistics) {
       this._n = n;
-      this._size = size;
       this.steps = steps;
       this.statistics = statistics;
     }
@@ -374,8 +368,7 @@ public class RandomPolygonAlgorithmFactory
               scene = steps.newScene();
               scene.addPolygon(polygon, true);
               scene.addLineSegment(vaVb, true);
-              //TODO: correct bounding box
-              scene.setBoundingBox(600, 600);
+
               if(r1._base != r1._support)
                 scene.addRay(r1, Color.YELLOW);
               if(r2._base != r2._support)

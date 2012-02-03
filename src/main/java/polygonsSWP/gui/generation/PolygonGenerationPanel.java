@@ -136,7 +136,9 @@ public class PolygonGenerationPanel
    * the polygon.
    */
   protected void runGenerator() {
-    steps = new History();
+    int boundingBox = p_generator_config.getBoundingBoxSize();
+
+    steps = new History(boundingBox);
     stats = new PolygonStatistics();
     PolygonGenerator pg = p_generator_config.createGenerator(stats, steps);
 
