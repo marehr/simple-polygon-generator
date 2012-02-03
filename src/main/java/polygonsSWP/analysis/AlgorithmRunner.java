@@ -26,6 +26,7 @@ import polygonsSWP.geometry.Polygon;
 
 /**
  * TODO: Test latest functions
+ * TODO: Change Architecture, so the casts are successfull
  * @author Kadir
  */
 public class AlgorithmRunner
@@ -177,9 +178,9 @@ public class AlgorithmRunner
     PolygonGenerator generator = null;
     for(int i = 0; i < threads.length; i++)
     {
-      stats[chosenAlgorithm] = new PolygonStatistics();
+      stats[i] = new PolygonStatistics();
       try {
-        generator = facs[chosenAlgorithm].createInstance(optionCombinator.next(), stats[chosenAlgorithm], null);
+        generator = facs[chosenAlgorithm].createInstance(optionCombinator.next(), stats[i], null);
       } catch (IllegalParameterizationException e) {e.printStackTrace();}
       threads[i] = new Thread(new PolygonGeneratorWorker(generator, callback, i));
       threads[i].start();
@@ -232,6 +233,8 @@ public class AlgorithmRunner
   {
     void onFinished(Polygon polygon)//TODO make synchronized
     {
+      System.out.print("Callback: ");
+      System.out.println(polygon.toString());
       //TODO Fill the Thread with new Parameters
       //TODO Save into Database or call function to do the job
     }
