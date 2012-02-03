@@ -7,6 +7,9 @@ import java.util.HashMap;
 
 import polygonsSWP.analysis.Option.DynamicParameter;
 import polygonsSWP.analysis.Option.StaticParameter;
+import polygonsSWP.data.PolygonStatistics;
+import polygonsSWP.generators.IllegalParameterizationException;
+import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.generators.heuristics.IncrementalConstructionAndBacktrackingFactory;
@@ -18,9 +21,11 @@ import polygonsSWP.generators.other.ConvexHullGeneratorFactory;
 import polygonsSWP.generators.other.PermuteAndRejectFactory;
 import polygonsSWP.generators.other.SweepLineTestFactory;
 import polygonsSWP.generators.rpa.RandomPolygonAlgorithmFactory;
+import polygonsSWP.geometry.Polygon;
 
 
 /**
+ * TODO: Test latest functions
  * @author Kadir
  */
 public class AlgorithmRunner
@@ -38,7 +43,11 @@ public class AlgorithmRunner
   private static InputStreamReader converter = new InputStreamReader(System.in);
   private static BufferedReader console = new BufferedReader(converter);
   private static String input;
-
+  
+  private static Thread[] threads = new Thread[cores];//Make cores dynamic
+  private static PolygonStatistics[] stats = new PolygonStatistics[cores];
+  private static OptionCombinator optionCombinator;
+  
   private static void intro() {
     System.out.println("------------------------------");
 
@@ -162,7 +171,22 @@ public class AlgorithmRunner
     return oc;
   }
   
-
+  static void execute()
+  { 
+    Callback callback = new Callback();
+    PolygonGenerator generator = null;
+    for(int i = 0; i < threads.length; i++)
+    {
+      stats[chosenAlgorithm] = new PolygonStatistics();
+      try {
+        generator = facs[chosenAlgorithm].createInstance(optionCombinator.next(), stats[chosenAlgorithm], null);
+      } catch (IllegalParameterizationException e) {e.printStackTrace();}
+      threads[i] = new Thread(new PolygonGeneratorWorker(generator, callback, i));
+      threads[i].start();
+    }
+  }
+  
+  
   /**
    * @param args
    */
@@ -175,8 +199,43 @@ public class AlgorithmRunner
         readAlgorithm("Wähle Algorithmus", facs.length - 1,
             "Zahl nicht gültig. Tippe Zahl für Algorithmus ein.");
     displayAlgorithmOptions();
-    OptionCombinator oc =  readLineAndOptions();
-    System.out.println();
+    optionCombinator =  readLineAndOptions();
+    if(optionCombinator != null)
+      execute();
   }
+  
+  public static class PolygonGeneratorWorker implements Runnable
+  {
+    int coreNumber;
+    PolygonGenerator polygonGenerator;
+    Callback callback;
+    public PolygonGeneratorWorker(PolygonGenerator polygonGenerator, Callback callback, int coreNumber)
+    {
+      this.polygonGenerator = polygonGenerator;
+      this.callback = callback;
+      this.coreNumber = coreNumber;
+    }
+    
+    @Override
+    public void run() {
+      Polygon polygon = polygonGenerator.generate();
+      if(polygon != null)
+        callback.onFinished(polygon);
+      
+      throw new RuntimeException("PolygonGeneratorWorker/run: polygon is null!");//TODO maybe it can be null ?!? Warn me
+    }
+    
+  }
+  
+  
+  public static class Callback
+  {
+    void onFinished(Polygon polygon)//TODO make synchronized
+    {
+      //TODO Fill the Thread with new Parameters
+      //TODO Save into Database or call function to do the job
+    }
+  }
+  
 
 }

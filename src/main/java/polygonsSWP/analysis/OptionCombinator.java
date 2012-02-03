@@ -45,11 +45,11 @@ public class OptionCombinator
 
   
   private boolean maxed = false;
-  HashMap<Parameters, Number> next()
+  HashMap<Parameters, Object> next()
   {
     if(maxed)//If there is no other Combination, dont calculate further
       return null;
-    HashMap<Parameters, Number> params = new HashMap<Parameters, Number>();
+    HashMap<Parameters, Object> params = new HashMap<Parameters, Object>();
     
     for(StaticParameter o : staticparams)
       params.put(o.param, o.current);
