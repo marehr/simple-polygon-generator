@@ -131,7 +131,7 @@ public class HistoryScene
 
   private void drawPolygon(Graphics2D g, Box<Polygon> box){
     Polygon polygon = box.openBox();
-    Path2D draw = new Path2D.Double(Path2D.WIND_NON_ZERO, polygon.size() + 1);
+    Path2D draw = new Path2D.Double(Path2D.WIND_EVEN_ODD, polygon.size() + 1);
 
     List<Point> points = polygon.getPoints();
 
