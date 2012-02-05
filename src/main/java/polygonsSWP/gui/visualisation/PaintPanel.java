@@ -174,9 +174,10 @@ class PaintPanel
     
     if(pointInRange != null)
     {
-    	g.setColor(Color.PINK);
-    	g.fillOval((int) (pointInRange.x - 1.5), (int) (pointInRange.y - 1.5), 3, 3);
-    	g.drawString("[" + pointInRange.x + "|" + pointInRange.y + "]",(int)(pointInRange.x),(int)(pointInRange.y));
+    	g2d.setColor(Color.BLUE);
+    	double [] p = coords((int)pointInRange.x,(int)pointInRange.y);
+    	g2d.draw(new Ellipse2D.Double(p[0] - 1.5, p[1] - 1.5, 3, 3));
+    	g2d.drawString("[" + p[0] + "|" + p[1] + "]",(int)(p[0]),(int)(p[1]));
     }
 
     // Draw additional stuff.
@@ -303,10 +304,7 @@ class PaintPanel
 		  
 		  pointInRange = getPointInRange();
 		  if(pointInRange != null)
-		  {
-			  System.out.println("THERE IS A POINT " + pointInRange.x + " " + pointInRange.y);
 			  repaint();
-		  }			  
 		  
 		  statusbar.setStatusMsg("[" + (int)coords[0] + " - " + (int)coords[1] + "]");		  
 	  }
