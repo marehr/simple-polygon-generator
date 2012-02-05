@@ -14,10 +14,13 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.text.DecimalFormat;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JPanel;
 
+import polygonsSWP.data.HistoryScene.*;
+import polygonsSWP.data.HistoryScene;
 import polygonsSWP.data.Scene;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -36,7 +39,10 @@ class PaintPanel
   VisualisationControlListener
 {
   private static final long serialVersionUID = 1L;
+  private boolean inFrame = false;
   private boolean inGenerationMode = true;
+  private Point currentMousePoint = null;
+  private Point pointInRange = null;
 
   private final DecimalFormat df = new DecimalFormat("#0.00");
   private final AffineTransform tx = new AffineTransform();
@@ -126,6 +132,11 @@ class PaintPanel
     g.drawRect(52, 5, 3, 9);
     g.drawString(df.format(50 / zoom), 60, 14);
     
+//    Point p = null;
+//    if((p = checkForPoints()) != null)
+//    {
+//    	
+//    }
     // Commented out as we may need this again (while hovering over a point)
     /*
     int y = mouse.y+30 < getHeight() ? mouse.y+30 : mouse.y-10;
@@ -133,7 +144,7 @@ class PaintPanel
     */
   }
 
-  @Override
+@Override
   public void paintComponent(Graphics g) {
     Graphics2D g2d = (Graphics2D) g;
 
@@ -160,12 +171,41 @@ class PaintPanel
     if (svgScene != null) {
       svgScene.paintPoints(g2d);
     }
+    
+    if(pointInRange != null)
+    {
+    	g.setColor(Color.PINK);
+    	g.fillOval((int) (pointInRange.x - 1.5), (int) (pointInRange.y - 1.5), 3, 3);
+    	g.drawString("[" + pointInRange.x + "|" + pointInRange.y + "]",(int)(pointInRange.x),(int)(pointInRange.y));
+    }
 
     // Draw additional stuff.
     finishCanvas(g2d);
   }
   
-  /**
+  private Point getPointInRange() {
+	  HistoryScene s = (HistoryScene) svgScene;
+	  if(s != null)
+	  {
+		  LinkedList<Box<Polygon>> list = s.getPointList();
+		  for(Box<Polygon> box : list)
+		  {
+			  Polygon poly = box.openBox();
+			  for(Point poi : poly.getPoints())
+			  {
+				  double distance = currentMousePoint.distanceTo(poi);
+				  //System.out.println(distance);
+				  if(distance <= 15.0)
+					  return poi;  
+			  }
+
+
+		  }		  
+	  }
+	return null;
+  }
+
+/**
    * Translates (x,y) coordinates on screen into double (x,y) coordinates
    * in the polygon plane.
    * 
@@ -216,10 +256,13 @@ class PaintPanel
 
   @Override
   public void mouseEntered(MouseEvent e) {
+	  inFrame = true;
   }
 
   @Override
   public void mouseExited(MouseEvent e) {
+	  inFrame = false;
+	  statusbar.setStatusMsg("");
   }
 
   @Override
@@ -245,8 +288,21 @@ class PaintPanel
 
   @Override
   public void mouseMoved(MouseEvent e) {
-    double[] coords = coords(e.getX(), e.getY());
-    statusbar.setStatusMsg("[" + (int)coords[0] + " - " + (int)coords[1] + "]");
+	  if(inFrame)
+	  {
+		  if(currentMousePoint != null)
+		  {
+			  currentMousePoint.x = e.getX();
+			  currentMousePoint.y = e.getY();			  
+		  }else{currentMousePoint = new Point(e.getX(),e.getY());}
+		  pointInRange = getPointInRange();
+		  if(pointInRange != null)
+		  {
+			  System.out.println("THERE IS A POINT " + pointInRange.x + " " + pointInRange.y);
+		  }			  
+		  double[] coords = coords(e.getX(), e.getY());
+		  statusbar.setStatusMsg("[" + (int)currentMousePoint.x + " - " + (int)currentMousePoint.y + "]");		  
+	  }
   }
 
   /*

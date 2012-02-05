@@ -40,7 +40,7 @@ public class HistoryScene
    * @author Steve Dierker <dierker.steve@fu-berlin.de>
    * @param <T> Specifies which type is boxed in the box.
    */
-  private class Box<T>
+  public class Box<T>
   {
     private Color _highlight;
     private T _object;
@@ -344,5 +344,10 @@ public class HistoryScene
     tmpLst.add(new Point(width, 0));
     _boundingBox = new OrderedListPolygon(tmpLst);
     return _self;
+  }
+  
+  public LinkedList<Box<Polygon>> getPointList()
+  {
+	  return this._polyList;
   }
 }
