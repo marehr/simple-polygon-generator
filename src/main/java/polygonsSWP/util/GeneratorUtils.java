@@ -41,21 +41,17 @@ public class GeneratorUtils
     if (hashSet.size() != pointSet.size()) return false;
 
     // Second condition: No 3 points are colinear.
-    for (int i = 0; i < pointSet.size() - 2; i++) {
-      for (int j = i + 1; j < pointSet.size() - 1; j++) {
-        for (int k = j + 1; k < pointSet.size(); k++) {
-          if (MathUtils.checkOrientation(pointSet.get(i), pointSet.get(j),
-              pointSet.get(k)) == 0) return false;
-        }
-      }
-    }
-
+    
+    
+    // Too slow.
+    // GeneralPositionTest.isInGeneralPosition(pointSet));
+    
     // Third condition: No 4 points lie on a circle.
     // TODO implement
     // Please someone read this:
     // http://isthe.com/chongo/tech/math/n-cluster/
     // and tell me that they don't talk about GP there.
-
+    
     return true;
   }
 

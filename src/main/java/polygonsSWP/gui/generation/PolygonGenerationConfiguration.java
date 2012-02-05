@@ -269,10 +269,9 @@ class PolygonGenerationConfiguration
   }
 
   public PolygonGenerator createGenerator(PolygonStatistics stats,
-      History steps) {
+      History steps,  Map<Parameters, Object> params) {
 
     PolygonGeneratorFactory pgf = (PolygonGeneratorFactory) cb_polygon_algorithm_chooser.getSelectedItem();
-    Map<Parameters, Object> params = new HashMap<Parameters, Object>();
     
     int size = getBoundingBoxSize();
     params.put(Parameters.size, size);

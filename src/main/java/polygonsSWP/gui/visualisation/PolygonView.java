@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -22,6 +23,7 @@ import javax.swing.filechooser.FileFilter;
 import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
+import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
@@ -108,8 +110,9 @@ public class PolygonView
   /* PolygonGenerationPanelListener methods. */
 
   @Override
-  public void
-      onPolygonGenerationStarted(PolygonStatistics stats, History steps) {
+  public void onPolygonGenerationStarted(PolygonStatistics stats, History steps,
+      Map<Parameters, Object> params) {
+
     saveButton.setEnabled(false);
     trapezoidButton.setEnabled(true);
     trapezoidButton.setSelected(false);
@@ -126,12 +129,14 @@ public class PolygonView
 
   @Override
   public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats,
-      History history) {
+      History history, Map<Parameters, Object> params) {
     pp.setCurrentPolygon(newPolygon);
 
     // history disabled? create a new history and add the final polygon
     if(history == null){
-      history = new History(0);
+      int size = (Integer)params.get(Parameters.size);
+
+      history = new History(size);
       history.newScene().addPolygon(newPolygon, true).save();
     }
 

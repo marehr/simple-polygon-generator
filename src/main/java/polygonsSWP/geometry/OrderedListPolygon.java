@@ -752,24 +752,6 @@ public class OrderedListPolygon
     return returnList;
   }
 
-  /**
-   * Calculates the Surface Area using the Gaussian formula.
-   * 
-   * @author Steve Dierker <dierker.steve@fu-berlin.de>
-   * @return Surface area of the polygon
-   */
-  public double getSurfaceArea() {
-    assert (size() >= 3);
-
-    double result = 0.0;
-    for (int p = size() - 1, q = 0; q < size(); p = q++) {
-      result +=
-          _coords.get(p).x * _coords.get(q).y - _coords.get(q).x *
-              _coords.get(p).y;
-    }
-    return result / 2.0;
-  }
-
   /*
    * !Doesnt change the actual values
    * @return list of coords sorted by x value of each point

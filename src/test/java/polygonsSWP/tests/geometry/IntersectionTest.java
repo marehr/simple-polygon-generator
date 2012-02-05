@@ -1,6 +1,6 @@
 package polygonsSWP.tests.geometry;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
@@ -9,7 +9,11 @@ import polygonsSWP.geometry.Point;
 
 public class IntersectionTest
 {
-  // TODO TODO TODO TODO
+  /**
+   * Regarding this test our expectations were wrong.
+   * Empty array returned from intersect() means
+   * _colinear_, not coincident.
+   */
   @Test
   public void testEndpoint() {
     Point a = new Point(0, 0);
@@ -20,6 +24,6 @@ public class IntersectionTest
     LineSegment l2 = new LineSegment(c, d);
     
     Point[] isects = l1.intersect(l2);
-    assertTrue(isects == null);
+    assertFalse(isects == null);
   }
 }
