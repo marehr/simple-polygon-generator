@@ -3,6 +3,7 @@ package polygonsSWP.analysis;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.Thread.State;
 import java.util.HashMap;
 
 import polygonsSWP.analysis.Option.DynamicParameter;
@@ -26,7 +27,6 @@ import polygonsSWP.geometry.Polygon;
 
 /**
  * TODO: Test latest functions
- * TODO: Change Architecture, so the casts are successfull
  * @author Kadir
  */
 public class AlgorithmRunner
@@ -39,15 +39,15 @@ public class AlgorithmRunner
       new SteadyGrowthFactory() };
 
   private static int cores = 2;
-
   private static int chosenAlgorithm;
   private static InputStreamReader converter = new InputStreamReader(System.in);
   private static BufferedReader console = new BufferedReader(converter);
   private static String input;
   
   private static Thread[] threads = new Thread[cores];//Make cores dynamic
-  private static PolygonStatistics[] stats = new PolygonStatistics[cores];
   private static OptionCombinator optionCombinator;
+  
+  private static DatabaseWriter database = new DatabaseWriter();
   
   private static void intro() {
     System.out.println("------------------------------");
@@ -140,7 +140,6 @@ public class AlgorithmRunner
   
   private static OptionCombinator readLineAndOptions() {
     String input = readLine();
-    System.out.println("input read: "+ input);//TODO: Remove this line (Debug)
     String[] params = input.split(" ");
     OptionCombinator oc = new OptionCombinator();
     for(int i = 0; i < params.length; i++)
@@ -153,14 +152,14 @@ public class AlgorithmRunner
           Parameters p = optionMap.get(param[0].charAt(0));
           if(param.length == 2)//StaticParameter
           {
-            double value = Double.valueOf(param[1]);
+            int value = Integer.valueOf(param[1]);
             oc.add(new StaticParameter(p,value));
           }
           else
           {
-            double min = Double.valueOf(param[1]);
-            double max = Double.valueOf(param[2]);
-            double steps = Double.valueOf(param[3]);
+            int min = Integer.valueOf(param[1]);
+            int max = Integer.valueOf(param[2]);
+            int steps = Integer.valueOf(param[3]);
             oc.add(new DynamicParameter(p,min,max,steps));
           }
         } 
@@ -173,17 +172,47 @@ public class AlgorithmRunner
   }
   
   static void execute()
-  { 
-    Callback callback = new Callback();
-    PolygonGenerator generator = null;
-    for(int i = 0; i < threads.length; i++)
+  {
+    HashMap<Parameters, Object> param;
+    for(int i = 0; i < threads.length; i++)//Fill Queue with Workers and let them work
     {
-      stats[i] = new PolygonStatistics();
-      try {
-        generator = facs[chosenAlgorithm].createInstance(optionCombinator.next(), stats[i], null);
-      } catch (IllegalParameterizationException e) {e.printStackTrace();}
-      threads[i] = new Thread(new PolygonGeneratorWorker(generator, callback, i));
+      param = optionCombinator.next();
+      if(param == null)//No more Combinations exist
+        break;
+      threads[i] = new Thread(new PolygonGeneratorWorker(facs[chosenAlgorithm], param));
       threads[i].start();
+    }
+    
+    boolean run = true;
+    while(run)//Fill new Workers when they are finished 
+    {
+      for(int i = 0; i < threads.length; i++)
+      {
+        if(threads[i].getState() == State.TERMINATED)
+        {
+          if((param = optionCombinator.next()) == null)//No more Combinations exist, break all loops
+          {
+            run = false;
+            break;
+          }
+          threads[i] = new Thread(new PolygonGeneratorWorker(facs[chosenAlgorithm], param));
+          threads[i].start();
+        }
+      }
+      
+      try {Thread.sleep(1000);}
+      catch (InterruptedException e) {e.printStackTrace();}
+      
+    }
+    
+    for(int i = 0; i < threads.length; i++)//Waits for all Threads to finish, so the Program can exit safely
+    {
+      try {
+        threads[i].join();
+      }
+      catch (InterruptedException e) {
+        e.printStackTrace();
+      }
     }
   }
   
@@ -207,38 +236,40 @@ public class AlgorithmRunner
   
   public static class PolygonGeneratorWorker implements Runnable
   {
-    int coreNumber;
     PolygonGenerator polygonGenerator;
-    Callback callback;
-    public PolygonGeneratorWorker(PolygonGenerator polygonGenerator, Callback callback, int coreNumber)
+    PolygonStatistics statistics;
+    public PolygonGeneratorWorker(PolygonGeneratorFactory factory, HashMap<Parameters, Object> params)
     {
-      this.polygonGenerator = polygonGenerator;
-      this.callback = callback;
-      this.coreNumber = coreNumber;
+      statistics = new PolygonStatistics();
+      statistics.used_algorithm = factory.toString();
+      statistics.number_of_points = (Integer) params.get(Parameters.n);
+      PolygonGenerator pg = null;
+      try {
+        pg = factory.createInstance(params, statistics, null);
+      }
+      catch (IllegalParameterizationException e) {e.printStackTrace();return;}
+      
+      this.polygonGenerator = pg;
     }
     
     @Override
     public void run() {
+      long start = System.currentTimeMillis();
       Polygon polygon = polygonGenerator.generate();
-      if(polygon != null)
-        callback.onFinished(polygon);
-      
-      throw new RuntimeException("PolygonGeneratorWorker/run: polygon is null!");//TODO maybe it can be null ?!? Warn me
+      long end = System.currentTimeMillis();
+      if(polygon == null)
+        throw new RuntimeException("PolygonGeneratorWorker/run: polygon is null!");//maybe it can be null ?!? Warn me
+      statistics.time_for_creating_polygon = end - start;
+      statistics.timestamp = start;
+      statistics.circumference = polygon.getCircumference();
+      statistics.surface_area = polygon.getSurfaceArea();
+      database.writeToDatabase(statistics);
     }
     
   }
   
   
-  public static class Callback
-  {
-    void onFinished(Polygon polygon)//TODO make synchronized
-    {
-      System.out.print("Callback: ");
-      System.out.println(polygon.toString());
-      //TODO Fill the Thread with new Parameters
-      //TODO Save into Database or call function to do the job
-    }
-  }
+
   
 
 }

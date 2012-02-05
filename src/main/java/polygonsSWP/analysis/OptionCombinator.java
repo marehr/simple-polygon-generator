@@ -57,13 +57,13 @@ public class OptionCombinator
     
     for(int i = 0; i < dynparams.size(); i++)//Add the Combination
     {
-      params.put(dynparams.get(i).param, dynparams.get(i).current.doubleValue());
+      params.put(dynparams.get(i).param, dynparams.get(i).current);
     }
     
     
     for(int i = 0; i < dynparams.size(); i++)//Increment to the next Combination
     {
-      Number num = dynparams.get(i).next();
+      Integer num = dynparams.get(i).next();
       
       if(num == null)
       {

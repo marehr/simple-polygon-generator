@@ -7,12 +7,12 @@ class Option
   private Option(){}
   
   Parameters param;
-  Number current;
+  int current;
   
   public static class StaticParameter extends Option
   {
     public StaticParameter(){}
-    public StaticParameter(Parameters param, Number value)
+    public StaticParameter(Parameters param, int value)
     {
       this.param = param;
       current = value;
@@ -21,7 +21,7 @@ class Option
   
   static class DynamicParameter extends Option
   {
-    public DynamicParameter(Parameters param, Number min, Number max, Number stepAmount)
+    public DynamicParameter(Parameters param, int min, int max, int stepAmount)
     {
       this.min = min;
       this.max = max;
@@ -30,19 +30,19 @@ class Option
       this.current = min;
     }
     
-    Number min;
-    Number max;
-    Number stepAmount;
+    int min;
+    int max;
+    int stepAmount;
     
     /**
      * Returns the next Number. If its maxed already it returns null;
      * @return
      */
-    Number next()
-    {
-      if(current.doubleValue() + stepAmount.doubleValue() <= max.doubleValue())
+    Integer next()
+    {      
+      if(current + stepAmount <= max)
       {
-        current = current.doubleValue() + stepAmount.doubleValue();
+        current += stepAmount;
         return current;
       }
       else

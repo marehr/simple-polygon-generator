@@ -54,7 +54,7 @@ public abstract class Polygon
     List<Point> vertices = getPoints();
     double circumference = 0.0;
 
-    for(int i = 0, j = vertices.size(); i < vertices.size(); j = i++){
+    for(int i = 0, j = vertices.size() -1; i < vertices.size(); j = i++){
       circumference += vertices.get(i).distanceTo(vertices.get(j));
     }
 
