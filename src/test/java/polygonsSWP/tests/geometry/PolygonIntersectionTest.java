@@ -30,13 +30,16 @@ public class PolygonIntersectionTest {
     assertNotNull(intersects);
     assertEquals(2, intersects.size());
 
+    // Wir erwarten nach Javadoc hier den Schnittpunkt + die beiden Endpunkte
+    // der Kante des Polygons, in Reihenfolge wie im Polygon.
+    
     assertEquals(new Point(2.765, 2.471).toString(), intersects.get(0)[0].toString());
-    assertEquals(new Point(1, 1), intersects.get(0)[1]);
-    assertEquals(new Point(7, 6), intersects.get(0)[2]);
+    assertEquals(new Point(2, 4), intersects.get(0)[1]);
+    assertEquals(new Point(3, 2), intersects.get(0)[2]);
 
     assertEquals(new Point(6.294, 5.412).toString(), intersects.get(1)[0].toString());
-    assertEquals(new Point(1, 1), intersects.get(1)[1]);
-    assertEquals(new Point(7, 6), intersects.get(1)[2]);
+    assertEquals(new Point(7, 4), intersects.get(1)[1]);
+    assertEquals(new Point(6, 6), intersects.get(1)[2]);
   }
 
 
@@ -58,8 +61,8 @@ public class PolygonIntersectionTest {
     assertEquals(null, intersects.get(0)[2]);
 
     assertEquals(new Point(6.333, 5.333).toString(), intersects.get(1)[0].toString());
-    assertEquals(new Point(2, 1), intersects.get(1)[1]);
-    assertEquals(new Point(7, 6), intersects.get(1)[2]);
+    assertEquals(new Point(7, 4), intersects.get(1)[1]);
+    assertEquals(new Point(6, 6), intersects.get(1)[2]);
 
 
 
@@ -92,8 +95,8 @@ public class PolygonIntersectionTest {
     // das ist ein ganz normaler schnittpunkt, darum hat er
     // das format [point, lineseg[0], lineseg[1]]
     assertEquals(new Point(5, 6), intersects.get(0)[0]);
-    assertEquals(new Point(5, 6), intersects.get(0)[1]);
-    assertEquals(new Point(5, 7), intersects.get(0)[2]);
+    assertEquals(new Point(6, 6), intersects.get(0)[1]);
+    assertEquals(new Point(3, 6), intersects.get(0)[2]);
   }
 
 
@@ -111,10 +114,8 @@ public class PolygonIntersectionTest {
     // eine Kante des Polygons und die Strecke liegt teilweise auf einander
     // das format [null, lineseg[0], lineseg[1]]
     assertEquals(null, intersects.get(0)[0]);
-    assertEquals(new Point(2, 2), intersects.get(0)[1]);
-    assertEquals(new Point(4, 2), intersects.get(0)[2]);
-
-
+    assertEquals(new Point(3, 2), intersects.get(0)[1]);
+    assertEquals(new Point(6, 2), intersects.get(0)[2]);
 
     // es gibt eine schnittkante, aber ein punkt ist eckpunkt
     line = new LineSegment(new Point(3, 2), new Point(4, 2));
@@ -126,10 +127,8 @@ public class PolygonIntersectionTest {
     // das format sollte auch [null, lineseg[0], lineseg[1]] sein
     assertEquals(null, intersects.get(0)[0]);
     assertEquals(new Point(3, 2), intersects.get(0)[1]);
-    assertEquals(new Point(4, 2), intersects.get(0)[2]);
-
-
-
+    assertEquals(new Point(6, 2), intersects.get(0)[2]);
+    
     // es gibt eine Schnittkante und sie ist auf liegt komplett in/auf einer
     // Kante des Polygons
     line = new LineSegment(new Point(5, 2), new Point(4, 2));
@@ -140,8 +139,8 @@ public class PolygonIntersectionTest {
 
     // das format sollte auch [null, lineseg[0], lineseg[1]] sein
     assertEquals(null, intersects.get(0)[0]);
-    assertEquals(new Point(5, 2), intersects.get(0)[1]);
-    assertEquals(new Point(4, 2), intersects.get(0)[2]);
+    assertEquals(new Point(3, 2), intersects.get(0)[1]);
+    assertEquals(new Point(6, 2), intersects.get(0)[2]);
   }
 
 }
