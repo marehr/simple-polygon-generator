@@ -46,22 +46,19 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
         		<artifactId>maven-assembly-plugin</artifactId>
-        		<version>2.2.2</version>
-              	<executions>
+        		<executions>
           			<execution>
-            			<id>jar-with-dependencies-and-sources</id>
+            			<id>jar-with-dependencies</id>
             			<phase>package</phase>
             			<goals>
               				<goal>single</goal>
             			</goals>
             			<configuration>
-                			<descriptors>
-                    			<descriptor>full.xml</descriptor>
-                			</descriptors>
+                			<descriptorRefs>
+                    			<descriptorRef>jar-with-dependencies</descriptorRef>
+                			</descriptorRefs>
                 			<archive>
                     			<manifest>
-                    				<addClasspath>true</addClasspath> 
-                    				<classpathPrefix>lib/</classpathPrefix>
                         			<mainClass>polygonsSWP.gui.MainFrame</mainClass>
                     			</manifest>
                 			</archive>
