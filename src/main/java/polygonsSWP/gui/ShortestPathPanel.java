@@ -38,7 +38,7 @@ class ShortestPathPanel extends JPanel implements PolygonGenerationPanelListener
   /* Controls. */
   private final JButton b_calc_shortest_path;
   private final JRadioButton rb_set_points, rb_generate_points;
-  private Polygon currentPolygon = null;
+  private Polygon currentPolygon;
   private Point startPoint = null;
   private Point endPoint = null;
   private List<Point> pointList = null;
@@ -78,6 +78,7 @@ class ShortestPathPanel extends JPanel implements PolygonGenerationPanelListener
   			{
   				if(rb_generate_points.isSelected())
   				{
+  					Polygon polygooon = currentPolygon;
   					startPoint = currentPolygon.createRandomPoint();
   					endPoint = currentPolygon.createRandomPoint();
   					ShortestPath sp = new ShortestPath(currentPolygon, startPoint, endPoint);

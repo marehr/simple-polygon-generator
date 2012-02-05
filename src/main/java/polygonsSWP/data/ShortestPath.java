@@ -1,6 +1,7 @@
 package polygonsSWP.data;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import polygonsSWP.geometry.LineSegment;
@@ -33,24 +34,9 @@ public class ShortestPath
    * @param end End point of path.
    */
   public ShortestPath(Polygon polygon, Point start, Point end) {
-//    _polygon = (OrderedListPolygon) polygon;
-//    _path.add(start);
-//    _path.add(end);
-	  OrderedListPolygon p = new OrderedListPolygon();
-	  p.addPoint(new Point(38.0,260.0));
-	  p.addPoint(new Point(294.0,535.0));//
-	  p.addPoint(new Point(346.0,533.0));
-	  p.addPoint(new Point(318.0,525.0));
-	  p.addPoint(new Point(190.0,186.0));
-	  p.addPoint(new Point(536.0,207.0));
-	  p.addPoint(new Point(409.0,538.0));
-	  p.addPoint(new Point(258.0,587.0));//
-	  
-	  Point startPoint = new Point(90.0,330.0);
-	  Point endPoint = new Point(220.0,210.0);
-      _polygon = p;
-      //_path.add(startPoint);
-      _path.add(endPoint);
+      _polygon = (OrderedListPolygon) polygon;
+      _path.add(start);
+      _path.add(end);
   }
 
   /**
@@ -100,8 +86,8 @@ public class ShortestPath
   }
 
   public List<Point> generateShortestPath() {
-//    List<Trapezoid> plist = _polygon.sweepLine();
-//
+    
+//	  List<Trapezoid> plist = _polygon.sweepLine();
 //    Trapezoid startTrapezoid = null;
 //    for (Trapezoid p : plist) {
 //      if (p.containsPoint(_path.get(0), true)) {
@@ -115,12 +101,13 @@ public class ShortestPath
 //      }
 //      // TODO: do we need: e(t) ?
 //    }
-//
-//    initVars((OrderedListPolygon) startTrapezoid);
-    parray[1] = new Point(294.0,535.0);
-    parray[2] = new Point(258.0,587.0);
-	  
-    parray[0] = new Point(90.0,330.0);
+
+//    initVars((OrderedListPolygon) startTrapezoid;
+	  slowinitVars(_polygon);
+    
+//    parray[1] = new Point(294.0,535.0);
+//    parray[2] = new Point(258.0,587.0);
+//    parray[0] = new Point(90.0,330.0);
     while (!existsDirectConnection()) {
       parray = makeStep(parray[0], parray[1], parray[2]);
     }
@@ -129,6 +116,14 @@ public class ShortestPath
   }
 
 
+
+private void slowinitVars(OrderedListPolygon p) {
+	List<Point> list = p.getPoints();
+	for(Point point : list)
+	{
+		_polygon.intersect(new LineSegment(_path.get(0),point));
+	}
+}
 
 private void initVars(OrderedListPolygon startPolygon) {
     List<Point> list = startPolygon.sortByY();
