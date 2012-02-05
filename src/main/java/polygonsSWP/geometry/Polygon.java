@@ -45,9 +45,40 @@ public abstract class Polygon
   public abstract int size();
 
   /**
-   * @return Surface area as double.
+   * Calculates the circumference
+   * 
+   * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+   * @return Circumference of the polygon
    */
-  public abstract double getSurfaceArea();
+  public double getCircumference(){
+    List<Point> vertices = getPoints();
+    double circumference = 0.0;
+
+    for(int i = 0, j = vertices.size(); i < vertices.size(); j = i++){
+      circumference += vertices.get(i).distanceTo(vertices.get(j));
+    }
+
+    return circumference;
+  }
+
+  /**
+   * Calculates the Surface Area using the Gaussian formula.
+   * 
+   * @author Steve Dierker <dierker.steve@fu-berlin.de>
+   * @return Surface area of the polygon
+   */
+  public double getSurfaceArea() {
+    assert (size() >= 3);
+    List<Point> vertices = getPoints();
+
+    double result = 0.0;
+    for (int p = size() - 1, q = 0; q < size(); p = q++) {
+      result +=
+          vertices.get(p).x * vertices.get(q).y - vertices.get(q).x *
+              vertices.get(p).y;
+    }
+    return result / 2.0;
+  }
 
   /**
    * @return a random point in the polygon area (including on the edges).
