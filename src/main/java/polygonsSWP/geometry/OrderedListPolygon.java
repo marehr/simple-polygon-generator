@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.TreeSet;
 
 import polygonsSWP.util.EdgeList;
+import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 import polygonsSWP.util.PointType;
 
@@ -192,7 +193,7 @@ public class OrderedListPolygon
     List<Integer[]> is = findIntersections();
     if (is.size() == 0) return null;
 
-    return is.get(new Random(System.currentTimeMillis()).nextInt(is.size()));
+    return is.get(GeneratorUtils.rand_.nextInt(is.size()));
   }
 
   /**

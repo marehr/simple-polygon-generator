@@ -81,4 +81,42 @@ public class Line
   public Line clone() {
     return new Line(_a.clone(), _b.clone());
   }
+  
+  
+  /**
+   * Calculates cutting angle of to lines.
+   * @param l
+   * @return Signed cutting angle, orientated from this line (not given one).
+   *         0 deg. if the gradients of both lines are equal, 90 deg.
+   *         if they are orthogonal.
+   */
+  public double cuttingAngle(Line l){
+    double denom1 = this._b.x - this._a.x;
+    double denom2 = l._b.x - l._a.x;
+    double num1 = this._b.y - this._a.y;
+    double num2 = l._b.y - l._a.y;
+    
+    if (MathUtils.doubleZero(denom1) && MathUtils.doubleZero(denom2))
+      return 0.0;
+    if (MathUtils.doubleZero(denom1)|| MathUtils.doubleZero(denom2)) {
+      if(MathUtils.doubleZero(num2) || MathUtils.doubleZero(num1)){
+        return 90.0;
+      }
+      else{
+        Line l1 = new Line(new Point(-this._a.y, this._a.x), new Point(-this._b.y, this._b.x));
+        Line l2 = new Line(new Point(-l._a.y, l._a.x), new Point(-l._b.y, l._b.x));
+        return l1.cuttingAngle(l2);
+      }
+    }
+    
+    double m1 = num1 / denom1;
+    double m2 = num2 / denom2;
+    
+    double denom3 = (1 + m1*m2);
+    
+    if (MathUtils.doubleZero(denom3))
+      return 90.0;
+    
+    return Math.atan((m2 - m1) / denom3) * 180 / Math.PI;
+  }
 }

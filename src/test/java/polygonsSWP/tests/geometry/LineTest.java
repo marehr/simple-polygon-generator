@@ -7,6 +7,7 @@ import org.junit.Test;
 import polygonsSWP.geometry.Line;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Ray;
+import polygonsSWP.util.MathUtils;
 
 public class LineTest
 {
@@ -128,5 +129,53 @@ public class LineTest
       assertEquals(false, vLine.containsPoint(new Point(16, -5)));
       assertEquals(false, vLine.containsPoint(new Point(16, 30)));
       }
+  }
+  
+  @Test
+  public void testCuttingAngle(){
+    // l1 horizontal: m1 = 0
+    Line l1 = new Line(new Point(2, 2), new Point(3, 2)); 
+    
+    // l2 horizontal: m2 = 0, l2 parallel to l1 
+    Line l2 = new Line(new Point(3, 3), new Point(4, 3));
+    
+    // l3 vertical, orthogonal to l1, l2
+    Line l3 = new Line(new Point(1, 1), new Point(1, 3));
+    
+    // gradient l4: m4 = 1/3
+    Line l4 = new Line(new Point(1, 2), new Point(4, 3));
+    
+    // gradient l5: m5 = 3
+    Line l5 = new Line(new Point(2, 3), new Point(3, 6));
+    
+    // gradient l6: m6 = -1/3
+    Line l6 = new Line(new Point(2, 5), new Point(-1, 6));
+    
+    // gradient l7: m7 = -3
+    Line l7 = new Line(new Point(4, 2), new Point(3, 5));
+    
+    // parallel
+    assertEquals(0.0, l1.cuttingAngle(l2), MathUtils.EPSILON);
+    // orthogonal
+    assertEquals(90.0, l2.cuttingAngle(l3), MathUtils.EPSILON);
+    // one vertical but not orthogonal to other
+    assertEquals(-71.565, l3.cuttingAngle(l4), 0.05);
+    assertEquals(71.565, l4.cuttingAngle(l3), 0.05);
+    // one horizontal, cutting angles with l4-l7
+    // need angles !!!
+    assertEquals(18.4349, l2.cuttingAngle(l4), 0.05);
+    assertEquals(71.5651, l2.cuttingAngle(l5), 0.05);
+    assertEquals(-18.4349, l2.cuttingAngle(l6), 0.05);
+    assertEquals(-71.5651, l2.cuttingAngle(l7), 0.05);
+    assertEquals(-18.4349, l4.cuttingAngle(l2), 0.05);
+    assertEquals(-71.5651, l5.cuttingAngle(l2), 0.05);
+    assertEquals(18.4349, l6.cuttingAngle(l2), 0.05);
+    assertEquals(71.5651, l7.cuttingAngle(l2), 0.05);
+    // two orthogonal lines, none horizontal
+    assertEquals(90.0, l5.cuttingAngle(l6), 0.05);
+    assertEquals(90.0, l6.cuttingAngle(l5), 0.05);
+    // two arbitrary lines
+    assertEquals(36.8699, l5.cuttingAngle(l7), 0.05);
+    assertEquals(-36.8699, l7.cuttingAngle(l5), 0.05);
   }
 }
