@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -18,6 +19,7 @@ import javax.swing.JRadioButton;
 import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.ShortestPath;
+import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.gui.generation.PointGenerationModeListener;
@@ -135,7 +137,7 @@ class ShortestPathPanel extends JPanel implements PolygonGenerationPanelListener
 
   @Override
   public void onPolygonGenerationStarted(PolygonStatistics stats,
-      History steps) {
+      History steps,  Map<Parameters, Object> params) {
     b_calc_shortest_path.setEnabled(false);
   }
 
@@ -145,7 +147,9 @@ class ShortestPathPanel extends JPanel implements PolygonGenerationPanelListener
   }
 
   @Override
-  public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats, History history) {
+  public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats,
+      History history, Map<Parameters, Object> params) {
+
     b_calc_shortest_path.setEnabled(true);
     currentPolygon = newPolygon;
   }

@@ -12,10 +12,13 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Path2D;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 import javax.swing.JPanel;
 
@@ -157,18 +160,15 @@ class PaintPanel
 
     // Paint the points
     if (points != null) {
-      assert (points != null);
-
       g.setColor(new Color(80, 0, 90));
       for (Point p : points) {
-        // g.drawOval((int) (p.x - 2), (int) (p.y - 2), 5, 5);
-        // g.drawRect((int)p.x, (int)p.y, 1, 1);
-        g.drawOval((int) (p.x - 1.5), (int) (p.y - 1.5), 3, 3);
+        g2d.draw(new Ellipse2D.Double(p.x - 1.5, p.y - 1.5, 3, 3));
       }
     }
 
     // Paint svgScene Points
     if (svgScene != null) {
+      g2d.setStroke(new TransformedStroke(new BasicStroke(2.5f), tx));
       svgScene.paintPoints(g2d);
     }
     
@@ -290,18 +290,25 @@ class PaintPanel
   public void mouseMoved(MouseEvent e) {
 	  if(inFrame)
 	  {
+		  double[] coords = coords(e.getX(), e.getY());
 		  if(currentMousePoint != null)
 		  {
-			  currentMousePoint.x = e.getX();
-			  currentMousePoint.y = e.getY();			  
-		  }else{currentMousePoint = new Point(e.getX(),e.getY());}
+			  currentMousePoint.x = coords[0];
+			  currentMousePoint.y = coords[1];			  
+		  }
+		  else
+		  {
+			  currentMousePoint = new Point(coords[0],coords[1]);
+		  }
+		  
 		  pointInRange = getPointInRange();
 		  if(pointInRange != null)
 		  {
 			  System.out.println("THERE IS A POINT " + pointInRange.x + " " + pointInRange.y);
+			  repaint();
 		  }			  
-		  double[] coords = coords(e.getX(), e.getY());
-		  statusbar.setStatusMsg("[" + (int)currentMousePoint.x + " - " + (int)currentMousePoint.y + "]");		  
+		  
+		  statusbar.setStatusMsg("[" + (int)coords[0] + " - " + (int)coords[1] + "]");		  
 	  }
   }
 
@@ -348,42 +355,5 @@ class PaintPanel
   public void onNewScene(Scene scene) {
     svgScene = scene;
     repaint();
-  }
-
-  /* 
-   * Helper class. 
-   */
-
-  /**
-   * A implementation of {@link Stroke} which transforms another Stroke with an
-   * {@link AffineTransform} before stroking with it. Found here:
-   * http://stackoverflow
-   * .com/questions/5046088/affinetransform-without-transforming-stroke
-   */
-  public class TransformedStroke
-    implements Stroke
-  {
-    private AffineTransform transform;
-    private AffineTransform inverse;
-    private Stroke stroke;
-
-    public TransformedStroke(Stroke base, AffineTransform at) {
-      this.transform = new AffineTransform(at);
-      try {
-        this.inverse = transform.createInverse();
-      }
-      catch (NoninvertibleTransformException e) {
-        // Shouldn't happen.
-        throw new RuntimeException(e);
-      }
-      this.stroke = base;
-    }
-
-    public Shape createStrokedShape(Shape s) {
-      Shape sTrans = transform.createTransformedShape(s);
-      Shape sTransStroked = stroke.createStrokedShape(sTrans);
-      Shape sStroked = inverse.createTransformedShape(sTransStroked);
-      return sStroked;
-    }
   }
 }

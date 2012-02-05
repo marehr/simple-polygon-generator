@@ -44,6 +44,11 @@ public class Point
   public String toString() {
     return "(" + df.format(x) + "," + df.format(y) + ")";
   }
+  
+  @Override
+  public int hashCode() {
+    return 31 * (new Double(x).hashCode()) + (new Double(y).hashCode());
+  }
 
   /**
    * Calculates distance between two points.

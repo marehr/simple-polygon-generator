@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -22,11 +23,14 @@ import javax.swing.filechooser.FileFilter;
 import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
+import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.Trapezoid;
 import polygonsSWP.gui.GUIModeListener;
+import polygonsSWP.gui.generation.HistorySceneChooser.HistorySceneMode;
+import polygonsSWP.gui.generation.HistorySceneModeListener;
 import polygonsSWP.gui.generation.PointGenerationModeListener;
 import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
 
@@ -39,7 +43,7 @@ import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
 public class PolygonView
   extends JPanel
   implements PolygonGenerationPanelListener, PointGenerationModeListener,
-  GUIModeListener
+  HistorySceneModeListener, GUIModeListener
 {
   private static final long serialVersionUID = 1L;
 
@@ -106,8 +110,9 @@ public class PolygonView
   /* PolygonGenerationPanelListener methods. */
 
   @Override
-  public void
-      onPolygonGenerationStarted(PolygonStatistics stats, History steps) {
+  public void onPolygonGenerationStarted(PolygonStatistics stats, History steps,
+      Map<Parameters, Object> params) {
+
     saveButton.setEnabled(false);
     trapezoidButton.setEnabled(true);
     trapezoidButton.setSelected(false);
@@ -124,8 +129,17 @@ public class PolygonView
 
   @Override
   public void onPolygonGenerated(Polygon newPolygon, PolygonStatistics stats,
-      History history) {
+      History history, Map<Parameters, Object> params) {
     pp.setCurrentPolygon(newPolygon);
+
+    // history disabled? create a new history and add the final polygon
+    if(history == null){
+      int size = (Integer)params.get(Parameters.size);
+
+      history = new History(size);
+      history.newScene().addPolygon(newPolygon, true).save();
+    }
+
     visControl.setHistory(history);
     polygon = newPolygon;
     saveButton.setEnabled(true);
@@ -137,6 +151,11 @@ public class PolygonView
   public void onPointGenerationModeSwitched(boolean randomPoints,
       List<Point> points) {
     pp.setDrawMode(!randomPoints, points);
+  }
+
+  @Override
+  public void onHistorySceneModeSwitched(HistorySceneMode mode) {
+    visControl.onHistorySceneModeSwitched(mode);
   }
 
   /* GUIModeListener methods. */
@@ -155,8 +174,11 @@ public class PolygonView
     assert (polygon != null);
     if (trapezoidButton.isSelected()) {
       List<Trapezoid> trapezoids = ((OrderedListPolygon) polygon).sweepLine();
-      History hist = new History();
-      Scene scene = hist.newScene().setBoundingBox(600, 600);
+
+      int boundingBox = 600;
+      History hist = new History(boundingBox);
+
+      Scene scene = hist.newScene();
       for (Trapezoid item : trapezoids)
         scene.addPolygon(item, Color.DARK_GRAY);
       pp.onNewScene(scene);
@@ -263,4 +285,5 @@ public class PolygonView
           f.getName() + "\".", "Error", JOptionPane.ERROR_MESSAGE);
     }
   }
+
 }

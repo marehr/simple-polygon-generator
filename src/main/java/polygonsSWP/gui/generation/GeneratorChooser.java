@@ -37,6 +37,9 @@ class GeneratorChooser
     repaint();
   }
 
+  public PolygonGeneratorFactory getSelectedItem(){
+    return (PolygonGeneratorFactory) super.getSelectedItem();
+  }
 
   private static class AlgoCellRenderer
     extends JLabel

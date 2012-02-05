@@ -17,6 +17,11 @@ public class History
 {
   private List<Scene> sceneList = Collections.synchronizedList(new ArrayList<Scene>());
   private HistoryListener listener = null;
+  int boundingBox;
+
+  public History(int boundingBox){
+    this.boundingBox = boundingBox;
+  }
 
   public Scene newScene() {
     return new HistoryScene(this);

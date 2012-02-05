@@ -1,9 +1,16 @@
 package polygonsSWP.data;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,6 +26,7 @@ import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.Ray;
+import polygonsSWP.gui.visualisation.TransformedStroke;
 
 
 /**
@@ -109,28 +117,92 @@ public class HistoryScene
   public void paintPoints(Graphics2D g2d) {
     // Every Point
     for (Box<Point> item : _pointList) {
-      Point tmp = item.openBox();
-      if (item.isHighlighted()) g2d.setColor(item.getHighlight());
-      else g2d.setColor(Color.BLACK);
-      g2d.drawLine((int) (tmp.x + 2), (int) (tmp.y + 2), 
-          (int) (tmp.x - 2), (int) (tmp.y - 2));
-      g2d.drawLine((int) (tmp.x - 2), (int) (tmp.y + 2), 
-          (int) (tmp.x + 2), (int) (tmp.y - 2));
+      drawPoint(g2d, item);
     }
   }
 
-  static private int[] xcoords = new int[128], ycoords = new int[128];
+  private void drawPoint(Graphics2D g, Box<Point> box){
+    g.setColor(box.isHighlighted() ? box.getHighlight() : Color.BLACK);
 
-  private void checkCoordinateBufferSize(int size) {
-    int newsize = xcoords.length;
+    Point a = box.openBox();
+    g.draw(new Line2D.Double(a.x + 2, a.y + 2, a.x - 2, a.y - 2));
+    g.draw(new Line2D.Double(a.x - 2, a.y + 2, a.x + 2, a.y - 2));
+  }
 
-    if(size <= newsize) return;
+  private void drawPolygon(Graphics2D g, Box<Polygon> box){
+    Polygon polygon = box.openBox();
+    Path2D draw = new Path2D.Double(Path2D.WIND_EVEN_ODD, polygon.size() + 1);
 
-    while(newsize < size)
-      newsize *= 2;
+    List<Point> points = polygon.getPoints();
 
-    xcoords = new int[newsize];
-    ycoords = new int[newsize];
+    Point start = points.get(0);
+    draw.moveTo(start.x, start.y);
+
+    for(Point next: points) {
+      draw.lineTo(next.x, next.y);
+    }
+
+    draw.lineTo(start.x, start.y);
+
+    if(box.isHighlighted()) {
+      Graphics2D g2 = (Graphics2D) g.create();
+      g2.setColor(box.getHighlight());
+      g2.fill(draw);
+      g2.dispose();
+    }
+
+    g.draw(draw);
+  }
+
+  private void drawLine(Graphics2D g, Box<Line> box, Polygon boundingBox){
+    g.setColor(box.isHighlighted() ? box.getHighlight() : Color.BLACK);
+
+    // Calculate intersections to keep line inside of bounding box
+    List<Point[]> isecs = boundingBox.intersect(box.openBox());
+
+    if(isecs == null || isecs.size() < 2) return;
+
+    Point a = isecs.get(0)[0],
+          b = isecs.get(1)[0];
+
+    Graphics2D g2 = (Graphics2D) g.create();
+    g2.setStroke(new TransformedStroke(new BasicStroke(2f), g2.getTransform()));
+    g2.draw(new Line2D.Double(a.x, a.y, b.x, b.y));
+    g2.dispose();
+  }
+
+  private void drawRay(Graphics2D g, Box<Ray> box, Polygon boundingBox){
+    g.setColor(box.isHighlighted() ? box.getHighlight() : Color.BLACK);
+
+    Ray ray = box.openBox();
+
+    // Calculate intersections to keep ray inside of bounding box
+    List<Point[]> isecs = boundingBox.intersect(ray);
+
+    if(isecs == null || isecs.size() < 1) return;
+
+    Point a = ray._base, b = isecs.get(0)[0];
+    if (isecs.size() > 1) {
+      a = b;
+      b = isecs.get(1)[0];
+    }
+
+    Graphics2D g2 = (Graphics2D) g.create();
+    g2.setStroke(new TransformedStroke(new BasicStroke(2f), g2.getTransform()));
+    g2.draw(new Line2D.Double(a.x, a.y, b.x, b.y));
+    g2.dispose();
+  }
+
+  private void drawLineSegment(Graphics2D g, Box<LineSegment> box, Polygon boundingBox){
+    g.setColor(box.isHighlighted() ? box.getHighlight() : Color.BLACK);
+
+    LineSegment lineSegment = box.openBox();
+    Point a = lineSegment._a, b = lineSegment._b;
+
+    Graphics2D g2 = (Graphics2D) g.create();
+    g2.setStroke(new TransformedStroke(new BasicStroke(2f), g2.getTransform()));
+    g2.draw(new Line2D.Double(a.x, a.y, b.x, b.y));
+    g2.dispose();
   }
 
   /**
@@ -139,98 +211,40 @@ public class HistoryScene
    * @param g2d
    */
   public void paint(Graphics2D g2d) {
+    Polygon _boundingBox = this._boundingBox;
 
     // First of all draw bounding Box:
     g2d.setColor(Color.BLACK);
-    if(_boundingBox != null) {
-      if (_boundingBox instanceof OrderedListPolygon) {
 
-        checkCoordinateBufferSize(_boundingBox.size());
+    if(_boundingBox != null && _boundingBox instanceof Polygon) {
 
-        int i = 0;
-        for(Point point: _boundingBox.getPoints()){
-          xcoords[i] = (int) point.x;
-          ycoords[i] = (int) point.y;
-          i++;
-        }
-  
-        g2d.setColor(Color.BLACK);
-        g2d.drawPolygon(xcoords, ycoords, _boundingBox.size());
-      }
+      drawPolygon(g2d, new Box<Polygon>(_boundingBox, null));
+
+    } else {
+      Rectangle clip = g2d.getClipBounds();
+
+      _boundingBox = createBoundingBox(clip.getMinX(), clip.getMinY(),
+          clip.getWidth(), clip.getHeight());
     }
 
     // Afterwards every polygon:
     for (Box<Polygon> item : _polyList) {
-      List<Point> points = item.openBox().getPoints();
-
-      checkCoordinateBufferSize(points.size());
-
-      int i = 0;
-      for(Point point: points){
-        xcoords[i] = (int) point.x;
-        ycoords[i] = (int) point.y;
-        i++;
-      }
-
-      if (item.isHighlighted()) {
-        g2d.setColor(item.getHighlight());
-        g2d.fillPolygon(xcoords, ycoords, points.size());
-      }
-
-      g2d.setColor(Color.BLACK);
-      g2d.drawPolygon(xcoords, ycoords, points.size());
+      drawPolygon(g2d, item);
     }
 
     // Every Line
     for (Box<Line> item : _lineList) {
-
-      if (item.isHighlighted()) g2d.setColor(item.getHighlight());
-      else g2d.setColor(Color.BLACK);
-
-      // Calculate intersections to keep line inside of bounding box
-      List<Point[]> returnList = _boundingBox.intersect(item.openBox());
-
-      g2d.drawLine((int) returnList.get(0)[0].x,
-          (int) returnList.get(0)[0].y,
-          (int) returnList.get(1)[0].x,
-          (int) returnList.get(1)[0].y);
+      drawLine(g2d, item, _boundingBox);
     }
 
     // Every LineSegment
     for (Box<LineSegment> item : _lineSegmentList) {
-
-      LineSegment tmp = item.openBox();
-      if (item.isHighlighted()) g2d.setColor(item.getHighlight());
-      else g2d.setColor(Color.BLACK);
-
-      // We assume all geometry elements are chosen to be inside the box if
-      // they are not infinite to one side
-      g2d.drawLine((int) tmp._a.x, (int) tmp._a.y,
-          (int) tmp._b.x,
-          (int) tmp._b.y);
+      drawLineSegment(g2d, item, _boundingBox);
     }
 
     // Every Ray
     for (Box<Ray> item : _rayList) {
-
-      Ray tmp = item.openBox();
-      if (item.isHighlighted()) g2d.setColor(item.getHighlight());
-      else g2d.setColor(Color.BLACK);
-
-      // Calculate intersection
-      List<Point[]> returnList = _boundingBox.intersect(item.openBox());
-
-      if (returnList.size() == 1) {
-        g2d.drawLine((int) tmp._base.x, (int) tmp._base.y, 
-            (int) returnList.get(0)[0].x,
-            (int) returnList.get(0)[0].y);
-      }
-      else {
-        g2d.drawLine((int) returnList.get(0)[0].x,
-            (int) returnList.get(0)[0].y,
-            (int) returnList.get(1)[0].x,
-            (int) returnList.get(1)[0].y);
-      }
+      drawRay(g2d, item, _boundingBox);
     }
   }
 
@@ -324,7 +338,20 @@ public class HistoryScene
     Document document =
         domImpl.createDocument("http://www.w3.org/2000/svg", "svg", null);
     svg = new SVGGraphics2D(document);
+
+    int size = this._history.boundingBox;
+
+    AffineTransform tx = new AffineTransform();
+    tx.translate(0, size);
+    tx.scale(1, -1);
+    svg.setTransform(tx);
+    svg.setStroke(new BasicStroke(1f));
+
+    svg.setSVGCanvasSize(new Dimension(size, size));
+    svg.setClip(0, 0, size, size);
     this.paint(svg);
+    this.paintPoints(svg);
+
     Writer out = new StringWriter();
     try {
       svg.stream(out, true);
@@ -336,18 +363,29 @@ public class HistoryScene
   }
 
   @Override
-  public Scene setBoundingBox(int height, int width) {
-    List<Point> tmpLst = new LinkedList<Point>();
-    tmpLst.add(new Point(0, 0));
-    tmpLst.add(new Point(0, height));
-    tmpLst.add(new Point(width, height));
-    tmpLst.add(new Point(width, 0));
-    _boundingBox = new OrderedListPolygon(tmpLst);
+  public Scene setBoundingBox(Polygon polygon){
+    _boundingBox = polygon.clone();
     return _self;
   }
   
   public LinkedList<Box<Polygon>> getPointList()
   {
 	  return this._polyList;
+  }
+
+  private Polygon createBoundingBox(double x, double y, double width, double height){
+
+    List<Point> tmpLst = new ArrayList<Point>();
+    tmpLst.add(new Point(x, y));
+    tmpLst.add(new Point(x, y + height));
+    tmpLst.add(new Point(x + width, y + height));
+    tmpLst.add(new Point(x + width, y));
+    return new OrderedListPolygon(tmpLst);
+  }
+
+  @Override
+  public Scene setBoundingBox(int height, int width) {
+
+    return setBoundingBox(createBoundingBox(0, 0, width, height));
   }
 }

@@ -19,9 +19,6 @@
 			<source>pom.xml</source>
 		</file>
 		<file>
-			<source>full.xml</source>
-		</file>
-		<file>
 			<source>tarball.xml</source>
 		</file>
 		<file>

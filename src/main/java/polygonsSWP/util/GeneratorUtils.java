@@ -35,21 +35,17 @@ public class GeneratorUtils
     if (hashSet.size() != pointSet.size()) return false;
 
     // Second condition: No 3 points are colinear.
-    for (int i = 0; i < pointSet.size() - 2; i++) {
-      for (int j = i + 1; j < pointSet.size() - 1; j++) {
-        for (int k = j + 1; k < pointSet.size(); k++) {
-          if (MathUtils.checkOrientation(pointSet.get(i), pointSet.get(j),
-              pointSet.get(k)) == 0) return false;
-        }
-      }
-    }
-
+    
+    
+    // Too slow.
+    // GeneralPositionTest.isInGeneralPosition(pointSet));
+    
     // Third condition: No 4 points lie on a circle.
     // TODO implement
     // Please someone read this:
     // http://isthe.com/chongo/tech/math/n-cluster/
     // and tell me that they don't talk about GP there.
-
+    
     return true;
   }
 
@@ -272,7 +268,7 @@ public class GeneratorUtils
 
   /**
    * Checks if line segments of given polygon intersect with line segment ab.
-   * Colliniars and end points don't count as intersections.
+   * Colliniars, vertices of Polygon and end points don't count as intersections.
    * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @param a
@@ -287,7 +283,10 @@ public class GeneratorUtils
         polygon.intersect(new LineSegment(a, b), false);
 
     for (Point[] points : intersections) {
-      if (points[0] != null) { return false; }
+      // more efficiency !!
+      if (points[0] != null && !polygon.getPoints().contains(points[0]) && !points[0].equals(a) && !points[0].equals(a)) { 
+        return false; 
+        }
     }
     return true;
   }

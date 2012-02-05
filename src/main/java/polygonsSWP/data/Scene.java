@@ -32,6 +32,13 @@ public interface Scene
   public Scene setBoundingBox(int height, int width);
 
   /**
+   * Sets a polygon as bounding box.
+   * 
+   * @param polygon
+   */
+  public Scene setBoundingBox(Polygon polygon);
+
+  /**
    * Merges another scene in this scene
    * 
    * @param scene

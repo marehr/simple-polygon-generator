@@ -58,21 +58,30 @@ public class CircularList <E>
 
     @Override
     public E previous() {
-      if (_list.size() > 0) {
-        if (_index == -1)
-          _index = _list.size();
-      _index = _index-1;
-      if (_index < 0)
-        _index = _list.size()-1;
+      if (_list.size() <= 0)
+        return null;
+      
+      // if just initialized, return last element of list
+      if (_index == -1){
+       _index = _list.size()-1;
       return _list.get(_index);
       }
-      else 
-        return null;
+      
+      // else, return previous
+      _index = (_list.size() + (_index-1)) % _list.size();
+      return _list.get(_index);
     }
 
     @Override
     public int previousIndex() {
-      return (_index+1)%_list.size();
+      if (_list.size() <= 0)
+        return -1;
+      
+      // if just initialized, prev element is last of list
+      if (_index == -1)
+        return _list.size() -1;
+      
+      return (_list.size() + (_index-1)) % _list.size();
     }
 
     @Override
