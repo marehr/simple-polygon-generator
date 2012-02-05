@@ -258,9 +258,9 @@ public abstract class Polygon
         else if (isec1[0] == null && isec2[0] == null)
           return 0;
         
-        else if(isec1[0].distanceTo(r._base) > isec2[0].distanceTo(r._base))
-          return -1;
         else if(isec1[0].distanceTo(r._base) < isec2[0].distanceTo(r._base))
+          return -1;
+        else if(isec1[0].distanceTo(r._base) > isec2[0].distanceTo(r._base))
           return 1;
         else 
           return 0;

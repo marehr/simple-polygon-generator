@@ -15,6 +15,8 @@ import polygonsSWP.data.Scene;
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
+import polygonsSWP.generators.rpa.RPAPoint.State;
+import polygonsSWP.geometry.Line;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
@@ -208,8 +210,10 @@ public class RandomPolygonAlgorithmFactory
       
       /* a. Set clone with polygon.*/
       
-      CircularList<Point> clonePoints = new CircularList<Point>();
-      clonePoints.addAll(polygon.getPoints());
+      CircularList<RPAPoint> clonePoints = new CircularList<RPAPoint>();
+      for (Point point : polygonPoints) {
+        clonePoints.add(new RPAPoint(point));
+      }
       
       
       /* b. intersect Line VaVb with clone, take first intersection on each side
@@ -252,15 +256,15 @@ public class RandomPolygonAlgorithmFactory
       and Vb.*/
       
       
-      Point lastVisible = va;
-      ListIterator<Point> cloneIter = clonePoints.listIterator(clonePoints.indexOf(va));
+      RPAPoint lastVisible = clonePoints.get(clonePoints.indexOf(va));
+      ListIterator<RPAPoint> cloneIter = clonePoints.listIterator(clonePoints.indexOf(va));
       ListIterator<Point> polygonIter = polygonPoints.listIterator(polygonPoints.indexOf(va));
-      Point prev = va;
+      Point prev = lastVisible;
       
       while(!clonePoints.get(cloneIter.nextIndex()).equals(vb)) {
         
         // get new vi
-        Point vi = cloneIter.next();
+        RPAPoint vi = cloneIter.next();
         
         
         System.out.println("minorLoop1, visit all vertices");
@@ -309,7 +313,7 @@ public class RandomPolygonAlgorithmFactory
         // vi not visible from va or vb
         if (!fromVa || !fromVb) {
           System.out.println("not visible form va or vb: remove vi");
-          cloneIter.remove();
+          vi.state = State.DEL;
         }
         // vi visible from va and vb
         if (fromVa && fromVb) {
@@ -327,7 +331,7 @@ public class RandomPolygonAlgorithmFactory
             Ray r3 = new Ray(va, vi);
             Ray r4 = new Ray(vb, vi);
 
-            Point[] u1 = polygon.firstIntersection(r1);prev = polygonIter.next();
+            Point[] u1 = polygon.firstIntersection(r1);
             Point[] u2 = polygon.firstIntersection(r2);
             Point[] u3 = polygon.firstIntersection(r3);
             Point[] u4 = polygon.firstIntersection(r4);
@@ -411,28 +415,33 @@ public class RandomPolygonAlgorithmFactory
         System.out.println("end of minorLoop1 \n");
       }
       List<Point> visibleRegionPoints = new ArrayList<Point>();
-      while (true) {
-        Point next = cloneIter.next();
-        if (!visibleRegionPoints.contains(next))
-          visibleRegionPoints.add(next);
-        else break;
+      for (int i = 0; i < clonePoints.size(); i++) {
+        RPAPoint current = clonePoints.get(i);
+        if(current.state != State.DEL)
+          visibleRegionPoints.add(current);
       }
       return new OrderedListPolygon(visibleRegionPoints);
     }
     
-    private boolean insertTripleIntoPolygon(CircularList<Point> list, Point[] triple){
-      //TODO: don't use iterator anymore
-      System.out.println("triple to insert: " + triple[0] + triple[1] + triple[2]);    
-      int indexPoint1 = list.indexOf(triple[1]);
-      int indexPoint2 = list.indexOf(triple[2]);
-      if (indexPoint1 == -1 || indexPoint2 == -1)
-        return false;
-      
-      if (indexPoint1 > indexPoint2)
-        list.add(indexPoint1, triple[0]);
-      else
-        list.add(indexPoint2, triple[0]);
-      return true;
+    private boolean insertTripleIntoPolygon(List<RPAPoint> clonePoints, Point[] triple){
+      if (!(clonePoints.contains(triple[1]) && clonePoints.contains(triple[2])))
+          return false;
+      else {
+        int indx1 = clonePoints.indexOf(triple[1]);
+        int indx2 = clonePoints.indexOf(triple[2]);
+        List<RPAPoint> sublist;
+        if(indx1 < indx2)
+          sublist = clonePoints.subList(indx1, indx2+1);
+        else
+          sublist = clonePoints.subList(indx2, indx1+1);
+        for (int i = 0; i < sublist.size()-1; i++) {
+          if (new Line(sublist.get(i), sublist.get(i+1)).containsPoint(triple[0])){
+            sublist.add(i+1, new RPAPoint(triple[0]));
+            return true;
+          }
+        }
+      }
+      return false;
     }
     
     private boolean isVertexVisibleFromInside(Polygon polygon, Point p1, Point p2){
@@ -444,30 +453,63 @@ public class RandomPolygonAlgorithmFactory
       // Test for intersections with polygon.
       boolean visible = 
           GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(p1, p2, polygon);
-      
       System.out.println("test for sight: " + visible);
       
       if (visible) {
-        
         Point next = points.get((points.indexOf(p1)+1)%points.size());
         Point prev = points.get((points.size() + points.indexOf(p1)-1)%points.size());
         
-        if (p2.equals(next) || p2.equals(prev)){
-          System.out.println("points are neightbours");
+        if(next.equals(prev)){
+          System.out.println("trianlge => visible and inside");
           return true;
         }
+        double angle1 = innerCuttingAngle(next, p1, prev);
+        double angle2 = innerCuttingAngle(next, p1, p2);
+        if(angle1 > angle2 || MathUtils.doubleEquals(angle1, angle2)){
+          System.out.println("test for cutting angle: inside");
+          return true;
+        }
+        else {
+          System.out.println("test for cutting angle: outside");
+        }
         
-        // Test if only visible form outside.
-        boolean insideLeft = MathUtils.checkOrientation(p1, next, p2) >= 0;
-        boolean insideRight = MathUtils.checkOrientation(p1,prev, p2) <= 0;
-        
-        System.out.println("test if inside 'left': " + insideLeft);
-        System.out.println("test if inside 'right': " + insideRight);
-        
-        return insideLeft && insideRight;
       }
       
       return false;
+    }
+    
+    private double innerCuttingAngle(Point p1, Point p2, Point p3){
+      Line l1 = new Line(p1, p2);
+      Line l2 = new Line(p2, p3);
+      double angle = l1.cuttingAngle(l2);
+      
+      if (MathUtils.checkOrientation(p2, p1, p3) <= -1){
+        if (angle < 0)
+          return 360.0 + angle;
+        if (angle > 0){
+          if (MathUtils.doubleEquals(angle, 90.0))
+            return 270.0;
+          else
+            return 180.0 + angle;
+        }
+      }
+      else if(MathUtils.checkOrientation(p2, p1, p3) >= 1){
+        if (angle < 0)
+          return 180.0 + angle;
+        if (angle > 0){
+          if (MathUtils.doubleEquals(angle, 90.0))
+            return 90.0;
+          else
+            return angle;
+        }
+      }
+      else{
+        if(new Ray(p2, p1).containsPoint(p3))
+          return 0.0;
+        else
+          return 180.0;
+      }
+      return -1.0;
     }
 
     @Override
