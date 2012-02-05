@@ -289,8 +289,9 @@ public class GeneratorUtils
         polygon.intersect(new LineSegment(a, b), false);
 
     for (Point[] points : intersections) {
-      // more efficiency !!
-      if (points[0] != null && !polygon.getPoints().contains(points[0]) && !points[0].equals(a) && !points[0].equals(a)) { 
+      // TODO: more efficiency !!
+      if (points[0] != null && !polygon.getPoints().contains(points[0]) 
+          && !points[0].equals(a) && !points[0].equals(b)) { 
         return false; 
         }
     }

@@ -269,7 +269,8 @@ public abstract class Polygon
 
   /**
    * Find first intersection of Ray and Polygon. Intersections with base and
-   * support point don't count, as well as collinear line segements.
+   * support point of ray same as points of polygon are ignored , as well as 
+   * collinear line segements.
    * 
    * @param r Ray
    * @return Returns array of points {intersection, a, b}, where ab is the
@@ -301,7 +302,7 @@ public abstract class Polygon
     Collections.sort(isecs, isecComparator);
     
     for (Point[] points : isecs) {
-      if(points[0] != null && points[0] != r._support)
+      if(points[0] != null && points[1] != null && points[2] != null && points[0] != r._support)
         return points;
     }
     

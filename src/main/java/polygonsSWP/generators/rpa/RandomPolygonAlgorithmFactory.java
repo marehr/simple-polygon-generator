@@ -264,7 +264,11 @@ public class RandomPolygonAlgorithmFactory
       while(!clonePoints.get(cloneIter.nextIndex()).equals(vb)) {
         
         // get new vi
-        RPAPoint vi = cloneIter.next();
+        RPAPoint vi;
+        do{
+          vi = cloneIter.next();
+        }while(vi.state == State.DEL);
+        
         
         
         System.out.println("minorLoop1, visit all vertices");
@@ -330,6 +334,21 @@ public class RandomPolygonAlgorithmFactory
             Ray r2 = new Ray(vb, lastVisible);
             Ray r3 = new Ray(va, vi);
             Ray r4 = new Ray(vb, vi);
+            
+            if(steps != null){
+              scene = steps.newScene();
+              scene.addPolygon(polygon, true);
+              scene.addLineSegment(vaVb, true);
+
+              if(r1._base != r1._support)
+                scene.addRay(r1, Color.YELLOW);
+              if(r2._base != r2._support)
+                scene.addRay(r2, Color.YELLOW);
+              if(r3._base != r3._support)
+                scene.addRay(r3, Color.YELLOW);
+              if(r4._base != r4._support)
+                scene.addRay(r4, Color.YELLOW);
+            }            
 
             Point[] u1 = polygon.firstIntersection(r1);
             Point[] u2 = polygon.firstIntersection(r2);
@@ -341,26 +360,43 @@ public class RandomPolygonAlgorithmFactory
                 GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(vb, u1[0], polygon) &&
                 !clonePoints.contains(u1[0])) {
               insertTripleIntoPolygon(clonePoints, u1);
+              System.out.println("inserting: " + u1[0]);
+              if(steps != null)
+                scene.addPoint(u1[0], Color.GREEN);
             }
             if (u2 != null &&
                 GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(va, u2[0], polygon) &&
                 GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(vb, u2[0], polygon) &&
                 !clonePoints.contains(u2[0])) {
               insertTripleIntoPolygon(clonePoints, u2);
+              System.out.println("inserting: " + u2[0]);
+              if(steps != null)
+                scene.addPoint(u2[0], Color.GREEN);
             }
             if (u3 != null &&
                 GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(va, u3[0], polygon) &&
                 GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(vb, u3[0], polygon) &&
                 !clonePoints.contains(u3[0])) {
               insertTripleIntoPolygon(clonePoints, u3);
+              System.out.println("inserting: " + u3[0]);
+              if(steps != null)
+                scene.addPoint(u3[0], Color.GREEN);
             }
             if (u4 != null &&
                 GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(va, u4[0], polygon) &&
                 GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(vb, u4[0], polygon) &&
                 !clonePoints.contains(u4[0])) {
               insertTripleIntoPolygon(clonePoints, u4);
+              System.out.println("inserting: " + u4[0]);
+              if(steps != null)
+                scene.addPoint(u4[0], Color.GREEN);
             }
             lastVisible = vi;
+            
+            if (steps != null){
+              scene.save();
+            }
+            
           }
           // case 3+4 viPrev visible to one of va and vb
           else if (prevFromVa || prevFromVb) {
@@ -393,6 +429,8 @@ public class RandomPolygonAlgorithmFactory
                 GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(vb, u1[0], polygon) && 
                 !clonePoints.contains(u1[0])) {
               insertTripleIntoPolygon(clonePoints, u1);
+              lastVisible = new RPAPoint(u1[0]);
+              System.out.println("inserting: " + u1[0] + " , also last visible");
               if(steps != null)
                 scene.addPoint(u1[0], Color.GREEN);
             }
@@ -401,12 +439,15 @@ public class RandomPolygonAlgorithmFactory
                 GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(vb, u2[0], polygon) && 
                 !clonePoints.contains(u2[0])) {
               insertTripleIntoPolygon(clonePoints, u2);
+              lastVisible = new RPAPoint(u2[0]);
+              System.out.println("inserting: " + u2[0] + " , also last visible");
               if(steps != null)
                 scene.addPoint(u2[0], Color.GREEN);
             }
             
-            if (steps != null)
+            if (steps != null){
               scene.save();
+            }
           }
         }
         if (vi.equals(polygonPoints.get(polygonIter.nextIndex()))) {
@@ -435,7 +476,8 @@ public class RandomPolygonAlgorithmFactory
         else
           sublist = clonePoints.subList(indx2, indx1+1);
         for (int i = 0; i < sublist.size()-1; i++) {
-          if (new Line(sublist.get(i), sublist.get(i+1)).containsPoint(triple[0])){
+          //LineSegment ab = new LineSegment(sublist.get(i), sublist.get(i+1));
+          if (new LineSegment(sublist.get(i), sublist.get(i+1)).containsPoint(triple[0])){
             sublist.add(i+1, new RPAPoint(triple[0]));
             return true;
           }
@@ -466,11 +508,11 @@ public class RandomPolygonAlgorithmFactory
         double angle1 = innerCuttingAngle(next, p1, prev);
         double angle2 = innerCuttingAngle(next, p1, p2);
         if(angle1 > angle2 || MathUtils.doubleEquals(angle1, angle2)){
-          System.out.println("test for cutting angle: inside");
+          System.out.println("test for cutting angle: " + angle1 + " >= " + angle2 + " => inside");
           return true;
         }
         else {
-          System.out.println("test for cutting angle: outside");
+          System.out.println("test for cutting angle: " + angle1 + " >= " + angle2 + " => outside");
         }
         
       }
