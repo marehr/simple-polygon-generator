@@ -73,6 +73,10 @@ public class GeneratorUtils
       throw new IllegalParameterizationException(
           "You have to specify either the 'n' or the 'points' parameter.");
 
+    if (size == null)
+      throw new IllegalParameterizationException(
+          "You have to specify the bounding box");
+
     if (s == null) {
 
       s = createRandomSetOfPointsInSquare(n, size, ensureGeneralPosition);

@@ -29,6 +29,7 @@ public class OrderedListPolygon
   extends Polygon
 {
   List<Point> _coords;
+  List<Triangle> _triangles;
 
   /**
    * Generates an empty polygon object which will contain no statistics or
@@ -682,15 +683,17 @@ public class OrderedListPolygon
    * @return List of triangulars
    */
   public List<Triangle> triangulate() {
+    if(_triangles != null) return _triangles;
+
     assert size() >= 3;
     assert (isSimple());
     assert (isClockwise() == -1);
 
-    List<Triangle> returnList = new ArrayList<Triangle>();
+    _triangles = new ArrayList<Triangle>();
 
     if (size() == 3) {
-      returnList.add(new Triangle(getPoints()));
-      return returnList;
+      _triangles.add(new Triangle(getPoints()));
+      return _triangles;
     }
 
     /* Manage a list of indices. */
@@ -739,7 +742,7 @@ public class OrderedListPolygon
 
       if (isSnip) {
         /* output Triangle */
-        returnList.add(triangle);
+        _triangles.add(triangle);
 
         /* remove v from remaining polygon */
         for (int s = v, t = v + 1; t < nv; s++, t++)
@@ -748,7 +751,7 @@ public class OrderedListPolygon
       }
     }
 
-    return returnList;
+    return _triangles;
   }
 
   /*
