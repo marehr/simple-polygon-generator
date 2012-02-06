@@ -53,7 +53,9 @@ public class RandomPolygonAlgorithmFactory
     if (n == null)
       throw new IllegalParameterizationException("Number of points not set.",
           Parameters.n);
-
+    
+    if(n<3){throw new IllegalParameterizationException("n must be greater or equal 3");}
+    
     Integer size = (Integer) params.get(Parameters.size);
     if (size == null)
       throw new IllegalParameterizationException(
