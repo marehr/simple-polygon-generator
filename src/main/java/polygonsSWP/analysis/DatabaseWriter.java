@@ -34,12 +34,10 @@ public class DatabaseWriter
     }
   }
 
-  protected void finalize()
-    throws Throwable // destruktor
+  public void close()
   {
     con.dispose();
     queue.stop(true);
-    super.finalize();
   }
 
   Object lock = 0;
@@ -57,7 +55,7 @@ public class DatabaseWriter
               st.avg_velocity_without_collisions, st.initializeRejections,
               st.maximumRejections);
       
-      System.out.println(statement);//TODO Remove in release
+      System.out.println("sql-exec: " + statement);
       queue.execute(new MyJob(statement)).complete();
     }
 
@@ -77,13 +75,4 @@ public class DatabaseWriter
     
   }
   
-  public static void main(String[] args)
-    throws SQLiteException {
-    DatabaseWriter dw = new DatabaseWriter();
-    PolygonStatistics stat = new PolygonStatistics();
-    stat.used_algorithm = "kadiralgo";
-    stat.initializeRejections = 5;
-    stat.number_of_points = 10;
-    dw.writeToDatabase(stat);
-  }
 }

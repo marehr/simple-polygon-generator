@@ -78,7 +78,9 @@ public class GeneratorUtils
     if ((s == null && n == null) || (s != null && n != null))
       throw new IllegalParameterizationException(
           "You have to specify either the 'n' or the 'points' parameter.");
-
+    
+    if(n<3){throw new IllegalParameterizationException("n must be greater or equal 3");}
+    
     if (size == null)
       throw new IllegalParameterizationException(
           "You have to specify the bounding box");
