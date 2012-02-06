@@ -302,7 +302,7 @@ public abstract class Polygon
     Collections.sort(isecs, isecComparator);
     
     for (Point[] points : isecs) {
-      if(points[0] != null && points[1] != null && points[2] != null && points[0] != r._support)
+      if(points[0] != null && points[0] != r._support)
         return points;
     }
     

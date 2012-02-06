@@ -45,7 +45,7 @@ public class Line
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @param ls
    * @return null if lines and line segment do not intersect, array of length 0 if
-   *         both a coincident, array containing intersection Point else.
+   *         both a collinear, array containing intersection Point else.
    */
   public Point[] intersect(LineSegment ls) {
     return IntersectionUtils.intersect(_a, _b, ls._a, ls._b, 
@@ -56,9 +56,9 @@ public class Line
    * Calculates the intersection of this line with a ray.
    * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
-   * @param ls
+   * @param r
    * @return null if lines and ray do not intersect, array of length 0 if
-   *         both a coincident, array containing intersection Point else.
+   *         both a collinear, array containing intersection Point else.
    */
   public Point[] intersect(Ray r) {
     return IntersectionUtils.intersect(_a, _b, r._base, r._support, 
@@ -85,10 +85,11 @@ public class Line
   
   /**
    * Calculates cutting angle of to lines.
+   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
    * @param l
-   * @return Signed cutting angle, orientated from this line (not given one).
-   *         0 deg. if the gradients of both lines are equal, 90 deg.
-   *         if they are orthogonal.
+   * @return angle Signed cutting angle in degree, orientated from this line.
+   *         -90 <= angle <= 90
    */
   public double cuttingAngle(Line l){
     double denom1 = this._b.x - this._a.x;
