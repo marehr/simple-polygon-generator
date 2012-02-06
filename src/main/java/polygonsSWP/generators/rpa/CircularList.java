@@ -1,12 +1,16 @@
 package polygonsSWP.generators.rpa;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.ListIterator;
 
 public class CircularList <E>
   extends ArrayList <E>
 {
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
   private static class CircularIterator<E> implements ListIterator<E>{
     
     private ArrayList<E> _list;
