@@ -18,12 +18,14 @@ import javax.swing.JRadioButton;
 
 import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
+import polygonsSWP.data.Scene;
 import polygonsSWP.data.ShortestPath;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.gui.generation.PointGenerationModeListener;
 import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
+import polygonsSWP.gui.generation.ShortestPathGenerationListener;
 
 /**
  * Panel which controls the shortest path calculation.
@@ -34,17 +36,20 @@ import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
 class ShortestPathPanel extends JPanel implements PolygonGenerationPanelListener, GUIModeListener{
   private static final long serialVersionUID = 1L;
   private final List<PointGenerationModeListener> observers;
+  private final List<ShortestPathGenerationListener> sp_observers;
   
   /* Controls. */
   private final JButton b_calc_shortest_path;
   private final JRadioButton rb_set_points, rb_generate_points;
-  private Polygon currentPolygon = null;
+  private Polygon currentPolygon;
   private Point startPoint = null;
   private Point endPoint = null;
   private List<Point> pointList = null;
+  private History history = null;
   
   ShortestPathPanel() {
 	observers = new LinkedList<PointGenerationModeListener>();
+	sp_observers = new LinkedList<ShortestPathGenerationListener>();
     b_calc_shortest_path = new JButton("Calculate Shortest Path");
 
     ButtonGroup bg_shortest_path = new ButtonGroup();
@@ -78,9 +83,10 @@ class ShortestPathPanel extends JPanel implements PolygonGenerationPanelListener
   			{
   				if(rb_generate_points.isSelected())
   				{
+  					Polygon polygooon = currentPolygon;
   					startPoint = currentPolygon.createRandomPoint();
   					endPoint = currentPolygon.createRandomPoint();
-  					ShortestPath sp = new ShortestPath(currentPolygon, startPoint, endPoint);
+  					ShortestPath sp = new ShortestPath(currentPolygon, startPoint, endPoint, history);
   					ArrayList<Point> path = new ArrayList<Point>(sp.generateShortestPath());
   					for(Point p:path)
   					  System.out.println(p.x + " : " + p.y);
@@ -91,8 +97,9 @@ class ShortestPathPanel extends JPanel implements PolygonGenerationPanelListener
   					{
   						startPoint = pointList.get(0);
   						endPoint = pointList.get(1);
-  						ShortestPath sp = new ShortestPath(currentPolygon, startPoint, endPoint);
+  						ShortestPath sp = new ShortestPath(currentPolygon, startPoint, endPoint, history);
   						ArrayList<Point> path = new ArrayList<Point>(sp.generateShortestPath());
+  						emitSPGenerationFinished();
   						for(Point p:path)
   							System.out.println(p.x + " : " + p.y);												
   					}
@@ -124,6 +131,10 @@ class ShortestPathPanel extends JPanel implements PolygonGenerationPanelListener
     add(b_calc_shortest_path, gbc);
   }
   
+  public void addShortestPathGenerationListener(ShortestPathGenerationListener listener) {
+	  sp_observers.add(listener);
+  }
+  
   public void addPointGenerationModeListener(PointGenerationModeListener listener) {
 	  observers.add(listener);
   }
@@ -131,6 +142,18 @@ class ShortestPathPanel extends JPanel implements PolygonGenerationPanelListener
   protected void emitPointGenerationModeSwitched(boolean randomPoints, List<Point> points) {
 	    for (PointGenerationModeListener pgml : observers)
 	      pgml.onPointGenerationModeSwitched(randomPoints, points);
+  }
+  
+  protected void emitSPGenerationFinished()
+  {
+	  for(ShortestPathGenerationListener spgl : sp_observers)
+		  spgl.onSPfinished(history);
+  }
+  
+  protected void emitSPGenerationCancelled()
+  {
+	  for(ShortestPathGenerationListener spgl : sp_observers)
+		  spgl.onSPCancelled();
   }
 
   // Listener methods
