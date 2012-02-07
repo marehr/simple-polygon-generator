@@ -14,7 +14,7 @@ public class PolygonStatistics
   public Double circumference = null; //umfang
   public String used_algorithm = null;
   public Long timestamp = null;//System.currentTimeMillis();, use at start of algorithm
-  public Double time_for_creating_polygon = null; //in Millisecs
+  public Long time_for_creating_polygon = null; //in Millisecs
   
   //Permute & Reject + IC&BT + Virmani + SteadyGrowth
   public Integer iterations = null;

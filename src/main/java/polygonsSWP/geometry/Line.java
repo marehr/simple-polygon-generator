@@ -45,7 +45,7 @@ public class Line
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @param ls
    * @return null if lines and line segment do not intersect, array of length 0 if
-   *         both a coincident, array containing intersection Point else.
+   *         both a collinear, array containing intersection Point else.
    */
   public Point[] intersect(LineSegment ls) {
     return IntersectionUtils.intersect(_a, _b, ls._a, ls._b, 
@@ -56,9 +56,9 @@ public class Line
    * Calculates the intersection of this line with a ray.
    * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
-   * @param ls
+   * @param r
    * @return null if lines and ray do not intersect, array of length 0 if
-   *         both a coincident, array containing intersection Point else.
+   *         both a collinear, array containing intersection Point else.
    */
   public Point[] intersect(Ray r) {
     return IntersectionUtils.intersect(_a, _b, r._base, r._support, 
@@ -80,5 +80,44 @@ public class Line
   
   public Line clone() {
     return new Line(_a.clone(), _b.clone());
+  }
+  
+  
+  /**
+   * Calculates cutting angle of to lines.
+   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+   * @param l
+   * @return angle Signed cutting angle in degree, orientated from this line.
+   *         -90 <= angle <= 90
+   */
+  public double cuttingAngle(Line l){
+    double denom1 = this._b.x - this._a.x;
+    double denom2 = l._b.x - l._a.x;
+    double num1 = this._b.y - this._a.y;
+    double num2 = l._b.y - l._a.y;
+    
+    if (MathUtils.doubleZero(denom1) && MathUtils.doubleZero(denom2))
+      return 0.0;
+    if (MathUtils.doubleZero(denom1)|| MathUtils.doubleZero(denom2)) {
+      if(MathUtils.doubleZero(num2) || MathUtils.doubleZero(num1)){
+        return 90.0;
+      }
+      else{
+        Line l1 = new Line(new Point(-this._a.y, this._a.x), new Point(-this._b.y, this._b.x));
+        Line l2 = new Line(new Point(-l._a.y, l._a.x), new Point(-l._b.y, l._b.x));
+        return l1.cuttingAngle(l2);
+      }
+    }
+    
+    double m1 = num1 / denom1;
+    double m2 = num2 / denom2;
+    
+    double denom3 = (1 + m1*m2);
+    
+    if (MathUtils.doubleZero(denom3))
+      return 90.0;
+    
+    return Math.atan((m2 - m1) / denom3) * 180 / Math.PI;
   }
 }

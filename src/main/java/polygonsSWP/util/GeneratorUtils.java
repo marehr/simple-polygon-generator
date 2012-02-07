@@ -19,7 +19,13 @@ import polygonsSWP.geometry.Ray;
 
 public class GeneratorUtils
 {
-  private static Random rand_ = new Random();
+  private static long func(long j){
+    long i = System.currentTimeMillis();
+    System.out.println(i);
+    return j;
+  }
+
+  public static Random rand_ = new Random(func(1322691L));
 
   /**
    * Tests whether a given set of points is in general position, which means
@@ -73,11 +79,15 @@ public class GeneratorUtils
       throw new IllegalParameterizationException(
           "You have to specify either the 'n' or the 'points' parameter.");
 
-    if (size == null)
-      throw new IllegalParameterizationException(
-          "You have to specify the bounding box");
-
     if (s == null) {
+
+      if( n < 3 )
+        throw new IllegalParameterizationException(
+            "n must be greater or equal 3");
+
+      if( size == null )
+        throw new IllegalParameterizationException(
+            "You have to specify the bounding box");
 
       s = createRandomSetOfPointsInSquare(n, size, ensureGeneralPosition);
 
@@ -107,7 +117,7 @@ public class GeneratorUtils
    */
   public static List<Point> createRandomSetOfPointsInSquare(int n, int size,
       boolean ensureGeneralPosition) {
-    Random r = new Random(System.currentTimeMillis());
+    Random r = GeneratorUtils.rand_;
 
     List<Point> points;
     do {
@@ -287,8 +297,9 @@ public class GeneratorUtils
         polygon.intersect(new LineSegment(a, b), false);
 
     for (Point[] points : intersections) {
-      // more efficiency !!
-      if (points[0] != null && !polygon.getPoints().contains(points[0]) && !points[0].equals(a) && !points[0].equals(a)) { 
+      // TODO: more efficiency !!
+      if (points[0] != null && !polygon.getPoints().contains(points[0]) 
+          && !points[0].equals(a) && !points[0].equals(b)) { 
         return false; 
         }
     }

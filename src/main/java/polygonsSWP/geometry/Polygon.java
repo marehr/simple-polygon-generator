@@ -54,7 +54,7 @@ public abstract class Polygon
     List<Point> vertices = getPoints();
     double circumference = 0.0;
 
-    for(int i = 0, j = vertices.size(); i < vertices.size(); j = i++){
+    for(int i = 0, j = vertices.size() -1; i < vertices.size(); j = i++){
       circumference += vertices.get(i).distanceTo(vertices.get(j));
     }
 
@@ -269,7 +269,8 @@ public abstract class Polygon
 
   /**
    * Find first intersection of Ray and Polygon. Intersections with base and
-   * support point don't count, as well as collinear line segements.
+   * support point of ray same as points of polygon are ignored , as well as 
+   * collinear line segements.
    * 
    * @param r Ray
    * @return Returns array of points {intersection, a, b}, where ab is the
@@ -289,9 +290,9 @@ public abstract class Polygon
         else if (isec1[0] == null && isec2[0] == null)
           return 0;
         
-        else if(isec1[0].distanceTo(r._base) > isec2[0].distanceTo(r._base))
-          return -1;
         else if(isec1[0].distanceTo(r._base) < isec2[0].distanceTo(r._base))
+          return -1;
+        else if(isec1[0].distanceTo(r._base) > isec2[0].distanceTo(r._base))
           return 1;
         else 
           return 0;

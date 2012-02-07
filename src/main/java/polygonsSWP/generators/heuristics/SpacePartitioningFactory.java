@@ -55,7 +55,7 @@ public class SpacePartitioningFactory
   private static class SpacePartitioning
     implements PolygonGenerator
   {
-    private Random rand = new Random();
+    private Random rand = GeneratorUtils.rand_;
 
     private List<Point> points;
     private final History steps;
