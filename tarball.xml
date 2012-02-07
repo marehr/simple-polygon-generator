@@ -24,5 +24,8 @@
 		<file>
 			<source>README</source>
 		</file>
+		<file>
+			<source>polygons-coding-style.xml</source>
+		</file>
 	</files>
 </assembly>
