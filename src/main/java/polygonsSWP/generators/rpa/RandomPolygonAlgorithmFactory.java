@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Random;
+import polygonsSWP.util.Random;
 
 import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
@@ -87,7 +87,7 @@ public class RandomPolygonAlgorithmFactory
     @Override
     public Polygon generate() {
 
-      Random random = GeneratorUtils.rand_;
+      Random random = Random.create();
 
       // 1. generate 3 rand points -> polygon P
       OrderedListPolygon polygon =

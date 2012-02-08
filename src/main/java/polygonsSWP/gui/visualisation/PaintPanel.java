@@ -11,6 +11,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
@@ -168,10 +169,19 @@ class PaintPanel
     
     if(pointInRange != null)
     {
-    	g2d.setColor(Color.BLUE);
-    	double [] p = coords((int)pointInRange.x,(int)pointInRange.y);
-    	g2d.draw(new Ellipse2D.Double(p[0] - 1.5, p[1] - 1.5, 3, 3));
-    	g2d.drawString("[" + p[0] + "|" + p[1] + "]",(int)(p[0]),(int)(p[1]));
+      double [] p = new double[]{pointInRange.x, pointInRange.y};
+      //p2 = coords((int)p[0], (int)p[1]);
+
+      g2d.setColor(Color.BLUE);
+      g2d.fill(new Ellipse2D.Double(p[0] - 1.5, p[1] - 1.5, 3, 3));
+
+      Point2D p1 = new Point2D.Double(p[0], getHeight() + p[1]), p2 = new Point2D.Double(0, 0);
+      p2 = tx.deltaTransform(p1, p2);
+      tx.setToIdentity();
+      g2d.setTransform(tx);
+      System.out.println((int)p2.getX() + ", " + (int)p2.getY());
+      g2d.drawString("[" + p[0] + "|" + p[1] + "]", (int)p2.getX(), (int)p2.getY() + getHeight());
+      //g2d.drawString("[" + p[0] + "|" + p[1] + "]",(int)(p[0]),(int)(p[1]));
     }
 
     // Draw additional stuff.
@@ -300,7 +310,8 @@ class PaintPanel
 		  if(pointInRange != null)
 			  repaint();
 		  
-		  statusbar.setStatusMsg("[" + (int)coords[0] + " - " + (int)coords[1] + "]");		  
+		  statusbar.setStatusMsg("[" + (int)coords[0] + " - " + (int)coords[1] + "]"
+		      + " offsetX: " + offsetX + ", offsetY: "+ offsetY);
 	  }
   }
 

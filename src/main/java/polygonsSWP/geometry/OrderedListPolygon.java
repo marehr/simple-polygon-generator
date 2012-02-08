@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Comparator;
 import java.util.TreeSet;
 
+import polygonsSWP.util.Random;
 import polygonsSWP.util.EdgeList;
-import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 import polygonsSWP.util.PointType;
 import polygonsSWP.util.PointType.Direction;
@@ -195,7 +195,7 @@ public class OrderedListPolygon
     List<Integer[]> is = findIntersections();
     if (is.size() == 0) return null;
 
-    return is.get(GeneratorUtils.rand_.nextInt(is.size()));
+    return is.get(Random.create().nextInt(is.size()));
   }
 
   /**

@@ -25,6 +25,7 @@ import polygonsSWP.generators.other.SweepLineTestFactory;
 import polygonsSWP.generators.rpa.RandomPolygonAlgorithmFactory;
 import polygonsSWP.gui.generation.PolygonGenerationPanel;
 import polygonsSWP.gui.visualisation.PolygonView;
+import polygonsSWP.util.Random;
 
 /**
  * MainFrame.
@@ -58,6 +59,8 @@ public class MainFrame
   };
 
   public static void main(String[] args) {
+    Random.pseudoRandom(true, 1322691L);
+
     try {
       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
