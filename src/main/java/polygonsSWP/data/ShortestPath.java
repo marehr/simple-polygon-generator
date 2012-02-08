@@ -106,6 +106,11 @@ public class ShortestPath
 //    }
 
 //    initVars((OrderedListPolygon) startTrapezoid;
+	
+	puts("Startpoint " + _path.get(0).x + " | " + _path.get(0).y);
+	puts("Endpoint " + _path.get(_path.size()-1).x + " | " + _path.get(_path.size()-1).y);
+	puts("Starting with Polygon:");
+	puts(_polygon);
 	slowinitVars(_polygon);
     
     while (!existsDirectConnection()) {
@@ -121,6 +126,9 @@ private void slowinitVars(OrderedListPolygon p) {
 	List<Point> list = p.getPoints();
 	List<Point> visiblePoints = new LinkedList<Point>();
 	
+	puts("Init q1 ,q2 ...");
+	puts("Visible points:");
+	
 	for(Point point : list)
 	{
 		List<Point[]> intersects = _polygon.intersect(new LineSegment(_path.get(0),point));
@@ -132,11 +140,11 @@ private void slowinitVars(OrderedListPolygon p) {
 			if(intersects.get(0)[0] != null)
 			{
 				visiblePoints.add(intersects.get(0)[0]);
-				//System.out.println(intersects.get(0)[0].x + " " + intersects.get(0)[0].y);
+				System.out.println(intersects.get(0)[0].x + " " + intersects.get(0)[0].y);
 			}			
 		}		
 	}
-	
+		
 	parray[0] = _path.get(0);
 		
 	for(int i=0;i < visiblePoints.size();i++)
@@ -145,7 +153,18 @@ private void slowinitVars(OrderedListPolygon p) {
 		parray[1] = visiblePoints.get(i);
 		parray[2] = visiblePoints.get((i+1)%visiblePoints.size());
 		if(reducePolygon(parray[0], parray[1], parray[2], false) != null)
+		{
+			puts("Correct init:");
+			puts("q1= " + pto_s(parray[1]));
+			puts("q2= " + pto_s(parray[2]));
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
+		}
 	}
 	
 }
@@ -281,7 +300,6 @@ private void initVars(OrderedListPolygon startPolygon) {
     pointList = sortList(q1,pointList);
     for (int i = 1; i < pointList.size() - 1; i++) {
       Point[] intersectingPoints = ray.intersect(new LineSegment(pointList.get(i),pointList.get(i + 1)));
-      // TODO: Why does Ray.intersect(LineSegment) method return an array?
       if ((intersectingPoints != null) && (intersectingPoints.length > 0)) {
 	        newP = intersectingPoints[0];
 	        break;
@@ -320,31 +338,47 @@ private void initVars(OrderedListPolygon startPolygon) {
    * Sorts a list of point and
    * @return same list with given point at first position
    */
-  public static List<Point> sortList(Point q1, List<Point> list) {
+  public List<Point> sortList(Point q1, List<Point> list) {
     int index = getIndexOfPoint(q1, list);
 
+    puts("Sorting list for p " + pto_s(q1));
+    puts(list);
+    
     if (index == 0) {
+      puts("Sorting finished");
+      puts(list);
       return list;
     } else {
       List<Point> tmp = new ArrayList<Point>();
 	  tmp.addAll(list.subList(index, list.size()));
 	  tmp.addAll(list.subList(0, index));
+	  puts("Sorting finished");
+	  puts(tmp);
       return tmp;
     }
+
   }
 
   // This works only if q1 is counter clockwise the next point after p
   // is this sufficient?
   private OrderedListPolygon reducePolygon(Point p, Point q1, Point q2, boolean force){
+	assert(!p.equals(q1) || !q1.equals(q2) || !p.equals(q2));
     // TODO: may not work at start (if q1 = q2)
+	puts("--------------------");
+	puts("Reducing polygon");
+	puts("p= " + pto_s(p));
+	puts("q1= " + pto_s(q1));
+	puts("q2= " + pto_s(q2));
 	boolean correct = false;
     OrderedListPolygon reducedPolygon = new OrderedListPolygon();
     reducedPolygon.addPoint(q1);
     List<Point> plist = _polygon.getPoints();
-
+    
     plist = sortList(q1, plist);
 
-    for (int i = 1; i < plist.size() - 1; i++) {
+    puts("Searching for q2");
+
+    for (int i = 0; i < plist.size() - 1; i++) {
       LineSegment ls = new LineSegment(plist.get(i), plist.get((i+1)%plist.size()));
       if (ls.containsPoint(q2)) {
         if (plist.get(i).compareTo(q2) != 0){
@@ -421,5 +455,28 @@ private void initVars(OrderedListPolygon startPolygon) {
   private Point getLastPoint() {
     return _path.get(_path.size() - 1);
   }
-
+  
+  private void puts(Polygon p)
+  {
+	  for(Point o : p.getPoints())
+	  {
+		  System.out.println(o.x + " | " + o.y);
+	  }
+  }
+  private void puts(String s)
+  {
+	  System.out.println(s);
+  }
+  private void puts(List<Point> l)
+  {
+	  for(Point p : l)
+		  System.out.print(p.x + "|" + p.y + " ; ");
+	  
+	  puts("");
+  }
+  private String pto_s(Point p)
+  {
+	  return Double.toString(p.x) + "|" + Double.toString(p.y);
+  }
+  
 }
