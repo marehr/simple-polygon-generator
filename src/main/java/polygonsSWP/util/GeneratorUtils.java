@@ -14,7 +14,6 @@ import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
-import polygonsSWP.geometry.Ray;
 
 
 public class GeneratorUtils

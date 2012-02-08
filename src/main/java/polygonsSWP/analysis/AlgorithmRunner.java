@@ -106,10 +106,10 @@ public class AlgorithmRunner
     System.out.println("(r) Radius                [Virmani]");
     System.out.println("(v) Velocity              [Virmani]");
     System.out.println("-------------- Use --------------");
-    System.out.println("Runner.jar numerOfCores Algorithm parameter1 parameter2 [...]");
+    System.out.println("AlgorithmRunner numberOfCores algorithm parameter1 parameter2 [...]");
     System.out.println("Example 1: \n" +
-    		               "SpacePartitioning with Parameters vom n= 10 to n=26 in 2er Steps and fixed Bounding Box of 400 and running in 4 Threads:");
-    System.out.println("Runner.jar 4 2 n;10;26;2 s;400");
+    		               "SpacePartitioning with number of points (n) ranging from 10 to 26 step 2 and fixed Bounding Box of 400 and running in 4 Threads:");
+    System.out.println("AlgorithmRunner 4 2 n;10;26;2 s;400");
     System.exit(0);
   }
 

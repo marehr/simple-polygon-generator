@@ -2,6 +2,7 @@ package polygonsSWP.generators.rpa;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -89,15 +90,12 @@ public class RandomPolygonAlgorithmFactory
       Random random = GeneratorUtils.rand_;
 
       // 1. generate 3 rand points -> polygon P
-      // TODO: nicer way to choose points
       OrderedListPolygon polygon =
           new OrderedListPolygon(
               GeneratorUtils.createRandomSetOfPointsInSquare(3, _size, true));
-
-      while (polygon.isClockwise() >= 0) {
-        polygon =
-            new OrderedListPolygon(
-                GeneratorUtils.createRandomSetOfPointsInSquare(3, _size, true));
+      // reverse point list if ordered clockwise
+      if (polygon.isClockwise() >= 0) {
+        Collections.reverse(polygon.getPoints());
       }
 
       List<Point> polygonPoints = polygon.getPoints();
