@@ -100,6 +100,7 @@ class ShortestPathPanel extends JPanel implements PolygonGenerationPanelListener
   						ShortestPath sp = new ShortestPath(currentPolygon, startPoint, endPoint, history);
   						ArrayList<Point> path = new ArrayList<Point>(sp.generateShortestPath());
   						emitSPGenerationFinished();
+  						System.out.println("---------");
   						for(Point p:path)
   							System.out.println(p.x + " : " + p.y);												
   					}
