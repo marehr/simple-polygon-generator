@@ -14,6 +14,9 @@ import java.util.TreeSet;
 import polygonsSWP.util.EdgeList;
 import polygonsSWP.util.MathUtils;
 import polygonsSWP.util.PointType;
+import polygonsSWP.util.PointType.Direction;
+import polygonsSWP.util.PointType.PointClass;
+import polygonsSWP.util.SweepLineResult;
 
 
 /**
@@ -267,8 +270,8 @@ public class OrderedListPolygon
    */
   public static OrderedListPolygon sweepLineTestPolygon =
       new OrderedListPolygon(new ArrayList<Point>(Arrays.asList(new Point(
-          271.186, 535.512), new Point(26.567, 502.446), new Point(166.169,
-          34.714), new Point(331.105, 107.533), new Point(497.054, 261.925))));
+          514.144, 46.93), new Point(342.903, 424.477), new Point(31.69,
+          584.843), new Point(15.536, 597.865), new Point(24.599, 473.016))));
 
   public List<Trapezoid> sweepLine() {
     System.out.println("Start Trapezodation:--------------------------------------");
@@ -341,94 +344,138 @@ public class OrderedListPolygon
 
       // If it is INT
       if (curr.type == PointType.PointClass.INT) {
-        // Calculate intersection point (only one is possible)
-        LineSegment interEdge[] =
-            eList.searchIntersectingEdges(curr.p, curr.direct);
+        // First of all find edge for current Point
+        Point currInt;
+        if (curr.left.y > curr.right.y) currInt = curr.left;
+        else currInt = curr.right;
+        // Get the only intersecting edge possible for direction
+        Point searchPoint = eList.getIntersectionByEndPoint(curr.p)[0];
+        LineSegment interEdge[] = { null, null };
+        System.out.println("Edge to search with: " + searchPoint + curr.p);
+        if (curr.direct == Direction.LEFT) interEdge[0] =
+            eList.getLeftEdge(searchPoint, curr.p);
+        else interEdge[0] = eList.getRightEdge(searchPoint, curr.p);
+        // TODO: remove: eList.searchIntersectingEdges(curr.p, curr.direct);
+        // TODO: remove: debug statements
         for (int i = 0; i < 2; ++i) {
           if (interEdge[i] != null)
             System.out.println("Edge for Intersection: " + interEdge[i]);
         }
-        Point[] intersections = sweepLineIntersect(curr, interEdge);
-        for (int i = 0; i < intersections.length; ++i) {
-          if (intersections[i] != null)
-            System.out.println("Intersection Points: " + intersections[i]);
-        }
-
+        SweepLineResult interSect = sweepLineIntersect(curr, interEdge);
+        System.out.println(interSect);
         // Form Polygon
         if (curr.direct == PointType.Direction.RIGHT) {
-          formMonontonPolygon(curr.p, intersections[0],
-              eList.getIntersectionByEndPoint(curr.p)[0],
-              eList.getIntersectionByEndPoint(interEdge[0]._a)[0], returnList);
+          // Get right former points
+          Point[] former = eList.getIntersectionByEndPoint(interEdge[0]._a);
+          Point formerIntersect;
+          if (former[1] == null) formerIntersect = former[0];
+          else formerIntersect = former[1];
+          formMonontonPolygon(curr.p, interSect.rightIntersect,
+              eList.getIntersectionByEndPoint(curr.p)[0], formerIntersect,
+              returnList);
           // Update intersection to calculated one
+          eList.updateIntersection(interEdge[0]._a, interEdge[0]._b,
+              interSect.rightIntersect);
         }
         else {
-          formMonontonPolygon(intersections[0], curr.p,
-              eList.getIntersectionByEndPoint(interEdge[0]._a)[0],
-              eList.getIntersectionByEndPoint(curr.p)[0], returnList);
+          // Get right former Points
+          Point[] former = eList.getIntersectionByEndPoint(curr.p);
+          Point formerCurr;
+          if (former[1] == null) formerCurr = former[0];
+          else formerCurr = former[1];
+          Point formerIntersect =
+              eList.getIntersectionByEndPoint(interEdge[0]._a)[0];
+          formMonontonPolygon(interSect.leftIntersect, curr.p, formerIntersect,
+              formerCurr, returnList);
+          eList.updateIntersection(interEdge[0]._a, interEdge[0]._b,
+              interSect.leftIntersect);
         }
-        eList.updateIntersection(interEdge[0]._a, interEdge[0]._b,
-            intersections[0]);
       }
       // If it is MAX
       else if (curr.type == PointType.PointClass.MAX) {
         if (curr.direct == PointType.Direction.BOTH) {
           // Calculate intersection points (only two are possbile)
           LineSegment interEdge[] =
-              eList.searchIntersectingEdges(curr.p, curr.direct);
+              { eList.getLeftEdge(curr.p, curr.left),
+                  eList.getRightEdge(curr.p, curr.right) };
+          // TODO: remove: eList.searchIntersectingEdges(curr.p, curr.direct);
+          // TODO: remove: debug
           for (int i = 0; i < 2; ++i) {
             if (interEdge[i] != null)
               System.out.println("Edge for Intersection: " + interEdge[i]);
           }
-          Point[] intersections = sweepLineIntersect(curr, interEdge);
-          for (int i = 0; i < intersections.length; ++i) {
-            if (intersections[i] != null)
-              System.out.println("Intersection Points: " + intersections[i]);
-          }
+          SweepLineResult interSect = sweepLineIntersect(curr, interEdge);
+          System.out.println(interSect);
+          // Get right intersection points:
+          Point formerRight =
+              eList.getIntersectionByEndPoint(interEdge[1]._a)[0];
+          if (formerRight.equals(curr.p))
+            formerRight = eList.getIntersectionByEndPoint(interEdge[1]._a)[1];
+          Point formerLeft =
+              eList.getIntersectionByEndPoint(interEdge[0]._a)[0];
+          if (formerLeft.equals(curr.p))
+            formerLeft = eList.getIntersectionByEndPoint(interEdge[0]._a)[1];
+
           // Form Polygon
-          formMonontonPolygon(intersections[0], intersections[1],
-              eList.getIntersectionByEndPoint(interEdge[0]._a)[0],
-              eList.getIntersectionByEndPoint(interEdge[1]._a)[0], returnList);
+          formMonontonPolygon(interSect.leftIntersect,
+              interSect.rightIntersect, formerLeft, formerRight, returnList);
           // Update intersection to claculated ones
           eList.updateIntersection(interEdge[0]._a, interEdge[0]._b,
-              intersections[0]);
+              interSect.leftIntersect);
           eList.updateIntersection(interEdge[1]._a, interEdge[1]._b,
-              intersections[1]);
+              interSect.rightIntersect);
         }
       }
       // If it is MIN
       else if (curr.type == PointType.PointClass.MIN) {
         if (curr.direct == PointType.Direction.BOTH) {
           // Calculate intersection points (only two are possbile)
+
           LineSegment interEdge[] =
-              eList.searchIntersectingEdges(curr.p, curr.direct);
+              { eList.getLeftEdge(curr.p, curr.right),
+                  eList.getRightEdge(curr.p, curr.left) };
+          // TODO: remove: eList.searchIntersectingEdges(curr.p, curr.direct);
+          // TODO: remove: debug
           for (int i = 0; i < 2; ++i) {
             if (interEdge[i] != null)
               System.out.println("Edge for Intersection: " + interEdge[i]);
           }
-          Point[] intersections = sweepLineIntersect(curr, interEdge);
-          for (int i = 0; i < intersections.length; ++i) {
-            if (intersections[i] != null)
-              System.out.println("Intersection Points: " + intersections[i]);
-          }
+          SweepLineResult interSect = sweepLineIntersect(curr, interEdge);
+          System.out.println(interSect);
 
           // Form Polygon
           // Only form first polygon if it wasn't form before because of two MIN
           // on the same line
           // Is it the right intersection point? If not get the other one.
-          Point endOne = eList.getIntersectionByEndPoint(interEdge[0]._a)[0];
-          Point endTwo = eList.getIntersectionByEndPoint(interEdge[1]._a)[0];
+          System.out.println("Intersection Points by End Point");
+          Point endOne;
+          Point endTwo;
+          if (interEdge[0]._a.equals(interEdge[1]._a)) {
+            endOne = eList.getIntersectionByEndPoint(interEdge[0]._a)[0];
+            endTwo = eList.getIntersectionByEndPoint(interEdge[1]._a)[1];
+          }
+          else {
+            endOne = eList.getIntersectionByEndPoint(interEdge[0]._a)[0];
+            endTwo = eList.getIntersectionByEndPoint(interEdge[1]._a)[0];
+          }
           Point formerOne = eList.getIntersectionByEndPoint(curr.p)[0];
           Point formerTwo = eList.getIntersectionByEndPoint(curr.p)[1];
-          if (!eList.getIntersectionByEndPoint(interEdge[0]._a)[0].equals(intersections[0]))
-            formMonontonPolygon(curr.p, intersections[0], formerOne, endOne,
-                returnList);
-          formMonontonPolygon(curr.p, intersections[1], formerTwo, endTwo,
-              returnList);
+          System.out.println("Left:");
+          System.out.println("  " + formerOne);
+          System.out.println("  " + endOne);
+          System.out.println("Right:");
+          System.out.println("  " + formerTwo);
+          System.out.println("  " + endTwo);
+          if (!eList.getIntersectionByEndPoint(interEdge[0]._a)[0].equals(interSect.leftIntersect))
+            formMonontonPolygon(curr.p, interSect.leftIntersect, formerOne,
+                endOne, returnList);
+          formMonontonPolygon(curr.p, interSect.rightIntersect, formerTwo,
+              endTwo, returnList);
           // Update former intersections
           eList.updateIntersection(interEdge[0]._a, interEdge[0]._b,
-              intersections[0]);
+              interSect.leftIntersect);
           eList.updateIntersection(interEdge[1]._a, interEdge[1]._b,
-              intersections[1]);
+              interSect.rightIntersect);
         }
         else {
           formMonontonPolygon(curr.p,
@@ -447,36 +494,34 @@ public class OrderedListPolygon
             if (interEdge[i] != null)
               System.out.println("Edge for Intersection: " + interEdge[i]);
           }
-          Point[] intersections = sweepLineIntersect(curr, interEdge);
-          for (int i = 0; i < intersections.length; ++i) {
-            if (intersections[i] != null)
-              System.out.println("Intersection Points: " + intersections[i]);
-          }
+          SweepLineResult interSect = sweepLineIntersect(curr, interEdge);
+          System.out.println(interSect);
 
           // If it is another HMAX calculate snd intersection and form polygon
           if (pointHash.get(curr.right).type == PointType.PointClass.HMAX) {
             LineSegment interEdgeSecond[] =
                 eList.searchIntersectingEdges(curr.right,
                     PointType.Direction.RIGHT);
-            Point[] sndIntersections =
+            SweepLineResult sndResult =
                 sweepLineIntersect(pointHash.get(curr.right), interEdgeSecond);
-            formMonontonPolygon(intersections[0], sndIntersections[0],
+            formMonontonPolygon(interSect.leftIntersect,
+                sndResult.rightIntersect,
                 eList.getIntersectionByEndPoint(interEdge[0]._a)[0],
                 eList.getIntersectionByEndPoint(interEdgeSecond[0]._a)[0],
                 returnList);
             // Update FormerIntersections.
             eList.updateIntersection(interEdge[0]._a, interEdge[0]._b,
-                intersections[0]);
+                interSect.leftIntersect);
             eList.updateIntersection(interEdgeSecond[0]._a,
-                interEdgeSecond[0]._b, sndIntersections[0]);
+                interEdgeSecond[0]._b, sndResult.rightIntersect);
           }
           else {
-            formMonontonPolygon(intersections[0], curr.right,
+            formMonontonPolygon(interSect.leftIntersect, curr.right,
                 eList.getIntersectionByEndPoint(interEdge[0]._a)[0],
                 eList.getIntersectionByEndPoint(curr.right)[0], returnList);
             // Update FormerIntersections.
             eList.updateIntersection(interEdge[0]._a, interEdge[0]._b,
-                intersections[0]);
+                interSect.leftIntersect);
           }
         }
         else if (curr.direct == PointType.Direction.RIGHT) {
@@ -487,19 +532,16 @@ public class OrderedListPolygon
             if (interEdge[i] != null)
               System.out.println("Edge for Intersection: " + interEdge[i]);
           }
-          Point[] intersections = sweepLineIntersect(curr, interEdge);
-          for (int i = 0; i < intersections.length; ++i) {
-            if (intersections[i] != null)
-              System.out.println("Intersection Points: " + intersections[i]);
-          }
+          SweepLineResult interSect = sweepLineIntersect(curr, interEdge);
+          System.out.println(interSect);
 
-          if (!eList.getIntersectionByEndPoint(interEdge[0]._a)[0].equals(intersections[0])) {
-            formMonontonPolygon(intersections[0], curr.left,
+          if (!eList.getIntersectionByEndPoint(interEdge[0]._a)[0].equals(interSect.rightIntersect)) {
+            formMonontonPolygon(interSect.rightIntersect, curr.left,
                 eList.getIntersectionByEndPoint(interEdge[0]._a)[0],
                 eList.getIntersectionByEndPoint(curr.left)[0], returnList);
             // Update former intersections
             eList.updateIntersection(interEdge[0]._a, interEdge[0]._b,
-                intersections[0]);
+                interSect.rightIntersect);
           }
         }
       }
@@ -516,13 +558,13 @@ public class OrderedListPolygon
           // Calculate intersection points (only two are possbile)
           LineSegment interEdge[] =
               eList.searchIntersectingEdges(curr.p, curr.direct);
-          Point[] intersections = sweepLineIntersect(curr, interEdge);
-          formMonontonPolygon(curr.p, intersections[0],
+          SweepLineResult interSect = sweepLineIntersect(curr, interEdge);
+          formMonontonPolygon(curr.p, interSect.rightIntersect,
               eList.getIntersectionByEndPoint(curr.p)[0],
               eList.getIntersectionByEndPoint(interEdge[0]._a)[0], returnList);
           // Update former intersections
           eList.updateIntersection(interEdge[0]._a, interEdge[0]._b,
-              intersections[0]);
+              interSect.rightIntersect);
         }
       }
 
@@ -652,26 +694,33 @@ public class OrderedListPolygon
    * @return if there was only one edge to intersect only the first field of the
    *         array is occupied, otherwise both
    */
-  private Point[] sweepLineIntersect(PointType p, LineSegment[] edges) {
+  private SweepLineResult sweepLineIntersect(PointType p, LineSegment[] edges) {
     // TODO: check if endpoints of lines count as intersections
+    SweepLineResult result = new SweepLineResult();
+    System.out.println("SweepLineIntersect");
+    for (LineSegment item : edges)
+      if (item != null) System.out.println(item);
     if (p.direct == PointType.Direction.RIGHT) {
       Ray sweepLine = new Ray(p.p, new Point(p.p.x + 1, p.p.y));
       Point[] intersections = sweepLine.intersect(edges[0]);
-      return intersections;
+      result.rightEdge = edges[0];
+      result.rightIntersect = intersections[0];
+      return result;
     }
     else if (p.direct == PointType.Direction.LEFT) {
       Ray sweepLine = new Ray(p.p, new Point(p.p.x - 1, p.p.y));
       Point[] intersections = sweepLine.intersect(edges[0]);
-      return intersections;
+      result.leftEdge = edges[0];
+      result.leftIntersect = intersections[0];
+      return result;
     }
     else {
-      Point[] returnArray = new Point[2];
       Line sweepLine = new Line(p.p, new Point(p.p.x + 1, p.p.y));
       Point[] intersectionOne = sweepLine.intersect(edges[0]);
       Point[] intersectionTwo = sweepLine.intersect(edges[1]);
-      returnArray[0] = intersectionOne[0];
-      returnArray[1] = intersectionTwo[0];
-      return returnArray;
+      result.leftIntersect = intersectionOne[0];
+      result.rightIntersect = intersectionTwo[0];
+      return result;
     }
   }
 
