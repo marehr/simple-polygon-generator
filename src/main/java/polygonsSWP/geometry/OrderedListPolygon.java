@@ -271,8 +271,8 @@ public class OrderedListPolygon
    */
   public static OrderedListPolygon sweepLineTestPolygon =
       new OrderedListPolygon(new ArrayList<Point>(Arrays.asList(new Point(
-          232.969, 130.804), new Point(372.927, 167.177), new Point(340.128,
-          64.845), new Point(586.697, 277.904), new Point(180.242, 256.862))));
+          582.112, 353.098), new Point(363.942, 437.381), new Point(363.962,
+          388.887), new Point(288.382, 459.023), new Point(487.854, 116.927))));
 
   public List<Trapezoid> sweepLine() {
     System.out.println("Start Trapezodation:--------------------------------------");
@@ -429,8 +429,8 @@ public class OrderedListPolygon
           // Calculate intersection points (only two are possbile)
 
           LineSegment interEdge[] =
-              { eList.getLeftEdge(curr.p, curr.right, curr.type),
-                  eList.getRightEdge(curr.p, curr.left, curr.type) };
+              { eList.getLeftEdge(curr.right, curr.p, curr.type),
+                  eList.getRightEdge(curr.left, curr.p, curr.type) };
           // TODO: remove: eList.searchIntersectingEdges(curr.p, curr.direct);
           // TODO: remove: debug
           for (int i = 0; i < 2; ++i) {
