@@ -1,0 +1,16 @@
+CREATE TABLE [Statistic] (
+  [id] INTEGER PRIMARY KEY AUTOINCREMENT, 
+  [used_algorithm] VARCHAR(25), 
+  [number_of_points] INTEGER, 
+  [surface_area] DOUBLE, 
+  [circumference] DOUBLE, 
+  [timestamp] BIGINT, 
+  [time_for_creating_polygon] BIGINT, 
+  [iterations] INTEGER, 
+  [rejections] INTEGER, 
+  [count_of_backtracks] INTEGER, 
+  [radius] DOUBLE, 
+  [avg_velocity_without_collisions] DOUBLE, 
+  [initializeRejections] INTEGER, 
+  [maximumRejections] INTEGER);
+

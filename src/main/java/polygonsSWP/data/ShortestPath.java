@@ -1,6 +1,7 @@
 package polygonsSWP.data;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import polygonsSWP.geometry.LineSegment;
@@ -8,7 +9,6 @@ import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.Ray;
-import polygonsSWP.geometry.Trapezoid;
 import polygonsSWP.util.MathUtils;
 
 /**
@@ -24,6 +24,9 @@ public class ShortestPath
   private ArrayList<Point> _path = new ArrayList<Point>();
   private OrderedListPolygon _polygon;
   private Point[] parray = new Point[3];
+  private History _history = null;
+  private Point _start = null;
+  private Point _end = null;
 
   /**
    * Generates an empty shortest path for polygon.
@@ -31,26 +34,14 @@ public class ShortestPath
    * @param polygon Polygon in which is shortest path.
    * @param start Start point of path.
    * @param end End point of path.
+ * @param history 
    */
-  public ShortestPath(Polygon polygon, Point start, Point end) {
-//    _polygon = (OrderedListPolygon) polygon;
-//    _path.add(start);
-//    _path.add(end);
-	  OrderedListPolygon p = new OrderedListPolygon();
-	  p.addPoint(new Point(38.0,260.0));
-	  p.addPoint(new Point(294.0,535.0));//
-	  p.addPoint(new Point(346.0,533.0));
-	  p.addPoint(new Point(318.0,525.0));
-	  p.addPoint(new Point(190.0,186.0));
-	  p.addPoint(new Point(536.0,207.0));
-	  p.addPoint(new Point(409.0,538.0));
-	  p.addPoint(new Point(258.0,587.0));//
-	  
-	  Point startPoint = new Point(90.0,330.0);
-	  Point endPoint = new Point(220.0,210.0);
-      _polygon = p;
-      //_path.add(startPoint);
-      _path.add(endPoint);
+  public ShortestPath(Polygon polygon, Point start, Point end, History history) {
+      _polygon = (OrderedListPolygon) polygon;
+      _start = start;
+      _end = end;
+      _path.add(end);
+      _history = history;
   }
 
   /**
@@ -100,11 +91,11 @@ public class ShortestPath
   }
 
   public List<Point> generateShortestPath() {
-//    List<Trapezoid> plist = _polygon.sweepLine();
-//
+    
+//	  List<Trapezoid> plist = _polygon.sweepLine();
 //    Trapezoid startTrapezoid = null;
 //    for (Trapezoid p : plist) {
-//      if (p.containsPoint(_path.get(0), true)) {
+//      if (p.containsPoint(_start, true)) {
 //        if (p.containsPoint(_path.get(_path.size() - 1), true)) {
 //          return _path;
 //        }
@@ -115,13 +106,22 @@ public class ShortestPath
 //      }
 //      // TODO: do we need: e(t) ?
 //    }
-//
-//    initVars((OrderedListPolygon) startTrapezoid);
-    parray[1] = new Point(294.0,535.0);
-    parray[2] = new Point(258.0,587.0);
-	  
-    parray[0] = new Point(90.0,330.0);
+
+//    initVars((OrderedListPolygon) startTrapezoid;
+	
+	puts("Startpoint " + _start.x + " | " + _start.y);
+	puts("Endpoint " + _path.get(_path.size()-1).x + " | " + _path.get(_path.size()-1).y);
+	puts("Starting with Polygon:");
+	puts(_polygon);
+	if(_polygon.isClockwise() == 1) 
+		_polygon.reverse();
+	slowinitVars(_polygon);
+    
     while (!existsDirectConnection()) {
+    	puts("-------------------");
+    	puts("Current Path:");
+    	puts(_path);
+    	puts("-------------------");
       parray = makeStep(parray[0], parray[1], parray[2]);
     }
 
@@ -130,13 +130,54 @@ public class ShortestPath
 
 
 
+private void slowinitVars(OrderedListPolygon p) {
+	List<Point> list = p.getPoints();
+	List<Point> visiblePoints = new LinkedList<Point>();
+	
+	puts("Init q1 ,q2 ...");
+	puts("Visible points:");
+	
+	for(Point point : list)
+	{
+		List<Point[]> intersects = _polygon.intersect(new LineSegment(_start,point));
+		if(intersects.size() > 1)
+			continue;
+		
+		if(intersects.size() > 0)
+		{
+			if(intersects.get(0)[0] != null)
+			{
+				visiblePoints.add(intersects.get(0)[0]);
+				System.out.println(intersects.get(0)[0].x + " " + intersects.get(0)[0].y);
+			}			
+		}		
+	}
+		
+	parray[0] = _start;
+		
+	for(int i=0;i < visiblePoints.size();i++)
+	{
+		parray[0] = _start;
+		parray[1] = visiblePoints.get(i);
+		parray[2] = visiblePoints.get((i+1)%visiblePoints.size());
+		if(reducePolygon(parray[0], parray[1], parray[2], false) != null)
+		{
+			puts("Correct init:");
+			puts("q1= " + pto_s(parray[1]));
+			puts("q2= " + pto_s(parray[2]));
+			break;
+		}
+	}
+	
+}
+
 private void initVars(OrderedListPolygon startPolygon) {
     List<Point> list = startPolygon.sortByY();
     int len = list.size();
 
     // TODO: init correctly
 
-    if (tLiesInSubPolygon(list.get(0), list.get(11))) {
+    if (tLiesInSubPolygon(list.get(0), list.get(1))) {
       parray[1] = list.get(0);
       parray[2] = list.get(1);
     }
@@ -144,7 +185,7 @@ private void initVars(OrderedListPolygon startPolygon) {
       parray[1] = list.get(len - 1);
       parray[2] = list.get(len - 2);
     }
-
+    
     // find subpolygon which contains endpoint
     // init q1,q2 (parray[1],parray[2])
     // Figure 9 p. 17
@@ -171,7 +212,7 @@ private void initVars(OrderedListPolygon startPolygon) {
    * TODO: description
    */
   private Point[] makeStep(Point p, Point q1, Point q2) {
-    reducePolygon(p, q1, q2);
+    reducePolygon(p, q1, q2,true);
     if (isConcaveVertex(p, q1, _polygon)) {
       Point newP = findRayPolygonIntersection(p, q1, _polygon);
       if (tLiesInSubPolygon(q1, newP)) {
@@ -181,7 +222,6 @@ private void initVars(OrderedListPolygon startPolygon) {
       }
       else {
         Point[] returnArray = { p, newP, q2 };
-        addPointToPath(p);
         return returnArray;
       }
     }
@@ -194,7 +234,6 @@ private void initVars(OrderedListPolygon startPolygon) {
       }
       else {
         Point[] returnArray = { p, q1, newP };
-        addPointToPath(p);
         return returnArray;
       }
     }
@@ -203,12 +242,10 @@ private void initVars(OrderedListPolygon startPolygon) {
         Point newP = findRayPolygonIntersection(p, succ(q1), _polygon);
         if (tLiesInSubPolygon(q1, newP)) {
           Point[] returnArray = { p, q1, newP };
-          addPointToPath(p);
           return returnArray;
         }
         else {
           Point[] returnArray = { p, newP, q2 };
-          addPointToPath(p);
           return returnArray;
         }
       }
@@ -216,12 +253,10 @@ private void initVars(OrderedListPolygon startPolygon) {
         Point newP = findRayPolygonIntersection(p, pred(q2), _polygon);
         if (tLiesInSubPolygon(q2, newP)) {
           Point[] returnArray = { p, newP, q2 };
-          addPointToPath(p);
           return returnArray;
         }
         else {
           Point[] returnArray = { p, q1, newP };
-          addPointToPath(p);
           return returnArray;
         }
       }
@@ -255,19 +290,51 @@ private void initVars(OrderedListPolygon startPolygon) {
    * @return the intersection with given polygon or null
    */
   private Point findRayPolygonIntersection(Point p, Point q1, OrderedListPolygon polygon) {
-    Ray ray = new Ray(p, q1);
-    Point newP = null;
-    List<Point> pointList = polygon.getPoints();
-    pointList = sortList(q1,pointList);
-    for (int i = 1; i < pointList.size() - 1; i++) {
-      Point[] intersectingPoints = ray.intersect(new LineSegment(pointList.get(i),pointList.get(i + 1)));
-      // TODO: Why does Ray.intersect(LineSegment) method return an array?
-      if ((intersectingPoints != null) && (intersectingPoints.length > 0)) {
-	        newP = intersectingPoints[0];
-	        break;
-	      }
-    }
-    return newP;
+//    Ray ray = new Ray(p, q1);
+//    Point newP = null;
+//    List<Point> pointList = polygon.getPoints();
+//    pointList = sortList(q1,pointList);
+//    for (int i = 1; i < pointList.size() - 1; i++) {
+//      Point[] intersectingPoints = ray.intersect(new LineSegment(pointList.get(i),pointList.get(i + 1)));
+//      if ((intersectingPoints != null) && (intersectingPoints.length > 0)) {
+//	        newP = intersectingPoints[0];
+//	        break;
+//	      }
+//    }
+//    return newP;
+	  Ray ray = new Ray(p,q1);
+	  Point newP = null;
+	  List<Point[]> res = _polygon.intersect(ray);
+	  //if there are multiple intersections return the nearest TODO: is this always correct?
+	  
+	  
+//	  for(Point[] poi_array : res)
+//	  {
+//		  if(q1.equals(poi_array[0]))
+//			  continue;
+//		  if(poi_array[0] != null)
+//		  {
+//			  if(newP == null)
+//				  newP = poi_array[0];
+//			  if(newP != null)
+//			  {
+//				 if(q1.distanceTo(poi_array[0]) < q1.distanceTo(newP))
+//					 newP = poi_array[0];
+//			  }
+//		  }
+//	  }
+	  
+	  if(res.size() > 0)
+	  {
+		  return res.get(res.size()-1)[0];
+	  }
+	  else
+	  {
+		  System.out.println("Something is wrong here");
+		  return null;
+	  }
+	  
+	  //return newP;
   }
 
   private boolean tLiesInSubPolygon(Point q1, Point newP) {
@@ -300,9 +367,8 @@ private void initVars(OrderedListPolygon startPolygon) {
    * Sorts a list of point and
    * @return same list with given point at first position
    */
-  public static List<Point> sortList(Point q1, List<Point> list) {
+  public List<Point> sortList(Point q1, List<Point> list) {
     int index = getIndexOfPoint(q1, list);
-
     if (index == 0) {
       return list;
     } else {
@@ -311,25 +377,30 @@ private void initVars(OrderedListPolygon startPolygon) {
 	  tmp.addAll(list.subList(0, index));
       return tmp;
     }
+
   }
 
   // This works only if q1 is counter clockwise the next point after p
   // is this sufficient?
-  private OrderedListPolygon reducePolygon(Point p, Point q1, Point q2) {
-    // TODO: may not work at start (if q1 = q2)
+  private OrderedListPolygon reducePolygon(Point p, Point q1, Point q2, boolean force){
+	puts("--------------------");
+	puts("Reducing polygon");
+	puts("p= " + pto_s(p));
+	puts("q1= " + pto_s(q1));
+	puts("q2= " + pto_s(q2));
+	boolean correct = false;
     OrderedListPolygon reducedPolygon = new OrderedListPolygon();
-    reducedPolygon.addPoint(q1);
+    //reducedPolygon.addPoint(q1);
     List<Point> plist = _polygon.getPoints();
-
     plist = sortList(q1, plist);
-
-    for (int i = 1; i < plist.size() - 1; i++) {
-      LineSegment ls = new LineSegment(plist.get(i), plist.get(i + 1));
+    for (int i = 0; i < plist.size() - 1; i++) {
+      LineSegment ls = new LineSegment(plist.get(i), plist.get((i+1)%plist.size()));
       if (ls.containsPoint(q2)) {
         if (plist.get(i).compareTo(q2) != 0){
           reducedPolygon.addPoint(plist.get(i));
           reducedPolygon.addPoint(q2);
           reducedPolygon.addPoint(p);
+          correct = true;
           break;
         }
       }
@@ -337,14 +408,22 @@ private void initVars(OrderedListPolygon startPolygon) {
         reducedPolygon.addPoint(plist.get(i));
       }
     }
+    
+    if(!correct)
+    {
+    	System.out.println("Swapping q1,q2");
+    	reducePolygon(p,q2,q1,force);
+    }
 
     // TODO: exists a case where this will fail?
     if (reducedPolygon.containsPoint(getLastPoint(), true)) {
       // TODO: insert history stuff here
-      return (_polygon = reducedPolygon);
+      if(force)
+         return (_polygon = reducedPolygon);
+      else
+    	 return reducedPolygon;
     }
     else {
-      // TODO:
       return null;
     }
 
@@ -391,5 +470,28 @@ private void initVars(OrderedListPolygon startPolygon) {
   private Point getLastPoint() {
     return _path.get(_path.size() - 1);
   }
-
+  
+  private void puts(Polygon p)
+  {
+	  for(Point o : p.getPoints())
+	  {
+		  System.out.println(o.x + " | " + o.y);
+	  }
+  }
+  private void puts(String s)
+  {
+	  System.out.println(s);
+  }
+  private void puts(List<Point> l)
+  {
+	  for(Point p : l)
+		  System.out.print(p.x + "|" + p.y + " ; ");
+	  
+	  puts("");
+  }
+  private String pto_s(Point p)
+  {
+	  return Double.toString(p.x) + "|" + Double.toString(p.y);
+  }
+  
 }

@@ -45,9 +45,40 @@ public abstract class Polygon
   public abstract int size();
 
   /**
-   * @return Surface area as double.
+   * Calculates the circumference
+   * 
+   * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+   * @return Circumference of the polygon
    */
-  public abstract double getSurfaceArea();
+  public double getCircumference(){
+    List<Point> vertices = getPoints();
+    double circumference = 0.0;
+
+    for(int i = 0, j = vertices.size() -1; i < vertices.size(); j = i++){
+      circumference += vertices.get(i).distanceTo(vertices.get(j));
+    }
+
+    return circumference;
+  }
+
+  /**
+   * Calculates the Surface Area using the Gaussian formula.
+   * 
+   * @author Steve Dierker <dierker.steve@fu-berlin.de>
+   * @return Surface area of the polygon
+   */
+  public double getSurfaceArea() {
+    assert (size() >= 3);
+    List<Point> vertices = getPoints();
+
+    double result = 0.0;
+    for (int p = size() - 1, q = 0; q < size(); p = q++) {
+      result +=
+          vertices.get(p).x * vertices.get(q).y - vertices.get(q).x *
+              vertices.get(p).y;
+    }
+    return result / 2.0;
+  }
 
   /**
    * @return a random point in the polygon area (including on the edges).
@@ -238,7 +269,8 @@ public abstract class Polygon
 
   /**
    * Find first intersection of Ray and Polygon. Intersections with base and
-   * support point don't count, as well as collinear line segements.
+   * support point of ray same as points of polygon are ignored , as well as 
+   * collinear line segements.
    * 
    * @param r Ray
    * @return Returns array of points {intersection, a, b}, where ab is the
@@ -258,9 +290,9 @@ public abstract class Polygon
         else if (isec1[0] == null && isec2[0] == null)
           return 0;
         
-        else if(isec1[0].distanceTo(r._base) > isec2[0].distanceTo(r._base))
-          return -1;
         else if(isec1[0].distanceTo(r._base) < isec2[0].distanceTo(r._base))
+          return -1;
+        else if(isec1[0].distanceTo(r._base) > isec2[0].distanceTo(r._base))
           return 1;
         else 
           return 0;

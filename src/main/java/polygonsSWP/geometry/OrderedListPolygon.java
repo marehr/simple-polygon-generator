@@ -7,11 +7,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.Comparator;
 import java.util.TreeSet;
 
 import polygonsSWP.util.EdgeList;
+import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 import polygonsSWP.util.PointType;
 import polygonsSWP.util.PointType.Direction;
@@ -32,6 +32,7 @@ public class OrderedListPolygon
   extends Polygon
 {
   List<Point> _coords;
+  List<Triangle> _triangles;
 
   /**
    * Generates an empty polygon object which will contain no statistics or
@@ -194,7 +195,7 @@ public class OrderedListPolygon
     List<Integer[]> is = findIntersections();
     if (is.size() == 0) return null;
 
-    return is.get(new Random(System.currentTimeMillis()).nextInt(is.size()));
+    return is.get(GeneratorUtils.rand_.nextInt(is.size()));
   }
 
   /**
@@ -731,15 +732,17 @@ public class OrderedListPolygon
    * @return List of triangulars
    */
   public List<Triangle> triangulate() {
+    if(_triangles != null) return _triangles;
+
     assert size() >= 3;
     assert (isSimple());
     assert (isClockwise() == -1);
 
-    List<Triangle> returnList = new ArrayList<Triangle>();
+    _triangles = new ArrayList<Triangle>();
 
     if (size() == 3) {
-      returnList.add(new Triangle(getPoints()));
-      return returnList;
+      _triangles.add(new Triangle(getPoints()));
+      return _triangles;
     }
 
     /* Manage a list of indices. */
@@ -788,7 +791,7 @@ public class OrderedListPolygon
 
       if (isSnip) {
         /* output Triangle */
-        returnList.add(triangle);
+        _triangles.add(triangle);
 
         /* remove v from remaining polygon */
         for (int s = v, t = v + 1; t < nv; s++, t++)
@@ -797,25 +800,7 @@ public class OrderedListPolygon
       }
     }
 
-    return returnList;
-  }
-
-  /**
-   * Calculates the Surface Area using the Gaussian formula.
-   * 
-   * @author Steve Dierker <dierker.steve@fu-berlin.de>
-   * @return Surface area of the polygon
-   */
-  public double getSurfaceArea() {
-    assert (size() >= 3);
-
-    double result = 0.0;
-    for (int p = size() - 1, q = 0; q < size(); p = q++) {
-      result +=
-          _coords.get(p).x * _coords.get(q).y - _coords.get(q).x *
-              _coords.get(p).y;
-    }
-    return result / 2.0;
+    return _triangles;
   }
 
   /*

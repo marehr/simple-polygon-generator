@@ -90,7 +90,7 @@ public class LineSegment implements Cloneable
    * @param ignoreSharedEndpoints if set, shared endpoints will not be treated
    *          as an intersection.
    * @return null if line segments do not intersect, array of length 0 if both
-   *         are coincident, array containing intersection Point else. 
+   *         are collinear, array containing intersection Point else. 
    *         TODO: change in using methods
    */
   public Point[] intersect(LineSegment e, boolean ignoreSharedEndpoints) {
@@ -99,14 +99,25 @@ public class LineSegment implements Cloneable
         new LineSegmentIntersectionMode(!ignoreSharedEndpoints));
   }
 
+  /**
+   * Extends this line segment on the side of point a.
+   * @return ray with base _b and support _b
+   */
   public Ray extendToASide() {
     return new Ray(_b, _a);
   }
 
+  /**
+   * Extends this line segment on the side of point b.
+   * @return ray with base _a and support _b
+   */
   public Ray extendToBSide() {
     return new Ray(_a, _b);
   }
 
+  /**
+   * Extends this line segment to a line.
+   */
   public Line extendToLine() {
     return new Line(_a, _b);
   }

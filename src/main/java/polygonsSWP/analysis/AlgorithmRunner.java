@@ -1,8 +1,6 @@
 package polygonsSWP.analysis;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.lang.Thread.State;
 import java.util.HashMap;
 
 import polygonsSWP.analysis.Option.DynamicParameter;
@@ -26,11 +24,12 @@ import polygonsSWP.geometry.Polygon;
 
 /**
  * TODO: Test latest functions
- * TODO: Change Architecture, so the casts are successfull
  * @author Kadir
  */
 public class AlgorithmRunner
 {
+  private static int cores = 2;
+
   static PolygonGeneratorFactory[] facs = { new SweepLineTestFactory(),
       new SpacePartitioningFactory(), new PermuteAndRejectFactory(),
       new TwoOptMovesFactory(), new RandomPolygonAlgorithmFactory(),
@@ -38,109 +37,84 @@ public class AlgorithmRunner
       new ConvexHullGeneratorFactory(), new VelocityVirmaniFactory(),
       new SteadyGrowthFactory() };
 
-  private static int cores = 2;
+  private static HashMap<Character, Parameters> optionMap =
+  new HashMap<Character, PolygonGeneratorFactory.Parameters>() {
+    private static final long serialVersionUID = 1L;
+  
+    {
+      put('n', Parameters.n);
+      put('r', Parameters.radius);
+      put('s', Parameters.size);
+      put('i', Parameters.runs);
+      put('v', Parameters.velocity);
+    }
+  
+  };
+
+  private static OptionCombinator optionCombinator;
 
   private static int chosenAlgorithm;
-  private static InputStreamReader converter = new InputStreamReader(System.in);
-  private static BufferedReader console = new BufferedReader(converter);
-  private static String input;
-  
   private static Thread[] threads = new Thread[cores];//Make cores dynamic
-  private static PolygonStatistics[] stats = new PolygonStatistics[cores];
-  private static OptionCombinator optionCombinator;
+  private static DatabaseWriter database;
   
-  private static void intro() {
-    System.out.println("------------------------------");
+  
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    
+    if(args.length >= 4)
+    {
+      String input = "";
+      try
+      {
+        cores = Integer.valueOf(args[0]);
+        chosenAlgorithm = Integer.valueOf(args[1]);
+      }
+      catch(Exception e)
+      {
+        e.printStackTrace();
+      }
+      
+      for(int i=2; i < args.length; i++)
+        input += args[i]+" ";
+      
+      optionCombinator = readLineAndOptions(input);
+      if(optionCombinator != null)
+      {
+        database = new DatabaseWriter();
+        execute();
+        database.close();
+      }
+      else
+        introAndExit();
+    }
+    else
+      introAndExit();
+  }
 
+  
+  private static void introAndExit() {
+    System.out.println("----------- Algorithm -----------");
     for (int i = 0; i < facs.length; i++)
       System.out.println(i + ". " + facs[i].toString());
-
-    System.out.println("------------------------------");
-
+    System.out.println();
+    System.out.println("----------- Parameters -----------");
+    System.out.println("(n) Number of Points      [ALL]");
+    System.out.println("(s) Size of Boundaries    [ALL]");
+    System.out.println("(i) Number of iterations  [Virmani]");
+    System.out.println("(r) Radius                [Virmani]");
+    System.out.println("(v) Velocity              [Virmani]");
+    System.out.println("-------------- Use --------------");
+    System.out.println("AlgorithmRunner numberOfCores algorithm parameter1 parameter2 [...]");
+    System.out.println("Example 1: \n" +
+    		               "SpacePartitioning with number of points (n) ranging from 10 to 26 step 2 and fixed Bounding Box of 400 and running in 4 Threads:");
+    System.out.println("AlgorithmRunner 4 2 n;10;26;2 s;400");
+    System.exit(0);
   }
 
-  private static int readInt() {
-    int res = 0;
-    boolean run = true;
-    do {
-      try {
-        input = console.readLine();
-        res = Integer.valueOf(input);
-      }
-      catch (NumberFormatException ex) {
-        System.out.println("Not an Integer!");
-      }
-      catch (IOException e) {
-        e.printStackTrace();
-        return -1;
-      }
-      run = false;
-    }
-    while (run);
-    return res;
-  }
+  private static OptionCombinator readLineAndOptions(String input) {
 
-  private static int readAlgorithm(String message, int max, String error) {
-    int res = 0;
-    boolean run = true;
-    System.out.println(message);
-    do {
-      res = readInt();
-      if (res < 0 || res > max) System.out.println(error);
-      else run = false;
-    }
-    while (run);
-
-    return res;
-  }
-
-  private static HashMap<Character, Parameters> optionMap =
-      new HashMap<Character, PolygonGeneratorFactory.Parameters>() {
-        private static final long serialVersionUID = 1L;
-
-        {
-          put('n', Parameters.n);
-          put('r', Parameters.radius);
-          put('s', Parameters.size);
-          put('i', Parameters.runs);
-          put('v', Parameters.velocity);
-        }
-
-      };
-
-  static void displayAlgorithmOptions() {
-    System.out.println("------------------------------------");
-    System.out.println("To input a variable n from min=1 to max=10 in steps=3 (n={1,4,7,10}) type: \"n;1;10;3\"");
-    System.out.println("To input a static n (n={2}) type: \"n;2\"");
-    System.out.println("Options: ");
-    System.out.println("Number of Points (n)");
-    System.out.println("Size of Boundaries (s)");
-    if (facs[chosenAlgorithm].getAdditionalParameters().contains(
-        Parameters.runs)) System.out.println("Number of iterations (i)");
-    if (facs[chosenAlgorithm].getAdditionalParameters().contains(
-        Parameters.radius)) System.out.println("Radius (r)");
-    if (facs[chosenAlgorithm].getAdditionalParameters().contains(
-        Parameters.velocity)) System.out.println("Velocity (v)");
-    System.out.println("--------------------------------------");
-  }
-  
-  static String readLine()
-  {
-    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-    String line = "";
-    try {
-      line = bufferedReader.readLine();
-    }
-    catch (IOException e) {
-      e.printStackTrace();
-      return null;
-    }
-    return line;
-  }
-  
-  private static OptionCombinator readLineAndOptions() {
-    String input = readLine();
-    System.out.println("input read: "+ input);//TODO: Remove this line (Debug)
     String[] params = input.split(" ");
     OptionCombinator oc = new OptionCombinator();
     for(int i = 0; i < params.length; i++)
@@ -153,14 +127,16 @@ public class AlgorithmRunner
           Parameters p = optionMap.get(param[0].charAt(0));
           if(param.length == 2)//StaticParameter
           {
-            double value = Double.valueOf(param[1]);
+            int value = 0;
+            try{value = Integer.valueOf(param[1]);}
+            catch(NumberFormatException ex){System.out.println("Illegal parameters");return null;};
             oc.add(new StaticParameter(p,value));
           }
           else
           {
-            double min = Double.valueOf(param[1]);
-            double max = Double.valueOf(param[2]);
-            double steps = Double.valueOf(param[3]);
+            int min = Integer.valueOf(param[1]);
+            int max = Integer.valueOf(param[2]);
+            int steps = Integer.valueOf(param[3]);
             oc.add(new DynamicParameter(p,min,max,steps));
           }
         } 
@@ -171,74 +147,92 @@ public class AlgorithmRunner
         
     return oc;
   }
+
   
   static void execute()
-  { 
-    Callback callback = new Callback();
-    PolygonGenerator generator = null;
-    for(int i = 0; i < threads.length; i++)
+  {
+    HashMap<Parameters, Object> param;
+    for(int i = 0; i < threads.length; i++)//Fill Queue with Workers and let them work
     {
-      stats[i] = new PolygonStatistics();
-      try {
-        generator = facs[chosenAlgorithm].createInstance(optionCombinator.next(), stats[i], null);
-      } catch (IllegalParameterizationException e) {e.printStackTrace();}
-      threads[i] = new Thread(new PolygonGeneratorWorker(generator, callback, i));
+      param = optionCombinator.next();
+      if(param == null)//No more Combinations exist
+        break;
+      threads[i] = new Thread(new PolygonGeneratorWorker(facs[chosenAlgorithm], param));
       threads[i].start();
     }
+    
+    boolean run = true;
+    while(run)//Fill new Workers when they are finished 
+    {
+      for(int i = 0; i < threads.length; i++)
+      {
+        if(threads[i].getState() == State.TERMINATED)
+        {
+          if((param = optionCombinator.next()) == null)//No more Combinations exist, break all loops
+          {
+            run = false;
+            break;
+          }
+          threads[i] = new Thread(new PolygonGeneratorWorker(facs[chosenAlgorithm], param));
+          threads[i].start();
+        }
+      }
+      
+      try {Thread.sleep(1000);}
+      catch (InterruptedException e) {e.printStackTrace();}
+      
+    }
+    
+    for(int i = 0; i < threads.length; i++)//Waits for all Threads to finish, so the Program can exit safely
+    {
+      try {
+        threads[i].join();
+      }
+      catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+    
+    System.out.println("Execution finished!");
   }
   
-  
-  /**
-   * @param args
-   */
-  public static void main(String[] args) {
-    if (args.length != 1)
-      System.out.println("Ungültige anzahl von Parametern");
-
-    intro();
-    chosenAlgorithm =
-        readAlgorithm("Wähle Algorithmus", facs.length - 1,
-            "Zahl nicht gültig. Tippe Zahl für Algorithmus ein.");
-    displayAlgorithmOptions();
-    optionCombinator =  readLineAndOptions();
-    if(optionCombinator != null)
-      execute();
-  }
   
   public static class PolygonGeneratorWorker implements Runnable
   {
-    int coreNumber;
     PolygonGenerator polygonGenerator;
-    Callback callback;
-    public PolygonGeneratorWorker(PolygonGenerator polygonGenerator, Callback callback, int coreNumber)
+    PolygonStatistics statistics;
+    public PolygonGeneratorWorker(PolygonGeneratorFactory factory, HashMap<Parameters, Object> params)
     {
-      this.polygonGenerator = polygonGenerator;
-      this.callback = callback;
-      this.coreNumber = coreNumber;
+      statistics = new PolygonStatistics();
+      statistics.used_algorithm = factory.toString();
+      statistics.number_of_points = (Integer) params.get(Parameters.n);
+      PolygonGenerator pg = null;
+      try {
+        pg = factory.createInstance(params, statistics, null);
+      }
+      catch (IllegalParameterizationException e) {e.printStackTrace();return;}
+      
+      this.polygonGenerator = pg;
     }
     
     @Override
     public void run() {
+      long start = System.currentTimeMillis();
       Polygon polygon = polygonGenerator.generate();
-      if(polygon != null)
-        callback.onFinished(polygon);
-      
-      throw new RuntimeException("PolygonGeneratorWorker/run: polygon is null!");//TODO maybe it can be null ?!? Warn me
+      long end = System.currentTimeMillis();
+      if(polygon == null)
+        throw new RuntimeException("PolygonGeneratorWorker/run: polygon is null!");//maybe it can be null ?!? Warn me
+      statistics.time_for_creating_polygon = end - start;
+      statistics.timestamp = start;
+      statistics.circumference = polygon.getCircumference();
+      statistics.surface_area = polygon.getSurfaceArea();
+      database.writeToDatabase(statistics);
     }
     
   }
   
   
-  public static class Callback
-  {
-    void onFinished(Polygon polygon)//TODO make synchronized
-    {
-      System.out.print("Callback: ");
-      System.out.println(polygon.toString());
-      //TODO Fill the Thread with new Parameters
-      //TODO Save into Database or call function to do the job
-    }
-  }
+
   
 
 }

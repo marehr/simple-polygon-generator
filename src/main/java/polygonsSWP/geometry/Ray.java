@@ -1,7 +1,5 @@
 package polygonsSWP.geometry;
 
-import java.util.List;
-
 import polygonsSWP.util.MathUtils;
 import polygonsSWP.util.intersections.IntersectionUtils;
 import polygonsSWP.util.intersections.LineSegmentIntersectionMode;
@@ -48,7 +46,7 @@ public class Ray
    * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @param l LineSegment to intersect with.
-   * @return null, array of length 0 (if coincident), array containing the
+   * @return null, array of length 0 (if collinear), array containing the
    *         intersection otherwise.
    */
   public Point[] intersect(LineSegment ls) {
@@ -60,7 +58,7 @@ public class Ray
    * Get the intersection between this ray and another one.
    * 
    * @param r the ray to intersect with
-   * @return null, array of length 0 (if coincident), array containing the
+   * @return null, array of length 0 (if collinear), array containing the
    *         intersection otherwise.
    */
   public Point[] intersect(Ray r) {

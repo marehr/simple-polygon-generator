@@ -59,7 +59,9 @@ public class VelocityVirmaniFactory
     if (maxVelo == null) throw new IllegalParameterizationException("Maximum velocity not set.", Parameters.velocity);
 
     if (radius * 2 > bound) { throw new IllegalParameterizationException("Radius must be smaller than the bounds allow (Pre: Radius * 2 < bound).", Parameters.radius); }
-
+    
+    if(n<3){throw new IllegalParameterizationException("n must be greater or equal 3");}
+    
     return new VelocityVirmani(n, radius, runs, bound, maxVelo, steps, stats);
   }
 

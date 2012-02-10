@@ -2,11 +2,19 @@ package polygonsSWP.tests.geometry;
 
 import static org.junit.Assert.*;
 
+import java.util.HashMap;
+
 import org.junit.Test;
 
+import polygonsSWP.generators.IllegalParameterizationException;
+import polygonsSWP.generators.PolygonGenerator;
+import polygonsSWP.generators.PolygonGeneratorFactory;
+import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
+import polygonsSWP.generators.heuristics.SpacePartitioningFactory;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
+import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 
 public class PolygonTest
@@ -149,5 +157,23 @@ public class PolygonTest
     poly.reverse();
     // is counter clockwise
     assertEquals(1, poly.isClockwise());
+  }
+
+  @Test
+  public void testCreateRandomPointInPolygon() throws IllegalParameterizationException{
+    HashMap<Parameters, Object> params = new HashMap<Parameters, Object>();
+    params.put(Parameters.n, 1000);
+    params.put(Parameters.size, 1000);
+
+    SpacePartitioningFactory fact = new SpacePartitioningFactory();
+    PolygonGenerator gen = fact.createInstance(params, null, null);
+
+    OrderedListPolygon poly = (OrderedListPolygon) gen.generate();
+
+    for(int i = 0; i < 100; ++i) {
+      Point point = poly.createRandomPoint();
+      assertEquals(true, poly.containsPoint(point, true));
+    }
+
   }
 }

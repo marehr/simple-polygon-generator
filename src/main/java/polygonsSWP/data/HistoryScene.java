@@ -48,7 +48,7 @@ public class HistoryScene
    * @author Steve Dierker <dierker.steve@fu-berlin.de>
    * @param <T> Specifies which type is boxed in the box.
    */
-  private class Box<T>
+  public class Box<T>
   {
     private Color _highlight;
     private T _object;
@@ -366,6 +366,11 @@ public class HistoryScene
   public Scene setBoundingBox(Polygon polygon){
     _boundingBox = polygon.clone();
     return _self;
+  }
+  
+  public LinkedList<Box<Polygon>> getPointList()
+  {
+	  return this._polyList;
   }
 
   private Polygon createBoundingBox(double x, double y, double width, double height){

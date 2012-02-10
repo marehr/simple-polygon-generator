@@ -1,9 +1,5 @@
 package polygonsSWP.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import polygonsSWP.geometry.Point;
 
 /**
@@ -60,5 +56,17 @@ public class MathUtils
    */
   public static boolean doubleZero(double a) {
     return Math.abs(a) < EPSILON;
+  }
+  
+  /**
+   * Decimal number comparison.
+   */
+  public static int doubleCompare(double a, double b){
+    if(a < b - EPSILON)
+      return -1;
+    else if(a > b + EPSILON)
+      return 1;
+    else
+      return 0;
   }
 }

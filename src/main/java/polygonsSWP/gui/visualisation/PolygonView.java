@@ -33,6 +33,7 @@ import polygonsSWP.gui.generation.HistorySceneChooser.HistorySceneMode;
 import polygonsSWP.gui.generation.HistorySceneModeListener;
 import polygonsSWP.gui.generation.PointGenerationModeListener;
 import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
+import polygonsSWP.gui.generation.ShortestPathGenerationListener;
 
 
 /**
@@ -43,7 +44,7 @@ import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
 public class PolygonView
   extends JPanel
   implements PolygonGenerationPanelListener, PointGenerationModeListener,
-  HistorySceneModeListener, GUIModeListener
+  HistorySceneModeListener, GUIModeListener, ShortestPathGenerationListener
 {
   private static final long serialVersionUID = 1L;
 
@@ -286,4 +287,11 @@ public class PolygonView
     }
   }
 
+
+  public void onSPfinished(History history) {
+    if(history == null)
+    	visControl.setHistory(history);	
+  }
+
+  public void onSPCancelled() {}
 }

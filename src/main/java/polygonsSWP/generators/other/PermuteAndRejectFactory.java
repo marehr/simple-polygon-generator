@@ -80,7 +80,7 @@ public class PermuteAndRejectFactory
         // Step 3: Accept only simple polygons
         if (p.isSimple()){
           //if not in counterclockwise orientation, reverse orientation
-          if(p.isClockwise() == -1) p.reverse();
+          if(p.isClockwise() == 1) p.reverse();
 
           break;
         }
