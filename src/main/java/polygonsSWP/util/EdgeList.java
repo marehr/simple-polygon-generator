@@ -25,9 +25,9 @@ public class EdgeList
      */
     @Override
     public int compare(LineSegment isec1, LineSegment isec2) {
-      //System.out.println(orderedEdges);
-      //System.out.println(isec1 + " with " + isec2);
-      if (isec1.equals(isec2)) { return 0; }
+      // System.out.println(orderedEdges);
+      // System.out.println(isec1 + " with " + isec2);
+      if (isec1.equals(isec2)) return 0;
       // Choose right endpoint (the one with the smaller Y-coordinate)
       Point endP = null;
       Point infP = null;
@@ -50,11 +50,19 @@ public class EdgeList
       }
       int fstOrient = MathUtils.checkOrientation(begin, end, endP);
       int sndOrient = MathUtils.checkOrientation(begin, end, infP);
-      //System.out.println("First Orient:" + fstOrient);
-      //System.out.println("Second Orient:" + sndOrient);
+      // System.out.println("First Orient:" + fstOrient);
+      // System.out.println("Second Orient:" + sndOrient);
       if ((sndOrient == 1 && fstOrient == 1)) return 1;
-      if((fstOrient ==0 || sndOrient ==0) && (fstOrient == 1 || sndOrient == 1)) return 1;
+      if ((fstOrient == 0 || sndOrient == 0) &&
+          (fstOrient == 1 || sndOrient == 1)) return 1;
       if (fstOrient == 0 && sndOrient == 0) return 0;
+      if (sndOrient == 1 && fstOrient == -1) return 1;
+      if (sndOrient == -1 && fstOrient == 1) {
+        if (endP.x > begin.x && endP.x > end.x && infP.x > end.x &&
+            infP.x > begin.x) return 1;
+        else return -1;
+      }
+
       return -1;
     }
 

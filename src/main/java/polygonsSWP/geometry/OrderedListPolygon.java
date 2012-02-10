@@ -271,11 +271,16 @@ public class OrderedListPolygon
    */
   public static OrderedListPolygon sweepLineTestPolygon =
       new OrderedListPolygon(new ArrayList<Point>(Arrays.asList(new Point(
-          564.309, 281.925), new Point(452.617, 383.596), new Point(437.68,
-          485.785), new Point(347.123, 314.403), new Point(332.313, 256.871),
-          new Point(222.321, 418.996), new Point(35.601, 539.9), new Point(
-              105.099, 384.068), new Point(226.698, 124.048), new Point(
-              240.247, 80.736))));
+          529.149, 5.582), new Point(445.543, 269.673), new Point(531.447,
+          142.679), new Point(531.646, 351.09), new Point(416.278, 489.776),
+          new Point(433.315, 408.679), new Point(341.523, 497.555), new Point(
+              377.759, 301.404), new Point(315.779, 356.489), new Point(
+              295.654, 453.592), new Point(308.017, 356.581), new Point(
+              160.263, 574.382), new Point(71.237, 509.403), new Point(15.043,
+              536.635), new Point(325.996, 260.252),
+          new Point(96.417, 448.186), new Point(295.739, 48.566), new Point(
+              152.571, 379.576), new Point(351.184, 196.527), new Point(
+              504.733, 42.172))));
 
   public List<Trapezoid> sweepLine() {
     System.out.println("Start Trapezodation:--------------------------------------");
@@ -368,7 +373,12 @@ public class OrderedListPolygon
           // Get right former points
           Point[] former = eList.getIntersectionByEndPoint(interEdge[0]._a);
           Point formerIntersect;
-          formerIntersect = former[0];
+          if (former[1] == null) formerIntersect = former[0];
+          else {
+            if (interEdge[0].containsPoint(former[0])) formerIntersect =
+                former[0];
+            else formerIntersect = former[1];
+          }
           formMonontonPolygon(curr.p, interSect.rightIntersect,
               eList.getIntersectionByEndPoint(curr.p)[0], formerIntersect,
               returnList);
@@ -382,8 +392,14 @@ public class OrderedListPolygon
           Point formerCurr;
           if (former[1] == null) formerCurr = former[0];
           else formerCurr = former[1];
-          Point formerIntersect =
-              eList.getIntersectionByEndPoint(interEdge[0]._a)[0];
+          former = eList.getIntersectionByEndPoint(interEdge[0]._a);
+          Point formerIntersect;
+          if (former[1] == null) formerIntersect = former[0];
+          else {
+            if (interEdge[0].containsPoint(former[0])) formerIntersect =
+                former[0];
+            else formerIntersect = former[1];
+          }
           formMonontonPolygon(interSect.leftIntersect, curr.p, formerIntersect,
               formerCurr, returnList);
           eList.updateIntersection(interEdge[0]._a, interEdge[0]._b,
@@ -406,15 +422,20 @@ public class OrderedListPolygon
           SweepLineResult interSect = sweepLineIntersect(curr, interEdge);
           System.out.println(interSect);
           // Get right intersection points:
-          Point formerRight =
-              eList.getIntersectionByEndPoint(interEdge[1]._a)[0];
-          if (formerRight.equals(curr.p))
-            formerRight = eList.getIntersectionByEndPoint(interEdge[1]._a)[1];
-          Point formerLeft =
-              eList.getIntersectionByEndPoint(interEdge[0]._a)[0];
-          if (formerLeft.equals(curr.p))
-            formerLeft = eList.getIntersectionByEndPoint(interEdge[0]._a)[1];
-
+          Point[] former = eList.getIntersectionByEndPoint(interEdge[1]._a);
+          Point formerRight;
+          Point formerLeft;
+          if (former[1] == null) formerRight = former[0];
+          else {
+            if (interEdge[1].containsPoint(former[0])) formerRight = former[0];
+            else formerRight = former[1];
+          }
+          former = eList.getIntersectionByEndPoint(interEdge[0]._a);
+          if (former[1] == null) formerLeft = former[0];
+          else {
+            if (interEdge[0].containsPoint(former[0])) formerLeft = former[0];
+            else formerLeft = former[1];
+          }
           // Form Polygon
           formMonontonPolygon(interSect.leftIntersect,
               interSect.rightIntersect, formerLeft, formerRight, returnList);
@@ -428,11 +449,21 @@ public class OrderedListPolygon
       // If it is MIN
       else if (curr.type == PointType.PointClass.MIN) {
         if (curr.direct == PointType.Direction.BOTH) {
-          // Calculate intersection points (only two are possbile)
-
+          // First get intersection points
+          Point[] interPoints = eList.getIntersectionByEndPoint(curr.p);
+          Point left =
+              interPoints[0].x < interPoints[1].x
+                  ? interPoints[0]
+                  : interPoints[1];
+          Point right =
+              interPoints[1].x < interPoints[0].x
+                  ? interPoints[0]
+                  : interPoints[1];
+          System.out.println("Left Edge: " + left + " " + curr.p);
+          System.out.println("Right Edge: " + right + " " + curr.p);
           LineSegment interEdge[] =
-              { eList.getLeftEdge(curr.right, curr.p, curr.type),
-                  eList.getRightEdge(curr.left, curr.p, curr.type) };
+              { eList.getLeftEdge(left, curr.p, curr.type),
+                  eList.getRightEdge(right, curr.p, curr.type) };
           // TODO: remove: eList.searchIntersectingEdges(curr.p, curr.direct);
           // TODO: remove: debug
           for (int i = 0; i < 2; ++i) {
@@ -447,32 +478,40 @@ public class OrderedListPolygon
           // on the same line
           // Is it the right intersection point? If not get the other one.
           System.out.println("Intersection Points by End Point");
-          Point endOne;
-          Point endTwo;
-          if (interEdge[0]._a.equals(interEdge[1]._a)) {
-            endOne = eList.getIntersectionByEndPoint(interEdge[0]._a)[0];
-            endTwo = eList.getIntersectionByEndPoint(interEdge[1]._a)[1];
-          }
+          Point[] former = eList.getIntersectionByEndPoint(interEdge[1]._a);
+          Point leftInt;
+          if (former[1] == null) leftInt = former[0];
           else {
-            endOne = eList.getIntersectionByEndPoint(interEdge[0]._a)[0];
-            endTwo = eList.getIntersectionByEndPoint(interEdge[1]._a)[0];
+            if (interEdge[1].containsPoint(former[0])) leftInt = former[0];
+            else leftInt = former[1];
+          }
+          Point rightInt;
+          former = eList.getIntersectionByEndPoint(interEdge[0]._a);
+          if (former[1] == null) rightInt = former[0];
+          else {
+            if (interEdge[0].containsPoint(former[0])) rightInt = former[0];
+            else rightInt = former[1];
           }
           Point formerOne = eList.getIntersectionByEndPoint(curr.p)[0];
           Point formerTwo = eList.getIntersectionByEndPoint(curr.p)[1];
           System.out.println("Left:");
           System.out.println("  " + formerOne);
-          System.out.println("  " + endOne);
+          System.out.println("  " + leftInt);
           System.out.println("Right:");
           System.out.println("  " + formerTwo);
-          System.out.println("  " + endTwo);
+          System.out.println("  " + rightInt);
           if (!eList.getIntersectionByEndPoint(interEdge[0]._a)[0].equals(interSect.leftIntersect))
             formMonontonPolygon(curr.p, interSect.leftIntersect, formerOne,
-                endOne, returnList);
+                rightInt, returnList);
           formMonontonPolygon(curr.p, interSect.rightIntersect, formerTwo,
-              endTwo, returnList);
+              leftInt, returnList);
           // Update former intersections
+          System.out.println("Update 1: " + interEdge[0]._a + " " +
+              interEdge[0]._b + " " + interSect.leftIntersect);
           eList.updateIntersection(interEdge[0]._a, interEdge[0]._b,
               interSect.leftIntersect);
+          System.out.println("Update 1: " + interEdge[1]._a + " " +
+              interEdge[1]._b + " " + interSect.rightIntersect);
           eList.updateIntersection(interEdge[1]._a, interEdge[1]._b,
               interSect.rightIntersect);
         }
