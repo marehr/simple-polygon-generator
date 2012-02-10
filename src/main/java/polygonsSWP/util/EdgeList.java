@@ -25,6 +25,8 @@ public class EdgeList
      */
     @Override
     public int compare(LineSegment isec1, LineSegment isec2) {
+      //System.out.println(orderedEdges);
+      //System.out.println(isec1 + " with " + isec2);
       if (isec1.equals(isec2)) { return 0; }
       // Choose right endpoint (the one with the smaller Y-coordinate)
       Point endP = null;
@@ -48,7 +50,10 @@ public class EdgeList
       }
       int fstOrient = MathUtils.checkOrientation(begin, end, endP);
       int sndOrient = MathUtils.checkOrientation(begin, end, infP);
-      if ((sndOrient == 1 || fstOrient == 1)) return 1;
+      //System.out.println("First Orient:" + fstOrient);
+      //System.out.println("Second Orient:" + sndOrient);
+      if ((sndOrient == 1 && fstOrient == 1)) return 1;
+      if((fstOrient ==0 || sndOrient ==0) && (fstOrient == 1 || sndOrient == 1)) return 1;
       if (fstOrient == 0 && sndOrient == 0) return 0;
       return -1;
     }
@@ -293,7 +298,8 @@ public class EdgeList
   }
 
   public LineSegment getLeftEdge(Point currP, Point endPoint, PointClass type) {
-    
+    System.out.println("orderedEdges: \n");
+    System.out.println(orderedEdges);
     LineSegment edge = new LineSegment(endPoint, currP);
     LineSegment returnEdge = orderedEdges.lower(edge);
     System.out.println(" First Choice: " + returnEdge);

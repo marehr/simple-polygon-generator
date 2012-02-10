@@ -271,8 +271,11 @@ public class OrderedListPolygon
    */
   public static OrderedListPolygon sweepLineTestPolygon =
       new OrderedListPolygon(new ArrayList<Point>(Arrays.asList(new Point(
-          582.112, 353.098), new Point(363.942, 437.381), new Point(363.962,
-          388.887), new Point(288.382, 459.023), new Point(487.854, 116.927))));
+          564.309, 281.925), new Point(452.617, 383.596), new Point(437.68,
+          485.785), new Point(347.123, 314.403), new Point(332.313, 256.871),
+          new Point(222.321, 418.996), new Point(35.601, 539.9), new Point(
+              105.099, 384.068), new Point(226.698, 124.048), new Point(
+              240.247, 80.736))));
 
   public List<Trapezoid> sweepLine() {
     System.out.println("Start Trapezodation:--------------------------------------");
@@ -365,8 +368,7 @@ public class OrderedListPolygon
           // Get right former points
           Point[] former = eList.getIntersectionByEndPoint(interEdge[0]._a);
           Point formerIntersect;
-          if (former[1] == null) formerIntersect = former[0];
-          else formerIntersect = former[1];
+          formerIntersect = former[0];
           formMonontonPolygon(curr.p, interSect.rightIntersect,
               eList.getIntersectionByEndPoint(curr.p)[0], formerIntersect,
               returnList);
