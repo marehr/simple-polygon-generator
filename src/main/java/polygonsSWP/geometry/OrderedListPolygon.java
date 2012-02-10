@@ -271,8 +271,8 @@ public class OrderedListPolygon
    */
   public static OrderedListPolygon sweepLineTestPolygon =
       new OrderedListPolygon(new ArrayList<Point>(Arrays.asList(new Point(
-          514.144, 46.93), new Point(342.903, 424.477), new Point(31.69,
-          584.843), new Point(15.536, 597.865), new Point(24.599, 473.016))));
+          232.969, 130.804), new Point(372.927, 167.177), new Point(340.128,
+          64.845), new Point(586.697, 277.904), new Point(180.242, 256.862))));
 
   public List<Trapezoid> sweepLine() {
     System.out.println("Start Trapezodation:--------------------------------------");
@@ -345,17 +345,13 @@ public class OrderedListPolygon
 
       // If it is INT
       if (curr.type == PointType.PointClass.INT) {
-        // First of all find edge for current Point
-        Point currInt;
-        if (curr.left.y > curr.right.y) currInt = curr.left;
-        else currInt = curr.right;
         // Get the only intersecting edge possible for direction
         Point searchPoint = eList.getIntersectionByEndPoint(curr.p)[0];
         LineSegment interEdge[] = { null, null };
         System.out.println("Edge to search with: " + searchPoint + curr.p);
         if (curr.direct == Direction.LEFT) interEdge[0] =
-            eList.getLeftEdge(searchPoint, curr.p);
-        else interEdge[0] = eList.getRightEdge(searchPoint, curr.p);
+            eList.getLeftEdge(searchPoint, curr.p, curr.type);
+        else interEdge[0] = eList.getRightEdge(searchPoint, curr.p, curr.type);
         // TODO: remove: eList.searchIntersectingEdges(curr.p, curr.direct);
         // TODO: remove: debug statements
         for (int i = 0; i < 2; ++i) {
@@ -397,8 +393,8 @@ public class OrderedListPolygon
         if (curr.direct == PointType.Direction.BOTH) {
           // Calculate intersection points (only two are possbile)
           LineSegment interEdge[] =
-              { eList.getLeftEdge(curr.p, curr.left),
-                  eList.getRightEdge(curr.p, curr.right) };
+              { eList.getLeftEdge(curr.p, curr.left, curr.type),
+                  eList.getRightEdge(curr.p, curr.right, curr.type) };
           // TODO: remove: eList.searchIntersectingEdges(curr.p, curr.direct);
           // TODO: remove: debug
           for (int i = 0; i < 2; ++i) {
@@ -433,8 +429,8 @@ public class OrderedListPolygon
           // Calculate intersection points (only two are possbile)
 
           LineSegment interEdge[] =
-              { eList.getLeftEdge(curr.p, curr.right),
-                  eList.getRightEdge(curr.p, curr.left) };
+              { eList.getLeftEdge(curr.p, curr.right, curr.type),
+                  eList.getRightEdge(curr.p, curr.left, curr.type) };
           // TODO: remove: eList.searchIntersectingEdges(curr.p, curr.direct);
           // TODO: remove: debug
           for (int i = 0; i < 2; ++i) {
@@ -732,7 +728,7 @@ public class OrderedListPolygon
    * @return List of triangulars
    */
   public List<Triangle> triangulate() {
-    if(_triangles != null) return _triangles;
+    if (_triangles != null) return _triangles;
 
     assert size() >= 3;
     assert (isSimple());

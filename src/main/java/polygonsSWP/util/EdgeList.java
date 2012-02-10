@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.Point;
+import polygonsSWP.util.PointType.PointClass;
 
 
 public class EdgeList
@@ -291,22 +292,23 @@ public class EdgeList
     }
   }
 
-  public LineSegment getLeftEdge(Point currP, Point endPoint) {
+  public LineSegment getLeftEdge(Point currP, Point endPoint, PointClass type) {
+    
     LineSegment edge = new LineSegment(endPoint, currP);
     LineSegment returnEdge = orderedEdges.lower(edge);
     System.out.println(" First Choice: " + returnEdge);
-    if (returnEdge.containsPoint(endPoint))
+    if (returnEdge.containsPoint(endPoint) && type != PointClass.MAX)
       returnEdge = orderedEdges.lower(returnEdge);
     System.out.println(" Returned Left Edge: " + returnEdge);
     return returnEdge;
   }
 
-  public LineSegment getRightEdge(Point currP, Point endPoint) {
+  public LineSegment getRightEdge(Point currP, Point endPoint, PointClass type) {
     System.out.println(orderedEdges);
     LineSegment edge = new LineSegment(endPoint, currP);
     LineSegment returnEdge = orderedEdges.higher(edge);
     System.out.println(" First Choice: " + returnEdge);
-    if (returnEdge.containsPoint(endPoint))
+    if (returnEdge.containsPoint(endPoint) && type != PointClass.MAX)
       returnEdge = orderedEdges.higher(returnEdge);
     System.out.println(" Returned Right Edge: " + returnEdge);
     return returnEdge;
