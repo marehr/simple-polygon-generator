@@ -54,7 +54,7 @@ public class AlgorithmRunner
   private static OptionCombinator optionCombinator;
 
   private static int chosenAlgorithm;
-  private static Thread[] threads = new Thread[cores];//Make cores dynamic
+  private static Thread[] threads;
   private static DatabaseWriter database;
   
   
@@ -82,6 +82,7 @@ public class AlgorithmRunner
       optionCombinator = readLineAndOptions(input);
       if(optionCombinator != null)
       {
+        threads = new Thread[cores * 2]; // HT
         database = new DatabaseWriter();
         execute();
         database.close();
