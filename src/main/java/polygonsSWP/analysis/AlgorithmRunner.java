@@ -2,6 +2,10 @@ package polygonsSWP.analysis;
 
 import java.lang.Thread.State;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import polygonsSWP.analysis.Option.DynamicParameter;
 import polygonsSWP.analysis.Option.StaticParameter;
@@ -54,7 +58,6 @@ public class AlgorithmRunner
   private static OptionCombinator optionCombinator;
 
   private static int chosenAlgorithm;
-  private static Thread[] threads;
   private static DatabaseWriter database;
   
   
@@ -82,7 +85,6 @@ public class AlgorithmRunner
       optionCombinator = readLineAndOptions(input);
       if(optionCombinator != null)
       {
-        threads = new Thread[cores * 2]; // HT
         database = new DatabaseWriter();
         execute();
         database.close();
@@ -152,42 +154,15 @@ public class AlgorithmRunner
   
   static void execute()
   {
-    HashMap<Parameters, Object> param;
-    for(int i = 0; i < threads.length; i++)//Fill Queue with Workers and let them work
-    {
-      param = optionCombinator.next();
-      if(param == null)//No more Combinations exist
-        break;
-      threads[i] = new Thread(new PolygonGeneratorWorker(facs[chosenAlgorithm], param));
-      threads[i].start();
-    }
+    ExecutorService es = Executors.newFixedThreadPool(cores * 2);
     
-    boolean run = true;
-    while(run)//Fill new Workers when they are finished 
-    {
-      for(int i = 0; i < threads.length; i++)
-      {
-        if(threads[i].getState() == State.TERMINATED)
-        {
-          if((param = optionCombinator.next()) == null)//No more Combinations exist, break all loops
-          {
-            run = false;
-            break;
-          }
-          threads[i] = new Thread(new PolygonGeneratorWorker(facs[chosenAlgorithm], param));
-          threads[i].start();
-        }
-      }
-      
-      try {Thread.sleep(1000);}
-      catch (InterruptedException e) {e.printStackTrace();}
-      
-    }
+    Map<Parameters, Object> params;
+    while((params = optionCombinator.next()) != null)
+      es.execute(new PolygonGeneratorWorker(facs[chosenAlgorithm], params));
     
-    for(int i = 0; i < threads.length; i++)//Waits for all Threads to finish, so the Program can exit safely
-    {
+    while(!es.isTerminated()) {
       try {
-        threads[i].join();
+        es.awaitTermination(3600, TimeUnit.SECONDS);
       }
       catch (InterruptedException e) {
         e.printStackTrace();
@@ -202,7 +177,7 @@ public class AlgorithmRunner
   {
     PolygonGenerator polygonGenerator;
     PolygonStatistics statistics;
-    public PolygonGeneratorWorker(PolygonGeneratorFactory factory, HashMap<Parameters, Object> params)
+    public PolygonGeneratorWorker(PolygonGeneratorFactory factory, Map<Parameters, Object> params)
     {
       statistics = new PolygonStatistics();
       statistics.used_algorithm = factory.toString();
