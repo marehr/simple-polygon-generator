@@ -69,7 +69,7 @@ public class AlgorithmRunner
     if(args.length >= 4)
     {
       String input = "";
-      String databaseFile;
+      String databaseFile = "database.db";
       try
       {
         databaseFile = args[0];
