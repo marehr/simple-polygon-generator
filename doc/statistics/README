@@ -13,13 +13,13 @@ REQUIREMENTS
 USAGE
   
   plotty [DATABASE] [EVALUATION]
-    Plot [EVALUATION] of data from [DATABASE]
+    Plot [EVALUATION] of data from [DATABASE].
 
-  plotty [DATABASE] [EVALUATION] [OUTPUT].
+  plotty [DATABASE] [EVALUATION] [OUTPUT]
     Plot [EVALUATION] of data from [DATABASE] in file [OUTPUT].
 
   plotty help
-    show this message.
+    Shows this message.
 
 
 STRUCTURE OF evaluations.yaml:
