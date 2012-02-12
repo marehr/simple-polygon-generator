@@ -69,23 +69,25 @@ public class AlgorithmRunner
     if(args.length >= 4)
     {
       String input = "";
+      String databaseFile;
       try
       {
-        cores = Integer.valueOf(args[0]);
-        chosenAlgorithm = Integer.valueOf(args[1]);
+        databaseFile = args[0];
+        cores = Integer.valueOf(args[1]);
+        chosenAlgorithm = Integer.valueOf(args[2]);
       }
       catch(Exception e)
       {
         e.printStackTrace();
       }
       
-      for(int i=2; i < args.length; i++)
+      for(int i=3; i < args.length; i++)
         input += args[i]+" ";
       
       optionCombinator = readLineAndOptions(input);
       if(optionCombinator != null)
       {
-        database = new DatabaseWriter();
+        database = new DatabaseWriter(databaseFile);
         execute();
         database.close();
       }
@@ -109,7 +111,7 @@ public class AlgorithmRunner
     System.out.println("(r) Radius                [Virmani]");
     System.out.println("(v) Velocity              [Virmani]");
     System.out.println("-------------- Use --------------");
-    System.out.println("AlgorithmRunner numberOfCores algorithm parameter1 parameter2 [...]");
+    System.out.println("AlgorithmRunner databaseFile numberOfCores algorithm parameter1 parameter2 [...]");
     System.out.println("Example 1: \n" +
     		               "SpacePartitioning with number of points (n) ranging from 10 to 26 step 2 and fixed Bounding Box of 400 and running in 4 Threads:");
     System.out.println("AlgorithmRunner 4 2 n;10;26;2 s;400");
