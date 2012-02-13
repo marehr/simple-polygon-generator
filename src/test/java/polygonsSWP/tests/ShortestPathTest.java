@@ -201,6 +201,7 @@ public class ShortestPathTest {
 	  for(Point[] i : list)
 	  {
 		  for (int j = 0; j < i.length; j++) {
+		    if(i[j] == null) continue;
 			  System.out.println(i[j].x + " " + i[j].y);
 		  }
 	  }

@@ -77,16 +77,20 @@ public class MathUtilsTest
     pPoints.add(new Point(0, 0));
     pPoints.add(new Point(2, 0));
     OrderedListPolygon triangle = new OrderedListPolygon(pPoints);
+
     List<Triangle> result = triangle.triangulate();
     Triangle poly = result.get(0);
     assertEquals(result.size(), 1);
     assertTrue(poly.equals(triangle));
+
     triangle.addPoint(new Point(2, 2));
     result = triangle.triangulate();
     assertEquals(2, result.size());
+
     triangle.addPoint(new Point(1, 3));
     result = triangle.triangulate();
     assertEquals(3, result.size());
+
     triangle.deletePoint(new Point(1, 3));
     triangle.addPoint(new Point(1, 1));
     result = triangle.triangulate();
