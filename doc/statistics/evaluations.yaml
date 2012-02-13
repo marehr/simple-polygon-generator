@@ -47,7 +47,7 @@ vir:
     query: select * from test
 
 all:
-  doc_title: Coparison of all Algorithms
+  doc_title: Comparison of all Algorithms
   diagram1:
     title: Deine Mudda
     xlabel: Punkte n
