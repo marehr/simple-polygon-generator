@@ -4,6 +4,6 @@ import polygonsSWP.data.History;
 
 public interface ShortestPathGenerationListener
 {
-  public void onSPfinished(History h);
-  public void onSPCancelled();
+  public void onSPStarted(History h);
+  public void onSPFinished();
 }
