@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Comparator;
 import java.util.TreeSet;
 
+import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.Random;
 import polygonsSWP.util.EdgeList;
 import polygonsSWP.util.MathUtils;
@@ -824,10 +824,7 @@ public class OrderedListPolygon
    * @return list of coords sorted by x value of each point
    */
   public List<Point> sortByX() {
-    List<Point> tmpList = new LinkedList<Point>();
-    tmpList.addAll(_coords);
-    Collections.sort(tmpList, new XCompare());
-    return tmpList;
+    return GeneratorUtils.sortPointsByX(new ArrayList<Point>(_coords));
   }
 
   /*
@@ -835,34 +832,7 @@ public class OrderedListPolygon
    * @return list of coords sorted by y value of each point
    */
   public List<Point> sortByY() {
-    List<Point> tmpList = new LinkedList<Point>();
-    tmpList.addAll(_coords);
-    Collections.sort(tmpList, new YCompare());
-    return tmpList;
-  }
-
-
-  private class XCompare
-    implements Comparator<Point>
-  {
-
-    @Override
-    public int compare(Point o1, Point o2) {
-      return o1.compareTo(o2);
-    }
-
-  }
-
-
-  private class YCompare
-    implements Comparator<Point>
-  {
-
-    @Override
-    public int compare(Point o1, Point o2) {
-      return o1.compareToByY(o2);
-    }
-
+    return GeneratorUtils.sortPointsByY(new ArrayList<Point>(_coords));
   }
 
   /**

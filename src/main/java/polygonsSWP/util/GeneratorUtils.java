@@ -2,7 +2,6 @@ package polygonsSWP.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -134,20 +133,25 @@ public class GeneratorUtils
   }
 
   /**
+   * Sorts points (in-place) by x-coordinate. All points on the same same
+   * x-coordinate will be ordered ascending by the y-coordinate
+   * 
+   * @param points
+   */
+  public static List<Point> sortPointsByX(List<Point> points) {
+    Collections.sort(points);
+    return points;
+  }
+
+  /**
    * Sorts points (in-place) by y-coordinate. All points on the same same
    * y-coordinate will be ordered ascending by the x-coordinate
    * 
    * @param points
    */
-  public static void sortPointsByY(List<Point> points) {
-    Collections.sort(points, new Comparator<Point>() {
-
-      @Override
-      public int compare(Point p1, Point p2) {
-        return p1.compareToByY(p2);
-      }
-
-    });
+  public static List<Point> sortPointsByY(List<Point> points) {
+    Collections.sort(points, Point.YCompare);
+    return points;
   }
 
   /**
@@ -158,16 +162,6 @@ public class GeneratorUtils
    */
   public static Point removeRandomPoint(List<Point> points) {
     return points.remove(Random.create().nextInt(points.size()));
-  }
-
-  /**
-   * Sorts points (in-place) by x-coordinate. All points on the same same
-   * x-coordinate will be ordered ascending by the y-coordinate
-   * 
-   * @param points
-   */
-  public static void sortPointsByX(List<Point> points) {
-    Collections.sort(points);
   }
 
   /**

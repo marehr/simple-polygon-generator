@@ -8,13 +8,11 @@ import org.junit.Test;
 
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
-import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.generators.heuristics.SpacePartitioningFactory;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
-import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 
 public class PolygonTest
