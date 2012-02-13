@@ -15,8 +15,6 @@ import org.junit.Test;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
-import polygonsSWP.geometry.Ray;
-import polygonsSWP.gui.generation.PolygonPointFrame;
 import polygonsSWP.util.GeneratorUtils;
 
 

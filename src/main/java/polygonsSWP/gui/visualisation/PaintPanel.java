@@ -129,20 +129,9 @@ class PaintPanel
     g.drawRect(8, 8, 44, 3);
     g.drawRect(52, 5, 3, 9);
     g.drawString(df.format(50 / zoom), 60, 14);
-    
-//    Point p = null;
-//    if((p = checkForPoints()) != null)
-//    {
-//    	
-//    }
-    // Commented out as we may need this again (while hovering over a point)
-    /*
-    int y = mouse.y+30 < getHeight() ? mouse.y+30 : mouse.y-10;
-    g.drawString("[" + (int)coords[0] + " - " + (int)coords[1] + "]", mouse.x-30, y);
-    */
   }
 
-@Override
+  @Override
   public void paintComponent(Graphics g) {
     Graphics2D g2d = (Graphics2D) g;
 
@@ -157,7 +146,8 @@ class PaintPanel
     if (points != null) {
       g.setColor(new Color(80, 0, 90));
       for (Point p : points) {
-        g2d.draw(new Ellipse2D.Double(p.x - 1.5, p.y - 1.5, 3, 3));
+        double x = p.x, y = p.y;
+        g2d.draw(new Ellipse2D.Double(x - 2, y - 2, 4, 4));
       }
     }
 
@@ -166,47 +156,47 @@ class PaintPanel
       g2d.setStroke(new TransformedStroke(new BasicStroke(2.5f), tx));
       svgScene.paintPoints(g2d);
     }
-    
+
     if(pointInRange != null)
     {
-      double [] p = new double[]{pointInRange.x, pointInRange.y};
-      //p2 = coords((int)p[0], (int)p[1]);
+      double x = pointInRange.x, y = pointInRange.y;
 
       g2d.setColor(Color.BLUE);
-      g2d.fill(new Ellipse2D.Double(p[0] - 1.5, p[1] - 1.5, 3, 3));
+      g2d.fill(new Ellipse2D.Double(x - 2, y - 2, 4, 4));
 
-      Point2D p1 = new Point2D.Double(p[0], getHeight() + p[1]), p2 = new Point2D.Double(0, 0);
-      p2 = tx.deltaTransform(p1, p2);
+      Point2D p = screenCoords(new Point2D.Double(x, y), tx);
+
       tx.setToIdentity();
       g2d.setTransform(tx);
-      g2d.drawString("[" + p[0] + "|" + p[1] + "]", (int)p2.getX(), (int)p2.getY() + getHeight());
-      //g2d.drawString("[" + p[0] + "|" + p[1] + "]",(int)(p[0]),(int)(p[1]));
+
+      g2d.setColor(new Color(0, 26, 51));
+      g2d.drawString("[" + df.format(x) + "|" + df.format(y) + "]", (int)p.getX()+5, (int)p.getY()-5);
     }
 
     // Draw additional stuff.
     finishCanvas(g2d);
   }
   
-  private Point getPointInRange() {
-	  HistoryScene s = (HistoryScene) svgScene;
-	  if(s != null)
-	  {
-		  LinkedList<Box<Polygon>> list = s.getPointList();
-		  for(Box<Polygon> box : list)
-		  {
-			  Polygon poly = box.openBox();
-			  for(Point poi : poly.getPoints())
-			  {
-				  double distance = currentMousePoint.distanceTo(poi);
-				  //System.out.println(distance);
-				  if(distance <= 15.0)
-					  return poi;  
-			  }
+  private Point getPointInRange(Point currentMousePoint) {
+    HistoryScene s = (HistoryScene) svgScene;
+    if(s == null) return null;
 
+    double minDistance = Double.MAX_VALUE;
+    Point minPoint = null;
+    LinkedList<Box<Polygon>> list = s.getPointList();
 
-		  }		  
-	  }
-	return null;
+    for(Box<Polygon> box : list) {
+      Polygon poly = box.openBox();
+      for(Point poi : poly.getPoints()) {
+        double distance = currentMousePoint.distanceTo(poi);
+        if(distance <= 15 && distance < minDistance){
+          minDistance = distance;
+          minPoint = poi;
+        }
+      }
+    }
+
+    return minPoint;
   }
 
 /**
@@ -217,11 +207,24 @@ class PaintPanel
    * @param y dto.
    * @return translated coordinates
    */
-  private double[] coords(int x, int y){
-    return new double[] {
-      (x - offsetX) / zoom,
-      (getHeight() - y + offsetY) / zoom
-    };
+  private Point coords(int x, int y){
+    return new Point((x - offsetX) / zoom,
+        (getHeight() - y + offsetY) / zoom);
+  }
+
+  /**
+   * Translates (x,y) coordinates in the polygon plane into double (x,y)
+   * coordinates on screen.
+   * 
+   * @param x the x-coordinate in polygon plane as returned by all polygon
+   * algorithms
+   * @param y dto.
+   * @return translated coordinates
+   */
+  public Point2D screenCoords(Point2D base, AffineTransform tx){
+    Point2D p = new Point2D.Double(0, 0);
+    p = tx.deltaTransform(base, p);
+    return new Point2D.Double(p.getX() + offsetX, p.getY()+ getHeight() + offsetY);
   }
 
   /*
@@ -234,8 +237,7 @@ class PaintPanel
     if (drawMode && e.getButton() == MouseEvent.BUTTON3) {
       assert (points != null);
 
-      double coords[] = coords(e.getX(), e.getY());
-      Point newPoint = new Point(coords[0], coords[1]);
+      Point newPoint = coords(e.getX(), e.getY());
 
       if(inGenerationMode) {
         points.add(newPoint);
@@ -292,26 +294,16 @@ class PaintPanel
 
   @Override
   public void mouseMoved(MouseEvent e) {
-	  if(inFrame)
-	  {
-		  double[] coords = coords(e.getX(), e.getY());
-		  if(currentMousePoint != null)
-		  {
-			  currentMousePoint.x = coords[0];
-			  currentMousePoint.y = coords[1];			  
-		  }
-		  else
-		  {
-			  currentMousePoint = new Point(coords[0],coords[1]);
-		  }
-		  
-		  pointInRange = getPointInRange();
-		  if(pointInRange != null)
-			  repaint();
-		  
-		  statusbar.setStatusMsg("[" + (int)coords[0] + " - " + (int)coords[1] + "]"
-		      + " offsetX: " + offsetX + ", offsetY: "+ offsetY);
-	  }
+    if(!inFrame) return;
+
+    currentMousePoint = coords(e.getX(), e.getY());
+
+    pointInRange = getPointInRange(currentMousePoint);
+    if(pointInRange != null)
+      repaint();
+
+    statusbar.setStatusMsg("[" + (int)currentMousePoint.x + " - " + 
+        (int)currentMousePoint.y + "]");
   }
 
   /*

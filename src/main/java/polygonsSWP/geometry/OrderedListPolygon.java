@@ -1,21 +1,19 @@
 package polygonsSWP.geometry;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Comparator;
 import java.util.TreeSet;
 
+import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.Random;
 import polygonsSWP.util.EdgeList;
 import polygonsSWP.util.MathUtils;
 import polygonsSWP.util.PointType;
 import polygonsSWP.util.PointType.Direction;
-import polygonsSWP.util.PointType.PointClass;
 import polygonsSWP.util.SweepLineResult;
 
 
@@ -205,46 +203,6 @@ public class OrderedListPolygon
     return _coords.size();
   }
 
-  /**
-   * Simple test for equality. Should be improved if we introduce other
-   * implementations of polygon.
-   */
-  @Override
-  public boolean equals(Object obj) {
-    // Is Object a Polygon?
-    if (!(obj instanceof OrderedListPolygon)) return false;
-    OrderedListPolygon oP = (OrderedListPolygon) obj;
-    // Get starting point and compare clockwise whole polygon
-    if (_coords.size() == oP.size()) {
-      Point thisPoint = _coords.get(0);
-      int index = oP.getPoints().indexOf(thisPoint);
-      if (index == -1) return false;
-      for (int i = 1; i < _coords.size(); ++i)
-        if (!_coords.get(i).equals(
-            oP.getPoints().get(oP.getIndexInRange(index + i)))) return false;
-      return true;
-    }
-    else return false;
-  }
-
-  /**
-   * Create an index via module which is always in range
-   * 
-   * @param index index to be modified
-   * @return
-   */
-  public int getIndexInRange(final int index) {
-    int result = index % _coords.size();
-    return result < 0 ? result + _coords.size() : result;
-  }
-
-  /**
-   * Return point with safe index.
-   */
-  public Point getPointInRange(final int index) {
-    return getPoint(getIndexInRange(index));
-  }
-
   @Override
   public OrderedListPolygon clone() {
     List<Point> nList = new ArrayList<Point>(_coords.size());
@@ -262,25 +220,6 @@ public class OrderedListPolygon
   public boolean containsVertex(Point p) {
     return getPoints().contains(p);
   }
-
-  /**
-   * TODO: remove me after Trapzblah fertig und SweepLineTestFactory Fuer Steve,
-   * damit er auf konstanten Polygonen sweepline testen kann wenn weniger als 3
-   * Punkte angegeben werden, dann wird einfach SpacePartitioning auf die GUI
-   * Settings ausgefuehrt
-   */
-  public static OrderedListPolygon sweepLineTestPolygon =
-      new OrderedListPolygon(new ArrayList<Point>(Arrays.asList(new Point(
-          529.149, 5.582), new Point(445.543, 269.673), new Point(531.447,
-          142.679), new Point(531.646, 351.09), new Point(416.278, 489.776),
-          new Point(433.315, 408.679), new Point(341.523, 497.555), new Point(
-              377.759, 301.404), new Point(315.779, 356.489), new Point(
-              295.654, 453.592), new Point(308.017, 356.581), new Point(
-              160.263, 574.382), new Point(71.237, 509.403), new Point(15.043,
-              536.635), new Point(325.996, 260.252),
-          new Point(96.417, 448.186), new Point(295.739, 48.566), new Point(
-              152.571, 379.576), new Point(351.184, 196.527), new Point(
-              504.733, 42.172))));
 
   public List<Trapezoid> sweepLine() {
     System.out.println("Start Trapezodation:--------------------------------------");
@@ -845,10 +784,7 @@ public class OrderedListPolygon
    * @return list of coords sorted by x value of each point
    */
   public List<Point> sortByX() {
-    List<Point> tmpList = new LinkedList<Point>();
-    tmpList.addAll(_coords);
-    Collections.sort(tmpList, new XCompare());
-    return tmpList;
+    return GeneratorUtils.sortPointsByX(new ArrayList<Point>(_coords));
   }
 
   /*
@@ -856,34 +792,7 @@ public class OrderedListPolygon
    * @return list of coords sorted by y value of each point
    */
   public List<Point> sortByY() {
-    List<Point> tmpList = new LinkedList<Point>();
-    tmpList.addAll(_coords);
-    Collections.sort(tmpList, new YCompare());
-    return tmpList;
-  }
-
-
-  private class XCompare
-    implements Comparator<Point>
-  {
-
-    @Override
-    public int compare(Point o1, Point o2) {
-      return o1.compareTo(o2);
-    }
-
-  }
-
-
-  private class YCompare
-    implements Comparator<Point>
-  {
-
-    @Override
-    public int compare(Point o1, Point o2) {
-      return o1.compareToByY(o2);
-    }
-
+    return GeneratorUtils.sortPointsByY(new ArrayList<Point>(_coords));
   }
 
   /**

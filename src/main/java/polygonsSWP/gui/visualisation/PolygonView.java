@@ -287,11 +287,14 @@ public class PolygonView
     }
   }
 
-
-  public void onSPfinished(History history) {
-    if(history == null)
-    	visControl.setHistory(history);	
+  @Override
+  public void onSPStarted(History history) {
+    visControl.setHistory(history); // TODO doppeltgemoppelt
+    history.setHistoryListener(visControl);
   }
-
-  public void onSPCancelled() {}
+  
+  @Override
+  public void onSPFinished() {
+    // TODO Auto-generated method stub
+  }
 }

@@ -21,7 +21,6 @@ import polygonsSWP.generators.heuristics.TwoOptMovesFactory;
 import polygonsSWP.generators.heuristics.VelocityVirmaniFactory;
 import polygonsSWP.generators.other.ConvexHullGeneratorFactory;
 import polygonsSWP.generators.other.PermuteAndRejectFactory;
-import polygonsSWP.generators.other.SweepLineTestFactory;
 import polygonsSWP.generators.rpa.RandomPolygonAlgorithmFactory;
 import polygonsSWP.gui.generation.PolygonGenerationPanel;
 import polygonsSWP.gui.visualisation.PolygonView;
@@ -49,7 +48,6 @@ public class MainFrame
   private PolygonGeneratorFactory[] polygon_algorithm_list = {
 	  new PermuteAndRejectFactory(),
       new SpacePartitioningFactory(),
-      new SweepLineTestFactory(),
       new TwoOptMovesFactory(), 
       new RandomPolygonAlgorithmFactory(), 
       new IncrementalConstructionAndBacktrackingFactory(), 
@@ -79,6 +77,7 @@ public class MainFrame
     gui_shortest_path = new ShortestPathPanel();
     gui_shortest_path.setBorder(BorderFactory.createTitledBorder("Shortest Path"));
     gui_shortest_path.addPointGenerationModeListener(gui_polygon_view);
+    gui_shortest_path.addShortestPathGenerationListener(gui_polygon_view);
     
     // init generator configuration panel
     gui_generator = new PolygonGenerationPanel(polygon_algorithm_list);
