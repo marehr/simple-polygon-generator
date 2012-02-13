@@ -130,16 +130,6 @@ public class SteadyGrowthConvexHull extends Polygon
   }
 
   @Override
-  public boolean equals(Object obj) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public double getSurfaceArea() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public Point createRandomPoint() {
     throw new UnsupportedOperationException();
   }

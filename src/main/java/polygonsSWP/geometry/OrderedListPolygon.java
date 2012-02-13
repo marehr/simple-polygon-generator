@@ -203,46 +203,6 @@ public class OrderedListPolygon
     return _coords.size();
   }
 
-  /**
-   * Simple test for equality. Should be improved if we introduce other
-   * implementations of polygon.
-   */
-  @Override
-  public boolean equals(Object obj) {
-    // Is Object a Polygon?
-    if (!(obj instanceof OrderedListPolygon)) return false;
-    OrderedListPolygon oP = (OrderedListPolygon) obj;
-    // Get starting point and compare clockwise whole polygon
-    if (_coords.size() == oP.size()) {
-      Point thisPoint = _coords.get(0);
-      int index = oP.getPoints().indexOf(thisPoint);
-      if (index == -1) return false;
-      for (int i = 1; i < _coords.size(); ++i)
-        if (!_coords.get(i).equals(
-            oP.getPoints().get(oP.getIndexInRange(index + i)))) return false;
-      return true;
-    }
-    else return false;
-  }
-
-  /**
-   * Create an index via module which is always in range
-   * 
-   * @param index index to be modified
-   * @return
-   */
-  public int getIndexInRange(final int index) {
-    int result = index % _coords.size();
-    return result < 0 ? result + _coords.size() : result;
-  }
-
-  /**
-   * Return point with safe index.
-   */
-  public Point getPointInRange(final int index) {
-    return getPoint(getIndexInRange(index));
-  }
-
   @Override
   public OrderedListPolygon clone() {
     List<Point> nList = new ArrayList<Point>(_coords.size());
