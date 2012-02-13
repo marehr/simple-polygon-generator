@@ -178,25 +178,25 @@ class PaintPanel
   }
   
   private Point getPointInRange(Point currentMousePoint) {
-	  HistoryScene s = (HistoryScene) svgScene;
-	  if(s != null)
-	  {
-		  LinkedList<Box<Polygon>> list = s.getPointList();
-		  for(Box<Polygon> box : list)
-		  {
-			  Polygon poly = box.openBox();
-			  for(Point poi : poly.getPoints())
-			  {
-				  double distance = currentMousePoint.distanceTo(poi);
-				  //System.out.println(distance);
-				  if(distance <= 15.0)
-					  return poi;  
-			  }
+    HistoryScene s = (HistoryScene) svgScene;
+    if(s == null) return null;
 
+    double minDistance = Double.MAX_VALUE;
+    Point minPoint = null;
+    LinkedList<Box<Polygon>> list = s.getPointList();
 
-		  }		  
-	  }
-	return null;
+    for(Box<Polygon> box : list) {
+      Polygon poly = box.openBox();
+      for(Point poi : poly.getPoints()) {
+        double distance = currentMousePoint.distanceTo(poi);
+        if(distance <= 15 && distance < minDistance){
+          minDistance = distance;
+          minPoint = poi;
+        }
+      }
+    }
+
+    return minPoint;
   }
 
 /**
