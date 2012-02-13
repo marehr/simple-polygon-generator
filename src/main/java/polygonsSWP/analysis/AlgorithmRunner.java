@@ -57,6 +57,7 @@ public class AlgorithmRunner
   private static OptionCombinator optionCombinator;
 
   private static int chosenAlgorithm;
+  private static int multiplicator;
   private static DatabaseWriter database;
   
   
@@ -65,7 +66,7 @@ public class AlgorithmRunner
    */
   public static void main(String[] args) {
     
-    if(args.length >= 4)
+    if(args.length >= 5)
     {
       String input = "";
       String databaseFile = "database.db";
@@ -74,6 +75,7 @@ public class AlgorithmRunner
         databaseFile = args[0];
         cores = Integer.valueOf(args[1]);
         chosenAlgorithm = Integer.valueOf(args[2]);
+        multiplicator = Integer.valueOf(args[3]);
       }
       catch(Exception e)
       {
@@ -110,10 +112,11 @@ public class AlgorithmRunner
     System.out.println("(r) Radius                [Virmani]");
     System.out.println("(v) Velocity              [Virmani]");
     System.out.println("-------------- Use --------------");
-    System.out.println("AlgorithmRunner databaseFile numberOfCores algorithm parameter1 parameter2 [...]");
+    System.out.println("AlgorithmRunner databaseFile numberOfCores algorithm multiplicator parameter1 parameter2 [...]");
     System.out.println("Example 1: \n" +
-    		               "SpacePartitioning with number of points (n) ranging from 10 to 26 step 2 and fixed Bounding Box of 400 and running in 4 Threads:");
-    System.out.println("AlgorithmRunner 4 2 n;10;26;2 s;400");
+    		               "SpacePartitioning with number of points (n) ranging from 10 to 26 step 2 and fixed Bounding Box of 400 and running in 4 Threads and for" +
+    		               "every Configuration 5 runs:");
+    System.out.println("AlgorithmRunner 4 2 n;10;26;2 s;400 m;12");
     System.exit(0);
   }
 
@@ -159,7 +162,9 @@ public class AlgorithmRunner
     
     Map<Parameters, Object> params;
     while((params = optionCombinator.next()) != null)
-      es.execute(new PolygonGeneratorWorker(facs[chosenAlgorithm], params));
+      for(int i = 0; i < multiplicator; i++)
+        es.execute(new PolygonGeneratorWorker(facs[chosenAlgorithm], params));
+      
     
     es.shutdown();
     
