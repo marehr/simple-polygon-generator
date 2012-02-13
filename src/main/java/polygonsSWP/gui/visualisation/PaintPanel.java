@@ -179,7 +179,6 @@ class PaintPanel
       p2 = tx.deltaTransform(p1, p2);
       tx.setToIdentity();
       g2d.setTransform(tx);
-      System.out.println((int)p2.getX() + ", " + (int)p2.getY());
       g2d.drawString("[" + p[0] + "|" + p[1] + "]", (int)p2.getX(), (int)p2.getY() + getHeight());
       //g2d.drawString("[" + p[0] + "|" + p[1] + "]",(int)(p[0]),(int)(p[1]));
     }
