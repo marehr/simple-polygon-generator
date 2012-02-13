@@ -40,31 +40,33 @@ public class ShortestPathGenerator
     // Step 3: While we can not see t from current start point, make a step.
     List<Point> path = new LinkedList<Point>();
     while(!existsDirectConnection(polygon, parray[0], t)) {
+
       if(history != null) {
         Scene scene = history.newScene();
-        scene.addPolygon(polygon, false);
+        scene.addPolygon(polygon, true);
         for(int i = 0; i < path.size() - 1; i++)
           scene.addLineSegment(new LineSegment(path.get(i), path.get(i + 1)), false);
         scene.addLineSegment(new LineSegment(parray[0], parray[1]), true);
         scene.addLineSegment(new LineSegment(parray[0], parray[2]), true);
         scene.save();
       }
-      
+
       parray = makeStep(polygon, path, parray, t);
     }
     
     // Add the last point + the target point.
     path.add(parray[0]);
     path.add(t);
-    
+
     if(history != null) {
+
       Scene scene = history.newScene();
-      scene.addPolygon(polygon, false);
+      scene.addPolygon(polygon, true);
       for(int i = 0; i < path.size() - 1; i++)
         scene.addLineSegment(new LineSegment(path.get(i), path.get(i + 1)), true);
       scene.save();
     }
-    
+
     return path;
   }
 
