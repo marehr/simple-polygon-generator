@@ -116,7 +116,7 @@ public class AlgorithmRunner
     System.out.println("Example 1: \n" +
     		               "SpacePartitioning with number of points (n) ranging from 10 to 26 step 2 and fixed Bounding Box of 400 and running in 4 Threads and for" +
     		               "every Configuration 5 runs:");
-    System.out.println("AlgorithmRunner 4 2 n;10;26;2 s;400 m;12");
+    System.out.println("AlgorithmRunner 4 2 12 n;10;26;2 s;400");
     System.exit(0);
   }
 
