@@ -162,6 +162,8 @@ public class AlgorithmRunner
     while((params = optionCombinator.next()) != null)
       es.execute(new PolygonGeneratorWorker(facs[chosenAlgorithm], params));
     
+    es.shutdown();
+    
     while(!es.isTerminated()) {
       try {
         es.awaitTermination(3600, TimeUnit.SECONDS);
