@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import polygonsSWP.util.Random;
 
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
@@ -18,13 +18,7 @@ import polygonsSWP.geometry.Polygon;
 
 public class GeneratorUtils
 {
-  private static long func(long j){
-    long i = System.currentTimeMillis();
-    System.out.println(i);
-    return j;
-  }
-
-  public static Random rand_ = new Random(func(1322691L));
+  //
 
   /**
    * Tests whether a given set of points is in general position, which means
@@ -116,7 +110,7 @@ public class GeneratorUtils
    */
   public static List<Point> createRandomSetOfPointsInSquare(int n, int size,
       boolean ensureGeneralPosition) {
-    Random r = GeneratorUtils.rand_;
+    Random r = Random.create();
 
     List<Point> points;
     do {
@@ -163,7 +157,7 @@ public class GeneratorUtils
    * @return random removed point
    */
   public static Point removeRandomPoint(List<Point> points) {
-    return points.remove(rand_.nextInt(points.size()));
+    return points.remove(Random.create().nextInt(points.size()));
   }
 
   /**

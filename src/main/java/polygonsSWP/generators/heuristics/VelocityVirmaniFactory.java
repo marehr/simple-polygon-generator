@@ -43,8 +43,9 @@ public class VelocityVirmaniFactory
   public PolygonGenerator createInstance(Map<Parameters, Object> params, PolygonStatistics stats, History steps)
     throws IllegalParameterizationException {
 
-    Long radius = (Long) params.get(Parameters.radius);
-    if (radius == null) throw new IllegalParameterizationException("Radius not set.", Parameters.radius);
+    Object tmp = params.get(Parameters.radius);
+    if (tmp == null) throw new IllegalParameterizationException("Radius not set.", Parameters.radius);
+    Long radius = (tmp instanceof Long) ? (Long) tmp : new Long(((Integer) tmp).intValue()); 
 
     Integer n = (Integer) params.get(Parameters.n);
     if (n == null) throw new IllegalParameterizationException("Number of points not set.", Parameters.n);

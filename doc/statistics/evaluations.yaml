@@ -1,0 +1,55 @@
+pr:
+  doc_title: Permute and Reject
+  diagram1:
+    title: Deine Mudda
+    xlabel: Punkte n
+    ylabel: Zeit t
+    query: select * from test
+
+sp:
+  doc_title: Space Partitioning
+  diagram1:
+    title: Deine Mudda
+    xlabel: Punkte n
+    ylabel: Zeit t
+    query: select * from test
+
+rpa:
+  doc_title: RandomPolygonAlgorithm
+  diagram1:
+    title: Deine Mudda
+    xlabel: Punkte n
+    ylabel: Zeit t
+    query: select * from test
+
+icb:
+  doc_title: Incremental Construction and Backtracking
+  diagram1:
+    title: Deine Mudda
+    xlabel: Punkte n
+    ylabel: Zeit t
+    query: select * from test
+
+2om:
+  doc_title: 2-Opt-Move
+  diagram1:
+    title: Deine Mudda
+    xlabel: Punkte n
+    ylabel: Zeit t
+    query: select * from test
+
+vir:
+  doc_title: Virmani
+  diagram1:
+    title: Deine Mudda
+    xlabel: Punkte n
+    ylabel: Zeit t
+    query: select * from test
+
+all:
+  doc_title: Comparison of all Algorithms
+  diagram1:
+    title: Deine Mudda
+    xlabel: Punkte n
+    ylabel: Zeit t
+    query: select * from test

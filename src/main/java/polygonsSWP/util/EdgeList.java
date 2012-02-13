@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.Point;
+import polygonsSWP.util.PointType.PointClass;
 
 
 public class EdgeList
@@ -24,7 +25,9 @@ public class EdgeList
      */
     @Override
     public int compare(LineSegment isec1, LineSegment isec2) {
-      if (isec1.equals(isec2)) { return 0; }
+      // System.out.println(orderedEdges);
+      // System.out.println(isec1 + " with " + isec2);
+      if (isec1.equals(isec2)) return 0;
       // Choose right endpoint (the one with the smaller Y-coordinate)
       Point endP = null;
       Point infP = null;
@@ -47,8 +50,19 @@ public class EdgeList
       }
       int fstOrient = MathUtils.checkOrientation(begin, end, endP);
       int sndOrient = MathUtils.checkOrientation(begin, end, infP);
-      if ((sndOrient == 1 || fstOrient == 1)) return 1;
+      // System.out.println("First Orient:" + fstOrient);
+      // System.out.println("Second Orient:" + sndOrient);
+      if ((sndOrient == 1 && fstOrient == 1)) return 1;
+      if ((fstOrient == 0 || sndOrient == 0) &&
+          (fstOrient == 1 || sndOrient == 1)) return 1;
       if (fstOrient == 0 && sndOrient == 0) return 0;
+      if (sndOrient == 1 && fstOrient == -1) return 1;
+      if (sndOrient == -1 && fstOrient == 1) {
+        if (endP.x > begin.x && endP.x > end.x && infP.x > end.x &&
+            infP.x > begin.x) return 1;
+        else return -1;
+      }
+
       return -1;
     }
 
@@ -141,24 +155,24 @@ public class EdgeList
    */
   private void insertInIsecStore(Point isec, Point endPoint) {
     // If the isecStore doesn't contain the isec, just add it
-    System.out.println("IsecStoreInsert:");
-    System.out.println("Before: " + isecStore);
+    // System.out.println("IsecStoreInsert:");
+    // System.out.println("Before: " + isecStore);
     if (!isecStore.containsKey(isec)) {
-      System.out.println("ContainsKey!");
+      // System.out.println("ContainsKey!");
       LineSegment[] tmpArray = { new LineSegment(endPoint, isec), null };
       isecStore.put(isec, tmpArray);
     }
     // If the isecStore contains the isec, check which one of the
     // edges is null and replace it with the new one
     else {
-      System.out.println("Doesn't contain Key");
+      // System.out.println("Doesn't contain Key");
       LineSegment[] tmpArray = isecStore.remove(isec);
       if (tmpArray[0] == null) tmpArray[0] = new LineSegment(endPoint, isec);
       else if (tmpArray[1] == null)
         tmpArray[1] = new LineSegment(endPoint, isec);
       isecStore.put(isec, tmpArray);
     }
-    System.out.println("After: " + isecStore);
+    // System.out.println("After: " + isecStore);
   }
 
   /**
@@ -168,7 +182,7 @@ public class EdgeList
    * @param endPoint
    */
   public void insertEdge(Point isec, Point endPoint) {
-    System.out.println("Add to Store: " + endPoint + " " + isec);
+    // System.out.println("Add to Store: " + endPoint + " " + isec);
     insertInEndStore(isec, endPoint);
     insertInIsecStore(isec, endPoint);
     insertInOrderedStore(isec, endPoint);
@@ -176,8 +190,8 @@ public class EdgeList
 
   private void updateIsecStore(Point endPoint, Point oldIsec, Point newIsec) {
     assert (isecStore.containsKey(oldIsec));
-    System.out.println("IsecStore: ");
-    System.out.println(isecStore);
+    // System.out.println("IsecStore: ");
+    // System.out.println(isecStore);
     LineSegment[] tmpArray = isecStore.remove(oldIsec);
     if (tmpArray[0] != null &&
         tmpArray[0].equals(new LineSegment(endPoint, oldIsec))) {
@@ -205,7 +219,7 @@ public class EdgeList
         isecStore.put(newIsec, newTmp);
       }
     }
-    System.out.println(isecStore);
+    // System.out.println(isecStore);
   }
 
   private void updateOrderedStore(Point endPoint, Point oldIsec, Point newIsec) {
@@ -215,8 +229,8 @@ public class EdgeList
 
   private void updateEndStore(Point endPoint, Point oldIsec, Point newIsec) {
     assert (endStore.containsKey(endPoint));
-    System.out.println("ENDSTORE:--------------");
-    System.out.println(endStore);
+    // System.out.println("ENDSTORE:--------------");
+    // System.out.println(endStore);
     LineSegment[] isecs = endStore.remove(endPoint);
     if (isecs[0] != null && isecs[0].equals(new LineSegment(endPoint, oldIsec))) {
       if (isecs[1] == null) {
@@ -239,7 +253,7 @@ public class EdgeList
         endStore.put(endPoint, newTmp);
       }
     }
-    System.out.println(endStore);
+    // System.out.println(endStore);
   }
 
   /**
@@ -251,8 +265,9 @@ public class EdgeList
    * @param newIsec
    */
   public void updateIntersection(Point endPoint, Point oldIsec, Point newIsec) {
-    System.out.println("Upate store with :" + oldIsec + " " + endPoint + " " +
-        newIsec);
+    // System.out.println("Upate store with :" + oldIsec + " " + endPoint + " "
+    // +
+    // newIsec);
     updateEndStore(endPoint, oldIsec, newIsec);
     updateIsecStore(endPoint, oldIsec, newIsec);
     updateOrderedStore(endPoint, oldIsec, newIsec);
@@ -265,7 +280,7 @@ public class EdgeList
    * @param endPoint
    */
   public void markEdge(Point endPoint) {
-    System.out.println("MARK: " + endPoint);
+    // System.out.println("MARK: " + endPoint);
     markedEdges.add(endPoint);
   }
 
@@ -289,15 +304,28 @@ public class EdgeList
       return edge;
     }
   }
-  
-  public LineSegment getLeftEdge(Point currP, Point endPoint) {
+
+  public LineSegment getLeftEdge(Point currP, Point endPoint, PointClass type) {
+    System.out.println("orderedEdges: \n");
+    System.out.println(orderedEdges);
     LineSegment edge = new LineSegment(endPoint, currP);
-    return orderedEdges.lower(edge);
+    LineSegment returnEdge = orderedEdges.lower(edge);
+    System.out.println(" First Choice: " + returnEdge);
+    if (returnEdge.containsPoint(endPoint) && type != PointClass.MAX)
+      returnEdge = orderedEdges.lower(returnEdge);
+    System.out.println(" Returned Left Edge: " + returnEdge);
+    return returnEdge;
   }
-  
-  public LineSegment getRightEdge(Point currP, Point endPoint) {
+
+  public LineSegment getRightEdge(Point currP, Point endPoint, PointClass type) {
+    System.out.println(orderedEdges);
     LineSegment edge = new LineSegment(endPoint, currP);
-    return orderedEdges.higher(edge);
+    LineSegment returnEdge = orderedEdges.higher(edge);
+    System.out.println(" First Choice: " + returnEdge);
+    if (returnEdge.containsPoint(endPoint) && type != PointClass.MAX)
+      returnEdge = orderedEdges.higher(returnEdge);
+    System.out.println(" Returned Right Edge: " + returnEdge);
+    return returnEdge;
   }
 
   private LineSegment getNearestRightLineSegment(Point currP) {
@@ -353,8 +381,32 @@ public class EdgeList
   public Point[] getIntersectionByEndPoint(Point endPoint) {
     LineSegment[] tmpArray = endStore.get(endPoint);
     Point[] retArray = new Point[2];
-    retArray[0] = tmpArray[0]._b;
-    if (tmpArray[1] != null) retArray[1] = tmpArray[1]._b;
+    // If only one point is availabe just return it
+    if (tmpArray[1] == null) {
+      retArray[0] = tmpArray[0]._b;
+      retArray[1] = null;
+    }
+    // If two points are available return the left one on [0] and the right one
+    // on [1]
+    else {
+      int firstOrient, sndOrient;
+      firstOrient =
+          MathUtils.checkOrientation(tmpArray[0]._b, endPoint, tmpArray[1]._b);
+      sndOrient =
+          MathUtils.checkOrientation(tmpArray[1]._b, endPoint, tmpArray[0]._b);
+      if (firstOrient == 1) {
+        retArray[0] = tmpArray[0]._b;
+        retArray[1] = tmpArray[1]._b;
+      }
+      else if (sndOrient == 1) {
+        retArray[0] = tmpArray[1]._b;
+        retArray[1] = tmpArray[0]._b;
+      }
+    }
+    // Debug!
+    System.out.println("IntersectionByEndPoint: ");
+    System.out.println("  " + retArray[0]);
+    if (retArray[1] != null) System.out.println("  " + retArray[1]);
     return retArray;
   }
 
@@ -392,7 +444,7 @@ public class EdgeList
    * but there for the comparator needs to be valid!
    */
   public void removeMarkedEdges() {
-    System.out.println("Remove all marked edges.");
+    // System.out.println("Remove all marked edges.");
     for (Point endPoint : markedEdges) {
       LineSegment[] edges = endStore.remove(endPoint);
       for (LineSegment edge : edges) {

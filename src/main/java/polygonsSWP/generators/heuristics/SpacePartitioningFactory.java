@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import polygonsSWP.util.Random;
 
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
@@ -55,7 +55,7 @@ public class SpacePartitioningFactory
   private static class SpacePartitioning
     implements PolygonGenerator
   {
-    private Random rand = GeneratorUtils.rand_;
+    private Random rand = Random.create();
 
     private List<Point> points;
     private final History steps;

@@ -12,7 +12,6 @@ import com.almworks.sqlite4java.SQLiteQueue;
 
 public class DatabaseWriter
 {
-  final String databasePath = "database.db";
   final String preparedInsertInto =
       "INSERT INTO Statistic "
           + "(id, used_algorithm, number_of_points, surface_area, circumference, timestamp, time_for_creating_polygon, "
@@ -22,7 +21,7 @@ public class DatabaseWriter
   SQLiteConnection con;
   SQLiteQueue queue;
   
-  public DatabaseWriter() {
+  public DatabaseWriter(String databasePath) {
     con = new SQLiteConnection(new File(databasePath));
     queue = new SQLiteQueue(new File(databasePath));
     queue.start();

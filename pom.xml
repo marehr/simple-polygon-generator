@@ -123,6 +123,12 @@
                 	<type>so</type>
                 	<scope>compile</scope>
                 </dependency>
+                <dependency>
+                	<groupId>com.almworks.sqlite4java</groupId>
+                	<artifactId>libsqlite4java-linux-i386</artifactId>
+                	<version>${com.almworks.sqlite4java.version}</version>
+                	<type>so</type>
+                </dependency>
         </dependencies>
         <properties>
                 <com.almworks.sqlite4java.version>[0.213,)</com.almworks.sqlite4java.version>

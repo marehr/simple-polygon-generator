@@ -1,0 +1,51 @@
+PLOTTY
+
+  Plotty is a small ruby script to read data from an sqlite db and plot via
+  gnuplot.
+
+
+REQUIREMENTS
+  
+  ruby 1.9.2-p290
+  gems sqlite3, gnuplot
+
+
+USAGE
+  
+  plotty [DATABASE] [EVALUATION]
+    Plot [EVALUATION] of data from [DATABASE].
+
+  plotty [DATABASE] [EVALUATION] [OUTPUT]
+    Plot [EVALUATION] of data from [DATABASE] in file [OUTPUT].
+
+  plotty help
+    Shows this message.
+
+
+STRUCTURE OF evaluations.yaml:
+
+  The file evaluations.yaml specifies the different kinds of evaluations that
+  can be executed. Each consists of an document title for the generated output,
+  and information for diagrams to be plottet.
+ 
+  [EVALUATION1]:
+
+    doc_title: [DOCUMENT TITLE]
+
+    diagram1:
+      title: [DIAGRAM TITLE]
+      xlabel: [LABEL X-AXSIS]
+      ylabel: [LABEL Y-AXSIS]
+      query: [QUERY]
+    
+    diagram2:
+    ...
+  
+  [EVALUATION2]:
+    
+    doc_title: [DOCUMENT TITLE]
+
+    diagram1:
+      ...
+  
+  ...
