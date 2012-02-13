@@ -33,17 +33,19 @@ def create_plot_file(plot_file, data_set, diagram_file, diagram_meta)
       cols = data_set[1]
 
       plot.output diagram_file
-      plot.set("terminal", value = "latex")
+      plot.set("terminal", value = "pdfcairo")
       plot.title  diagram_meta["title"]
-      plot.xlabel diagram_meta["xlable"]
-      plot.ylabel diagram_meta["ylable"]
+      plot.xlabel diagram_meta["xlabel"]
+      plot.ylabel diagram_meta["ylabel"]
+      plot.yrange diagram_meta["yrange"] if diagram_meta["yrange"] != nil
+
       
       plot.data = Array.new
 
       (cols.size-1).times do |i|
         plot.data[i] =
           Gnuplot::DataSet.new( [cols[0], cols[i+1]] ) do |ds|
-            ds.with = "lines"
+            ds.with = diagram_meta["style"] != nil ? diagram_meta["style"] : "lines"
             ds.title = labels[i+1]
           end
       end
@@ -87,10 +89,11 @@ def main()
 
   # generate diagrams
   (evaluation.size-1).times do |i|
-    diagram_name = "diagram" + (i+1).to_s
+    diagram_name = "diagram" + (i).to_s
+    puts evaluation[diagram_name]
     data_set = create_dataset(db_name, evaluation[diagram_name]["query"])
     plot_file = "plot" + i.to_s
-    diagram_file = "diagram" + i.to_s + ".tex"
+    diagram_file = "diagram" + i.to_s + ".pdf"
     create_plot_file(plot_file, data_set, diagram_file, evaluation[diagram_name])
     `gnuplot #{plot_file}`
     diagrams[i] = diagram_file
@@ -98,7 +101,7 @@ def main()
 
   # set diagrams as input for tex file
   diagrams.each do |diagram|
-    diagrams_string += "\\input{" + diagram + "}\n \n"
+    diagrams_string += "\\includegraphics{" + diagram + "}\n \n"
   end
   statistic.gsub!(/!!diagrams!!/, diagrams_string)
   File.open(statistic_file, 'w').write(statistic)

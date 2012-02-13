@@ -1,55 +1,267 @@
 pr:
   doc_title: Permute and Reject
+  diagram0:
+    title: Time for Creation
+    xlabel: points n
+    ylabel: time in s
+    style: dots
+    query: "select number_of_points as numberOfPoints, time_for_creating_polygon as timeForCreation from Permute order by number_of_points asc"
   diagram1:
-    title: Deine Mudda
-    xlabel: Punkte n
-    ylabel: Zeit t
-    query: select * from test
+    title: Surface Area
+    xlabel: points n
+    ylabel: surface area
+    style: dots
+    query: "select number_of_points as numberOfPoints, ABS (surface_area) as surfaceArea from Permute order by number_of_points asc"
+  diagram2:
+    title: Circumference
+    xlabel: points n
+    ylabel: circumference
+    style: dots
+    query: "select number_of_points as numberOfPoints, circumference as circumference from Permute order by number_of_points asc"
+  diagram3:
+    title: Iterations
+    xlabel: points n
+    ylabel: iterations
+    style: dots
+    query: "select number_of_points as numberOfPoints, iterations as iterations from Permute order by number_of_points asc"
 
 sp:
   doc_title: Space Partitioning
+  diagram0:
+    title: Time for Creation
+    xlabel: points n
+    ylabel: time in s
+    style: lines
+    query: "select number_of_points as numberOfPoints, time_for_creating_polygon as timeForCreation from Space order by number_of_points asc"
   diagram1:
-    title: Deine Mudda
-    xlabel: Punkte n
-    ylabel: Zeit t
-    query: select * from test
+    title: "Time for Creation (excerpt)"
+    xlabel: points n
+    ylabel: time in s
+    yrange: "[0:20000]"
+    style: dots
+    query: "select number_of_points as numberOfPoints, time_for_creating_polygon as timeForCreation from Space order by number_of_points asc"
+  diagram2:
+    title: Surface Area
+    xlabel: points n
+    ylabel: surface area
+    style: lines
+    query: "select number_of_points as numberOfPoints, ABS (surface_area) as surfaceArea from Space order by number_of_points asc"
+  diagram3:
+    title: Circumference
+    xlabel: points n
+    ylabel: circumference
+    style: lines
+    query: "select number_of_points as numberOfPoints, circumference as circumference from Space order by number_of_points asc"
+
 
 rpa:
   doc_title: RandomPolygonAlgorithm
+  diagram0:
+    title: Time for Creation
+    xlabel: points n
+    ylabel: time in s
+    style: dots
+    query: "select number_of_points as numberOfPoints, time_for_creating_polygon as timeForCreation from RPA order by number_of_points asc"
   diagram1:
-    title: Deine Mudda
-    xlabel: Punkte n
-    ylabel: Zeit t
-    query: select * from test
+    title: Surface Area
+    xlabel: points n
+    ylabel: surface area
+    style: dots
+    query: "select number_of_points as numberOfPoints, ABS (surface_area) as surfaceArea from RPA order by number_of_points asc"
+  diagram2:
+    title: Circumference
+    xlabel: points n
+    ylabel: circumference
+    style: dots
+    query: "select number_of_points as numberOfPoints, circumference as circumference from RPA order by number_of_points asc"
+
+sg:
+  doc_title: Steady Growth
+  diagram0:
+    title: Time for Creation
+    xlabel: points n
+    ylabel: time in s
+    style: dots
+    query: "select number_of_points as numberOfPoints, time_for_creating_polygon as timeForCreation from Steady order by number_of_points asc"
+  diagram1:
+    title: "Time for Creation (excerpt)"
+    xlabel: points n
+    ylabel: time in s
+    yrange: "[0:20000]"
+    style: dots
+    query: "select number_of_points as numberOfPoints, time_for_creating_polygon as timeForCreation from Steady order by number_of_points asc"
+  diagram2:
+    title: Surface Area
+    xlabel: points n
+    ylabel: surface area
+    style: dots
+    query: "select number_of_points as numberOfPoints, ABS (surface_area) as surfaceArea from Steady order by number_of_points asc"
+  diagram3:
+    title: Circumference
+    xlabel: points n
+    ylabel: circumference
+    style: dots
+    query: "select number_of_points as numberOfPoints, circumference as circumference from Steady order by number_of_points asc"
+  diagram4:
+    title: Iterations
+    xlabel: points n
+    ylabel: iterations
+    style: dots
+    query: "select number_of_points as numberOfPoints, iterations as iterations from Steady order by number_of_points asc"
+  diagram5:
+    title: Rejections
+    xlabel: points n
+    ylabel: rejections
+    style: dots
+    query: "select number_of_points as numberOfPoints, rejections as rejections from Steady order by number_of_points asc"
+  diagram6:
+    title: Initialize Rejections
+    xlabel: points n
+    ylabel: init. rejections
+    style: dots
+    query: "select number_of_points as numberOfPoints, initializeRejections as initializeRejections from Steady order by number_of_points asc"
+  diagram7:
+    title: Maximum Rejections
+    xlabel: points n
+    ylabel: max. rejections
+    style: dots
+    query: "select number_of_points as numberOfPoints, maximumRejections as maximumRejections from Steady order by number_of_points asc"
+
+2opt:
+  doc_title: 2-Opt-Move
+  diagram0:
+    title: Time for Creation
+    xlabel: points n
+    ylabel: time in s
+    style: dots
+    query: "select number_of_points as numberOfPoints, time_for_creating_polygon as timeForCreation from TwoOpt order by number_of_points asc"
+  diagram1:
+    title: "Time for Creation (excerpt)"
+    xlabel: points n
+    ylabel: time in s
+    yrange: "[0:20000]"
+    style: dots
+    query: "select number_of_points as numberOfPoints, time_for_creating_polygon as timeForCreation from TwoOpt order by number_of_points asc"
+  diagram2:
+    title: Surface Area
+    xlabel: points n
+    ylabel: surface area
+    style: dots
+    query: "select number_of_points as numberOfPoints, ABS (surface_area) as surfaceArea from TwoOpt order by number_of_points asc"
+  diagram3:
+    title: Circumference
+    xlabel: points n
+    ylabel: circumference
+    style: dots
+    query: "select number_of_points as numberOfPoints, circumference as circumference from TwoOpt order by number_of_points asc"
+  diagram4:
+    title: Iterations
+    xlabel: points n
+    ylabel: iterations
+    style: dots
+    query: "select number_of_points as numberOfPoints, iterations as iterations from TwoOpt order by number_of_points asc"
 
 icb:
-  doc_title: Incremental Construction and Backtracking
+  doc_title: "Incremental Construction and Backtracking"
+  diagram0:
+    title: Time for Creation
+    xlabel: points n
+    ylabel: time in s
+    style: dots
+    query: "select number_of_points as numberOfPoints, time_for_creating_polygon as timeForCreation from Backtrack order by number_of_points asc"
   diagram1:
-    title: Deine Mudda
-    xlabel: Punkte n
-    ylabel: Zeit t
-    query: select * from test
-
-2om:
-  doc_title: 2-Opt-Move
-  diagram1:
-    title: Deine Mudda
-    xlabel: Punkte n
-    ylabel: Zeit t
-    query: select * from test
+    title: Surface Area
+    xlabel: points n
+    ylabel: surface area
+    style: dots
+    query: "select number_of_points as numberOfPoints, ABS (surface_area) as surfaceArea from Backtrack order by number_of_points asc"
+  diagram2:
+    title: Circumference
+    xlabel: points n
+    ylabel: circumference
+    style: dots
+    query: "select number_of_points as numberOfPoints, circumference as circumference from Backtrack order by number_of_points asc"
+  diagram3:
+    title: Iterations
+    xlabel: points n
+    ylabel: iterations
+    style: dots
+    query: "select number_of_points as numberOfPoints, iterations as iterations from Backtrack order by number_of_points asc"
+  diagram4:
+    title: Times Backtracked
+    xlabel: points n
+    ylabel: times backtracked
+    style: dots
+    query: "select number_of_points as numberOfPoints, count_of_backtracks as timesBacktracked from Backtrack order by number_of_points asc"
+  diagram5:
+    title: Times Backtracked (excerpt)
+    xlabel: points n
+    ylabel: times backtracked
+    yrange: "[0:20000]"
+    style: dots
+    query: "select number_of_points as numberOfPoints, count_of_backtracks as timesBacktracked from Backtrack order by number_of_points asc"
 
 vir:
-  doc_title: Virmani
+  doc_title: "Orouke and Virmani"
+  diagram0:
+    title: Time for Creation
+    xlabel: points n
+    ylabel: time in s
+    style: dots
+    query: "select number_of_points as numberOfPoints, time_for_creating_polygon as timeForCreation from Velocity order by number_of_points asc"
   diagram1:
-    title: Deine Mudda
-    xlabel: Punkte n
-    ylabel: Zeit t
-    query: select * from test
+    title: Surface Area
+    xlabel: points n
+    ylabel: surface area
+    style: dots
+    query: "select number_of_points as numberOfPoints, ABS (surface_area) as surfaceArea from Velocity order by number_of_points asc"
+  diagram2:
+    title: Circumference
+    xlabel: points n
+    ylabel: circumference
+    style: dots
+    query: "select number_of_points as numberOfPoints, circumference as circumference from Velocity order by number_of_points asc"
+  diagram3:
+    title: Iterations
+    xlabel: points n
+    ylabel: iterations
+    style: dots
+    query: "select number_of_points as numberOfPoints, iterations as iterations from Velocity order by number_of_points asc"
+  diagram4:
+    title: Rejections
+    xlabel: points n
+    ylabel: rejections
+    style: dots
+    query: "select number_of_points as numberOfPoints, rejections as rejections from Velocity order by number_of_points asc"
+  diagram5:
+    title: Average Velocity without Collisions
+    xlabel: points n
+    ylabel: rejections
+    style: dots
+    query: "select number_of_points as numberOfPoints, ABS (avg_velocity_without_collisions) as avgVelocityWithoutCollisions from Velocity order by number_of_points asc"
 
-all:
-  doc_title: Comparison of all Algorithms
-  diagram1:
-    title: Deine Mudda
-    xlabel: Punkte n
-    ylabel: Zeit t
-    query: select * from test
+full:
+  doc_title: "Comarison of all Algorithms"
+  diagram0:
+    title: Time for Creation
+    xlabel: points n
+    ylabel: time in s
+    style: dots
+    query: >
+      Select 
+      p.number_of_points as numberOfPoints, 
+      b.time_for_creating_polygon as icb, 
+      p.time_for_creating_polygon as permute,
+      r.time_for_creating_polygon as rpa,
+      sp.time_for_creating_polygon as space,
+      sg.time_for_creating_polygon as seady,
+      opt.time_for_creating_polygon as twoOpt,
+      vir.time_for_creating_polygon as virmani
+      From Permute as p
+      Join Backtrack as b On (p.number_of_points = b.number_of_points)
+      Join RPA as r On (p.number_of_points = r.number_of_points)
+      Join Space as sp On (p.number_of_points = sp.number_of_points)
+      Join Steady as sg On (p.number_of_points = sg.number_of_points)
+      Join TwoOpt as opt On (p.number_of_points = opt.number_of_points)
+      Join Velocity as vir On (p.number_of_points = vir.number_of_points)
+      order by p.number_of_points asc
