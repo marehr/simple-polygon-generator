@@ -20,7 +20,6 @@ import polygonsSWP.generators.heuristics.TwoOptMovesFactory;
 import polygonsSWP.generators.heuristics.VelocityVirmaniFactory;
 import polygonsSWP.generators.other.ConvexHullGeneratorFactory;
 import polygonsSWP.generators.other.PermuteAndRejectFactory;
-import polygonsSWP.generators.other.SweepLineTestFactory;
 import polygonsSWP.generators.rpa.RandomPolygonAlgorithmFactory;
 import polygonsSWP.geometry.Polygon;
 
@@ -33,7 +32,7 @@ public class AlgorithmRunner
 {
   private static int cores = 2;
 
-  static PolygonGeneratorFactory[] facs = { new SweepLineTestFactory(),
+  static PolygonGeneratorFactory[] facs = {
       new SpacePartitioningFactory(), new PermuteAndRejectFactory(),
       new TwoOptMovesFactory(), new RandomPolygonAlgorithmFactory(),
       new IncrementalConstructionAndBacktrackingFactory(),

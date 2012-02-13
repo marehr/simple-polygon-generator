@@ -1,7 +1,6 @@
 package polygonsSWP.geometry;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,7 +14,6 @@ import polygonsSWP.util.EdgeList;
 import polygonsSWP.util.MathUtils;
 import polygonsSWP.util.PointType;
 import polygonsSWP.util.PointType.Direction;
-import polygonsSWP.util.PointType.PointClass;
 import polygonsSWP.util.SweepLineResult;
 
 
@@ -262,25 +260,6 @@ public class OrderedListPolygon
   public boolean containsVertex(Point p) {
     return getPoints().contains(p);
   }
-
-  /**
-   * TODO: remove me after Trapzblah fertig und SweepLineTestFactory Fuer Steve,
-   * damit er auf konstanten Polygonen sweepline testen kann wenn weniger als 3
-   * Punkte angegeben werden, dann wird einfach SpacePartitioning auf die GUI
-   * Settings ausgefuehrt
-   */
-  public static OrderedListPolygon sweepLineTestPolygon =
-      new OrderedListPolygon(new ArrayList<Point>(Arrays.asList(new Point(
-          529.149, 5.582), new Point(445.543, 269.673), new Point(531.447,
-          142.679), new Point(531.646, 351.09), new Point(416.278, 489.776),
-          new Point(433.315, 408.679), new Point(341.523, 497.555), new Point(
-              377.759, 301.404), new Point(315.779, 356.489), new Point(
-              295.654, 453.592), new Point(308.017, 356.581), new Point(
-              160.263, 574.382), new Point(71.237, 509.403), new Point(15.043,
-              536.635), new Point(325.996, 260.252),
-          new Point(96.417, 448.186), new Point(295.739, 48.566), new Point(
-              152.571, 379.576), new Point(351.184, 196.527), new Point(
-              504.733, 42.172))));
 
   public List<Trapezoid> sweepLine() {
     System.out.println("Start Trapezodation:--------------------------------------");
