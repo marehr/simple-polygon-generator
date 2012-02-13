@@ -1,6 +1,5 @@
 package polygonsSWP.analysis;
 
-import java.lang.Thread.State;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -197,9 +196,9 @@ public class AlgorithmRunner
     
     @Override
     public void run() {
-      long start = System.currentTimeMillis();
+      long start = System.nanoTime();
       Polygon polygon = polygonGenerator.generate();
-      long end = System.currentTimeMillis();
+      long end = System.nanoTime();
       if(polygon == null)
         throw new RuntimeException("PolygonGeneratorWorker/run: polygon is null!");//maybe it can be null ?!? Warn me
       statistics.time_for_creating_polygon = end - start;
