@@ -332,3 +332,24 @@ spaggr:
     ylabel: circumference
     style: dots
     query: "select number_of_points as numberOfPoints, avg (circumference) as circumference from Space group by (number_of_points) order by number_of_points asc"
+
+rpaggr:
+  doc_title: Random Polygon Algorithm
+  diagram0:
+    title: Time for Creation
+    xlabel: points n
+    ylabel: time in ns
+    style: dots
+    query: "select number_of_points as numberOfPoints, avg (time_for_creating_polygon) as timeForCreation from RPA where number_of_points <= 100 group by (number_of_points) order by number_of_points asc"
+  diagram1:
+    title: Surface Area
+    xlabel: points n
+    ylabel: surface area
+    style: dots
+    query: "select number_of_points as numberOfPoints, avg (ABS (surface_area)) as surfaceArea from RPA where number_of_points <= 100 group by (number_of_points) order by number_of_points asc"
+  diagram2:
+    title: Circumference
+    xlabel: points n
+    ylabel: circumference
+    style: dots
+    query: "select number_of_points as numberOfPoints, avg (circumference) as circumference from RPA where number_of_points <= 100 group by (number_of_points) order by number_of_points asc"
