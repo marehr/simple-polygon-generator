@@ -1,0 +1,3 @@
+new.sql
+*.db
+!all.db

@@ -712,6 +712,7 @@ public class OrderedListPolygon
 
     assert size() >= 3;
     assert (isSimple());
+    if(isClockwise() != -1) reverse();
     assert (isClockwise() == -1);
 
     _triangles = new ArrayList<Triangle>();
