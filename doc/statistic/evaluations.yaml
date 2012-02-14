@@ -236,7 +236,7 @@ vir:
   diagram5:
     title: Average Velocity without Collisions
     xlabel: points n
-    ylabel: rejections
+    ylabel: avg. velocity
     style: dots
     query: "select number_of_points as numberOfPoints, ABS (avg_velocity_without_collisions) as avgVelocityWithoutCollisions from Velocity order by number_of_points asc"
 

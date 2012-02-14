@@ -23,7 +23,7 @@
 \begin{frame}{Goals}
 	\begin{itemize}
 	\item Testing framework for algorithms related to random polygons
-	\item Generate random polygons (fair, representative)
+	\item Generate random polygons (fair, representative ?)
 	\item Run shortest path algorithm on polygon
 	\item Statistical analysis
 	\end{itemize}
@@ -38,7 +38,7 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{development process\\- milestones}
+\begin{frame}{Development process\\- milestones}
   \begin{itemize}
     \item 2. milestone 1 week late
     \item 3. milestone as well
@@ -46,7 +46,7 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{development process\\- time management}
+\begin{frame}{Development process\\- time management}
   \begin{itemize}
     \item first used long, now double
     \item therefore own framework
@@ -57,11 +57,11 @@
       \item cons: slow development process, garbage collection
       \item next time modern language (scala, ruby ...)?
     \end{itemize}
-    \item building real toolchain
+    \item build real toolchain
   \end{itemize}
 \end{frame}
 
-\begin{frame}{development process\\- communication}
+\begin{frame}{Development process\\- communication}
   \begin{itemize}
     \item 6 people
     \item only 1 meeting per week?
@@ -80,18 +80,20 @@
 
 % TODO: change what did we accomplish
 
-\begin{frame}{What did we accomplish?\\- shortest path}
+\begin{frame}{Final version\\- shortest path}
   \begin{itemize}
-    % TODO: explain algorithm
+    % TODO: sebastian erklaehrt shortest path
+    % zeigen am virmani
     \item original algorithm required trapezoidation
-    \item 
+    % TODO: brauchts nicht mehr
+    \item nicht mehr
     % TODO: runntime?
     \item runntime
     \item space complexity O(1)
   \end{itemize}
 \end{frame}
 
-\begin{frame}{What did we accomplish?\\- step-by-step visualization}
+\begin{frame}{Final version\\- step-by-step visualization}
   \begin{itemize}
     \item see working algorithms live
     \item implemented by "history scenes"
@@ -100,15 +102,14 @@
             all geom. objects currently used
       \item callback to gui draw
     \end{itemize}
-    % TODO: besser formulieren, dass wir per gui kontrollieren koennen, welche scenen wir sehen wollen
-    \item view scenes in gui
-    \item or videolike playback via "play"
+    \item control history scenes via gui
+    \item including videolike playback
     \item export as svg possible
     % TODO: Marcel zeigt space partitioning und erklaehrt wie er funktioniert
   \end{itemize}
 \end{frame}
 
-\begin{frame}{What did we accomplish?\\- statistic}
+\begin{frame}{Final version\\- statistic}
   \begin{itemize}
     \item algorithmRunner runs alg. in arbitrary configuration
     \item dumps data to sqlite files
@@ -122,37 +123,37 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{What did we accomplish?\\- analysis}
+\begin{frame}{Final version\\- analysis}
   space partitioning
   \includegraphics[scale=0.8]{spaggr/diagram0.pdf}
 \end{frame}
 
-\begin{frame}{What did we accomplish?\\- analysis}
+\begin{frame}{Final version\\- analysis}
   space partitioning
   \includegraphics[scale=0.8]{spaggr/diagram1.pdf}
 \end{frame}
 
-\begin{frame}{What did we accomplish?\\- analysis}
+\begin{frame}{Final version\\- analysis}
   2-Opt-Move
   \includegraphics[scale=0.8]{2opt/diagram1.pdf}
 \end{frame}
 
-\begin{frame}{What did we accomplish?\\- analysis}
+\begin{frame}{Final version\\- analysis}
   2-Opt-Move
   \includegraphics[scale=0.8]{2opt/diagram4.pdf}
 \end{frame}
 
-\begin{frame}{What did we accomplish?\\- analysis}
+\begin{frame}{Final version\\- analysis}
   Random Polygon Algorithm
   \includegraphics[scale=0.8]{rpaggr/diagram1.pdf}
 \end{frame}
 
-\begin{frame}{What did we accomplish?\\- analysis}
+\begin{frame}{Final version\\- analysis}
   Random Polygon Algorithm
   \includegraphics[scale=0.8]{rpaggr/diagram2.pdf}
 \end{frame}
 
-\begin{frame}{What did we accomplish?\\- analysis}
+\begin{frame}{Final version\\- analysis}
   Orouke and Virmani
   \includegraphics[scale=0.8]{virmani/diagram5.pdf}
 \end{frame}
