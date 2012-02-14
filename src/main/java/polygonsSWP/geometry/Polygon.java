@@ -35,11 +35,6 @@ public abstract class Polygon
   public abstract Polygon clone();
 
   /**
-   * @return True if object equals polygon, false otherwise
-   */
-  public abstract boolean equals(Object obj);
-
-  /**
    * @return the number of vertices
    */
   public abstract int size();
@@ -171,6 +166,63 @@ public abstract class Polygon
 
     return intersections;
 
+  }
+
+  /**
+   * Simple test for equality. Should be improved if we introduce other
+   * implementations of polygon.
+   *
+   * @return True if object equals polygon, false otherwise
+   */
+  @Override
+  public boolean equals(Object obj) {
+    // Is Object a Polygon?
+    if (!(obj instanceof Polygon)) return false;
+
+    Polygon that = (Polygon) obj;
+
+    List<Point> p1 = this.getPoints(), p2 = that.getPoints();
+
+    if (p1.size() != p2.size()) return false;
+
+    // Get starting point and compare clockwise whole polygon
+    Point startPoint = p1.get(0);
+    int index = p2.indexOf(startPoint);
+
+    if (index == -1) return false;
+
+    for (int i = 1; i < p1.size(); ++i)
+      if (!p1.get(i).equals(that.getPointInRange(index + i))) return false;
+
+    return true;
+  }
+
+  /**
+   * Gives Point at Position "pos"
+   * 
+   * @param pos
+   * @return
+   */
+  public Point getPoint(final int pos){
+    return getPoints().get(pos);
+  }
+
+  /**
+   * Create an index via module which is always in range
+   * 
+   * @param index index to be modified
+   * @return
+   */
+  public int getIndexInRange(final int index) {
+    int result = index % size();
+    return result < 0 ? result + size() : result;
+  }
+
+  /**
+   * Return point with safe index.
+   */
+  public Point getPointInRange(final int index) {
+    return getPoint(getIndexInRange(index));
   }
 
   /**

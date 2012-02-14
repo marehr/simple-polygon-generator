@@ -21,7 +21,6 @@ import polygonsSWP.generators.heuristics.TwoOptMovesFactory;
 import polygonsSWP.generators.heuristics.VelocityVirmaniFactory;
 import polygonsSWP.generators.other.ConvexHullGeneratorFactory;
 import polygonsSWP.generators.other.PermuteAndRejectFactory;
-import polygonsSWP.generators.other.SweepLineTestFactory;
 import polygonsSWP.generators.rpa.RandomPolygonAlgorithmFactory;
 import polygonsSWP.gui.generation.PolygonGenerationPanel;
 import polygonsSWP.gui.visualisation.PolygonView;
@@ -49,7 +48,6 @@ public class MainFrame
   private PolygonGeneratorFactory[] polygon_algorithm_list = {
 	  new PermuteAndRejectFactory(),
       new SpacePartitioningFactory(),
-      new SweepLineTestFactory(),
       new TwoOptMovesFactory(), 
       new RandomPolygonAlgorithmFactory(), 
       new IncrementalConstructionAndBacktrackingFactory(), 

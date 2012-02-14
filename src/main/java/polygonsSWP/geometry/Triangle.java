@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import polygonsSWP.util.Random;
 
-import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 
 
@@ -50,23 +49,6 @@ public class Triangle
     for (Point item : _coords)
       nList.add(item.clone());
     return new Triangle(nList);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof Triangle) {
-      List<Point> tmpList = ((Triangle) obj).getPoints();
-      if (tmpList.contains(_coords.get(0))) {
-        int index = tmpList.indexOf(_coords.get(0));
-        if (tmpList.get((index + 1) % 3).equals(_coords.get(1)) &&
-            tmpList.get((index + 2) % 3).equals(_coords.get(2))) return true;
-      }
-      return false;
-    }
-    else {
-      // TODO: check for other polygon types with 3 points would be fancy!
-      return false;
-    }
   }
 
   /**

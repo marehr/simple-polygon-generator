@@ -14,22 +14,6 @@ public class SteadyGrowthConvexHull extends Polygon
   private ArrayList<Point> upperHull = new ArrayList<Point>(),
       lowerHull = new ArrayList<Point>(), points = null;
 
-  private Comparator<Point> pointCmp = new Comparator<Point>() {
-
-    @Override
-    public int compare(Point o1, Point o2) {
-      return o1.compareTo(o2);
-    }
-  };
-
-  private Comparator<Point> pointCmpReverse = new Comparator<Point>() {
-
-    @Override
-    public int compare(Point o1, Point o2) {
-      return o2.compareTo(o1);
-    }
-  };
-
   @Override
   @SuppressWarnings("unchecked")
   public Polygon clone() {
@@ -45,8 +29,8 @@ public class SteadyGrowthConvexHull extends Polygon
     if (containsPoint(point, true)) return;
     points = null;
 
-    addPoint(point, lowerHull, pointCmp);
-    addPoint(point, upperHull, pointCmpReverse);
+    addPoint(point, lowerHull, Point.XCompare);
+    addPoint(point, upperHull, Point.XCompareReverse);
   }
 
   private boolean addPoint(Point point, ArrayList<Point> hull,
@@ -143,16 +127,6 @@ public class SteadyGrowthConvexHull extends Polygon
   public int size() {
     if(points != null) return points.size();
     return Math.max(upperHull.size(), upperHull.size() + lowerHull.size() - 2);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public double getSurfaceArea() {
-    throw new UnsupportedOperationException();
   }
 
   @Override

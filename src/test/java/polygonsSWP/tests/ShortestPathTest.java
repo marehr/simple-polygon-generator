@@ -1,20 +1,16 @@
 package polygonsSWP.tests;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
 
-import polygonsSWP.data.ShortestPath;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
-import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.Ray;
 import polygonsSWP.util.MathUtils;
 
@@ -100,7 +96,7 @@ public class ShortestPathTest {
 	  reducedPolygon.addPoint(q1);
 	  List<Point> plist = poly.getPoints();
 
-	  plist = ShortestPath.sortList(q1, plist);
+	  Collections.sort(plist);
 	  
       for (int i = 1; i < plist.size() - 1; i++) {
 	    LineSegment ls = new LineSegment(plist.get(i), plist.get(i + 1));
@@ -141,7 +137,7 @@ public class ShortestPathTest {
 	    Ray ray = new Ray(p, q1);
 	    Point newP = null;
 	    List<Point> pointList = poly.getPoints();
-	    pointList = ShortestPath.sortList(q1,pointList);
+	    Collections.sort(pointList);
 	    for (int i = 1; i < pointList.size() - 1; i++) {
 	      Point[] intersectingPoints = ray.intersect(new LineSegment(pointList.get(i),pointList.get(i + 1)));
 	      // TODO: Why does Ray.intersect(LineSegment) method return an array?
@@ -172,7 +168,7 @@ public class ShortestPathTest {
 	  
 
 	    List<Point> temp = poly.getPoints();
-	    temp = ShortestPath.sortList(p,temp);
+	    Collections.sort(temp);
 	    if(temp.get(1).compareTo(q2) == 0)
 	    	System.out.println((MathUtils.checkOrientation(p, q2, temp.get(2)) == 1));
 	    else if(temp.get(temp.size()-1).compareTo(q2) == 0)
@@ -205,6 +201,7 @@ public class ShortestPathTest {
 	  for(Point[] i : list)
 	  {
 		  for (int j = 0; j < i.length; j++) {
+		    if(i[j] == null) continue;
 			  System.out.println(i[j].x + " " + i[j].y);
 		  }
 	  }

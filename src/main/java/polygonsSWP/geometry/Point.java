@@ -1,6 +1,7 @@
 package polygonsSWP.geometry;
 
 import java.text.DecimalFormat;
+import java.util.Comparator;
 
 import polygonsSWP.util.MathUtils;
 
@@ -15,7 +16,34 @@ public class Point
   implements Comparable<Point>
 {
   private static DecimalFormat df = new DecimalFormat("###.###");
-  
+
+  public static final Comparator<Point> XCompare = new Comparator<Point>() {
+
+    @Override
+    public int compare(Point o1, Point o2) {
+      return o1.compareTo(o2);
+    }
+
+  };
+
+  public static final Comparator<Point> XCompareReverse = new Comparator<Point>() {
+
+    @Override
+    public int compare(Point o1, Point o2) {
+      return o2.compareTo(o1);
+    }
+
+  };
+
+  public static final Comparator<Point> YCompare = new Comparator<Point>() {
+
+    @Override
+    public int compare(Point o1, Point o2) {
+      return o1.compareToByY(o2);
+    }
+
+  };
+
   public double x;
   public double y;
 
