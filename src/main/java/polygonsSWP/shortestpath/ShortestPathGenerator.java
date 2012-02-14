@@ -107,42 +107,79 @@ public class ShortestPathGenerator
 
   private static OrderedListPolygon reducePolygon(OrderedListPolygon polygon, Point p,
       Point q1, Point q2) {
+    // Remark: We assume that q1 and q2 both lie on the boundary of polygon, either
+    // being vertices or within the interior of polygon edges, AND
+    // may also lie on the same polygon edge.
+    
     OrderedListPolygon reducedPolygon = new OrderedListPolygon();
     
+    // Points p and q1 make the start.
     reducedPolygon.addPoint(p);
+    reducedPolygon.addPoint(q1);
         
-    // Find index of first polygon vertex to add (may be q1).
+    // Find index of first vertex after q1.
     int idx = -1;
     for(int i = 0; i < polygon.size(); i++) {
       if(polygon.getPoint(i).equals(q1)) {
-        idx = i;
+        idx = polygon.getIndexInRange(i + 1);
+        break;
+      } 
+      
+      if((i + 1 < polygon.size()) && polygon.getPoint(i + 1).equals(q1)) {
+        idx = polygon.getIndexInRange(i + 2);
         break;
       }
       
-      LineSegment ls = new LineSegment(polygon.getPointInRange(i - 1), polygon.getPoint(i));
+      LineSegment ls = new LineSegment(polygon.getPoint(i), polygon.getPointInRange(i + 1));
       if(ls.containsPoint(q1)) {
-        reducedPolygon.addPoint(q1);
-        idx = i;
+        idx = polygon.getIndexInRange(i + 1);
         break;
       }
     }
     
     assert(idx != -1);
     
-    // Add all points up to q2 (including q1).
-    for(int i = 0; i < polygon.size(); i++) {
-      reducedPolygon.addPoint(polygon.getPointInRange(idx + i));
-      
-      if(polygon.getPointInRange(idx + i).equals(q2))
+    // Early out: Check whether q2 lies on the same edge as q1 or q1 is a vertex and q2 lies
+    // on the succeeding edge, but q2 is NOT the vertex before q1.
+    // NOTE: This way we can guarantee that we get the whole polygon IF q2 actually is
+    // the vertex in front of the edge where q1 resides. What we can not guarantee is the right
+    // order of q1 and q2 if they lie on the same edge. However, this is not necessary for the
+    // ShortestPath algorithm, so we skip the additional orientation test.
+    LineSegment succEdge = new LineSegment(polygon.getPointInRange(idx - 1), polygon.getPointInRange(idx));
+    if(succEdge.containsPoint(q2) && !polygon.getPointInRange(idx - 1).equals(q2)) {
+      reducedPolygon.addPoint(q2);
+      return reducedPolygon;
+    }
+    
+    // Add all points until we hit q2.
+    // Remark: This loop could as well be a while(true) loop, but we defensively avoid infinite looping here.
+    //         The loop's condition is only a guess and maybe can be even chosen lower. Didn't think about it.
+    boolean found = false;
+    for(int i = idx; i < polygon.size() + idx; i++) {  
+      if(polygon.getPointInRange(i).equals(q2)) {
+        found = true;
         break;
+      }
       
-      LineSegment ls = new LineSegment(polygon.getPointInRange(idx + i), polygon.getPointInRange(idx + i + 1));
+      reducedPolygon.addPoint(polygon.getPointInRange(i));
+      
+      if(polygon.getPointInRange(i + 1).equals(q2)) {
+        found = true;
+        break;
+      }
+            
+      LineSegment ls = new LineSegment(polygon.getPointInRange(i), polygon.getPointInRange(i + 1));
       if(ls.containsPoint(q2)) {
-        reducedPolygon.addPoint(q2);
+        found = true;
         break;
       }
     }
             
+    assert(found);
+    
+    // Put q2 at the end.
+    reducedPolygon.addPoint(q2);
+    
     return reducedPolygon;
   }
   
@@ -220,6 +257,7 @@ public class ShortestPathGenerator
           return new Point[] { parray[0], parray[1], succq1n };
         else
           return new Point[] { parray[0], succq1n, parray[2] };
+        
       } else {
         // Ray p_pred(q2) _must_ lie inside the wedge.
         
@@ -283,7 +321,9 @@ public class ShortestPathGenerator
         // BUT they can happen when p_q1 or p_q2 is an edge of the polygon.
 //        if((is[1].equals(base) && is[2].equals(support)) || 
 //           (is[1].equals(support) && is[2].equals(base))) {
-        // TODO fix Polygon.intersect, as it returns [x, null, null] AND [null, x, otherVertex] 
+        
+        // TODO fix Polygon.intersect, as it returns [x, null, null] AND [null, x, otherVertex]
+        // The above condition is more precise.
         if(is[1].equals(base) || is[1].equals(support) || is[2].equals(base) || is[2].equals(support))
           continue;
         else
@@ -305,8 +345,7 @@ public class ShortestPathGenerator
       }
     }
     
-    if(nearestPoint == null)
-      assert(nearestPoint != null);
+    assert(nearestPoint != null);
     
     return nearestPoint;
   }
