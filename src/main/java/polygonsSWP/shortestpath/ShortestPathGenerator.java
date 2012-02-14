@@ -9,6 +9,7 @@ import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.Ray;
 import polygonsSWP.util.MathUtils;
 
+import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -63,7 +64,7 @@ public class ShortestPathGenerator
       Scene scene = history.newScene();
       scene.addPolygon(polygon, true);
       for(int i = 0; i < path.size() - 1; i++)
-        scene.addLineSegment(new LineSegment(path.get(i), path.get(i + 1)), true);
+        scene.addLineSegment(new LineSegment(path.get(i), path.get(i + 1)), Color.GREEN);
       scene.save();
     }
 
