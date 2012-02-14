@@ -93,6 +93,9 @@ class ShortestPathPanel
         final Point endPoint = pointList.get(1);
         final History history = new History(600); // TODO
 
+        // disable flickering
+        history.newScene().addPolygon(currentPolygon, true).save();
+
         emitSPGenerationStarted(history);
         Thread t = new Thread(new Runnable() {
 
