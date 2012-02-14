@@ -9,8 +9,7 @@
 \titleimage{polygons}
 
 \title[Random Polygons]{Random Polygons}
-\subtitle{2. Zwischenpräsentation}
-%TODO: right?
+\subtitle{final presentation}
 \institute[FU Berlin]{Freie Universität Berlin}
 \date[06.12.2011]{6th December 2011}
 
@@ -39,20 +38,127 @@
   \end{itemize}
 \end{frame}
 
+\begin{frame}{development process\\- milestones}
+  \begin{itemize}
+    \item 2. milestone 1 week late
+    \item 3. milestone as well
+    \item 1 week buffer was planned and used
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{development process\\- time management}
+  \begin{itemize}
+    \item first used long, now double
+    \item therefore own framework
+    \item time for extensive testing missed
+    \item java as language?
+    \begin{itemize}
+      \item pros: portable, fast, teached at fu
+      \item cons: slow development process, garbage collection
+      \item next time modern language (scala, ruby ...)?
+    \end{itemize}
+    \item building real toolchain
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{development process\\- communication}
+  \begin{itemize}
+    \item 6 people
+    \item only 1 meeting per week?
+    \item next time:
+    \begin{itemize}
+      \item 1 for organizational stuff
+      \item 1 for developement
+    \end{itemize}
+    \item using redmine?
+    \begin{itemize}
+      \item not used to extensive use of redmine
+      \item more consequetly report bugs + features
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
 \begin{frame}{What did we accomplish?\\- shortest path}
-  \paragraph{gobba} % (fold)
-  \label{par:gobba}
-  
-  % paragraph gobba (end)
+  \begin{itemize}
+    % TODO: explain algorithm
+    \item original algorithm required trapezoidation
+    \item 
+    % TODO: runntime?
+    \item runntime
+    \item space complexity O(1)
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{What did we accomplish?\\- step-by-step visualization}
-  
+  \begin{itemize}
+    \item see working algorithms live
+    \item implemented by "history scenes"
+    \begin{itemize}
+      \item snapshot every iteration 
+            all geom. objects currently used
+      \item callback to gui draw
+    \end{itemize}
+    % TODO: besser formulieren, dass wir per gui kontrollieren koennen, welche scenen wir sehen wollen
+    \item view scenes in gui
+    \item or videolike playback via "play"
+    \item export as svg possible
+    % TODO: Marcel zeigt space partitioning und erklaehrt wie er funktioniert
+  \end{itemize}
 \end{frame}
 
-\begin{frame}{What did we accomplish?\\- statistics}
-  
+\begin{frame}{What did we accomplish?\\- statistic}
+  \begin{itemize}
+    \item algorithmRunner runs alg. in arbitrary configuration
+    \item dumps data to sqlite files
+    \item plotty (ruby script)
+    \begin{itemize}
+      \item retrieves data from db
+      \item plots via gnuplot
+      \item inserts diragrams into latex file
+      \item soon for you on github  ;)
+    \end{itemize}
+  \end{itemize}
 \end{frame}
+
+\begin{frame}{What did we accomplish?\\- analysis}
+  space partitioning
+  \includegraphics[scale=0.8]{spaggr/diagram0.pdf}
+\end{frame}
+
+\begin{frame}{What did we accomplish?\\- analysis}
+  space partitioning
+  \includegraphics[scale=0.8]{spaggr/diagram1.pdf}
+\end{frame}
+
+\begin{frame}{What did we accomplish?\\- analysis}
+  2-Opt-Move
+  \includegraphics[scale=0.8]{2opt/diagram1.pdf}
+\end{frame}
+
+\begin{frame}{What did we accomplish?\\- analysis}
+  2-Opt-Move
+  \includegraphics[scale=0.8]{2opt/diagram4.pdf}
+\end{frame}
+
+\begin{frame}{What did we accomplish?\\- analysis}
+  Orouke and Virmani
+  \includegraphics[scale=0.8]{virmani/diagram5.pdf}
+\end{frame}
+
+\begin{frame}{outlook}
+  \begin{itemize}
+    \item create real library
+    \item build toolchain
+    \item import of svg's
+    \item develope plotty
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{outlook}
+  \hspace{40mm}\huge{Thank you!}
+\end{frame}
+
+
 
 % was gewollt
 % was geschafft

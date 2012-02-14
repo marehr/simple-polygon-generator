@@ -31,7 +31,7 @@ sp:
     title: Time for Creation
     xlabel: points n
     ylabel: time in s
-    style: lines
+    style: dots
     query: "select number_of_points as numberOfPoints, time_for_creating_polygon as timeForCreation from Space order by number_of_points asc"
   diagram1:
     title: "Time for Creation (excerpt)"
@@ -44,13 +44,13 @@ sp:
     title: Surface Area
     xlabel: points n
     ylabel: surface area
-    style: lines
+    style: dots
     query: "select number_of_points as numberOfPoints, ABS (surface_area) as surfaceArea from Space order by number_of_points asc"
   diagram3:
     title: Circumference
     xlabel: points n
     ylabel: circumference
-    style: lines
+    style: dots
     query: "select number_of_points as numberOfPoints, circumference as circumference from Space order by number_of_points asc"
 
 
@@ -317,25 +317,18 @@ spaggr:
   diagram0:
     title: Time for Creation
     xlabel: points n
-    ylabel: time in s
-    style: lines
-    query: "select number_of_points as numberOfPoints, avg (time_for_creating_polygon) as timeForCreation from Space group by (number_of_points) order by number_of_points asc"
-  diagram1:
-    title: "Time for Creation (excerpt)"
-    xlabel: points n
-    ylabel: time in s
-    yrange: "[0:20000]"
+    ylabel: time in ns
     style: dots
     query: "select number_of_points as numberOfPoints, avg (time_for_creating_polygon) as timeForCreation from Space group by (number_of_points) order by number_of_points asc"
-  diagram2:
+  diagram1:
     title: Surface Area
     xlabel: points n
     ylabel: surface area
-    style: lines
+    style: dots
     query: "select number_of_points as numberOfPoints, avg (ABS (surface_area)) as surfaceArea from Space group by (number_of_points) order by number_of_points asc"
-  diagram3:
+  diagram2:
     title: Circumference
     xlabel: points n
     ylabel: circumference
-    style: lines
+    style: dots
     query: "select number_of_points as numberOfPoints, avg (circumference) as circumference from Space group by (number_of_points) order by number_of_points asc"
