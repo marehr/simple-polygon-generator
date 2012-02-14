@@ -1,0 +1,85 @@
+\documentclass[10pt,a4paper,fleqn]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[left=3.5cm,right=3cm,top=3cm,bottom=3cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage[ngerman]{babel}
+\usepackage{amsfonts,amsmath}
+\usepackage{cmbright}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{pstricks}
+\usepackage{color}
+\usepackage{pslatex}
+
+\lstset{
+  language=Java,
+  basicstyle=\ttfamily\small,
+  numbers=left,
+  numberstyle=\tiny,
+  numbersep=5pt,
+  tabsize=2,
+  showstringspaces=false,
+  extendedchars=true,
+  breaklines=true,
+  showtabs=false,
+  showspaces=false,
+  keywordstyle=\color{BurntOrange},
+  commentstyle=\color{ForestGreen},
+  stringstyle=\color{Blue},
+  mathescape,
+  escapechar=@,
+  morekeywords={bool},
+  language=PHP
+}
+
+\begin{document}
+
+  % Set defaults. (See docs/latex/templates/settings.tex)
+  \renewcommand{\labelenumi}{(\alph{enumi})}
+  \renewcommand\headrule{\vspace{+2pt}\hrule}
+  \newcommand{\solved}{\[\hfill\Box\]}
+  \setlength{\headheight}{2.5\baselineskip}
+  \pagestyle{fancyplain}
+  \pagenumbering{Roman}
+
+  % Document header. (See docs/latex/templates/header.tex)
+  %\rhead{\emph{An: Marco Träger}\\ \today}
+  \rhead{\emph{Statistical Evaluation}\\ \today}
+  \lhead{{\Large SWP Polygons}\\ Permute and Reject}
+  
+  \includegraphics{diagram0.pdf}
+ 
+\includegraphics{diagram1.pdf}
+ 
+\includegraphics{diagram2.pdf}
+ 
+\includegraphics{diagram3.pdf}
+ 
+
+  
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

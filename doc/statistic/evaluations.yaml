@@ -265,3 +265,77 @@ full:
       Join TwoOpt as opt On (p.number_of_points = opt.number_of_points)
       Join Velocity as vir On (p.number_of_points = vir.number_of_points)
       order by p.number_of_points asc
+  diagram1:
+    title: Surface Area
+    xlabel: points n
+    ylabel: time in s
+    style: dots
+    query: >
+      Select 
+      p.number_of_points as numberOfPoints, 
+      abs (b.surface_area) as icb, 
+      abs (p.surface_area) as permute,
+      abs (r.surface_area) as rpa,
+      abs (sp.surface_area) as space,
+      abs (sg.surface_area) as seady,
+      abs (opt.surface_area) as twoOpt,
+      abs (vir.surface_area) as virmani
+      From Permute as p
+      Join Backtrack as b On (p.number_of_points = b.number_of_points)
+      Join RPA as r On (p.number_of_points = r.number_of_points)
+      Join Space as sp On (p.number_of_points = sp.number_of_points)
+      Join Steady as sg On (p.number_of_points = sg.number_of_points)
+      Join TwoOpt as opt On (p.number_of_points = opt.number_of_points)
+      Join Velocity as vir On (p.number_of_points = vir.number_of_points)
+      order by p.number_of_points asc
+  diagram2:
+    title: Circumference
+    xlabel: points n
+    ylabel: time in s
+    style: dots
+    query: >
+      Select 
+      p.number_of_points as numberOfPoints, 
+      b.circumference as icb, 
+      p.circumference as permute,
+      r.circumference as rpa,
+      sp.circumference as space,
+      sg.circumference as seady,
+      opt.circumference as twoOpt,
+      vir.circumference as virmani
+      From Permute as p
+      Join Backtrack as b On (p.number_of_points = b.number_of_points)
+      Join RPA as r On (p.number_of_points = r.number_of_points)
+      Join Space as sp On (p.number_of_points = sp.number_of_points)
+      Join Steady as sg On (p.number_of_points = sg.number_of_points)
+      Join TwoOpt as opt On (p.number_of_points = opt.number_of_points)
+      Join Velocity as vir On (p.number_of_points = vir.number_of_points)
+      order by p.number_of_points asc
+
+spaggr:
+  doc_title: Space Partitioning
+  diagram0:
+    title: Time for Creation
+    xlabel: points n
+    ylabel: time in s
+    style: lines
+    query: "select number_of_points as numberOfPoints, avg (time_for_creating_polygon) as timeForCreation from Space group by (number_of_points) order by number_of_points asc"
+  diagram1:
+    title: "Time for Creation (excerpt)"
+    xlabel: points n
+    ylabel: time in s
+    yrange: "[0:20000]"
+    style: dots
+    query: "select number_of_points as numberOfPoints, avg (time_for_creating_polygon) as timeForCreation from Space group by (number_of_points) order by number_of_points asc"
+  diagram2:
+    title: Surface Area
+    xlabel: points n
+    ylabel: surface area
+    style: lines
+    query: "select number_of_points as numberOfPoints, avg (ABS (surface_area)) as surfaceArea from Space group by (number_of_points) order by number_of_points asc"
+  diagram3:
+    title: Circumference
+    xlabel: points n
+    ylabel: circumference
+    style: lines
+    query: "select number_of_points as numberOfPoints, avg (circumference) as circumference from Space group by (number_of_points) order by number_of_points asc"

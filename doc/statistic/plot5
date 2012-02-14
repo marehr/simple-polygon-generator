@@ -1,0 +1,26 @@
+set output "diagram5.pdf"
+set terminal pdfcairo
+set title "Times Backtracked (excerpt)"
+set xlabel "points n"
+set ylabel "times backtracked"
+set yrange [0:20000]
+plot '-' title 'timesBacktracked' with dots
+ 
+10 412
+11 122
+12 2854
+13 3513
+14 7728
+15 2094
+16 616
+17 582550
+18 13744
+19 42913399
+20 238076
+21 986917
+22 502564
+23 170007
+24 7697895
+25 749230812
+26 429385488
+e
