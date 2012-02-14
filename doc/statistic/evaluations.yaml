@@ -353,3 +353,37 @@ rpaggr:
     ylabel: circumference
     style: dots
     query: "select number_of_points as numberOfPoints, avg (circumference) as circumference from RPA where number_of_points <= 100 group by (number_of_points) order by number_of_points asc"
+
+2optaggr:
+  doc_title: 2-Opt-Move
+  diagram0:
+    title: Time for Creation
+    xlabel: points n
+    ylabel: time in s
+    style: dots
+    query: "select number_of_points as numberOfPoints, avg (time_for_creating_polygon) as timeForCreation from TwoOpt group by (number_of_points) order by number_of_points asc"
+  diagram1:
+    title: "Time for Creation (excerpt)"
+    xlabel: points n
+    ylabel: time in s
+    yrange: "[0:20000]"
+    style: dots
+    query: "select number_of_points as numberOfPoints, avg (time_for_creating_polygon) as timeForCreation from TwoOpt group by (number_of_points) order by number_of_points asc"
+  diagram2:
+    title: Surface Area
+    xlabel: points n
+    ylabel: surface area
+    style: dots
+    query: "select number_of_points as numberOfPoints, avg (ABS (surface_area) ) as surfaceArea from TwoOpt group by (number_of_points) order by number_of_points asc"
+  diagram3:
+    title: Circumference
+    xlabel: points n
+    ylabel: circumference
+    style: dots
+    query: "select number_of_points as numberOfPoints, avg (circumference) as circumference from TwoOpt group by (number_of_points) order by number_of_points asc"
+  diagram4:
+    title: Iterations
+    xlabel: points n
+    ylabel: iterations
+    style: dots
+    query: "select number_of_points as numberOfPoints, avg (iterations) as iterations from TwoOpt group by (number_of_points) order by number_of_points asc"

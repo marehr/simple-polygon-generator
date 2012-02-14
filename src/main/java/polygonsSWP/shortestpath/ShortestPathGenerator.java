@@ -154,7 +154,6 @@ public class ShortestPathGenerator
     
     // Add all points until we hit q2.
     // Remark: This loop could as well be a while(true) loop, but we defensively avoid infinite looping here.
-    //         The loop's condition is only a guess and maybe can be even chosen lower. Didn't think about it.
     boolean found = false;
     for(int i = idx; i < polygon.size() + idx; i++) {  
       if(polygon.getPointInRange(i).equals(q2)) {
