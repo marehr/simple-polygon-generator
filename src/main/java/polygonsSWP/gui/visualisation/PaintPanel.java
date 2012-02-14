@@ -144,11 +144,19 @@ class PaintPanel
 
     // Paint the points
     if (points != null) {
-      g.setColor(new Color(80, 0, 90));
+      AffineTransform origin = new AffineTransform(tx);
+
+      tx.setToIdentity();
+      g2d.setTransform(tx);
+
+      g2d.setColor(new Color(80, 0, 90));
       for (Point p : points) {
-        double x = p.x, y = p.y;
-        g2d.draw(new Ellipse2D.Double(x - 2, y - 2, 4, 4));
+        Point2D p1 = screenCoords(new Point2D.Double(p.x, p.y), origin);
+        g2d.fill(new Ellipse2D.Double(p1.getX() - 2, p1.getY() - 2, 4, 4));
       }
+
+      tx.setTransform(origin);
+      g2d.setTransform(tx);
     }
 
     // Paint svgScene Points
@@ -160,14 +168,13 @@ class PaintPanel
     if(pointInRange != null)
     {
       double x = pointInRange.x, y = pointInRange.y;
-
-      g2d.setColor(Color.BLUE);
-      g2d.fill(new Ellipse2D.Double(x - 2, y - 2, 4, 4));
-
       Point2D p = screenCoords(new Point2D.Double(x, y), tx);
 
       tx.setToIdentity();
       g2d.setTransform(tx);
+
+      g2d.setColor(Color.RED);
+      g2d.fill(new Ellipse2D.Double(p.getX() - 2, p.getY() - 2, 4, 4));
 
       g2d.setColor(new Color(0, 26, 51));
       g2d.drawString("[" + df.format(x) + "|" + df.format(y) + "]", (int)p.getX()+5, (int)p.getY()-5);
