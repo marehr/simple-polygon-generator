@@ -52,7 +52,9 @@ public class PolygonView
   private final JToolBar tb;
   private final JButton saveButton;
   private final JButton centerViewButton;
-  private final JToggleButton trapezoidButton;
+
+  /** TODO: remove me */
+  //private final JToggleButton trapezoidButton;
   private final VisualisationControl visControl;
   private PaintPanelStatusBar ppsb;
 
@@ -82,15 +84,16 @@ public class PolygonView
     saveButton.setEnabled(false);
     tb.add(saveButton);
 
-    trapezoidButton = new JToggleButton("Trapezoidation");
-    trapezoidButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent arg0) {
-        trapezoidatePolygon();
-      }
-    });
-    trapezoidButton.setEnabled(false);
-    tb.add(trapezoidButton);
+    /** TODO: remove me */
+//    trapezoidButton = new JToggleButton("Trapezoidation");
+//    trapezoidButton.addActionListener(new ActionListener() {
+//      @Override
+//      public void actionPerformed(ActionEvent arg0) {
+//        trapezoidatePolygon();
+//      }
+//    });
+//    trapezoidButton.setEnabled(false);
+//    tb.add(trapezoidButton);
 
     visControl = new VisualisationControl(tb);
     visControl.addVisualisationControlListener(pp);
@@ -115,8 +118,10 @@ public class PolygonView
       Map<Parameters, Object> params) {
 
     saveButton.setEnabled(false);
-    trapezoidButton.setEnabled(true);
-    trapezoidButton.setSelected(false);
+
+    /** TODO: remove me */
+    //trapezoidButton.setEnabled(true);
+    //trapezoidButton.setSelected(false);
     polygon = null;
     visControl.setHistory(steps);
 
@@ -172,21 +177,22 @@ public class PolygonView
    */
 
   protected void trapezoidatePolygon() {
-    assert (polygon != null);
-    if (trapezoidButton.isSelected()) {
-      List<Trapezoid> trapezoids = ((OrderedListPolygon) polygon).sweepLine();
-
-      int boundingBox = 600;
-      History hist = new History(boundingBox);
-
-      Scene scene = hist.newScene();
-      for (Trapezoid item : trapezoids)
-        scene.addPolygon(item, Color.DARK_GRAY);
-      pp.onNewScene(scene);
-    }
-    else {
-
-    }
+    /** TODO: remove me */
+//    assert (polygon != null);
+//    if (trapezoidButton.isSelected()) {
+//      List<Trapezoid> trapezoids = ((OrderedListPolygon) polygon).sweepLine();
+//
+//      int boundingBox = 600;
+//      History hist = new History(boundingBox);
+//
+//      Scene scene = hist.newScene();
+//      for (Trapezoid item : trapezoids)
+//        scene.addPolygon(item, Color.DARK_GRAY);
+//      pp.onNewScene(scene);
+//    }
+//    else {
+//
+//    }
   }
 
   /* Internals. */
