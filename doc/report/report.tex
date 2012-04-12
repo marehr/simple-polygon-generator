@@ -1,0 +1,64 @@
+\documentclass[a4paper]{scrartcl}
+\usepackage[utf8]{inputenc}  
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}           
+\usepackage[ngerman]{babel}
+
+% Was wir vielleicht brauchen koennten:
+%\usepackage{amsmath} % More math.
+%\usepackage[perpage,bottom]{footmisc} % Footnote configuration.
+
+% Was wir ziemlich sicher brauchen:
+\usepackage{graphicx} % For includegraphics.
+\usepackage{listings} % For code listings.
+\usepackage{fancyhdr} % For header and footer format.
+
+% Bald wieder loeschen:
+\usepackage{lipsum}
+
+% Hyperref macht Links hinter die Sections und manipuliert PDF-Metadaten:
+\usepackage[
+colorlinks=false,
+pdfborder={0 0 0},
+pdftitle={Zufällige Polygone},
+pdfsubject={Abschlussbericht zum Softwareprojekt `"Zufällige Polygone'"},
+pdfauthor={Die glorreichen 6}
+%pdfkeywords={}
+]{hyperref}
+
+% Konfiguration der Titelseite:
+\title{Abschlussbericht zum Softwareprojekt `"Zufällige Polygone'"}
+\author{Die glorreichen 6}
+\date{\today{}}
+
+\begin{document}
+
+\begin{titlepage}
+\pagenumbering{alph}
+\maketitle
+\thispagestyle{empty}
+\vfill{}
+\end{titlepage}
+
+\pagestyle{empty}
+\pagenumbering{roman}
+%\include{parts/abstract}
+\tableofcontents
+\clearpage
+
+\pagenumbering{arabic}
+\pagestyle{fancy}
+\setcounter{page}{1}
+
+% Hier hin unsere Kapitel.
+\input{parts/00_test}
+
+\cleardoublepage
+\phantomsection
+
+% Bibliography
+\addcontentsline{toc}{section}{Literatur}
+\bibliographystyle{alpha}
+\bibliography{report}
+
+\end{document}
