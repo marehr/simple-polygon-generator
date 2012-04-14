@@ -42,11 +42,7 @@
 			<outputDirectory>polygonsSWP/</outputDirectory>
 		</file>
 		<file>
-			<source>src/assembly/gui.sh</source>
-			<outputDirectory>polygonsSWP/</outputDirectory>
-		</file>
-		<file>
-			<source>src/assembly/runner.sh</source>
+			<source>src/assembly/run.sh</source>
 			<outputDirectory>polygonsSWP/</outputDirectory>
 		</file>
 		<file>

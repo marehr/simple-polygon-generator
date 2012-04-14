@@ -10,13 +10,13 @@ All dependencies will be downloaded automatically.
 
 == Running ==
 
-Please see the shipped "runner.sh" and "gui.sh" shell scripts.
+$ ./run.sh [options]
 
 == Hacking with Eclipse ==
 
 To integrate the project in eclipse, one has two options:
 
-1. Install the marvellous m2e eclipse plugin, go to File->New->Import
+1. Install the marvelous m2e eclipse plugin, go to File->New->Import
    and select "Existing maven project..."
 
 2. Run
@@ -27,4 +27,3 @@ $ mvn eclipse:eclipse
 == Packaging ==
 
 $ mvn package
-
