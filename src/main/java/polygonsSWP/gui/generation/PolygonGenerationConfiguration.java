@@ -58,7 +58,7 @@ class PolygonGenerationConfiguration
     cb_polygon_algorithm_chooser = new GeneratorChooser(polygon_algorithm_list, true);
 
     // init spinners
-    sp_edges = new JSpinner(new SpinnerNumberModel(5, 3, 10000, 1));
+    sp_edges = new JSpinner(new SpinnerNumberModel(100, 3, 10000, 1));
     sp_size = new JSpinner(new SpinnerNumberModel(600, 1, 10000, 20));
     sp_runs = new JSpinner(new SpinnerNumberModel(100, 1, 10000, 1));
     sp_runs.setEnabled(false);
