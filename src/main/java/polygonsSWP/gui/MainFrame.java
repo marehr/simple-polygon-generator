@@ -9,22 +9,12 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
-import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import polygonsSWP.generators.PolygonGeneratorFactory;
-import polygonsSWP.generators.heuristics.IncrementalConstructionAndBacktrackingFactory;
-import polygonsSWP.generators.heuristics.SpacePartitioningFactory;
-import polygonsSWP.generators.heuristics.SteadyGrowthFactory;
-import polygonsSWP.generators.heuristics.TwoOptMovesFactory;
-import polygonsSWP.generators.heuristics.VelocityVirmaniFactory;
-import polygonsSWP.generators.other.ConvexHullGeneratorFactory;
-import polygonsSWP.generators.other.PermuteAndRejectFactory;
-import polygonsSWP.generators.rpa.RandomPolygonAlgorithmFactory;
 import polygonsSWP.gui.generation.PolygonGenerationPanel;
 import polygonsSWP.gui.visualisation.PolygonView;
-import polygonsSWP.util.Random;
 
 /**
  * MainFrame.
@@ -45,31 +35,11 @@ public class MainFrame
   private boolean inGenerationMode = true;
   private final List<GUIModeListener> observers;
 
-  private PolygonGeneratorFactory[] polygon_algorithm_list = {
-	  new PermuteAndRejectFactory(),
-      new SpacePartitioningFactory(),
-      new TwoOptMovesFactory(), 
-      new RandomPolygonAlgorithmFactory(), 
-      new IncrementalConstructionAndBacktrackingFactory(), 
-      new ConvexHullGeneratorFactory(),
-      new VelocityVirmaniFactory(),
-      new SteadyGrowthFactory()
-  };
+  private PolygonGeneratorFactory[] polygon_algorithm_list;
 
-  public static void main(String[] args) {
-    Random.pseudoRandom(true, 1322691L);
-
-    try {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    new MainFrame();
-  }
-
-  public MainFrame() {
+  public MainFrame(PolygonGeneratorFactory[] factories) {
+    polygon_algorithm_list = factories;
+    
     // init canvas
     gui_polygon_view = new PolygonView();
     
