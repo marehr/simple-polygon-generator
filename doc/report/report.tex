@@ -16,20 +16,29 @@
 % Bald wieder loeschen:
 \usepackage{lipsum}
 
+\newcommand{\reporttitle}{}
+
 % Hyperref macht Links hinter die Sections und manipuliert PDF-Metadaten:
 \usepackage[
 colorlinks=false,
 pdfborder={0 0 0},
-pdftitle={Zufällige Polygone},
-pdfsubject={Abschlussbericht zum Softwareprojekt `"Zufällige Polygone'"},
-pdfauthor={Die glorreichen 6}
+pdftitle={Zufällige Polygone und kürzeste Wege},
+pdfsubject={Abschlussbericht zum Softwareprojekt `"Zufällige Polygone und kürzeste Wege'"},
+pdfauthor={Steve Dierker, Marcel Ehrhardt, Jannis Ihrig, Malte Rohde, Sebastian Thobe, Kadir Tugan}
 %pdfkeywords={}
 ]{hyperref}
 
 % Konfiguration der Titelseite:
-\title{Abschlussbericht zum Softwareprojekt `"Zufällige Polygone'"}
-\author{Die glorreichen 6}
-\date{\today{}}
+\title{
+{\normalsize Softwareprojekt über Anwendung effizienter Algorithmen\\ Wintersemester 2011/12}
+\\[6ex] 
+{\Large Abschlussbericht zum Softwareprojekt\\ `"Zufällige Polygone und kürzeste Wege'"}
+\\[6ex]
+\includegraphics[width=0.4\textwidth]{img/polygons}
+\\[1.5cm]}
+\author{Steve Dierker \and Marcel Ehrhardt \and Jannis Ihrig \and Malte Rohde \and Sebastian Thobe \and Kadir Tugan}
+
+\date{\vspace{2.5cm} \today{}}
 
 \begin{document}
 
@@ -52,6 +61,7 @@ pdfauthor={Die glorreichen 6}
 
 % Hier hin unsere Kapitel.
 \input{parts/00_test}
+\input{parts/01_einleitung}
 
 \cleardoublepage
 \phantomsection
