@@ -1,0 +1,30 @@
+leftovers
+
+  runner
+    export für polygone
+    statistiken für shortest path
+    export für shortest path
+
+  csv / key value format für export
+
+  bug im rpa fixen
+
+  shortest path statistiken
+
+  jvm parameter - steve
+
+  mem leak - sebastian und marcel 
+    am 2opt probieren
+    forced garbage collection im runner oder oder in algos
+
+  dann jar abgeben
+
+
+neuer kram
+  projektbeschreibung
+  handbuch für project
+    implementierung beschreiben (was anders etc., laufzeit)
+  analyse zu algorithmen
+    welche einstellungen für welche eigenschaften und schöne polygone
+  entwicklungsprozess - geschätzte 5 seiten
+  cd mit software
