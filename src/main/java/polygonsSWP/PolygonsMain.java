@@ -23,6 +23,7 @@ import polygonsSWP.generators.heuristics.TwoOptMovesFactory;
 import polygonsSWP.generators.heuristics.VelocityVirmaniFactory;
 import polygonsSWP.generators.other.ConvexHullGeneratorFactory;
 import polygonsSWP.generators.other.PermuteAndRejectFactory;
+import polygonsSWP.generators.other.TwoPeasantsGeneratorFactory;
 import polygonsSWP.generators.rpa.RandomPolygonAlgorithmFactory;
 import polygonsSWP.gui.MainFrame;
 import polygonsSWP.util.Random;
@@ -35,10 +36,10 @@ public class PolygonsMain
   private static PolygonGeneratorFactory[] factories = {
       new RandomPolygonAlgorithmFactory(),
       new SpacePartitioningFactory(), new PermuteAndRejectFactory(),
-      new TwoOptMovesFactory(), /**new RandomPolygonAlgorithmFactory(),**/
+      new TwoOptMovesFactory(),
       new IncrementalConstructionAndBacktrackingFactory(),
       new ConvexHullGeneratorFactory(), new VelocityVirmaniFactory(),
-      new SteadyGrowthFactory() };
+      new SteadyGrowthFactory(), new TwoPeasantsGeneratorFactory() };
 
   public static void main(String[] args) {
     // Process command line.
