@@ -1,9 +1,19 @@
 \section{Einführung}
-Der implementierte Algorithmus "Velocity Virmani" wurde am 25. Juli 1991 in dem Paper "Generating Random Polygons" von Joseph O'Rourke und Mandira Virmani veröffentlicht. Er beschreibt einen Algorithmus zur Generierung zufälliger simpler Polygone mittels Verschiebungen von Punkten.
+Der Algorithmus "Velocity Virmani" wurde am 25. Juli 1991 in dem Paper "Generating Random Polygons" von Joseph O'Rourke und Mandira Virmani veröffentlicht. Er beschreibt einen Algorithmus zur Generierung zufälliger simpler Polygone mittels Verschiebungen von Punkten. In dem genannten Paper wurde dem Algorithmus kein Name gegeben, deshalb haben wir uns die Freiheit genommen und werden in unserer Ausarbeitung mit "Velocity Virmani" oder "Virmani" darauf verweisen.
+
+\section{Algorithmus}
 Der Algorithmus besteht aus 3 Kernkomponenten:
 	1. Die Generierung von einem regulären Polygon with n Punkten
 	2. Die Verschiebung von den Punkten
 	3. Überprüfen ob das Polygon noch simpel ist
+
+\subsection{Generierung des regulären Polygons}
+Eingabeparameter: Anzahl der Punkte(n), Radius(r)
+Hier wird ein reguläres Polygon generiert indem ein Kreis genommen wird auf welchem n Punkte gleichmäßig verteilt werden und diese dann verbunden werden. Dazu wird der gesamte Kreisradius genommen(PI*2) und durch die Anzahl der Punkte geteilt(n). Das Ergebnis ist der Abstand, als Winkel, zwischen jedem einzelnen Punkt.
+Mit dem Radius zusammen kann man dann die Koordinaten herausfinden:
+x_i = r * cos(Winkel * i)
+y_i = r * sin(Winkel * i)
+
 
 
 
