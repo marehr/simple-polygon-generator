@@ -1,0 +1,24 @@
+\section{Einführung}
+Der implementierte Algorithmus "Velocity Virmani" wurde am 25. Juli 1991 in dem Paper "Generating Random Polygons" von Joseph O'Rourke und Mandira Virmani veröffentlicht. Er beschreibt einen Algorithmus zur Generierung zufälliger simpler Polygone mittels Verschiebungen von Punkten.
+Der Algorithmus besteht aus 3 Kernkomponenten:
+	1. Die Generierung von einem regulären Polygon with n Punkten
+	2. Die Verschiebung von den Punkten
+	3. Überprüfen ob das Polygon noch simpel ist
+
+
+
+
+\section{PseudoCode}
+
+
+
+
+
+
+
+
+\section{Eigenschaften von dem Algorithmus}
+- Nichtdeterministisch
+- Terminiert
+- Endlich
+- Komplexität: O(runs*n*n)
