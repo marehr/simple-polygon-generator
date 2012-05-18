@@ -1,18 +1,48 @@
+Info: 
+	- Hardwrap kommt später, damit ich es noch schön portieren kann usw
+	- Latex kommt später da ich das noch nicht so schnell zum laufen gebracht bekomme habe unter Ubuntu
+
 \section{Einführung}
 Der Algorithmus "Velocity Virmani" wurde am 25. Juli 1991 in dem Paper "Generating Random Polygons" von Joseph O'Rourke und Mandira Virmani veröffentlicht. Er beschreibt einen Algorithmus zur Generierung zufälliger simpler Polygone mittels Verschiebungen von Punkten. In dem genannten Paper wurde dem Algorithmus kein Name gegeben, deshalb haben wir uns die Freiheit genommen und werden in unserer Ausarbeitung mit "Velocity Virmani" oder "Virmani" darauf verweisen.
 
 \section{Algorithmus}
 Der Algorithmus besteht aus 3 Kernkomponenten:
 	1. Die Generierung von einem regulären Polygon with n Punkten
-	2. Die Verschiebung von den Punkten
+	2. Randomisierung des regulären Polygons
 	3. Überprüfen ob das Polygon noch simpel ist
 
 \subsection{Generierung des regulären Polygons}
 Eingabeparameter: Anzahl der Punkte(n), Radius(r)
+Ausgabe: Ein reguläres Polygon mit n Punkten
 Hier wird ein reguläres Polygon generiert indem ein Kreis genommen wird auf welchem n Punkte gleichmäßig verteilt werden und diese dann verbunden werden. Dazu wird der gesamte Kreisradius genommen(PI*2) und durch die Anzahl der Punkte geteilt(n). Das Ergebnis ist der Abstand, als Winkel, zwischen jedem einzelnen Punkt.
 Mit dem Radius zusammen kann man dann die Koordinaten herausfinden:
 x_i = r * cos(Winkel * i)
 y_i = r * sin(Winkel * i)
+
+\subsection{Verschiebung}
+Eingabeparameter: simples Polygon(polygon), Boundaries(boundary), maximale Geschwindigkeit(maxvelocity), Anzahl der Durchläufe (iterations)
+Ausgabe: Zufälliges Polygon
+In diesem Teil wird jeder Punkt zufällig verschoben, die maximale Distanz pro Achse wird bestimmt durch den Eingabeparameter maxvelocity. Nach jeder Verschiebung von einem Punkt können folgende Zustände auftreten:
+	1. Das Polygon ist simpel und in den Grenzen (Boundaries)
+	2. Das Polygon ist simpel aber außerhalb der Grenzen
+	3. Das Polygon ist nicht simpel aber innerhalb der Grenzen
+	4. Das Polygon ist weder simpel noch in den Grenzen
+Sollte es vorkommen das der Zustand nicht simpel und nicht in den Grenzen ist(Punkt 1), so wird die Verschiebung rückgängig gemacht und für diesen Punkt im Polygon ändert sich nichts.
+Dieser gesamte Prozess wird "iterations"-oft ausgeführt sodass es wirklich zufällig wird.
+
+\subsubsection{pseudocode}
+
+for (int i=0; i < iterations; i++)
+{
+	foreach(p_i in polygon)
+	{
+		move_point_randomly(p_i, maxvelocity);
+		if(isSimple(polygon) && isInBound(polygon))
+			continue;
+		else
+			revert_move_point_randomly(p_i);
+	}
+}
 
 
 
