@@ -9,15 +9,23 @@
 %\usepackage[perpage,bottom]{footmisc} % Footnote configuration.
 
 % Was wir ziemlich sicher brauchen:
-\usepackage{graphicx} % For includegraphics.
-\usepackage{listings} % For code listings.
-\usepackage{fancyhdr} % For header and footer format.
-
-% Bald wieder loeschen:
-\usepackage{lipsum}
+\usepackage{fancyhdr} % For header and footer format
+%\usepackage{fancyref} % For fancy references
+\usepackage{listings} % For code listings
+\usepackage{booktabs} % For tables
+\usepackage[perpage,bottom]{footmisc} % Footnote configuration
+\usepackage{graphicx} % For includegraphics
+\usepackage[page,titletoc]{appendix} % For appendix in toc
+\usepackage{color} % For colors, not sure if I truly need it anymore
+\usepackage{caption} % For nicer listing captions
+\usepackage{xspace} % For horizontal space.
+\usepackage{pst-gantt} % For GANTT chart.
 
 % Keine Ahnung warum, aber "`bla"' funktioniert bei mir nicht.
 \newcommand{\enquote}[1]{\glqq{}#1\grqq{}}
+
+% Big O
+\newcommand{\bigO}{\ensuremath{\mathcal{O}}}
 
 % Hyperref macht Links hinter die Sections und manipuliert PDF-Metadaten:
 \usepackage[
@@ -28,6 +36,45 @@ pdfsubject={Abschlussbericht zum Softwareprojekt \enquote{Zufällige Polygone un
 pdfauthor={Steve Dierker, Marcel Ehrhardt, Jannis Ihrig, Malte Rohde, Sebastian Thobe, Kadir Tugan}
 %pdfkeywords={}
 ]{hyperref}
+
+% Pimp my listings environment.
+% Credits go to stackoverflow:
+% http://stackoverflow.com/questions/741985/latex-source-code-listing-like-in-professional-books
+\lstset{
+         basicstyle=\footnotesize\ttfamily, % Standardschrift
+         numberstyle=\tiny,          % Stil der Zeilennummern
+         numbers=left,
+         stepnumber=1,
+         numbersep=7pt,              % Abstand der Nummern zum Text
+         keywordstyle=\bfseries\ttfamily,
+         tabsize=2,                  % Groesse von Tabs
+         extendedchars=true,         %
+         breaklines=true,            % Zeilen werden Umgebrochen       
+         showspaces=false,           % Leerzeichen anzeigen ?
+         showtabs=false,             % Tabs anzeigen ?
+         %frame=b,                   % Linie unten
+         breakatwhitespace=true,
+         xleftmargin=17pt,
+         framexleftmargin=17pt,
+         framexrightmargin=5pt,
+         framexbottommargin=4pt,
+         showstringspaces=false      % Leerzeichen in Strings anzeigen ?      
+ }
+
+% Pimp my captions.
+\DeclareCaptionFont{white}{\color{white}}
+\DeclareCaptionFormat{listing}{\colorbox[cmyk]{0.43, 0.35, 0.35,0.01}{\parbox{\textwidth}{\hspace{15pt}#1#2#3}}}
+\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white, singlelinecheck=false, margin=0pt, font={bf}}
+%\DeclareCaptionFormat{figure}{\colorbox[cmyk]{0.43, 0.35, 0.35,0.01}{\parbox{\textwidth}{\hspace{15pt}#1#2#3}}}
+%\captionsetup[figure]{format=listing,labelfont=white,textfont=white, singlelinecheck=false, margin=0pt, font={bf,footnotesize}}
+%\DeclareCaptionFormat{table}{\colorbox[cmyk]{0.43, 0.35, 0.35,0.01}{\parbox{\textwidth}{\hspace{15pt}#1#2#3}}}
+%\captionsetup[table]{format=listing,labelfont=white,textfont=white, singlelinecheck=false, margin=0pt, font={bf,footnotesize}}
+
+% Listing environment for C
+\lstnewenvironment{code}[1][]
+  {\minipage{\linewidth} 
+   \lstset{language=C,#1}}
+  {\endminipage}
 
 % Konfiguration der Titelseite:
 \title{
@@ -61,8 +108,11 @@ pdfauthor={Steve Dierker, Marcel Ehrhardt, Jannis Ihrig, Malte Rohde, Sebastian 
 \setcounter{page}{1}
 
 % Hier hin unsere Kapitel.
-\input{parts/00_test}
 \input{parts/01_einleitung}
+\input{parts/02_projekt}
+\input{parts/03_algorithmen}
+\input{parts/03_03_virmani}
+\input{parts/03_04_permute}
 
 \cleardoublepage
 \phantomsection

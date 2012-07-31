@@ -1,0 +1,101 @@
+
+\subsection{Velocity Virmani}
+Der Algorithmus \enquote{Velocity Virmani} wurde am 25. Juli 1991 in dem Paper \enquote{Generating Random Polygons} von Joseph O'Rourke und Mandira Virmani veröffentlicht \cite{virmani91polygons}.\smallskip \\ 
+Er beschreibt einen Algorithmus zur Generierung zufälliger simpler Polygone mittels Verschiebungen von Punkten. In dem genannten Paper wurde dem Algorithmus kein Name gegeben, deshalb haben wir uns die Freiheit genommen und werden in unserer Ausarbeitung mit dem Namen \enquote{Velocity Virmani} oder \enquote{Virmani} darauf verweisen.
+
+Der Algorithmus besteht aus 3 Kernkomponenten:
+\begin{enumerate}
+	\item Die Generierung von einem regulären Polygon with n Punkten
+	\item Zufällige Verschiebungen der Eckpunkte
+	\item Überprüfen ob das Polygon noch simpel ist
+\end{enumerate}
+
+\subsubsection{Generierung des regulären Polygons}
+Eingabeparameter: 
+\begin{itemize}
+	\item Anzahl der Punkte(n)
+	\item Radius(r)
+\end{itemize}
+Ausgabe:
+\begin{itemize} 
+	\item Reguläres Polygon mit n Punkten
+\end{itemize}
+Hier wird ein reguläres Polygon generiert indem ein Kreis genommen wird auf welchem n Punkte gleichmäßig verteilt werden und diese dann verbunden werden. Dazu wird der gesamte Kreisradius genommen(PI*2) und durch die Anzahl der Punkte geteilt(n): $winkel = (PI * 2) / n$.\\ 
+Das Ergebnis ist der Abstand, als Winkel, zwischen jedem einzelnen Punkt.
+Mit dem Radius zusammen kann man dann jeweiligen Koordinaten des regulären Polygons berechnen:\\
+$x_i = r * cos(winkel * i)$\\
+$y_i = r * sin(winkel * i)$
+
+\subsubsection{Verschiebung}
+Eingabeparameter: 
+\begin{itemize}
+	\item simples Polygon(polygon)
+	\item Boundaries(boundary)
+	\item maximale Geschwindigkeit(maxvelocity)
+	\item Anzahl der Durchläufe (iterations)
+\end{itemize}
+Ausgabe:
+\begin{itemize}
+	\item Zufälliges Polygon
+\end{itemize}
+In diesem Teil wird jeder Punkt zufällig verschoben, die maximale Distanz pro Achse wird bestimmt durch den Eingabeparameter maxvelocity. Nach jeder Verschiebung von einem Punkt können folgende Zustände auftreten:
+\begin{enumerate}
+	\item Das Polygon ist simpel und in den Grenzen (Boundaries)
+	\item Das Polygon ist simpel aber außerhalb der Grenzen
+	\item Das Polygon ist nicht simpel aber innerhalb der Grenzen
+	\item Das Polygon ist weder simpel noch in den Grenzen
+\end{enumerate}
+Sollte es vorkommen das der Zustand nicht Punkt 1 enspricht (simpel und in den Grenzen), so wird die Verschiebung rückgängig gemacht und für diesen Punkt im Polygon ändert sich nichts.
+Dieser gesamte Prozess wird \enquote{iterations}-oft ausgeführt sodass es wirklich zufällig wird.
+
+\paragraph{Pseudocode}
+
+\begin{code}[mathescape=true]
+for (int i=0; i < iterations; i++)
+{
+	foreach($p_i$ in polygon)
+	{
+		move_point_randomly($p_i$, maxvelocity);
+		if(isSimple(polygon) && isInBound(polygon))
+			continue;
+		else
+			revert_move_point_randomly($p_i$);
+	}
+}
+\end{code}
+
+\subsubsection{Überprüfen ob das Polygon simpel ist}
+In dem Velocity Virmani wird nach jedem Punkt getestet ob das Polygon noch simpel ist. Dies kann bei einer trivialen Implementierung des Tests mit $n^3$ zu sehr hohen Laufzeiten führen.
+Deshalb ist ein trivialer Test nach der Eigenschaft simpel nicht effizient.\smallskip \\ 
+Die Lösung für dieses Problem besteht darin nur die angrenzenden Linien des verschobenen Punktes mit allen anderen Linien auf Überschneidungen zu überprüfen. Eine komplette Überprüfung auf Simplizität ist nicht nötig.
+Der Algorithmus dafür wäre trivial sowie auch würde die Laufzeit für ein Test von $O(n^3)$ auf $O(n)$ sinken.
+
+Vorraussetzung: Polygon muss vor der Verschiebung simpel sein
+Eingabeparameter: Polygon, der verschobene Punkt(u)
+Es werden die beiden zugehörigen Kanten von dem Punkt u genommen. Diese beiden Kanten werden mit den allen restlichen Kanten auf eine Schnittmenge überprüft. Sollte sich bei irgendeiner Kante eine Schnittmenge ergeben, so ist das Polygon nicht simpel und es muss nicht weiter getestet werden. Eine Ausnahme bilden jedoch die Endpunkte von den Kanten, jede Kante darf sich genau ein Endpunkt mit einer anderen Kante teilen.
+
+
+\subsection{Eigenschaften von dem Algorithmus}
+\begin{itemize}
+	\item Nichtdeterministisch\\
+	Das Programm ist nichtdeterministisch da es ein Zufallsgenerator nutzt
+	\item Komplexität: $O(iterations*n^2)$\\
+	Die Komplexität setzt sich zusammen aus der Anzahl der Iterationen, aus der Anzahl der Punkte durch die Iteriert wird um die Verschiebungen durchzuführen sowie nochmal durch die Anzahl der Punkte für die Überprüfung ob es noch simpel ist. Somit ergibt sich eine Laufzeit von $O(iterations*n*n) = O(iterations*n^2)$
+	\item Terminiert\\
+	Der Algorithmus terminiert immer da die Anzahl der Schlaufendurchgänge begrenzt ist. Es gibt keinen Zustand im Algorithmus wo er verbleiben kann.
+\end{itemize}
+
+\subsection{Zufälligkeit der Polygone in Abhängigkeit von Parametern}
+Der Algorithmus generiert zuverlässig zufällige Polygone bei der \enquote{richtigen} Eingabe von Parametern. Die Parameter haben diverse Abhängigkeiten untereinander in Bezug auf die Zufälligkeit des generierten Polygons:\\
+\begin{itemize}
+	\item maximale Geschwindigkeit <-> Boundary Box\\
+	Die maximale Geschwindigkeit die ein Punkt pro Durchlauf annehmen kann ist abhängig von der Boundary Box. Es ist zum Beispiel nicht effektiv bei einer Boundary Box von 500x500 eine maximale Geschwindigkeit von 1000 festzulegen, da diese nicht erreicht werden kann. Der Effekt dabei ist das die Wahrscheinlichkeit das ein Punkt am Ende sich nicht bewegt weil es out of Bound ist, oder kollidiert, sehr hoch wird. Dadurch wird die Zufälligkeit des Polygons beeinflusst.\\
+	Die maximale Geschwindigkeit zu klein zu setzen führt wiederrum dazu das man viele Iterationen braucht um jeden Punkt im Raum erreichen zu können
+	\item n <-> Boundary Box <-> maximale Geschwindigkeit\\
+	Je größer die Anzahl der Punkte ist desto größer sollte die Boundary Box sein. Denn je mehr Punkte beisammen liegen, desto höher ist die Chance bei größeren Bewegungen das die Punkte \enquote{rejected} werden. Dies kann man Vorbeugen indem man die maximale Geschwindigkeit kleiner setzt.
+	\item Radius <-> Boundary Box\\
+	Das reguläre Polygon sollte so gesetzt werden das es mittig in der Boundary Box liegt. Idealerweise sollte die Entfernung von dem Polygon zur Boundary Box ungefähr dem Radius entsprechen.\\
+	Der Grund dafür liegt das wenn man z.B. Die Boundary Box zu klein macht, das viele Bewegungen der Punkte \enquote{rejected} werden. 
+	\item All diese Abhängigkeiten können jedoch durch den Parameter\\iterations kompensiert werden. Wenn man diesen beliebig hoch setzt, wird selbst die ungünstigste Parameterauswahl dazu führen das es zufällig wird.\\
+	\item Dies ist jedoch nicht empfehlenswert da der Faktor iteration einen großen Einfluss auf die Laufzeit hat und hohe Zahlen schnell dazu führen das es sehr lange dauert.
+\end{itemize}

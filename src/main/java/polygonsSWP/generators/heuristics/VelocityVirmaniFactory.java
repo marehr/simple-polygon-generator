@@ -77,7 +77,7 @@ public class VelocityVirmaniFactory
     private int runs;
     private int maxVelo;
     private int bound;
-    final private History steps;
+    final private History history;
     final private PolygonStatistics statistics;
 
     private boolean stop = false;
@@ -89,7 +89,7 @@ public class VelocityVirmaniFactory
       this.runs = runs;
       this.bound = bound;
       this.maxVelo = maxVelo;
-      this.steps = steps;
+      this.history = steps;
       this.statistics = statistics;
     }
 
@@ -98,10 +98,10 @@ public class VelocityVirmaniFactory
 
       OrderedListPolygon poly = regularPolygon(n, radius, bound);
 
-      if(steps != null){
-        steps.clear();
+      if(history != null){
+        history.clear();
 
-        steps.newScene()
+        history.newScene()
         .addPoints(poly.getPoints(), true)
         .addPolygon(poly, true)
         .save();
@@ -144,8 +144,8 @@ public class VelocityVirmaniFactory
         }
         runs--;
         
-        if(steps != null){
-          steps.newScene()
+        if(history != null){
+          history.newScene()
           .addPoints(poly.getPoints(), true)
           .addPolygon(poly, true)
           .save();
@@ -161,8 +161,8 @@ public class VelocityVirmaniFactory
         statistics.rejections = rejections;
       }
       
-      if(steps != null)
-        steps.newScene().addPolygon(poly, true).save();
+      if(history != null)
+        history.newScene().addPolygon(poly, true).save();
       
       return poly;
     }
@@ -212,18 +212,15 @@ public class VelocityVirmaniFactory
      */
     private OrderedListPolygon regularPolygon(int n, double radius, double bound) {
       double winkel = (Math.PI * 2) / n;
-      double x = radius;
-      double y = 0;
       double x1, y1;
       double tmpWinkel;
       OrderedListPolygon poly = new OrderedListPolygon();
       for (int i = 0; i < n; i++) {
         tmpWinkel = winkel * i;
-        x1 = (x * Math.cos(tmpWinkel) - y * Math.sin(tmpWinkel)) // Calculating the new Point
-            +
-            (bound / 2); // Translation. So the Point has a Origin of top left
+        x1 = (radius * Math.cos(tmpWinkel)) // Calculating the new Point
+            + (bound / 2); // Translation. So the Point has a Origin of top left
 
-        y1 = -(x * Math.sin(tmpWinkel) + y * Math.cos(tmpWinkel)) + (bound / 2);// y has to be negative because the y axe had another directions.
+        y1 = -(radius * Math.sin(tmpWinkel)) + (bound / 2);// y has to be negative because the y axe had another directions.
         poly.addPoint(new Point(x1, y1));
       }
       return poly;
