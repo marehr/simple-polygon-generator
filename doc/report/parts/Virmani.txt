@@ -1,0 +1,71 @@
+Info: 
+	- Hardwrap kommt später, damit ich es noch schön portieren kann usw
+	- Latex kommt später da ich das noch nicht so schnell zum laufen gebracht bekomme habe unter Ubuntu
+
+\section{Einführung}
+Der Algorithmus "Velocity Virmani" wurde am 25. Juli 1991 in dem Paper "Generating Random Polygons" von Joseph O'Rourke und Mandira Virmani veröffentlicht. Er beschreibt einen Algorithmus zur Generierung zufälliger simpler Polygone mittels Verschiebungen von Punkten. In dem genannten Paper wurde dem Algorithmus kein Name gegeben, deshalb haben wir uns die Freiheit genommen und werden in unserer Ausarbeitung mit "Velocity Virmani" oder "Virmani" darauf verweisen.
+
+\section{Algorithmus}
+Der Algorithmus besteht aus 3 Kernkomponenten:
+	1. Die Generierung von einem regulären Polygon with n Punkten
+	2. Randomisierung des regulären Polygons
+	3. Überprüfen ob das Polygon noch simpel ist
+
+\subsection{Generierung des regulären Polygons}
+Eingabeparameter: Anzahl der Punkte(n), Radius(r)
+Ausgabe: Ein reguläres Polygon mit n Punkten
+Hier wird ein reguläres Polygon generiert indem ein Kreis genommen wird auf welchem n Punkte gleichmäßig verteilt werden und diese dann verbunden werden. Dazu wird der gesamte Kreisradius genommen(PI*2) und durch die Anzahl der Punkte geteilt(n). Das Ergebnis ist der Abstand, als Winkel, zwischen jedem einzelnen Punkt.
+Mit dem Radius zusammen kann man dann die Koordinaten herausfinden:
+x_i = r * cos(Winkel * i)
+y_i = r * sin(Winkel * i)
+
+\subsection{Verschiebung}
+Eingabeparameter: simples Polygon(polygon), Boundaries(boundary), maximale Geschwindigkeit(maxvelocity), Anzahl der Durchläufe (iterations)
+Ausgabe: Zufälliges Polygon
+In diesem Teil wird jeder Punkt zufällig verschoben, die maximale Distanz pro Achse wird bestimmt durch den Eingabeparameter maxvelocity. Nach jeder Verschiebung von einem Punkt können folgende Zustände auftreten:
+	1. Das Polygon ist simpel und in den Grenzen (Boundaries)
+	2. Das Polygon ist simpel aber außerhalb der Grenzen
+	3. Das Polygon ist nicht simpel aber innerhalb der Grenzen
+	4. Das Polygon ist weder simpel noch in den Grenzen
+Sollte es vorkommen das der Zustand nicht simpel und nicht in den Grenzen ist(Punkt 1), so wird die Verschiebung rückgängig gemacht und für diesen Punkt im Polygon ändert sich nichts.
+Dieser gesamte Prozess wird "iterations"-oft ausgeführt sodass es wirklich zufällig wird.
+
+\subsubsection{pseudocode}
+
+for (int i=0; i < iterations; i++)
+{
+	foreach(p_i in polygon)
+	{
+		move_point_randomly(p_i, maxvelocity);
+		if(isSimple(polygon) && isInBound(polygon))
+			continue;
+		else
+			revert_move_point_randomly(p_i);
+	}
+}
+
+\subsection{Überprüfen ob das Polygon simpel ist}
+In dem Velocity Virmani wird nach jedem Punkt getestet ob das Polygon noch simpel ist. Dies kann bei einer trivialen Implementierung des Tests mit n^3 zu sehr hohen Laufzeiten führen.
+Deshalb ist ein trivialer Test nach der Eigenschaft simpel nicht effizient. Die Lösung für dieses Problem besteht darin nicht das gesamte Polygon nach "simpel" zu testen sondern nur den einen Punkt den man verschoben hat mit den anderen die existieren.
+Der Algorithmus dafür wäre trivial sowie auch würde die Laufzeit für ein Test von O(n^3) auf O(n) sinken.
+
+Vorraussetzung: Polygon muss vor der Verschiebung simpel sein
+Eingabeparameter: Polygon, der verschobene Punkt(u)
+Es werden die beiden zugehörigen Kanten von dem Punkt u genommen. Diese beiden Kanten werden mit den allen restlichen Kanten auf eine Schnittmenge überprüft. Sollte sich bei irgendeiner Kante eine Schnittmenge ergeben, so ist das Polygon nicht simpel und es muss nicht weiter getestet werden. Eine Ausnahme bilden jedoch die Endpunkte von den Kanten, jede Kante darf sich genau ein Endpunkt mit einer anderen Kante teilen.
+
+
+\section{Eigenschaften von dem Algorithmus}
+- Nichtdeterministisch
+Das Programm ist nichtdeterministisch da es ein Zufallsgenerator nutzt
+- Komplexität: O(iterations*n^2)
+Die Komplexität setzt sich zusammen aus der Anzahl der Iterationen, aus der Anzahl der Punkte durch die Iteriert wird um die Verschiebungen durchzuführen sowie nochmal durch die Anzahl der Punkte für die Überprüfung ob es noch simpel ist. Somit ergibt sich eine Laufzeit von O(iterations*n*n) = O(iterations*n^2)
+- Terminiert
+Der Algorithmus terminiert immer da die Anzahl der Schlaufendurchgänge begrenzt ist. Es gibt keinen Zustand im Algorithmus wo er verbleiben kann.
+
+
+\section{Zufälligkeit der Polygone}
+Der Algorithmus generiert zuverlässig zufällige Polygone bei der "richtigen" Eingabe von Parametern. Die Parameter haben Abhängigkeiten auf die Zufälligkeit des Polygons untereinander.
+Die maximale Geschwindigkeit die ein Punkt pro Durchlauf annehmen kann ist abhängig von der "Boundary Box". Es ist zum Beispiel nicht effektiv bei einer Boundary Box von 500x500 eine maximale Geschwindigkeit von 1000 anzugeben, da diese nicht erreicht werden kann. Der Effekt dabei ist das die Wahrscheinlichkeit das ein Punkt am Ende sich nicht bewegt weil es out of Bound ist, oder kollidiert, sehr hoch wird. Dadurch wird die Zufälligkeit des Polygons beeinflusst.
+Sowie spielt auch der Radius eine Rolle mit dem das reguläre Polygon erstellt wird. Der Radius sollte möglichst so gewählt sein das dass reguläre Polygon möglichst mittig in der Boundary Box ist.
+All diese Abhängigkeiten können jedoch durch den Parameter iterations kompensiert werden. Wenn man beliebig hoch setzt, wird selbst die ungünstigste Parameterauswahl dazu führen das es ein zufälliges Polygon ist.
+Dies ist jedoch nicht empfehlenswert da der Faktor iteration einen Einfluss auf die Laufzeit hat und hohe Zahlen schnell dazu führen das es sehr lange dauert.
