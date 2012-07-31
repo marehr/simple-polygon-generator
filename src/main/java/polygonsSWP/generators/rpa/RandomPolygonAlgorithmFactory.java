@@ -69,7 +69,7 @@ public class RandomPolygonAlgorithmFactory
 
   private static void debug(Object str){
     int c = PolygonGenerationPanel.counter;
-    if(c != 999999) return;
+    if(c != 18) return;
     System.out.println(str);
   }
 
@@ -274,6 +274,8 @@ public class RandomPolygonAlgorithmFactory
       int k = 0;
 
       while (!clonePoints.get(cloneIter.nextIndex()).equals(va)) {
+        
+
 
         // get new vi
         RPAPoint vi;
@@ -354,37 +356,37 @@ public class RandomPolygonAlgorithmFactory
             Point[] u4 = polygon.firstIntersection(r4);
 
             if (u1 != null &&
-                GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(va,
-                    u1[0], polygon) &&
-                GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(vb,
-                    u1[0], polygon) && !clonePoints.contains(u1[0])) {
+                isVertexVisibleFromInside(polygon,
+                    va, u1[0]) &&
+                isVertexVisibleFromInside(polygon,
+                    vb, u1[0]) && !clonePoints.contains(u1[0])) {
               insertTripleIntoPolygon(clonePoints, u1);
               debug("inserting: " + u1[0]);
               if (steps != null) scene.addPoint(u1[0], Color.GREEN);
             }
             if (u2 != null &&
-                GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(va,
-                    u2[0], polygon) &&
-                GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(vb,
-                    u2[0], polygon) && !clonePoints.contains(u2[0])) {
+                isVertexVisibleFromInside(polygon,
+                    va, u2[0]) &&
+                isVertexVisibleFromInside(polygon,
+                    vb, u2[0]) && !clonePoints.contains(u2[0])) {
               insertTripleIntoPolygon(clonePoints, u2);
               debug("inserting: " + u2[0]);
               if (steps != null) scene.addPoint(u2[0], Color.GREEN);
             }
             if (u3 != null &&
-                GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(va,
-                    u3[0], polygon) &&
-                GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(vb,
-                    u3[0], polygon) && !clonePoints.contains(u3[0])) {
+                isVertexVisibleFromInside(polygon,
+                    va, u3[0]) &&
+                isVertexVisibleFromInside(polygon,
+                    vb, u3[0]) && !clonePoints.contains(u3[0])) {
               insertTripleIntoPolygon(clonePoints, u3);
               debug("inserting: " + u3[0]);
               if (steps != null) scene.addPoint(u3[0], Color.GREEN);
             }
             if (u4 != null &&
-                GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(va,
-                    u4[0], polygon) &&
-                GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(vb,
-                    u4[0], polygon) && !clonePoints.contains(u4[0])) {
+                isVertexVisibleFromInside(polygon,
+                    va, u4[0]) &&
+                isVertexVisibleFromInside(polygon,
+                    vb, u4[0]) && !clonePoints.contains(u4[0])) {
               insertTripleIntoPolygon(clonePoints, u4);
               debug("inserting: " + u4[0]);
               if (steps != null) scene.addPoint(u4[0], Color.GREEN);
@@ -419,20 +421,20 @@ public class RandomPolygonAlgorithmFactory
             Point[] u2 = polygon.firstIntersection(r2);
 
             if (u1 != null &&
-                GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(va,
-                    u1[0], polygon) &&
-                GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(vb,
-                    u1[0], polygon) && !clonePoints.contains(u1[0])) {
+                isVertexVisibleFromInside(polygon,
+                    va, u1[0]) &&
+                isVertexVisibleFromInside(polygon,
+                    vb, u1[0]) && !clonePoints.contains(u1[0])) {
               insertTripleIntoPolygon(clonePoints, u1);
               lastVisible = new RPAPoint(u1[0]);
               debug("inserting: " + u1[0] + " , also last visible");
               if (steps != null) scene.addPoint(u1[0], Color.GREEN);
             }
             if (u2 != null &&
-                GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(va,
-                    u2[0], polygon) &&
-                GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(vb,
-                    u2[0], polygon) && !clonePoints.contains(u2[0])) {
+                isVertexVisibleFromInside(polygon,
+                    va, u2[0]) &&
+                isVertexVisibleFromInside(polygon,
+                    vb, u2[0]) && !clonePoints.contains(u2[0])) {
               insertTripleIntoPolygon(clonePoints, u2);
               lastVisible = new RPAPoint(u2[0]);
               debug("inserting: " + u2[0] + " , also last visible");
@@ -509,8 +511,8 @@ public class RandomPolygonAlgorithmFactory
 
       // Test for intersections with polygon.
       boolean visible =
-          GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(p1, p2,
-              polygon);
+          GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(polygon, p1,
+              p2);
       debug("test for sight: " + visible);
 
       if (visible) {
