@@ -168,7 +168,8 @@ public class VelocityVirmaniFactory
     }
     
     /**
-     * Check for simple. Checks only 1 Point with the Others.
+     * Check for simple. Checks only one Point with the Others.
+     * Condition: Polygon is simple if the given Point on "indexToCheck" doesnt intersect with the other Lines
      * @param polygon Polygon
      * @param indexToCheck
      * @return
@@ -176,7 +177,7 @@ public class VelocityVirmaniFactory
     private boolean isSimple(OrderedListPolygon polygon, int indexToCheck)
     {
       int size = polygon.size();
-      int min = (indexToCheck-1+size) % size;
+      int min = (indexToCheck-1+size) % size;//Calculates the index of the previous and next Point
       int max = (indexToCheck + 1) % size;
       LineSegment l1 = new LineSegment(polygon.getPoint(min), polygon.getPoint(indexToCheck));
       LineSegment l2 = new LineSegment(polygon.getPoint(indexToCheck), polygon.getPoint(max));

@@ -18,7 +18,7 @@ import polygonsSWP.geometry.Polygon;
 
 
 /**
- * @@author Kadir
+ * 
  */
 public class AlgorithmRunner
 {
