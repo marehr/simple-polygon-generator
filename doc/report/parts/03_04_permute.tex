@@ -1,4 +1,15 @@
-\section{Permute \& Reject}
-
-
-ddaa
+\subsection{Permute \& Reject}
+\emph{Permute \& Reject} ist ein einfacher Algorithmus von Martin Held, zuerst beschrieben in~\cite{held98polygons}. Der Algorithmus basiert auf der zufälligen Erzeugung von $n$ Kanten zwischen $n$ gegebenen Punkten, sodass von jedem Punkt zwei Kanten ausgehen.
+\subsubsection{Algorithmus}
+\begin{code}[caption={Permute \& Reject},label=permutelisting,mathescape=true]
+retry:
+$P$ $\leftarrow$ given set of points
+$p$ $\leftarrow$ remove random point from $P$
+while ($P$ not empty)
+  $q$ $\leftarrow$ remove random point from $P$
+  draw edge from $p$ to $q$
+  $p$ $\leftarrow$ $q$
+if resulting polygon is NOT simple
+  goto retry
+\end{code}
+\subsubsection{Eigenschaften}
