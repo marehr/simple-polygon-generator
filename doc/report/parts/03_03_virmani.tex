@@ -85,17 +85,26 @@ Es werden die beiden zugehörigen Kanten von dem Punkt u genommen. Diese beiden 
 	Der Algorithmus terminiert immer da die Anzahl der Schlaufendurchgänge begrenzt ist. Es gibt keinen Zustand im Algorithmus wo er verbleiben kann.
 \end{itemize}
 
+%TODO Überdenke diese Section und verkürze sie evtl.
+%velocity <-> boundary box <-> radius <-> n
+%velocity <-> radius
+%space per point: boundary box <-> n
 \subsection{Zufälligkeit der Polygone in Abhängigkeit von Parametern}
 Der Algorithmus generiert zuverlässig zufällige Polygone bei der \enquote{richtigen} Eingabe von Parametern. Die Parameter haben diverse Abhängigkeiten untereinander in Bezug auf die Zufälligkeit des generierten Polygons:\\
 \begin{itemize}
 	\item maximale Geschwindigkeit <-> Boundary Box\\
 	Die maximale Geschwindigkeit die ein Punkt pro Durchlauf annehmen kann ist abhängig von der Boundary Box. Es ist zum Beispiel nicht effektiv bei einer Boundary Box von 500x500 eine maximale Geschwindigkeit von 1000 festzulegen, da diese nicht erreicht werden kann. Der Effekt dabei ist das die Wahrscheinlichkeit das ein Punkt am Ende sich nicht bewegt weil es out of Bound ist, oder kollidiert, sehr hoch wird. Dadurch wird die Zufälligkeit des Polygons beeinflusst.\\
-	Die maximale Geschwindigkeit zu klein zu setzen führt wiederrum dazu das man viele Iterationen braucht um jeden Punkt im Raum erreichen zu können
+	Die maximale Geschwindigkeit zu klein zu setzen führt wiederrum dazu das man viele Iterationen braucht um mehr Weg bewältigen. Bei wenigen Iterationen würde somit das Polygon weniger zufällig sein.
 	\item n <-> Boundary Box <-> maximale Geschwindigkeit\\
-	Je größer die Anzahl der Punkte ist desto größer sollte die Boundary Box sein. Denn je mehr Punkte beisammen liegen, desto höher ist die Chance bei größeren Bewegungen das die Punkte \enquote{rejected} werden. Dies kann man Vorbeugen indem man die maximale Geschwindigkeit kleiner setzt.
+	Je größer die Anzahl der Punkte ist desto größer sollte die Boundary Box sein. Denn je mehr Punkte beisammen liegen, desto höher ist die Chance bei größeren Bewegungen das die Punkte \enquote{rejected} werden. Dies kann man Vorbeugen indem man die maximale Geschwindigkeit kleiner setzt. Jedoch sollte man auch hier Punkt 1 beachten.
 	\item Radius <-> Boundary Box\\
 	Das reguläre Polygon sollte so gesetzt werden das es mittig in der Boundary Box liegt. Idealerweise sollte die Entfernung von dem Polygon zur Boundary Box ungefähr dem Radius entsprechen.\\
-	Der Grund dafür liegt das wenn man z.B. Die Boundary Box zu klein macht, das viele Bewegungen der Punkte \enquote{rejected} werden. 
-	\item All diese Abhängigkeiten können jedoch durch den Parameter\\iterations kompensiert werden. Wenn man diesen beliebig hoch setzt, wird selbst die ungünstigste Parameterauswahl dazu führen das es zufällig wird.\\
-	\item Dies ist jedoch nicht empfehlenswert da der Faktor iteration einen großen Einfluss auf die Laufzeit hat und hohe Zahlen schnell dazu führen das es sehr lange dauert.
+	Der Grund dafür liegt darin das wenn die Boundary Box zu klein ist, das viele Bewegungen der Punkte welche nach außen gehen \enquote{rejected} werden.
+	\item Radius <-> n\\
+	Hier ist es wichtig das man nicht zuviele Punkte so dicht zusammenpackt. Das Problem ist wie bei den oben genannten Punkten das sonst sich die Punkte nicht frei bewegen können.
 \end{itemize}
+%TODO statt paragraph evtl. was anderes nutzen
+\paragraph{Fazit}
+Wie man sehen kann sind fast alle Parameter voneinander in gewisser Weise abhängig. Dies liegt daran das die folgenden Parameter jeweils den Raum der Punkte oder deren Bewegung bestimmen: n, boundary, maxvelocity, radius.\\
+Der einzige Parameter der keine Abhängigkeit zu den Punkten oder zu dem Raum hat ist der Parameter \enquote{iterations}. Dieser Parameter kann bei genug hoher Festlegung dazu führen das selbst sehr ungünstig gesetzte Parameter zu einem guten, zufälligen Ergebnis führen.\\
+Jedoch ist dies nicht empfehlenswert da Iterations einen starken Einfluss auf die Laufzeit hat und dies dazu führen kann das hohe Laufzeiten entstehen.
