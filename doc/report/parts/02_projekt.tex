@@ -1,0 +1,41 @@
+\section{Projektstruktur}
+Das Projekt \emph{Zufällige Polygone} wurde im Wintersemester 2011/2012 in einem Zeitraum von rund 4 Monaten durchgeführt. Im Folgenden werden wir zunächst die Ziele des Projekts darstellen, den zeitlichen Ablauf darlegen und abschließend den gewählten Entwicklungsprozess beschreiben.
+
+\subsection{Zielsetzung \& Einschränkungen}
+Das Hauptziel des Projekts war die Implementierung einer Reihe von Algorithmen, die der Erzeugung zufälliger einfacher Polygone dienen. Vom verantwortlichen Dozenten wurden dabei vier wissenschaftliche Artikel zur Verfügung gestellt, in denen insgesamt 7 derartige Algorithmen beschrieben werden. Darüberhinaus sollte ein vom Dozenten mitentwickelter \emph{Shortest-Path}-Algorithmus~\cite{asano11shortestpath} implementiert werden. Folgende weitergehende Anforderungen an die zu entwickelnde Software waren gegeben:
+\begin{itemize}
+\item Massenweise (\emph{batch}) Erzeugung von zufälligen Polygonen per Kommandozeile
+\item Export eines oder vieler Polygone als CSV-Datei (\emph{comma-separated value})
+\item Grafische Oberfläche
+\begin{itemize}
+\item Auswahl und Konfiguration des Algorithmus
+\item Visualisierung der Funktionsweise des Algorithmus
+\item Auswahl der Punkte für den Shortest-Path-Algorithmus
+\item Visualisierung der Funktionsweise des Shortest-Path-Algorithmus
+\end{itemize}
+\item Statistische Analyse der Algorithmen 
+\end{itemize}
+Aufgrund des begrenzten zeitlichen Rahmens des Projekts 
+\subsection{Zeitplan}
+\begin{PstGanttChart}[yunit=2,ChartUnitIntervalName=Month,TaskUnitIntervalValue=30,TaskUnitType=Month,ChartShowIntervals]{3}{4}
+\PstGanttTask[TaskInsideLabel={Task 1}]{0}{1}
+\PstGanttTask[TaskInsideLabel={Task 2},TaskUnitType=Day]{24}{40} % 40 days starting at day 24
+\PstGanttTask[TaskInsideLabel={Task 3}]{2}{2}
+\end{PstGanttChart}
+
+\subsection{Entwicklungsprozess}
+
+
+- Polygone zufällig erzeugen
+- Verschiedene Algorithmen
+- Visualisieren (auch die Konstruktion)
+- geeignet Parametrisieren
+- Export
+- Statistische Analyse
+
+\subsection{Einschränkungen}
+
+- General Position definieren.
+-- Wird nicht getestet.
+- Zufälligkeit?
+
