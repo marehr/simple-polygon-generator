@@ -2,7 +2,7 @@
 Das Projekt \emph{Zufällige Polygone} wurde im Wintersemester 2011/2012 in einem Zeitraum von rund 4 Monaten durchgeführt. Im Folgenden werden wir zunächst die Ziele des Projekts darstellen, den zeitlichen Ablauf darlegen und abschließend den gewählten Entwicklungsprozess beschreiben.
 
 \subsection{Zielsetzung \& Einschränkungen}
-Das Hauptziel des Projekts war die Implementierung einer Reihe von Algorithmen, die der Erzeugung zufälliger einfacher Polygone dienen. Vom verantwortlichen Dozenten wurden dabei vier wissenschaftliche Artikel zur Verfügung gestellt, in denen insgesamt 7 derartige Algorithmen beschrieben werden. Darüberhinaus sollte ein vom Dozenten mitentwickelter \emph{Shortest-Path}-Algorithmus~\cite{asano11shortestpath} implementiert werden. Folgende weitergehende Anforderungen an die zu entwickelnde Software waren gegeben:
+Das Hauptziel des Projekts war die Implementierung einer Reihe von Algorithmen, die der Erzeugung zufälliger einfacher Polygone dienen. Vom verantwortlichen Dozenten wurden dabei vier wissenschaftliche Artikel zur Verfügung gestellt, in denen insgesamt 7 derartige Algorithmen beschrieben werden. Darüberhinaus sollte ein vom Dozenten mitentwickelter \emph{Shortest-Path}-Algorithmus~\cite{asano11shortestpath} implementiert werden, welcher in einem gegebenen Polygon die kürzeste Verbindung zwischen zwei gewählten Punkten errechnet. Folgende weitergehenden Anforderungen an die zu entwickelnde Software waren gegeben:
 \begin{itemize}
 \item Massenweise (\emph{batch}) Erzeugung von zufälligen Polygonen per Kommandozeile
 \item Export eines oder vieler Polygone als CSV-Datei (\emph{comma-separated value})
@@ -13,29 +13,41 @@ Das Hauptziel des Projekts war die Implementierung einer Reihe von Algorithmen, 
 \item Auswahl der Punkte für den Shortest-Path-Algorithmus
 \item Visualisierung der Funktionsweise des Shortest-Path-Algorithmus
 \end{itemize}
-\item Statistische Analyse der Algorithmen 
+\item Statistische Analyse der Algorithmen hinsichtlich ihrer Laufzeit und den Eigenschaften der erzeugten Polygone
 \end{itemize}
-Aufgrund des begrenzten zeitlichen Rahmens des Projekts 
+
+Als Programmiersprache wählten wir \emph{Java}, da alle Projektmitglieder über Erfahrung in der Java-Programmierung verfügten und die Sprache sowohl die gewünschte Performanz als auch eine ausreichend umfangreiche Standardbibliothek bot. Aufgrund des begrenzten zeitlichen Rahmens des Projekts mussten jedoch einige Einschränkungen in Bezug auf die mathematische Korrektheit der entwickelten Software getroffen werden. Zunächst ist hier die Entscheidung für die Verwendung von Gleitkomma- und gegen die (ausschließliche) Verwendung von Ganzzahlen zu nennen. Zwar ermöglichen Gleitkommazahlen die einfache und CPU-gestützte Divisionsoperation, jedoch kann es durch die begrenzte Auflösung der Gleitkommazahlen (bspw. 64 Bit bei Variablen des Typs \emph{double}) zu Rundungsungenauigkeiten kommen. 
+
+Eine weitere, mithin gravierendere Einschränkung ist der Verzicht auf einen \emph{General Position}-Test (im Deutschen manchmal \enquote{allgemeine Lage}) vor Ausführung der Algorithmen. Eine Menge von Punkten in der Ebene befindet sich in \emph{general position}, wenn
+\begin{enumerate}
+\item keine zwei Punkte identisch sind,
+\item keine drei Punkte auf einer Geraden liegen und
+\item keine 4 Punkte auf einem Kreis liegen.
+\end{enumerate}
+Manche Algorithmen versagen, wenn eine dieser Eigenschaften, insbesondere 2., für die gegebene Punktmenge nicht erfüllt ist. Zwar lässt sich eine Punktmenge leicht auf GP überprüfen, jedoch ist dieser Test vor allem für große Punktmengen sehr rechenintensiv. Der von uns vorübergehend verwendete naive Algorithmus zum GP-Test wies ein asymptotisches Wachstum von $\bigO\left(n^3\right)$ auf, sodass die Laufzeit des GP-Tests bisweilen die Laufzeit des Algorithmus weit übertraf.
+
 \subsection{Zeitplan}
+Wir präsentieren hier den Zeitplan des Projekts in Form eines GANTT-Diagramms, welches auch während der Projektarbeit Verwendung fand. Da das Diagramm laufend an den aktuellen Entwicklungsstand angepasst wurde, entspricht es nun nahezu exakt dem tatsächlichen zeitlichen Ablauf der Entwicklung.
+
+\begin{figure}[h]
+\begin{center}
 \begin{PstGanttChart}[yunit=2,ChartUnitIntervalName=Month,TaskUnitIntervalValue=30,TaskUnitType=Month,ChartShowIntervals]{3}{4}
 \PstGanttTask[TaskInsideLabel={Task 1}]{0}{1}
 \PstGanttTask[TaskInsideLabel={Task 2},TaskUnitType=Day]{24}{40} % 40 days starting at day 24
 \PstGanttTask[TaskInsideLabel={Task 3}]{2}{2}
 \end{PstGanttChart}
+\end{center}
+\label{fig:gantt}
+\end{figure}
 
 \subsection{Entwicklungsprozess}
+Der von uns gewählte Entwicklungsprozess folgte keinem fest definierten Modell (bspw. SCRUM), beinhaltete jedoch einige prozessunterstützende Maßnahmen, die vor allem der kontinuierlichen Kommunikation innerhalb des Teams dienen sollten. Die folgenden Prozesselemente stellten sich als hilfreich heraus und wurden während der Projektarbeit konsequent beibehalten:
+\begin{itemize}
+\item Iterative Herangehensweise, stets lauffähige Version im Repository.
+\item Wöchentliche Team-Meetings zur Besprechung des aktuellen Stands, der in der vergangenen Woche erledigten Arbeit sowie der für die folgende Woche geplanten Arbeitspakete. Schriftliche Protokolle dienten der Information abwesender Teammitglieder.
+\item Arbeitspakete werden stets in 2er-Teams bearbeitet, unter anderem um den Busfaktor\footnote{\url{http://en.wikipedia.org/wiki/Bus_factor}} zu erhöhen.
+\item Unregelmäßig stattfindende \emph{coding sessions}.
+\end{itemize}
+Insbesondere der letztgenannte Punkt entwickelte sich im Laufe des Projekts zu einer wichtigen Maßnahme, um sowohl Verzögerungen im Zeitplan gering zu halten, als auch das Wissen über den geschriebenen Code möglichst gleichmäßig auf die Teammitglieder zu verteilen. Die \emph{coding sessions} wurden von allen Teammitgliedern als überaus produktiv empfunden, oftmals konnten an einem Tag eine ganze Reihe Arbeitspakete abgeschlossen werden. Zudem zeigten sich Fehler im Code oft erst, während mehrere, vorher unbeteiligte Teammitglieder den Code der anderen ausgiebig testeten.
 
-
-- Polygone zufällig erzeugen
-- Verschiedene Algorithmen
-- Visualisieren (auch die Konstruktion)
-- geeignet Parametrisieren
-- Export
-- Statistische Analyse
-
-\subsection{Einschränkungen}
-
-- General Position definieren.
--- Wird nicht getestet.
-- Zufälligkeit?
-
+Entscheidungen im Team wurden weitestgehend per Konsens geschlossen. Für den seltenen Fall einer Unstimmigkeit wurde zuvor Jannis Ihrig zum Projektleiter bestimmt. Der Projektleiter vertrat das Projekt zudem als Ansprechpartner gegenüber dem Dozenten.
