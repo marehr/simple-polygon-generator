@@ -1,5 +1,38 @@
 \subsection{Random Polygon Algorithm} % (fold)
 \label{sub:random_polygon_algorithm}
-	rpa
+		dailey und whitfield neue methode für ngons
+			in polynomieller zeit
+			inclusive
+
+	\subsubsection{Algorithmus} % (fold)
+	\label{ssub:algorithmus}
+
+		pseudocode
+			fehler in der bestimmung ob punkte innen/aussen liegen
+			beschreibung eigener methode
+
+		bug
+			wahrscheinlich ungenauigkeit
+		
+	
+	% subsubsection algorithmus (end)
+
+	\subsubsection{Eigenschaften} % (fold)
+	\label{ssub:eigenschaften}
+
+		geschätzte komplexität
+			worst case $ O(n^2  \log n)$
+			aufgrund von fehler wohl mehr
+
+
+		inclusiveness
+			angezweifelt
+			neue punkte werden immer nur innerhalb der visible region gewählt, welche sich innerhalb des vorher existierenden polygons befindet. demensprechend jedes erzeugte polygon konvexe hülle eines dreiecks (der anfänglich gewählten punkte)
+
+			gegenbeispiel 20 deg rotiertes rechteck (aufgrund von einschränkung general position rotiert)
+
+			- > nicht inclusive
+
+	% subsubsection eigenschaften (end)
 
 % subsection random_polygon_algorithm (end)
