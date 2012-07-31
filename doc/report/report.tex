@@ -18,11 +18,8 @@
 \usepackage[page,titletoc]{appendix} % For appendix in toc
 \usepackage{color} % For colors, not sure if I truly need it anymore
 \usepackage{caption} % For nicer listing captions
-\usepackage{lipsum} % For blindtext (use \lipsum)
 \usepackage{xspace} % For horizontal space.
-
-% Bald wieder loeschen:
-\usepackage{lipsum}
+\usepackage{pst-gantt} % For GANTT chart.
 
 % Keine Ahnung warum, aber "`bla"' funktioniert bei mir nicht.
 \newcommand{\enquote}[1]{\glqq{}#1\grqq{}}
@@ -108,8 +105,8 @@ pdfauthor={Steve Dierker, Marcel Ehrhardt, Jannis Ihrig, Malte Rohde, Sebastian 
 \setcounter{page}{1}
 
 % Hier hin unsere Kapitel.
-\input{parts/00_test}
 \input{parts/01_einleitung}
+\input{parts/02_projekt}
 
 \cleardoublepage
 \phantomsection

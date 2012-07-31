@@ -1,22 +1,8 @@
 \section{Einleitung}
+Die algorithmische Geometrie als Teilgebiet der Informatik beschäftigt sich mit der algorithmischen Lösung geometrischer Probleme. Einfache Polygone (überschneidungsfreie, zusammenhängende, planare Vielecke) bilden die Grundlage vieler Aufgabengebiete der algorithmischen Geometrie. Als naheliegendes Beispiel bezeichnet die Triangulierung die Zerlegung eines Polygons in eine Menge von Dreiecken, die die Fläche des Polygons überdecken. Diese Dreieckszerlegung ermöglicht die Lösung einer ganzen Reihe weiterer geometrische Probleme.
 
+Zum Testen und zur Evaluation neuartiger polygon-basierter geometrischer Algorithmen ist es oft von Vorteil, über eine beliebige Menge einfacher Polygone zu verfügen, wobei diese, um eine gewisse Aussagekraft der Experimente zu gewährleisten, möglichst gleichverteilt alle (in einem definierten planaren Raum) vorstellbaren repräsentieren sollten. Die massenweise Erzeugung solcher \emph{zufälliger Polygone} ist ein Forschungsgebiet, dem in den vergangenen Jahrzehnten daher vermehrt wissenschaftliche Aufmerksamkeit zugekommen ist. Die entstandenen Lösungswege und Algorithmen unterscheiden sich unter anderem in ihrer Komplexität, im Speicherverbrauch sowie in der Art und \enquote{Zufälligkeit} der erzeugten Polygone.
 
-- Algorithmische Geometrie
-- Anwendungsgebiete von Polygonen: Triangulierung 
-- 
+Der vorliegende Text ist der Abschlussbericht des Softwareprojekts \emph{Zufällige Polygone}, welches im Rahmen des Moduls \enquote{Softwareprojekt: Anwendung von Algorithmen} unter Leitung von Prof. Dr. Günter Rote durchgeführt wurde. Das Ziel des Projekts war die Entwicklung einer Softwarebibliothek, welche über verschiedenene Algorithmen zur Erzeugung zufälliger Polygone verfügen sollte und diese unter anderem über eine grafische Anwendung dem Benutzer zur Verfügung stellen sollte. Das Projekt wurde mit Ende des Wintersemesters 2011/2012 abgeschlossen.
 
-\subsection{Zielsetzung}
-
-- Polygone zufällig erzeugen
-- Verschiedene Algorithmen
-- Visualisieren (auch die Konstruktion)
-- geeignet Parametrisieren
-- Export
-- Statistische Analyse
-
-\subsection{Einschränkungen}
-
-- General Position definieren.
--- Wird nicht getestet.
-- Zufälligkeit?
-
+Im Folgenden werden wir zunächst die Zielsetzung des Projekts, funktionale und nicht-funktionale Anforderungen an die zu implementierende Software, sowie auf Einschränkungen der Zielsetzung darstellen. Anschließend erfolgt eine kurze Erläuterung des von uns gewählten Entwicklungsprozesses und dessen Umsetzung. Im Hauptteil des Berichts gehen wir detailliert auf die Eigenschaften der einzelnen Algorithmen sowie auf die während der Entwicklung aufgetretenden Probleme und deren Lösungen ein. Im letzten Kapitel findet der geneigte Leser einen umfassenden \emph{Benutzerleitfaden} für die entstandene Softwarelösung.
