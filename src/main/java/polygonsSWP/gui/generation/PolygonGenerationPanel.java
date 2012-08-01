@@ -133,7 +133,7 @@ public class PolygonGenerationPanel
     historySceneMode = mode;
   }
 
-  public static int counter = 0;
+  public static int counter = 0, maxCounter = 1;
 
   /**
    * Called by polygon generation worker upon successful 
@@ -147,7 +147,8 @@ public class PolygonGenerationPanel
     t = null;
     emitPolygonGenerated(polygon);
 
-    
+    if(counter >= maxCounter -1) return;
+
     try {
       Thread.sleep(200);
     } catch (InterruptedException e) {
