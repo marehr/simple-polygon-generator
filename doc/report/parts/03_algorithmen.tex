@@ -1,4 +1,4 @@
-\section{Algorithmen}
+\section{Algorithmen zur Polygongenerierung}
 In Tabelle~\ref{algo_table} findet sich eine Auflistung der in der entstandenen Softwarelösung implementierten Algorithmen. Die meisten dieser Algorithmen bedürfen einer vorgegebenen Punktmenge, aus welcher ein simples Polygon konstruiert wird. Der \enquote{Random Polygon Algorithm} hingegen erhält als initialie Punktmenge lediglich die Eckpunkte eines Dreiecks und erzeugt im gegebenen begrenzten Raum eine konfigurierbare Anzahl weiterer Punkte. Der Algorithmus von Virmani verändert als einziger Algorithmus die Position der Punkte der vorgegebenen Punktmenge. 
 
 Die in Tabelle~\ref{algo_table} angegebene \enquote{Laufzeit} bezeichnet die theoretisch kleinste obere Schranke für das asymptotische Wachstum der Laufzeitsfunktion der Algorithmen, in Abhängigkeit der Anzahl der Punkte $n$. In einigen Fällen lässt sich diese jedoch nicht bestimmen, bzw. beschreibt eine erwartete Laufzeit bei randomisierten Algorithmen (bspw. Permute \& Reject). Da die Laufzeit einiger Hilfsfunktionen (z.B. Polygon-Gerade-Schnittberechnung) in unserer Implementierung nicht ideal ist, weicht die Laufzeit der Algorithmen in der Implementierung zum Teil von der erwarteten Laufzeit ab. 
@@ -12,7 +12,7 @@ Algorithmus & erw. Laufzeit & Laufzeit (Impl.) \\
 \midrule
 Permute \& Reject & $\bigO(n!)$ & $\bigO(n!)$ \\
 Incremental Construction \& Backtracking & $\bigO(n!)$ & $\bigO(n!)$ \\
-Space Partitioning & ... & ...\\
+Space Partitioning & $\bigO(n^2)$ & $\bigO(n^2)$\\
 Steady Growth & $\bigO(n^2)$ & ... \\
 2-Opt Moves & $\bigO(n^3)$ & $\bigO(n^4)$ \\
 Velocity Virmani & ... & ...\\
