@@ -10,20 +10,19 @@ public class RPAPoint
     super(point.x, point.y);
     visVa = false;
     visVb = false;
-    visInOutVa = VisInOut.NONE;
-    visInOutVb = VisInOut.NONE;
-    state = State.NN;
+    visVaIns = false;
+    visVbIns = false;
+    state = State.NEW;
   }
   
-  public enum VisInOut {FROMINSIDE, FROMOUTSIDE, BOTH, NONE}
-  public enum State {NN, IN, OUT, DEL, BOTH}
+  public enum State {NEW, IN, OUT, DEL, BOTH}
   
   
   
   public boolean visVa;
   public boolean visVb;
-  public VisInOut visInOutVa;
-  public VisInOut visInOutVb;
+  public boolean visVaIns;
+  public boolean visVbIns;
   
   public State state;
 
@@ -31,30 +30,12 @@ public class RPAPoint
     if (!visVa || !visVb) {
       state = State.DEL;
     }
-    else if (visInOutVa == VisInOut.BOTH && visInOutVb == VisInOut.BOTH){
-      state = State.BOTH;
-    }
-    else if ((visInOutVa == VisInOut.FROMINSIDE || visInOutVa == VisInOut.BOTH) && 
-             (visInOutVb == VisInOut.FROMINSIDE || visInOutVb == VisInOut.BOTH)){
+    else if(visVaIns && visVbIns) {
       state = State.IN;
     }
     else {
       state = State.OUT;
     }
-  }
-  
-  public boolean fromVa(){
-    if (visInOutVa == VisInOut.FROMINSIDE || visInOutVa == VisInOut.BOTH){
-      return true;
-    }
-    else return false;
-  }
-  
-  public boolean fromVb(){
-    if (visInOutVb == VisInOut.FROMINSIDE || visInOutVb == VisInOut.BOTH){
-      return true;
-    }
-    else return false;
   }
   
 }

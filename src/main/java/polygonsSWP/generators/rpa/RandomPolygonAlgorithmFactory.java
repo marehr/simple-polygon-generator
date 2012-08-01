@@ -17,7 +17,6 @@ import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.rpa.RPAPoint.State;
-import polygonsSWP.generators.rpa.RPAPoint.VisInOut;
 import polygonsSWP.geometry.Line;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
@@ -239,16 +238,14 @@ public class RandomPolygonAlgorithmFactory
       
       va.visVa = true;
       va.visVb = true;
-      va.visInOutVa = VisInOut.BOTH;
-      va.visInOutVb = VisInOut.BOTH;
+      va.visVaIns = true;
+      va.visVbIns = true;
       va.state = State.BOTH;
-      debug("va: visInOutVa: " + va.visInOutVa + " visInOutVb: " + va.visInOutVb + " state: " + va.state);
       vb.visVa = true;
       vb.visVb = true;
-      vb.visInOutVa = VisInOut.BOTH;
-      vb.visInOutVb = VisInOut.BOTH;
+      vb.visVaIns = true;
+      vb.visVbIns = true;
       vb.state = State.BOTH;
-      debug("vb: visInOutVa: " + vb.visInOutVa + " visInOutVb: " + vb.visInOutVb + " state: " + vb.state);
       
       /*
        * b. intersect Line VaVb with clone, take first intersection on each side
@@ -312,7 +309,7 @@ public class RandomPolygonAlgorithmFactory
         do {
           vi = cloneIter.next();
         }
-        while (vi.state == State.DEL);
+        while (vi.state == State.DEL || vi.state == State.OUT);
 
         debug("minorLoop " + (k++) + ", visit all vertices");
         debug("clonePoints: " + clonePoints);
@@ -322,57 +319,41 @@ public class RandomPolygonAlgorithmFactory
         
         vi = checkVisibility(polygon, vi, va, vb);
             
-        boolean visInOutVa = isVertexVisibleFromInside(polygon, va, vi);
-        boolean visInOutVb = isVertexVisibleFromInside(polygon, vb, vi);
-//        boolean fromVa = vi.visInOutVa == VisInOut.FROMINSIDE;
-//        boolean fromVb = vi.visInOutVb == VisInOut.FROMINSIDE;
 
         // test visibility of previous element of polygon (not clone).
 
         debug("---------------------");
         debug("prev: " + prev);
-        boolean prevFromVa = isVertexVisibleFromInside(polygon, va, prev);
-        boolean prevFromVb = isVertexVisibleFromInside(polygon, vb, prev);
-//        boolean prevFromVa = prev.visInOutVa.equals(VisInOut.FROMINSIDE);
-//        boolean prevFromVb = prev.visInOutVb.equals(VisInOut.FROMINSIDE);
 
-        debug("fromVa: " + visInOutVa + ", fromVb: " + visInOutVb +
-            ", prevFromVa: " + prevFromVa + ", prevFromVb: " + prevFromVb);
-        debug("newer version fromVa: " + vi.visInOutVa.equals(VisInOut.FROMINSIDE) + ", fromVb: " + vi.visInOutVb.equals(VisInOut.FROMINSIDE) +
-            ", prevFromVa: " + prev.visInOutVa.equals(VisInOut.FROMINSIDE) + ", prevFromVb: " + prev.visInOutVb.equals(VisInOut.FROMINSIDE));
+        debug("fromVa: " + vi.visVaIns + ", fromVb: " + vi.visVbIns +
+            ", prevFromVa: " + prev.visVaIns + ", prevFromVb: " + prev.visVbIns);
 
         if (steps != null) {
           scene = steps.newScene();
           scene.addPolygon(boundingBox, false);
           scene.addPolygon(polygon, true);
           scene.addLineSegment(vaVb, true);
-          if (visInOutVa && visInOutVb) scene.addPoint(vi, Color.GREEN);
-          else if (visInOutVa && !visInOutVb) scene.addPoint(vi, Color.ORANGE);
-          else if (!visInOutVa && visInOutVb) scene.addPoint(vi, Color.PINK);
+          if (vi.visVaIns && vi.visVbIns) scene.addPoint(vi, Color.GREEN);
+          else if (vi.visVaIns && !vi.visVbIns) scene.addPoint(vi, Color.ORANGE);
+          else if (!vi.visVaIns && vi.visVbIns) scene.addPoint(vi, Color.PINK);
           else scene.addPoint(vi, Color.RED);
 
-          if (prevFromVa && prevFromVb) scene.addPoint(prev, Color.GREEN);
-          else if (prevFromVa && !prevFromVb) scene.addPoint(prev, Color.ORANGE);
-          else if (!prevFromVa && prevFromVb) scene.addPoint(prev, Color.PINK);
+          if (prev.visVaIns && prev.visVbIns) scene.addPoint(prev, Color.GREEN);
+          else if (prev.visVaIns && !prev.visVbIns) scene.addPoint(prev, Color.ORANGE);
+          else if (!prev.visVaIns && prev.visVbIns) scene.addPoint(prev, Color.PINK);
           else scene.addPoint(prev, Color.RED);
           scene.save();
         }
-
-        // vi not visible from va or vb
-        if (!visInOutVa || !visInOutVb) {
-          debug("not visible form va or vb: remove vi");
-          vi.state = State.DEL;
-        }
-        // vi visible from va and vb
-        if (visInOutVa && visInOutVb) {
+        
+        if (vi.state == State.IN) {
           debug("visible from va and vb");
           // case 1 viPrev visible from va and vb
-          if (prevFromVa && prevFromVb) {
+          if (prev.state == State.IN) {
             debug("case 1: set last visible");
             lastVisible = vi;
           }
           // case 2 viPrev not visible from va and vb
-          else if (!prevFromVa && !prevFromVb) {
+          else if (!prev.visVaIns && !prev.visVbIns) {
             debug("case 2: viPev not visible form va and vb, 4 intersections, keep 2");
             Ray r1 = new Ray(va, lastVisible);
             Ray r2 = new Ray(vb, lastVisible);
@@ -440,10 +421,10 @@ public class RandomPolygonAlgorithmFactory
 
           }
           // case 3+4 viPrev visible to one of va and vb
-          else if (prevFromVa || prevFromVb) {
+          else if (prev.visVaIns || prev.visVbIns) {
             debug("case 3,4: viPrev from va/vb visible, 2 intersections");
             Point vx;
-            if (prevFromVa) vx = vb;
+            if (prev.visVaIns) vx = vb;
             else vx = va;
 
             Ray r1 = new Ray(vx, lastVisible);
@@ -497,7 +478,7 @@ public class RandomPolygonAlgorithmFactory
       List<Point> visibleRegionPoints = new ArrayList<Point>();
       for (int i = 0; i < clonePoints.size(); i++) {
         RPAPoint current = clonePoints.get(i);
-        if (current.state != State.DEL) visibleRegionPoints.add(current);
+        if (current.state == State.IN || current.state == State.BOTH || current.state == State.NEW) visibleRegionPoints.add(current);
       }
       return new OrderedListPolygon(visibleRegionPoints);
     }
@@ -535,53 +516,53 @@ public class RandomPolygonAlgorithmFactory
     
     
     private RPAPoint checkVisibility(Polygon polygon, RPAPoint vi, RPAPoint va, RPAPoint vb){
-      if(vi.state != State.NN)
+      if(vi.state != State.NEW)
         return vi;
       
     	vi.visVa = GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(polygon, va, vi);
     	vi.visVb = GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(polygon, vb, vi);
     	
     	if (vi.visVa)
-        vi.visInOutVa = setVisInOut(polygon, va, vi);
+        vi.visVaIns = isVertexVisibleFromInside(polygon, va, vi);
     	if (vi.visVb)
-    	  vi.visInOutVb = setVisInOut(polygon, vb, vi);
+    	  vi.visVbIns = isVertexVisibleFromInside(polygon, vb, vi);
     	
     	vi.setState();
     	
     	return vi;    	
     }
     
-    private VisInOut setVisInOut(Polygon polygon, RPAPoint p1, RPAPoint p2){
-      List<Point> points = polygon.getPoints();
-      
-      int p1Index = points.indexOf(p1);
-      
-      Point next = points.get((p1Index + 1) % points.size());
-      Point prev =
-          points.get((points.size() + p1Index - 1) % points.size());
-
-      //TODO: why triangle
-      if (next.equals(prev)) {
-        debug("trianlge => visible and inside");
-        return VisInOut.BOTH;
-      }
-      double angle1 = innerCuttingAngle(next, p1, prev);
-      double angle2 = innerCuttingAngle(next, p1, p2);
-      int compare = MathUtils.doubleCompare(angle1, angle2);
-      if (compare > 0) {
-        debug("test for cutting angle: " + angle1 + " > " +
-            angle2 + " => inside");
-        return VisInOut.FROMINSIDE;
-      } else if (compare < 0) {
-        debug("test for cutting angle: " + angle1 + " < " +
-            angle2 + " => outside");
-        return VisInOut.FROMOUTSIDE;
-      } else {
-        debug("test for cutting angle: " + angle1 + " == " +
-            angle2 + " => both");
-        return VisInOut.BOTH;
-      }
-    }
+//    private VisInOut setVisInOut(Polygon polygon, RPAPoint p1, RPAPoint p2){
+//      List<Point> points = polygon.getPoints();
+//      
+//      int p1Index = points.indexOf(p1);
+//      
+//      Point next = points.get((p1Index + 1) % points.size());
+//      Point prev =
+//          points.get((points.size() + p1Index - 1) % points.size());
+//
+//      //TODO: why triangle
+//      if (next.equals(prev)) {
+//        debug("trianlge => visible and inside");
+//        return VisInOut.BOTH;
+//      }
+//      double angle1 = innerCuttingAngle(next, p1, prev);
+//      double angle2 = innerCuttingAngle(next, p1, p2);
+//      int compare = MathUtils.doubleCompare(angle1, angle2);
+//      if (compare > 0) {
+//        debug("test for cutting angle: " + angle1 + " > " +
+//            angle2 + " => inside");
+//        return VisInOut.FROMINSIDE;
+//      } else if (compare < 0) {
+//        debug("test for cutting angle: " + angle1 + " < " +
+//            angle2 + " => outside");
+//        return VisInOut.FROMOUTSIDE;
+//      } else {
+//        debug("test for cutting angle: " + angle1 + " == " +
+//            angle2 + " => both");
+//        return VisInOut.BOTH;
+//      }
+//    }
     
     
 
