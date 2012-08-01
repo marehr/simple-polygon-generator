@@ -156,6 +156,12 @@ public class RandomPolygonAlgorithmFactory
 
         debug("visible region: " + visibleRegionInside.getPoints() + "\n");
         if (steps != null) {
+          Scene scene1 = steps.newScene();
+          scene1.addPolygon(polygon, true);
+          scene1.addPolygon(boundingBox, false);
+          scene1.addPolygon(outerPolygon, Color.CYAN);
+          scene1.save();
+
           Scene scene = steps.newScene();
           scene.addPolygon(boundingBox, false);
           scene.addPolygon(polygon, true);
@@ -542,67 +548,81 @@ public class RandomPolygonAlgorithmFactory
     }
 
     private Polygon outerPolygon(Polygon polygon, Polygon boundingBox, RPAPoint va, RPAPoint vb){
+
+      List<Point> bounds = new LinkedList<Point>(boundingBox.getPoints());
+
       Ray rayVaVb = new Ray(va, vb);
       Ray rayVbVa = new Ray(vb, va);
-      
+
       List<Point> left = collectVerticesUntilLastIntersection(polygon, rayVbVa);
       Collections.reverse(polygon.getPoints());
 
       List<Point> right = collectVerticesUntilLastIntersection(polygon, rayVaVb);
       Collections.reverse(polygon.getPoints());
-      
+
       Point[] isecLeft  = boundingBox.firstIntersection(rayVbVa),
               isecRight = boundingBox.firstIntersection(rayVaVb);
 
       left.add(isecLeft[0]);
       right.add(isecRight[0]);
-      
-      
+
       // adding points of boundary box to new polygon
       Point leftPoint = null;
       Point rightPoint = null;
+
       if (MathUtils.checkOrientation(va, vb, isecLeft[1]) > 0){
         leftPoint = isecLeft[1];
       } else {
         leftPoint = isecLeft[2];
       }
+
       if (MathUtils.checkOrientation(va, vb, isecRight[1]) > 0){
         rightPoint = isecRight[1];
       } else {
         rightPoint = isecRight[2];
       }
-      
+
+      // remove checked boundaries
+      bounds.remove(isecLeft[1]);
+      bounds.remove(isecLeft[2]);
+      bounds.remove(isecRight[1]);
+      bounds.remove(isecRight[2]);
+
+      // add boundaries
       left.add(leftPoint);
-      
+
       if(!leftPoint.equals(rightPoint))
         right.add(rightPoint);
-      
+
+      // if one boundary is still unchecked, check it now
+      if(bounds.size() > 0 && MathUtils.checkOrientation(va, vb, bounds.get(0)) > 0) {
+        left.add(bounds.get(0));
+      }
+
       Collections.reverse(left);
       right.addAll(left);
       debug("outer Polygon: " + right);
-      
+
       return new OrderedListPolygon(right);
     }
     
-    private List<Point> collectVerticesUntilLastIntersection(Polygon polygon, Ray ray){
+    private List<Point> collectVerticesUntilLastIntersection(Polygon polygon, Ray ray) {
       List<Point> points = polygon.getPoints();
       int size = points.size();
 
       ArrayList<Point> list = new ArrayList<Point>(size);
       list.add(ray._support);
-      
+
       Point[] lastIsec = polygon.lastIntersection(ray);
-      
+
       if(lastIsec == null){
         return list;
       }
-      
-      debug(lastIsec[0]);
 
-      int index = list.indexOf(ray._support); 
+      int index = points.indexOf(ray._support);
+
       while(true) {
         index = (index + 1) % size;
-        debug(index);
         Point curr = points.get(index);
 
         list.add(curr);
@@ -611,12 +631,11 @@ public class RandomPolygonAlgorithmFactory
           list.add(lastIsec[0]);
           return list;
         }
-        
+
         if(lastIsec[2] == curr){
           list.add(lastIsec[0]);
           return list;
         }
-        //throw new RuntimeException();
       }
     }
     
