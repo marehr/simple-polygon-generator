@@ -136,7 +136,6 @@ public class RandomPolygonAlgorithmFactory
 
         CircularList<RPAPoint> clonePoints = (CircularList<RPAPoint>) polyPoints.clone();
         
-        
         int randomIndex = random.nextInt(polyPoints.size());
         RPAPoint vb = polyPoints.get(randomIndex);
         RPAPoint va = polyPoints.get((randomIndex + 1) % polyPoints.size());
@@ -145,6 +144,13 @@ public class RandomPolygonAlgorithmFactory
         //then the outer part
         Polygon visibleRegionInside =
             visiblePolygonRegionFromLineSegment(polygon, boundingBox, polyPoints, clonePoints, va, vb, true);
+        
+        
+//        Collections.reverse(polyPoints);
+//        Collections.reverse(clonePoints);
+//        
+//        Polygon visibleRegionOutside = 
+//            visiblePolygonRegionFromLineSegment(polygon, boundingBox, polyPoints, clonePoints, vb, va, false);
 
         debug("visible region: " + visibleRegionInside.getPoints() + "\n");
         if (steps != null) {
@@ -152,6 +158,7 @@ public class RandomPolygonAlgorithmFactory
           scene.addPolygon(boundingBox, false);
           scene.addPolygon(polygon, true);
           scene.addPolygon(visibleRegionInside, Color.GREEN);
+//          scene.addPolygon(visibleRegionOutside, Color.RED);
           scene.save();
         }
 
@@ -483,7 +490,7 @@ public class RandomPolygonAlgorithmFactory
       return new OrderedListPolygon(visibleRegionPoints);
     }
     
-
+    
     /**
      * Inserts point triple[0] between triple[1] and triple[2]. If there are
      * already points between triple[1] and triple[2], triple[0] is inserted
