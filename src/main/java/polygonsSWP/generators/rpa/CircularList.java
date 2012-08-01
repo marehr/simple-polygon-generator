@@ -1,7 +1,11 @@
 package polygonsSWP.generators.rpa;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
+
+import polygonsSWP.geometry.Point;
 
 public class CircularList <E>
   extends ArrayList <E>
@@ -99,6 +103,15 @@ public class CircularList <E>
     @Override
     public void set(E arg0) {
       _list.set(_index, arg0);
+    }
+  }
+  
+  public CircularList(){}
+  
+  public CircularList(List<E> elements){
+    CircularIterator<E> circIter = (CircularIterator<E>)this.listIterator();
+    for (E e : elements) {
+      circIter.add(e);
     }
   }
   

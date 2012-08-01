@@ -1,6 +1,7 @@
 package polygonsSWP.generators.rpa;
 
 import java.awt.Color;
+import java.beans.Visibility;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -16,6 +17,7 @@ import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.rpa.RPAPoint.State;
+import polygonsSWP.generators.rpa.RPAPoint.VisInOut;
 import polygonsSWP.geometry.Line;
 import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.OrderedListPolygon;
@@ -94,6 +96,13 @@ public class RandomPolygonAlgorithmFactory
     public Polygon generate() {
 
       Random random = Random.create();
+      
+      // create bounding box
+      OrderedListPolygon boundingBox = new OrderedListPolygon();
+      boundingBox.addPoint(new Point(0,0));
+      boundingBox.addPoint(new Point(_size,0));
+      boundingBox.addPoint(new Point(_size,_size));
+      boundingBox.addPoint(new Point(0,_size));
 
       // 1. generate 3 rand points -> polygon P
       OrderedListPolygon polygon =
@@ -108,6 +117,7 @@ public class RandomPolygonAlgorithmFactory
 
       if (steps != null) {
         Scene scene = steps.newScene();
+        scene.addPolygon(boundingBox, false);
         scene.addPolygon(polygon, true);
         scene.save();
       }
@@ -123,14 +133,18 @@ public class RandomPolygonAlgorithmFactory
         Point Vb = polygonPoints.get(randomIndex);
         Point Va = polygonPoints.get((randomIndex + 1) % polygonPoints.size());
         // 2.b determine visible region to VaVb -> P'
-        Polygon visibleRegion =
-            visiblePolygonRegionFromLineSegment(polygon, Va, Vb);
+        //first determine visible region inside polygon
+        //then the outer part
+        ArrayList<Point> pointsOuterRegion = new ArrayList<Point>();
+        Polygon visibleRegionInside =
+            visiblePolygonRegionFromLineSegment(polygon, boundingBox, Va, Vb, pointsOuterRegion);
 
-        debug("visible region: " + visibleRegion.getPoints() + "\n");
+        debug("visible region: " + visibleRegionInside.getPoints() + "\n");
         if (steps != null) {
           Scene scene = steps.newScene();
+          scene.addPolygon(boundingBox, false);
           scene.addPolygon(polygon, true);
-          scene.addPolygon(visibleRegion, Color.GREEN);
+          scene.addPolygon(visibleRegionInside, Color.GREEN);
           scene.save();
         }
 
@@ -139,13 +153,14 @@ public class RandomPolygonAlgorithmFactory
         Scene scene2 = null;
         if (steps != null) {
           scene2 = steps.newScene();
+          scene2.addPolygon(boundingBox, false);
           scene2.addPolygon(polygon, true);
         }
 
         Triangle selectedTriangle;
-        if (visibleRegion.size() > 3) {
+        if (visibleRegionInside.size() > 3) {
           List<Triangle> triangles =
-              ((OrderedListPolygon) visibleRegion).triangulate();
+              ((OrderedListPolygon) visibleRegionInside).triangulate();
           debug("Triangulation: ");
           for (Triangle triangle : triangles) {
             debug(triangle.getPoints());
@@ -162,7 +177,7 @@ public class RandomPolygonAlgorithmFactory
           }
         }
         else {
-          selectedTriangle = new Triangle(visibleRegion.getPoints());
+          selectedTriangle = new Triangle(visibleRegionInside.getPoints());
           debug("SelectedRegion is whole polygon.");
           if (steps != null) {
             scene2.addPolygon(
@@ -207,19 +222,29 @@ public class RandomPolygonAlgorithmFactory
      * @param p2
      * @return
      */
-    private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon,
-        Point va, Point vb) {
+    private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon, Polygon boundingBox, 
+        Point p1, Point p2, List<Point> onlyOutside) {
+    	
+      RPAPoint va = new RPAPoint(p1);
+      RPAPoint vb = new RPAPoint(p2);
+      onlyOutside.add(vb);
+      onlyOutside.add(va);
+      
 
-      CircularList<Point> polygonPoints = new CircularList<Point>();
-      polygonPoints.addAll(polygon.getPoints());
+      CircularList<RPAPoint> polygonPoints = new CircularList<RPAPoint>();
+      for (Point point : polygon.getPoints()) {
+        polygonPoints.add(new RPAPoint(point));
+      }
       debug("va, vb: " + va + vb + "\n");
 
       /* a. Set clone with polygon. */
 
       CircularList<RPAPoint> clonePoints = new CircularList<RPAPoint>();
-      for (Point point : polygonPoints) {
+      for (RPAPoint point : polygonPoints) {
         clonePoints.add(new RPAPoint(point));
       }
+      clonePoints.get(polygonPoints.indexOf(va)).state = State.BOTH;
+      clonePoints.get(polygonPoints.indexOf(vb)).state = State.BOTH;
 
       /*
        * b. intersect Line VaVb with clone, take first intersection on each side
@@ -231,6 +256,7 @@ public class RandomPolygonAlgorithmFactory
       Scene scene = null;
       if (steps != null) {
         scene = steps.newScene();
+        scene.addPolygon(boundingBox, false);
         scene.addPolygon(polygon, true);
         scene.addLineSegment(vaVb, true);
       }
@@ -267,10 +293,10 @@ public class RandomPolygonAlgorithmFactory
       RPAPoint lastVisible = clonePoints.get(clonePoints.indexOf(va));
       ListIterator<RPAPoint> cloneIter =
           clonePoints.listIterator(clonePoints.indexOf(va));
-      ListIterator<Point> polygonIter =
+      ListIterator<RPAPoint> polygonIter =
           polygonPoints.listIterator(polygonPoints.indexOf(va));
-      Point prev = lastVisible;
-
+      RPAPoint prev = lastVisible;
+      
       int k = 0;
 
       while (!clonePoints.get(cloneIter.nextIndex()).equals(va)) {
@@ -289,6 +315,11 @@ public class RandomPolygonAlgorithmFactory
         debug("vb: " + vb + ", va: " + va + ", vi: " + vi);
 
         // visibility of vi form va and vb
+        
+        vi = checkVisibility(polygon, vi, va, vb);
+        if (vi.state == State.OUT){
+          onlyOutside.add(vi);
+        }
         boolean fromVa = isVertexVisibleFromInside(polygon, va, vi);
         boolean fromVb = isVertexVisibleFromInside(polygon, vb, vi);
 
@@ -304,6 +335,7 @@ public class RandomPolygonAlgorithmFactory
 
         if (steps != null) {
           scene = steps.newScene();
+          scene.addPolygon(boundingBox, false);
           scene.addPolygon(polygon, true);
           scene.addLineSegment(vaVb, true);
           if (fromVa && fromVb) scene.addPoint(vi, Color.GREEN);
@@ -341,6 +373,7 @@ public class RandomPolygonAlgorithmFactory
 
             if (steps != null) {
               scene = steps.newScene();
+              scene.addPolygon(boundingBox, false);
               scene.addPolygon(polygon, true);
               scene.addLineSegment(vaVb, true);
 
@@ -410,6 +443,7 @@ public class RandomPolygonAlgorithmFactory
 
             if (steps != null) {
               scene = steps.newScene();
+              scene.addPolygon(boundingBox, false);
               scene.addPolygon(polygon, true);
               scene.addLineSegment(vaVb, true);
 
@@ -457,8 +491,10 @@ public class RandomPolygonAlgorithmFactory
         RPAPoint current = clonePoints.get(i);
         if (current.state != State.DEL) visibleRegionPoints.add(current);
       }
+      System.out.println(onlyOutside);
       return new OrderedListPolygon(visibleRegionPoints);
     }
+    
 
     /**
      * Inserts point triple[0] between triple[1] and triple[2]. If there are
@@ -489,6 +525,27 @@ public class RandomPolygonAlgorithmFactory
       }
       return false;
     }
+    
+    
+    private RPAPoint checkVisibility(Polygon polygon, RPAPoint p, RPAPoint va, RPAPoint vb){
+    	p.visVa = GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(polygon, va, p);
+    	p.visVb = GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(polygon, vb, p);
+    	
+    	p.visInOutVa = setVisInOut(polygon, va, p);
+    	p.visInOutVb = setVisInOut(polygon, vb, p);
+    	
+    	//TODO: set state correctly
+    	p.state = State.NN;
+    	
+    	return p;    	
+    }
+    
+    private VisInOut setVisInOut(Polygon polygon, RPAPoint p1, RPAPoint p2){
+      //TODO: decide visInOut correctly
+      return VisInOut.NONE;
+    }
+    
+    
 
     /**
      * Determines if one vertex of a polygon can 'see' another point on that
