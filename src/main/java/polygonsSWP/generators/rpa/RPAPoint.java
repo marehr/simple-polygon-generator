@@ -43,4 +43,18 @@ public class RPAPoint
     }
   }
   
+  public boolean fromVa(){
+    if (visInOutVa == VisInOut.FROMINSIDE || visInOutVa == VisInOut.BOTH){
+      return true;
+    }
+    else return false;
+  }
+  
+  public boolean fromVb(){
+    if (visInOutVb == VisInOut.FROMINSIDE || visInOutVb == VisInOut.BOTH){
+      return true;
+    }
+    else return false;
+  }
+  
 }
