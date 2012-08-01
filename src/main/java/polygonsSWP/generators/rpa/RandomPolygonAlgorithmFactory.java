@@ -145,6 +145,8 @@ public class RandomPolygonAlgorithmFactory
         Polygon visibleRegionInside =
             visiblePolygonRegionFromLineSegment(polygon, boundingBox, polyPoints, clonePoints, va, vb, true);
         
+        Polygon outerPolygon = outerPolygon(polygon, boundingBox, va, vb);
+        
         
 //        Collections.reverse(polyPoints);
 //        Collections.reverse(clonePoints);
@@ -158,7 +160,7 @@ public class RandomPolygonAlgorithmFactory
           scene.addPolygon(boundingBox, false);
           scene.addPolygon(polygon, true);
           scene.addPolygon(visibleRegionInside, Color.GREEN);
-//          scene.addPolygon(visibleRegionOutside, Color.RED);
+          scene.addPolygon(outerPolygon, Color.CYAN);
           scene.save();
         }
 
@@ -538,39 +540,85 @@ public class RandomPolygonAlgorithmFactory
     	
     	return vi;    	
     }
+
+    private Polygon outerPolygon(Polygon polygon, Polygon boundingBox, RPAPoint va, RPAPoint vb){
+      Ray rayVaVb = new Ray(va, vb);
+      Ray rayVbVa = new Ray(vb, va);
+      
+      List<Point> left = collectVerticesUntilLastIntersection(polygon, rayVbVa);
+      Collections.reverse(polygon.getPoints());
+
+      List<Point> right = collectVerticesUntilLastIntersection(polygon, rayVaVb);
+      Collections.reverse(polygon.getPoints());
+      
+      Point[] isecLeft  = boundingBox.firstIntersection(rayVbVa),
+              isecRight = boundingBox.firstIntersection(rayVaVb);
+
+      left.add(isecLeft[0]);
+      right.add(isecRight[0]);
+      
+      
+      // adding points of boundary box to new polygon
+      Point leftPoint = null;
+      Point rightPoint = null;
+      if (MathUtils.checkOrientation(va, vb, isecLeft[1]) > 0){
+        leftPoint = isecLeft[1];
+      } else {
+        leftPoint = isecLeft[2];
+      }
+      if (MathUtils.checkOrientation(va, vb, isecRight[1]) > 0){
+        rightPoint = isecRight[1];
+      } else {
+        rightPoint = isecRight[2];
+      }
+      
+      left.add(leftPoint);
+      
+      if(!leftPoint.equals(rightPoint))
+        right.add(rightPoint);
+      
+      Collections.reverse(left);
+      right.addAll(left);
+      debug("outer Polygon: " + right);
+      
+      return new OrderedListPolygon(right);
+    }
     
-//    private VisInOut setVisInOut(Polygon polygon, RPAPoint p1, RPAPoint p2){
-//      List<Point> points = polygon.getPoints();
-//      
-//      int p1Index = points.indexOf(p1);
-//      
-//      Point next = points.get((p1Index + 1) % points.size());
-//      Point prev =
-//          points.get((points.size() + p1Index - 1) % points.size());
-//
-//      //TODO: why triangle
-//      if (next.equals(prev)) {
-//        debug("trianlge => visible and inside");
-//        return VisInOut.BOTH;
-//      }
-//      double angle1 = innerCuttingAngle(next, p1, prev);
-//      double angle2 = innerCuttingAngle(next, p1, p2);
-//      int compare = MathUtils.doubleCompare(angle1, angle2);
-//      if (compare > 0) {
-//        debug("test for cutting angle: " + angle1 + " > " +
-//            angle2 + " => inside");
-//        return VisInOut.FROMINSIDE;
-//      } else if (compare < 0) {
-//        debug("test for cutting angle: " + angle1 + " < " +
-//            angle2 + " => outside");
-//        return VisInOut.FROMOUTSIDE;
-//      } else {
-//        debug("test for cutting angle: " + angle1 + " == " +
-//            angle2 + " => both");
-//        return VisInOut.BOTH;
-//      }
-//    }
-    
+    private List<Point> collectVerticesUntilLastIntersection(Polygon polygon, Ray ray){
+      List<Point> points = polygon.getPoints();
+      int size = points.size();
+
+      ArrayList<Point> list = new ArrayList<Point>(size);
+      list.add(ray._support);
+      
+      Point[] lastIsec = polygon.lastIntersection(ray);
+      
+      if(lastIsec == null){
+        return list;
+      }
+      
+      debug(lastIsec[0]);
+
+      int index = list.indexOf(ray._support); 
+      while(true) {
+        index = (index + 1) % size;
+        debug(index);
+        Point curr = points.get(index);
+
+        list.add(curr);
+
+        if(lastIsec[1] == curr){
+          list.add(lastIsec[0]);
+          return list;
+        }
+        
+        if(lastIsec[2] == curr){
+          list.add(lastIsec[0]);
+          return list;
+        }
+        //throw new RuntimeException();
+      }
+    }
     
 
     /**
