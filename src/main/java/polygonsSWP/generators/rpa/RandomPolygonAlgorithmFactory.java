@@ -135,9 +135,8 @@ public class RandomPolygonAlgorithmFactory
         // 2.b determine visible region to VaVb -> P'
         //first determine visible region inside polygon
         //then the outer part
-        ArrayList<Point> pointsOuterRegion = new ArrayList<Point>();
         Polygon visibleRegionInside =
-            visiblePolygonRegionFromLineSegment(polygon, boundingBox, Va, Vb, pointsOuterRegion);
+            visiblePolygonRegionFromLineSegment(polygon, boundingBox, Va, Vb);
 
         debug("visible region: " + visibleRegionInside.getPoints() + "\n");
         if (steps != null) {
@@ -223,12 +222,10 @@ public class RandomPolygonAlgorithmFactory
      * @return
      */
     private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon, Polygon boundingBox, 
-        Point p1, Point p2, List<Point> onlyOutside) {
+        Point p1, Point p2) {
     	
       RPAPoint va = new RPAPoint(p1);
       RPAPoint vb = new RPAPoint(p2);
-      onlyOutside.add(vb);
-      onlyOutside.add(va);
       
 
       CircularList<RPAPoint> polygonPoints = new CircularList<RPAPoint>();
@@ -316,10 +313,8 @@ public class RandomPolygonAlgorithmFactory
 
         // visibility of vi form va and vb
         
-        vi = checkVisibility(polygon, vi, va, vb);
-        if (vi.state == State.OUT){
-          onlyOutside.add(vi);
-        }
+
+        
         boolean fromVa = isVertexVisibleFromInside(polygon, va, vi);
         boolean fromVb = isVertexVisibleFromInside(polygon, vb, vi);
 
@@ -491,7 +486,6 @@ public class RandomPolygonAlgorithmFactory
         RPAPoint current = clonePoints.get(i);
         if (current.state != State.DEL) visibleRegionPoints.add(current);
       }
-      System.out.println(onlyOutside);
       return new OrderedListPolygon(visibleRegionPoints);
     }
     
@@ -528,21 +522,52 @@ public class RandomPolygonAlgorithmFactory
     
     
     private RPAPoint checkVisibility(Polygon polygon, RPAPoint p, RPAPoint va, RPAPoint vb){
+      if(p.state != State.NN)
+        return p;
+      
     	p.visVa = GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(polygon, va, p);
     	p.visVb = GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(polygon, vb, p);
     	
-    	p.visInOutVa = setVisInOut(polygon, va, p);
-    	p.visInOutVb = setVisInOut(polygon, vb, p);
+    	if (p.visVa)
+        p.visInOutVa = setVisInOut(polygon, va, p);
+    	if (p.visVb)
+    	  p.visInOutVb = setVisInOut(polygon, vb, p);
     	
-    	//TODO: set state correctly
-    	p.state = State.NN;
+    	p.setState();
     	
     	return p;    	
     }
     
     private VisInOut setVisInOut(Polygon polygon, RPAPoint p1, RPAPoint p2){
-      //TODO: decide visInOut correctly
-      return VisInOut.NONE;
+      List<Point> points = polygon.getPoints();
+      
+      int p1Index = points.indexOf(p1);
+      
+      Point next = points.get((p1Index + 1) % points.size());
+      Point prev =
+          points.get((points.size() + p1Index - 1) % points.size());
+
+      //TODO: why triangle
+      if (next.equals(prev)) {
+        debug("trianlge => visible and inside");
+        return VisInOut.BOTH;
+      }
+      double angle1 = innerCuttingAngle(next, p1, prev);
+      double angle2 = innerCuttingAngle(next, p1, p2);
+      int compare = MathUtils.doubleCompare(angle1, angle2);
+      if (compare > 0) {
+        debug("test for cutting angle: " + angle1 + " > " +
+            angle2 + " => inside");
+        return VisInOut.FROMINSIDE;
+      } else if (compare < 0) {
+        debug("test for cutting angle: " + angle1 + " < " +
+            angle2 + " => outside");
+        return VisInOut.FROMOUTSIDE;
+      } else {
+        debug("test for cutting angle: " + angle1 + " == " +
+            angle2 + " => both");
+        return VisInOut.BOTH;
+      }
     }
     
     

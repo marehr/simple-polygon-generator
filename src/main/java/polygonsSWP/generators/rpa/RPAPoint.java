@@ -8,6 +8,10 @@ public class RPAPoint
   
   public RPAPoint(Point point){
     super(point.x, point.y);
+    visVa = false;
+    visVb = false;
+    visInOutVa = VisInOut.NONE;
+    visInOutVb = VisInOut.NONE;
     state = State.NN;
   }
   
@@ -22,5 +26,21 @@ public class RPAPoint
   public VisInOut visInOutVb;
   
   public State state;
+
+  public void setState() {
+    if (!visVa || !visVb) {
+      state = State.DEL;
+    }
+    else if (visInOutVa == VisInOut.BOTH && visInOutVb == VisInOut.BOTH){
+      state = State.BOTH;
+    }
+    else if ((visInOutVa == VisInOut.FROMINSIDE || visInOutVa == VisInOut.BOTH) && 
+             (visInOutVb == VisInOut.FROMINSIDE || visInOutVb == VisInOut.BOTH)){
+      state = State.IN;
+    }
+    else {
+      state = State.OUT;
+    }
+  }
   
 }
