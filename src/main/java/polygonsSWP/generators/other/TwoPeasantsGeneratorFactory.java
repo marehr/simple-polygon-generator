@@ -70,7 +70,7 @@ public class TwoPeasantsGeneratorFactory
       List<Point> plist = new LinkedList<Point>();
       
       if(steps != null)
-        steps.newScene().addPoints(points, false).save();
+        steps.newScene().addPoints(points, true).save();
       
       // Sort point list by x-coordinate.
       Collections.sort(points, Point.XCompare);
@@ -95,7 +95,7 @@ public class TwoPeasantsGeneratorFactory
       OrderedListPolygon olp = new OrderedListPolygon(plist);
       
       if(steps != null)
-        steps.newScene().addPolygon(olp, false).save();
+        steps.newScene().addPolygon(olp, true).save();
       
       return olp;
     }
@@ -111,12 +111,18 @@ public class TwoPeasantsGeneratorFactory
         switch(oriented) {
           case 1:
             plist.add(p);
+            if(steps != null) {
+              steps.newScene()
+                .addPoint(first, true)
+                .addPoint(last, true)
+                .addPolygon(new OrderedListPolygon(plist), true)
+                .save();
+            }
             break;
           case 0:
             throw new RuntimeException("Point set not in general position.");
         }
       }
     }
-    
   }
 }
