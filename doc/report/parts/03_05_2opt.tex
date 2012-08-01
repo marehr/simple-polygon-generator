@@ -1,0 +1,31 @@
+\subsection{2-Opt Moves}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.3\textwidth]{img/2opt200.eps}
+\end{center}
+\caption{Polygon mit 200 Punkten (2-Opt Moves)}
+\label{fig:2opt200}
+\end{figure}
+
+\emph{2-Opt Moves} ist ein einfacher, randomisierter Algorithmus zur Erzeugung von simplen Polygonen, implementiert nach einer Beschreibung von Martin Held in~\cite{held98polygons}. 
+\subsubsection{Algorithmus}
+Im ersten Schritt des Algorithmus werden die Punkte einer gegebenen Punktmenge zufällig zu einem komplexen Polygon verbunden, ähnlich der Vorgehensweise von \emph{Permute \& Reject}. Anschließend werden die Überschneidungen der Kanten des Polygons mit Hilfe eines sogenannten \enquote{2-opt move} repariert (s. Abbildung~\ref{fig:2optmove}), bis ein überschneidungsfreies Polygon entstanden ist.
+
+\begin{figure}[h]
+\begin{center}
+\subfigure[Vorher]{
+\includegraphics[width=0.4\textwidth]{img/2optbefore.eps}
+\label{fig:2optbefore}
+}
+\subfigure[Nachher]{
+\includegraphics[width=0.4\textwidth]{img/2optafter.eps}
+\label{fig:2optafter}
+}
+\end{center}
+\caption{Beispiel eines 2-Opt Move}
+\label{fig:2optmove}
+\end{figure}
+
+\subsubsection{Eigenschaften}
+Die Laufzeit des Algorithmus wird in der Arbeit von Martin Held mit $\bigO(n^4)$ klassifiziert. Die resultierenden Polygone wirken sehr zufällig und weisen (im Gegensatz bspw. zu \emph{Steady Growth}) keinerlei vorherrschende \enquote{Kantenrichtung} auf.
