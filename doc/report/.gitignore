@@ -1,2 +1,5 @@
 *.dvi
 *.fdb_latexmk
+*.pdf
+*~
+
