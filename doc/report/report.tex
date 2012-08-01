@@ -4,11 +4,11 @@
 \usepackage{lmodern}           
 \usepackage[ngerman]{babel}
 
-% Was wir vielleicht brauchen koennten:
-%\usepackage{amsmath} % More math.
+
 %\usepackage[perpage,bottom]{footmisc} % Footnote configuration.
 
-% Was wir ziemlich sicher brauchen:
+\usepackage{amsmath} % More math.
+\usepackage{amssymb} % More symbols.
 \usepackage{fancyhdr} % For header and footer format
 %\usepackage{fancyref} % For fancy references
 \usepackage{listings} % For code listings
@@ -72,7 +72,7 @@ pdfauthor={Steve Dierker, Marcel Ehrhardt, Jannis Ihrig, Malte Rohde, Sebastian 
 
 % Listing environment for C
 \lstnewenvironment{code}[1][]
-  {\minipage{\linewidth} 
+  {\noindent\minipage{\linewidth} 
    \lstset{language=C,#1}}
   {\endminipage}
 
@@ -105,6 +105,8 @@ pdfauthor={Steve Dierker, Marcel Ehrhardt, Jannis Ihrig, Malte Rohde, Sebastian 
 
 \pagenumbering{arabic}
 \pagestyle{fancy}
+\lhead[]{}
+\rhead[\nouppercase{\rightmark}]{\nouppercase{\rightmark}}
 \setcounter{page}{1}
 
 % Hier hin unsere Kapitel.

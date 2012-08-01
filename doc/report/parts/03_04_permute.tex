@@ -1,6 +1,8 @@
 \subsection{Permute \& Reject}
-\emph{Permute \& Reject} ist ein einfacher Algorithmus von Martin Held, zuerst beschrieben in~\cite{held98polygons}. Der Algorithmus basiert auf der zufälligen Erzeugung von $n$ Kanten zwischen $n$ gegebenen Punkten, sodass von jedem Punkt zwei Kanten ausgehen.
+\emph{Permute \& Reject} ist der einfachste in der Software enthaltenene Algorithmus zur Erzeugung von simplen Polygonen, implementiert nach eine Beschreibung von Martin Held in~\cite{held98polygons}.
 \subsubsection{Algorithmus}
+Der Algorithmus basiert auf der zufälligen Erzeugung von $n$ Kanten zwischen $n$ gegebenen Punkten, sodass von jedem Punkt zwei Kanten ausgehen. Anschließend wird überprüft, ob das entstandene Polygon \enquote{simpel}, d.h. überschneidungsfrei ist. Falls nicht, wird das Polygon verworfen und von vorne begonnen.
+
 \begin{code}[caption={Permute \& Reject},label=permutelisting,mathescape=true]
 retry:
 $P$ $\leftarrow$ given set of points
@@ -12,4 +14,6 @@ while ($P$ not empty)
 if resulting polygon is NOT simple
   goto retry
 \end{code}
+
 \subsubsection{Eigenschaften}
+bla
