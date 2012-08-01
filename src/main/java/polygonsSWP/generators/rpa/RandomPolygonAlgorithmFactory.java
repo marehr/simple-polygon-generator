@@ -129,14 +129,23 @@ public class RandomPolygonAlgorithmFactory
         if (dostop) break;
         // 2.a select random line segment VaVb
         // (assumed that there will be less than 2^31-1 points)
-        int randomIndex = random.nextInt(polygonPoints.size());
-        Point Vb = polygonPoints.get(randomIndex);
-        Point Va = polygonPoints.get((randomIndex + 1) % polygonPoints.size());
+        
+        CircularList<RPAPoint> polyPoints = new CircularList<RPAPoint>();
+        for (Point point : polygon.getPoints()) {
+          polyPoints.add(new RPAPoint(point));
+        }
+
+        CircularList<RPAPoint> clonePoints = (CircularList<RPAPoint>) polyPoints.clone();
+        
+        
+        int randomIndex = random.nextInt(polyPoints.size());
+        RPAPoint vb = polyPoints.get(randomIndex);
+        RPAPoint va = polyPoints.get((randomIndex + 1) % polyPoints.size());
         // 2.b determine visible region to VaVb -> P'
         //first determine visible region inside polygon
         //then the outer part
         Polygon visibleRegionInside =
-            visiblePolygonRegionFromLineSegment(polygon, boundingBox, Va, Vb);
+            visiblePolygonRegionFromLineSegment(polygon, boundingBox, polyPoints, clonePoints, va, vb, true);
 
         debug("visible region: " + visibleRegionInside.getPoints() + "\n");
         if (steps != null) {
@@ -221,28 +230,16 @@ public class RandomPolygonAlgorithmFactory
      * @param p2
      * @return
      */
-    private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon, Polygon boundingBox, 
-        Point p1, Point p2) {
-    	
-      RPAPoint va = new RPAPoint(p1);
-      RPAPoint vb = new RPAPoint(p2);
+    private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon, Polygon boundingBox, CircularList<RPAPoint> polyPoints, CircularList<RPAPoint> clonePoints, 
+        RPAPoint va, RPAPoint vb, boolean inside) {
       
-
-      CircularList<RPAPoint> polygonPoints = new CircularList<RPAPoint>();
-      for (Point point : polygon.getPoints()) {
-        polygonPoints.add(new RPAPoint(point));
-      }
       debug("va, vb: " + va + vb + "\n");
+      
+      va = checkVisibility(polygon, va, va, vb);
+      //va.state = State.BOTH;
+      vb = checkVisibility(polygon, vb, va, vb);
 
-      /* a. Set clone with polygon. */
-
-      CircularList<RPAPoint> clonePoints = new CircularList<RPAPoint>();
-      for (RPAPoint point : polygonPoints) {
-        clonePoints.add(new RPAPoint(point));
-      }
-      clonePoints.get(polygonPoints.indexOf(va)).state = State.BOTH;
-      clonePoints.get(polygonPoints.indexOf(vb)).state = State.BOTH;
-
+      
       /*
        * b. intersect Line VaVb with clone, take first intersection on each side
        * of line, if existent, insert them into clone
@@ -291,7 +288,7 @@ public class RandomPolygonAlgorithmFactory
       ListIterator<RPAPoint> cloneIter =
           clonePoints.listIterator(clonePoints.indexOf(va));
       ListIterator<RPAPoint> polygonIter =
-          polygonPoints.listIterator(polygonPoints.indexOf(va));
+          polyPoints.listIterator(polyPoints.indexOf(va));
       RPAPoint prev = lastVisible;
       
       int k = 0;
@@ -314,7 +311,8 @@ public class RandomPolygonAlgorithmFactory
         // visibility of vi form va and vb
         
 
-        
+        vi = checkVisibility(polygon, vi, va, vb);
+            
         boolean fromVa = isVertexVisibleFromInside(polygon, va, vi);
         boolean fromVb = isVertexVisibleFromInside(polygon, vb, vi);
 
@@ -476,7 +474,7 @@ public class RandomPolygonAlgorithmFactory
           }
         }
         // synchronize previous
-        if (vi.equals(polygonPoints.get(polygonIter.nextIndex()))) {
+        if (vi.equals(polyPoints.get(polygonIter.nextIndex()))) {
           prev = polygonIter.next();
         }
         debug("end of minorLoop1 \n");
