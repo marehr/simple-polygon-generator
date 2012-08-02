@@ -195,9 +195,9 @@ public class RandomPolygonAlgorithmFactory
         }
 
         Triangle selectedTriangle;
-        if (visibleRegionInside.size() > 3) {
+        if (mergedPolygon.size() > 3) {
           List<Triangle> triangles =
-              ((OrderedListPolygon) visibleRegionInside).triangulate();
+              ((OrderedListPolygon) mergedPolygon).triangulate();
           debug("Triangulation: ");
           for (Triangle triangle : triangles) {
             debug(triangle.getPoints());
@@ -214,7 +214,7 @@ public class RandomPolygonAlgorithmFactory
           }
         }
         else {
-          selectedTriangle = new Triangle(visibleRegionInside.getPoints());
+          selectedTriangle = new Triangle(mergedPolygon.getPoints());
           debug("SelectedRegion is whole polygon.");
           if (steps != null) {
             scene2.addPolygon(
@@ -273,7 +273,7 @@ public class RandomPolygonAlgorithmFactory
 
       RPAPoint vb = polyPoints.get(randomIndex);
       RPAPoint va = polyPoints.get((randomIndex + 1) % polyPoints.size());
-
+      
       debug("va, vb: " + va + vb + "\n");
 
       va.visVa = true;
@@ -390,10 +390,10 @@ public class RandomPolygonAlgorithmFactory
           scene.save();
         }
         
-        if (vi.state == State.IN) {
+        if (vi.state == State.IN || vi.state == State.BOTH) {
           debug("visible from va and vb");
           // case 1 viPrev visible from va and vb
-          if (prev.state == State.IN) {
+          if (prev.state == State.IN || prev.state == State.BOTH) {
             debug("case 1: set last visible");
             lastVisible = vi;
           }
@@ -483,14 +483,22 @@ public class RandomPolygonAlgorithmFactory
 
             Point[] u1 = polygon.firstIntersection(r1);
             Point[] u2 = polygon.firstIntersection(r2);
+            
+            if (u1 != null)
+              debug("intersection 2 rays u1[0]: " + u1[0] + ", visible from va: " + isVertexVisibleFromInside(polygon, va, u1[0]) + ", visible from vb: " + isVertexVisibleFromInside(polygon, vb, u1[0]) + ", not in clonePoints: " + !clonePoints.contains(u1[0]));
+            if (u2!=null)
+              debug("intersection 2 rays u2[0]: " + u2[0]);
 
+            debug("gobba1");
             if (u1 != null &&
-                isVertexVisibleFromInside(polygon,
-                    va, u1[0]) &&
-                isVertexVisibleFromInside(polygon,
-                    vb, u1[0]) && !clonePoints.contains(u1[0])) {
+                isVertexVisibleFromInside(polygon, va, u1[0]) &&
+                isVertexVisibleFromInside(polygon, vb, u1[0]) && 
+                !clonePoints.contains(u1[0])) {
+              debug("gobba2");
               insertTripleIntoPolygon(clonePoints, u1);
               lastVisible = new RPAPoint(u1[0]);
+              debug(clonePoints.indexOf(lastVisible));
+              debug("state of inserted point" + lastVisible.state);
               debug("inserting: " + u1[0] + " , also last visible");
               if (steps != null) scene.addPoint(u1[0], Color.GREEN);
             }
@@ -538,16 +546,25 @@ public class RandomPolygonAlgorithmFactory
      */
     private boolean insertTripleIntoPolygon(List<RPAPoint> clonePoints,
         Point[] triple) {
-      if (!(clonePoints.contains(triple[1]) && clonePoints.contains(triple[2]))) return false;
+      if (!(clonePoints.contains(triple[1]) || !clonePoints.contains(triple[2]))) return false;
       else {
         int indx1 = clonePoints.indexOf(triple[1]);
         int indx2 = clonePoints.indexOf(triple[2]);
         List<RPAPoint> sublist;
-        if (indx1 < indx2) sublist = clonePoints.subList(indx1, indx2 + 1);
-        else sublist = clonePoints.subList(indx2, indx1 + 1);
-        for (int i = 0; i < sublist.size() - 1; i++) {
-          if (new LineSegment(sublist.get(i), sublist.get(i + 1)).containsPoint(triple[0])) {
-            sublist.add(i + 1, new RPAPoint(triple[0]));
+        if (indx1 < indx2){
+          sublist = clonePoints.subList(indx1, indx2 + 1);
+          debug(sublist);
+        }
+        else {
+          sublist = clonePoints.subList(indx2, indx1 + 1);
+          debug("index1: " + indx1 + " index2: " + indx2 + " sublist: " + sublist);
+        }
+        for (int i = 0; i < sublist.size(); i++) {
+          debug(i);
+          debug((i + 1) % sublist.size());
+          if (new LineSegment(sublist.get(i), sublist.get((i + 1) % sublist.size())).containsPoint(triple[0])) {
+            debug("inserting at index: " + (i + 1));
+            sublist.add(i + 1 , new RPAPoint(triple[0]));
             return true;
           }
         }
