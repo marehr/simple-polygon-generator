@@ -134,25 +134,28 @@ public class RandomPolygonAlgorithmFactory
         //then the outer part
 
         // index von vb
-        int randomIndex = random.nextInt(polygon.size());
+        int indexVb = random.nextInt(polygon.size());
+        Point vb = polygon.getPoint(indexVb);
 
+        // TODO: make va first point in visibleRegionInside and vb last point
         Polygon visibleRegionInside =
-            visiblePolygonRegionFromLineSegment(polygon, boundingBox, randomIndex);
+            visiblePolygonRegionFromLineSegment(polygon, boundingBox, indexVb);
 
-        Polygon outerPolygon = outerPolygon(polygon, boundingBox, randomIndex);
+        Polygon outerPolygon = outerPolygon(polygon, boundingBox, indexVb);
 
         // index von vb
         int index = outerPolygon.size() - 1;
+
         Polygon visibleRegionOutside =
           visiblePolygonRegionFromLineSegment(outerPolygon, boundingBox, index);
 
-        Polygon mergedPolygon = mergeInnerAndOuterRegion(visibleRegionInside, visibleRegionOutside, randomIndex);
+        // TODO after: make va first point in visibleRegionInside and vb last point
+        // -> remove search for vb in mergeInnerAndOuterRegion
+        Polygon mergedPolygon = mergeInnerAndOuterRegion(visibleRegionInside, visibleRegionOutside, vb);
 
         assert(visibleRegionInside.isClockwise() <= 0);
         assert(visibleRegionOutside.isClockwise() <= 0);
         assert(outerPolygon.isClockwise() <= 0);
-
-
 
         debug("visible region: " + visibleRegionInside.getPoints() + "\n");
 
@@ -223,7 +226,7 @@ public class RandomPolygonAlgorithmFactory
         }
 
         // 2.d add line segments VaVc and VcVb (delete line segment VaVb)
-        polygonPoints.add((randomIndex + 1) % polygonPoints.size(), randomPoint);
+        polygonPoints.add((indexVb + 1) % polygonPoints.size(), randomPoint);
         debug("new polygon" + polygon.getPoints());
         debug("-----------------\n");
 
@@ -564,12 +567,35 @@ public class RandomPolygonAlgorithmFactory
     	return vi;    	
     }
 
-    private Polygon mergeInnerAndOuterRegion(Polygon inner, Polygon outer, int indexVb) {
+    private Polygon mergeInnerAndOuterRegion(Polygon inner, Polygon outer, Point vb) {
       // TODO: remove duplicated boundary points by va and vb
       // TODO: make it really work
-      ArrayList<Point> poly = new ArrayList<Point>(inner.getPoints());
-      poly.addAll((indexVb + 1) % inner.size(), outer.getPoints());
-      return new OrderedListPolygon(poly);
+      int indexVb = inner.getPoints().indexOf(vb);
+      int indexVa = (indexVb + 1) % inner.size();
+
+//      Point vb = inner.getPoint(indexVb);
+//      Point va = inner.getPoint(indexVa);
+
+//      debug("----------------");
+//      debug("mergeInnerAndOuter!!");
+//      debug("indexVb: " + indexVb);
+//      debug("indexVa: " + indexVa);
+//      debug("vb: " + vb);
+//      debug("va: " + va);
+//      debug("inner: " + inner.getPoints());
+//      debug("outer: " + outer.getPoints());
+
+      // TODO: remove copying
+      ArrayList<Point> innerPoints = new ArrayList<Point>(inner.getPoints()),
+                       outerPoints = new ArrayList<Point>(outer.getPoints());
+
+      // NOTICE: outers first point is vb and last point is va
+      outerPoints.remove(0);
+      outerPoints.remove(outerPoints.size() - 1);
+
+      innerPoints.addAll(indexVa, outerPoints);
+      debug("poly: " + innerPoints);
+      return new OrderedListPolygon(innerPoints);
     }
 
     /**
