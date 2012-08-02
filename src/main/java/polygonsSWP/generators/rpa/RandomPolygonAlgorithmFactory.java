@@ -550,24 +550,53 @@ public class RandomPolygonAlgorithmFactory
         Point[] triple) {
       if (!(clonePoints.contains(triple[1]) || !clonePoints.contains(triple[2]))) return false;
       else {
-        int indx1 = clonePoints.indexOf(triple[1]);
-        int indx2 = clonePoints.indexOf(triple[2]);
-        List<RPAPoint> sublist;
-        if (indx1 < indx2){
-          sublist = clonePoints.subList(indx1, indx2 + 1);
-          debug(sublist);
+        
+        // find out which index is the lowest
+        int index1 = -1;
+        int index2 = -1;
+        
+        int tempnIdex1 = clonePoints.indexOf(triple[1]);
+        int tempnIdex2 = clonePoints.indexOf(triple[2]);
+        
+        if (tempnIdex1 < tempnIdex2) {
+          index1 = tempnIdex1;
+          index2 = tempnIdex2;
+        } else {
+          index1 = tempnIdex2;
+          index2 = tempnIdex1;
         }
-        else {
-          sublist = clonePoints.subList(indx2, indx1 + 1);
-          debug("index1: " + indx1 + " index2: " + indx2 + " sublist: " + sublist);
-        }
-        for (int i = 0; i < sublist.size(); i++) {
-          debug(i);
-          debug((i + 1) % sublist.size());
-          if (new LineSegment(sublist.get(i), sublist.get((i + 1) % sublist.size())).containsPoint(triple[0])) {
-            debug("inserting at index: " + (i + 1));
-            sublist.add(i + 1 , new RPAPoint(triple[0]));
-            return true;
+        
+        // calculate number of points between triple[1] and triple[2]
+        // first cc-wise, second c-wise
+        // take the shorter path
+        
+        int size = clonePoints.size();
+        
+        if ((size - index1) - (size - index2) <= index1 + (size - 4)) {
+          // path from triple[1] to triple[2] cc-wise shorter
+          RPAPoint curr = clonePoints.get(index1);
+          ListIterator<RPAPoint> iter = clonePoints.listIterator(index1);
+          RPAPoint next = iter.next();
+          while(curr != clonePoints.get(index2)){
+            if(new LineSegment(curr, next).containsPoint(triple[0])){
+              clonePoints.add(clonePoints.indexOf(next), new RPAPoint(triple[0]));
+              return true;
+            }
+            curr = next;
+            next = iter.next();
+          }
+        } else {
+          // path from triple[1] to triple[2] c-wise shorter
+          RPAPoint curr = clonePoints.get(index1);
+          ListIterator<RPAPoint> iter = clonePoints.listIterator(index1);
+          RPAPoint next = iter.previous();
+          while(curr != clonePoints.get(index2)){
+            if(new LineSegment(curr, next).containsPoint(triple[0])){
+              clonePoints.add(clonePoints.indexOf(curr), new RPAPoint(triple[0]));
+              return true;
+            }
+            curr = next;
+            next = iter.previous();
           }
         }
       }
