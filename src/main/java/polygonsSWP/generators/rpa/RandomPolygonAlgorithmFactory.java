@@ -128,40 +128,54 @@ public class RandomPolygonAlgorithmFactory
         if (dostop) break;
         // 2.a select random line segment VaVb
         // (assumed that there will be less than 2^31-1 points)
-        
-        CircularList<RPAPoint> polyPoints = new CircularList<RPAPoint>();
-        for (Point point : polygon.getPoints()) {
-          polyPoints.add(new RPAPoint(point));
-        }
 
-        CircularList<RPAPoint> clonePoints = (CircularList<RPAPoint>) polyPoints.clone();
-        
-        int randomIndex = random.nextInt(polyPoints.size());
-        RPAPoint vb = polyPoints.get(randomIndex);
-        RPAPoint va = polyPoints.get((randomIndex + 1) % polyPoints.size());
         // 2.b determine visible region to VaVb -> P'
         //first determine visible region inside polygon
         //then the outer part
+
+        // index von vb
+        int randomIndex = random.nextInt(polygon.size());
+
         Polygon visibleRegionInside =
-            visiblePolygonRegionFromLineSegment(polygon, boundingBox, polyPoints, clonePoints, va, vb, true);
-        
-        Polygon outerPolygon = outerPolygon(polygon, boundingBox, va, vb);
-        
-        
-//        Collections.reverse(polyPoints);
-//        Collections.reverse(clonePoints);
-//        
-//        Polygon visibleRegionOutside = 
-//            visiblePolygonRegionFromLineSegment(polygon, boundingBox, polyPoints, clonePoints, vb, va, false);
+            visiblePolygonRegionFromLineSegment(polygon, boundingBox, randomIndex);
+
+        Polygon outerPolygon = outerPolygon(polygon, boundingBox, randomIndex);
+
+        // index von vb
+        int index = outerPolygon.size() - 1;
+        Polygon visibleRegionOutside =
+          visiblePolygonRegionFromLineSegment(outerPolygon, boundingBox, index);
+
+        Polygon mergedPolygon = mergeInnerAndOuterRegion(visibleRegionInside, visibleRegionOutside, randomIndex);
+
+        assert(visibleRegionInside.isClockwise() <= 0);
+        assert(visibleRegionOutside.isClockwise() <= 0);
+        assert(outerPolygon.isClockwise() <= 0);
+
+
 
         debug("visible region: " + visibleRegionInside.getPoints() + "\n");
+
         if (steps != null) {
-          Scene scene = steps.newScene();
-          scene.addPolygon(boundingBox, false);
-          scene.addPolygon(polygon, true);
-          scene.addPolygon(visibleRegionInside, Color.GREEN);
-          scene.addPolygon(outerPolygon, Color.CYAN);
-          scene.save();
+          Scene scene1 = steps.newScene();
+          scene1.addPolygon(polygon, true);
+          scene1.addPolygon(boundingBox, false);
+          scene1.addPolygon(outerPolygon, Color.CYAN);
+          scene1.save();
+
+          Scene scene2 = steps.newScene();
+          scene2.addPolygon(boundingBox, false);
+          scene2.addPolygon(polygon, true);
+          scene2.addPolygon(visibleRegionInside, Color.GREEN);
+          scene2.addPolygon(outerPolygon, Color.CYAN);
+          scene2.addPolygon(visibleRegionOutside, Color.GREEN.darker());
+          scene2.save();
+
+          Scene scene3 = steps.newScene();
+          scene3.addPolygon(boundingBox, false);
+          scene3.addPolygon(polygon, true);
+          scene3.addPolygon(mergedPolygon, Color.GREEN);
+          scene3.save();
         }
 
         // 2.c randomly select point Vc in P'
@@ -238,13 +252,22 @@ public class RandomPolygonAlgorithmFactory
      * @param p2
      * @return
      */
-    private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon, Polygon boundingBox, CircularList<RPAPoint> polyPoints, CircularList<RPAPoint> clonePoints, 
-        RPAPoint va, RPAPoint vb, boolean inside) {
-        
-      
+    private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon, Polygon boundingBox,
+        int randomIndex) {
+
+      CircularList<RPAPoint> polyPoints = new CircularList<RPAPoint>();
+      for (Point point : polygon.getPoints()) {
+        polyPoints.add(new RPAPoint(point));
+      }
+
+      @SuppressWarnings("unchecked")
+      CircularList<RPAPoint> clonePoints = (CircularList<RPAPoint>) polyPoints.clone();
+
+      RPAPoint vb = polyPoints.get(randomIndex);
+      RPAPoint va = polyPoints.get((randomIndex + 1) % polyPoints.size());
+
       debug("va, vb: " + va + vb + "\n");
-      
-      
+
       va.visVa = true;
       va.visVb = true;
       va.visVaIns = true;
@@ -541,82 +564,119 @@ public class RandomPolygonAlgorithmFactory
     	return vi;    	
     }
 
-    private Polygon outerPolygon(Polygon polygon, Polygon boundingBox, RPAPoint va, RPAPoint vb){
+    private Polygon mergeInnerAndOuterRegion(Polygon inner, Polygon outer, int indexVb) {
+      // TODO: remove duplicated boundary points by va and vb
+      // TODO: make it really work
+      ArrayList<Point> poly = new ArrayList<Point>(inner.getPoints());
+      poly.addAll((indexVb + 1) % inner.size(), outer.getPoints());
+      return new OrderedListPolygon(poly);
+    }
+
+    /**
+     * WICHTIG: erster Punkt vom Polygon ist va und letzter Punkt vom ist vb
+     */
+    private Polygon outerPolygon(Polygon polygon, Polygon boundingBox, int randomIndex){
+      List<Point> polyPoints = polygon.getPoints();
+
+      Point vb = polyPoints.get(randomIndex);
+      Point va = polyPoints.get((randomIndex + 1) % polyPoints.size());
+
+      List<Point> bounds = new LinkedList<Point>(boundingBox.getPoints());
+
       Ray rayVaVb = new Ray(va, vb);
       Ray rayVbVa = new Ray(vb, va);
-      
+
       List<Point> left = collectVerticesUntilLastIntersection(polygon, rayVbVa);
-      
+
       Collections.reverse(polygon.getPoints());
+
       List<Point> right = collectVerticesUntilLastIntersection(polygon, rayVaVb);
-      Collections.reverse(polygon.getPoints());
-      
+      Collections.reverse(polyPoints);
+
+      debug("right: "+ right + "\nleft: " + left);
+
       Point[] isecLeft  = boundingBox.firstIntersection(rayVbVa),
               isecRight = boundingBox.firstIntersection(rayVaVb);
 
+      // add intersection points
       left.add(isecLeft[0]);
       right.add(isecRight[0]);
-      
-      
+
+      // remove checked boundaries
+      bounds.remove(isecLeft[1]);
+      bounds.remove(isecLeft[2]);
+      bounds.remove(isecRight[1]);
+      bounds.remove(isecRight[2]);
+
       // adding points of boundary box to new polygon
       Point leftPoint = null;
       Point rightPoint = null;
+
       if (MathUtils.checkOrientation(va, vb, isecLeft[1]) > 0){
         leftPoint = isecLeft[1];
       } else {
         leftPoint = isecLeft[2];
       }
+
       if (MathUtils.checkOrientation(va, vb, isecRight[1]) > 0){
         rightPoint = isecRight[1];
       } else {
         rightPoint = isecRight[2];
       }
-      
+
       left.add(leftPoint);
-      
+
       if(!leftPoint.equals(rightPoint))
         right.add(rightPoint);
-      
+
+      // if one boundary is still unchecked, check it now
+      if(bounds.size() > 0 && MathUtils.checkOrientation(va, vb, bounds.get(0)) > 0) {
+        left.add(bounds.get(0));
+      }
+
       Collections.reverse(left);
+
+      debug("right: "+ right + "\nleft: " + left);
       right.addAll(left);
       debug("outer Polygon: " + right);
-      
+
       return new OrderedListPolygon(right);
     }
-    
-    private List<Point> collectVerticesUntilLastIntersection(Polygon polygon, Ray ray){
+
+    private List<Point> collectVerticesUntilLastIntersection(Polygon polygon, Ray ray) {
       List<Point> points = polygon.getPoints();
       int size = points.size();
 
       ArrayList<Point> list = new ArrayList<Point>(size);
-      list.add(ray._support);
-      
+
       Point[] lastIsec = polygon.lastIntersection(ray);
-      
+
+      // wenn der ray keine Polygon Ecke trifft,
+      // dann treffen wir die BoundingBox als naechstes.
+      // Um Kolinearitaet im OuterPolygon zu vermeiden, fuegen
+      // wir hier NICHT ray._support hinzu, so dass der
+      // BoundingBox Schnittpunkt, dass neue va bzw. vb wird.
       if(lastIsec == null){
         return list;
       }
-      
-      debug(lastIsec[0]);
 
-      int index = list.indexOf(ray._support); 
+      int index = points.indexOf(ray._support);
+
       while(true) {
-        index = (index + 1) % size;
-        debug(index);
         Point curr = points.get(index);
+        index = (index + 1) % size;
 
         list.add(curr);
 
         if(lastIsec[1] == curr){
-          list.add(lastIsec[0]);
+          list.add(lastIsec[2]);
           return list;
         }
-        
+
         if(lastIsec[2] == curr){
-          list.add(lastIsec[0]);
+          list.add(lastIsec[1]);
           return list;
         }
-        //throw new RuntimeException();
       }
     }
     

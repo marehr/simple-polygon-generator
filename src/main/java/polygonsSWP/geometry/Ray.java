@@ -83,4 +83,8 @@ public class Ray
   public Ray clone() {
     return new Ray(_base.clone(), _support.clone());
   }
+
+  public String toString(){
+    return "Ray[" + _base + "," + _support + "]";
+  }
 }
