@@ -546,8 +546,8 @@ public class RandomPolygonAlgorithmFactory
       Ray rayVbVa = new Ray(vb, va);
       
       List<Point> left = collectVerticesUntilLastIntersection(polygon, rayVbVa);
+      
       Collections.reverse(polygon.getPoints());
-
       List<Point> right = collectVerticesUntilLastIntersection(polygon, rayVaVb);
       Collections.reverse(polygon.getPoints());
       
