@@ -666,51 +666,56 @@ public class RandomPolygonAlgorithmFactory
       Ray rayVaVb = new Ray(va, vb);
       Ray rayVbVa = new Ray(vb, va);
 
-      List<Point> left = collectVerticesUntilLastIntersection(polygon, rayVbVa);
+      Point[] isecPolygonLeft = polygon.lastIntersection(rayVbVa);
+      Point[] isecPolygonRight = polygon.lastIntersection(rayVaVb);
 
-      Collections.reverse(polygon.getPoints());
+      Point[] isecBoundaryLeft  = boundingBox.firstIntersection(rayVbVa),
+              isecBoundaryRight = boundingBox.firstIntersection(rayVaVb);
 
-      List<Point> right = collectVerticesUntilLastIntersection(polygon, rayVaVb);
+      List<Point> left = collectVerticesUntilLastIntersection(polygon, va, isecPolygonLeft, isecPolygonRight, isecBoundaryLeft, isecBoundaryRight);
       Collections.reverse(polyPoints);
+
+      List<Point> right = collectVerticesUntilLastIntersection(polygon, vb, isecPolygonRight, isecPolygonLeft, isecBoundaryRight, isecBoundaryLeft);
+      Collections.reverse(polyPoints);
+
+      int isLeft = 1;
+      if(left.get(left.size() -1 ) == isecBoundaryRight[0]){
+        isLeft = -1;
+      }
 
       debug("right: "+ right + "\nleft: " + left);
 
-      Point[] isecLeft  = boundingBox.firstIntersection(rayVbVa),
-              isecRight = boundingBox.firstIntersection(rayVaVb);
-
       // add intersection points
-      left.add(isecLeft[0]);
-      right.add(isecRight[0]);
 
       // remove checked boundaries
-      bounds.remove(isecLeft[1]);
-      bounds.remove(isecLeft[2]);
-      bounds.remove(isecRight[1]);
-      bounds.remove(isecRight[2]);
+      bounds.remove(isecBoundaryLeft[1]);
+      bounds.remove(isecBoundaryLeft[2]);
+      bounds.remove(isecBoundaryRight[1]);
+      bounds.remove(isecBoundaryRight[2]);
 
       // adding points of boundary box to new polygon
       Point leftPoint = null;
       Point rightPoint = null;
 
-      if (MathUtils.checkOrientation(va, vb, isecLeft[1]) > 0){
-        leftPoint = isecLeft[1];
+      if (isLeft * MathUtils.checkOrientation(va, vb, isecBoundaryLeft[1]) > 0){
+        leftPoint = isecBoundaryLeft[1];
       } else {
-        leftPoint = isecLeft[2];
+        leftPoint = isecBoundaryLeft[2];
       }
 
-      if (MathUtils.checkOrientation(va, vb, isecRight[1]) > 0){
-        rightPoint = isecRight[1];
+      if (isLeft * MathUtils.checkOrientation(va, vb, isecBoundaryRight[1]) > 0){
+        rightPoint = isecBoundaryRight[1];
       } else {
-        rightPoint = isecRight[2];
+        rightPoint = isecBoundaryRight[2];
       }
 
-      left.add(leftPoint);
+      left.add(isLeft == 1 ? leftPoint : rightPoint);
 
       if(!leftPoint.equals(rightPoint))
-        right.add(rightPoint);
+        right.add(isLeft == 1 ? rightPoint : leftPoint);
 
       // if one boundary is still unchecked, check it now
-      if(bounds.size() > 0 && MathUtils.checkOrientation(va, vb, bounds.get(0)) > 0) {
+      if(bounds.size() > 0 && isLeft * MathUtils.checkOrientation(va, vb, bounds.get(0)) > 0) {
         left.add(bounds.get(0));
       }
 
@@ -723,26 +728,29 @@ public class RandomPolygonAlgorithmFactory
       return new OrderedListPolygon(right);
     }
 
-    private List<Point> collectVerticesUntilLastIntersection(Polygon polygon, Ray ray) {
+    private List<Point> collectVerticesUntilLastIntersection(Polygon polygon,
+        Point startPoint,
+        Point[] isecPolygonLeft, Point[] isecPolygonRight,
+        Point[] isecBoundaryLeft, Point[] isecBoundaryRight) {
+
       List<Point> points = polygon.getPoints();
       int size = points.size();
 
       ArrayList<Point> list = new ArrayList<Point>(size);
-      list.add(ray._support);
-
-      Point[] lastIsec = polygon.lastIntersection(ray);
+      list.add(startPoint);
 
       // TODO: REMOVE COMMENT ist doch wrong :D
       // wenn der ray keine Polygon Ecke trifft,
       // dann treffen wir die BoundingBox als naechstes.
       // Um Kolinearitaet im OuterPolygon zu vermeiden, fuegen
-      // wir hier NICHT ray._support hinzu, so dass der
+      // wir hier NICHT startPoint hinzu, so dass der
       // BoundingBox Schnittpunkt, dass neue va bzw. vb wird.
-      if(lastIsec == null){
+      if(isecPolygonLeft == null){
+        list.add(isecBoundaryLeft[0]);
         return list;
       }
 
-      int index = points.indexOf(ray._support);
+      int index = points.indexOf(startPoint);
 
       while(true) {
         index = (index + 1) % size;
@@ -750,13 +758,33 @@ public class RandomPolygonAlgorithmFactory
 
         list.add(curr);
 
-        if(lastIsec[1] == curr){
-          list.add(lastIsec[2]);
+        if(isecPolygonLeft[1] == curr){
+          //list.add(isecPolygonLeft[2]);
+          list.add(isecPolygonLeft[0]);
+          list.add(isecBoundaryLeft[0]);
           return list;
         }
 
-        if(lastIsec[2] == curr){
-          list.add(lastIsec[1]);
+        if(isecPolygonLeft[2] == curr){
+          //list.add(isecPolygonLeft[1]);
+          list.add(isecPolygonLeft[0]);
+          list.add(isecBoundaryLeft[0]);
+          return list;
+        }
+
+        if(isecPolygonRight == null) continue;
+
+        if(isecPolygonRight[1] == curr){
+          //list.add(isecPolygonRight[2]);
+          list.add(isecPolygonRight[0]);
+          list.add(isecBoundaryRight[0]);
+          return list;
+        }
+
+        if(isecPolygonRight[2] == curr){
+          //list.add(isecPolygonRight[1]);
+          list.add(isecPolygonRight[0]);
+          list.add(isecBoundaryRight[0]);
           return list;
         }
       }
