@@ -128,26 +128,27 @@ public class RandomPolygonAlgorithmFactory
         if (dostop) break;
         // 2.a select random line segment VaVb
         // (assumed that there will be less than 2^31-1 points)
-        
-        CircularList<RPAPoint> polyPoints = new CircularList<RPAPoint>();
-        for (Point point : polygon.getPoints()) {
-          polyPoints.add(new RPAPoint(point));
-        }
 
-        CircularList<RPAPoint> clonePoints = (CircularList<RPAPoint>) polyPoints.clone();
-        
-        int randomIndex = random.nextInt(polyPoints.size());
-        RPAPoint vb = polyPoints.get(randomIndex);
-        RPAPoint va = polyPoints.get((randomIndex + 1) % polyPoints.size());
+        int randomIndex = random.nextInt(polygon.size());
+
         // 2.b determine visible region to VaVb -> P'
         //first determine visible region inside polygon
         //then the outer part
         Polygon visibleRegionInside =
-            visiblePolygonRegionFromLineSegment(polygon, boundingBox, polyPoints, clonePoints, va, vb, true);
-        
-        Polygon outerPolygon = outerPolygon(polygon, boundingBox, va, vb);
-        
-        
+            visiblePolygonRegionFromLineSegment(polygon, boundingBox, randomIndex);
+
+        Polygon outerPolygon = outerPolygon(polygon, boundingBox, randomIndex);
+
+        Point va = polygon.getPointInRange(randomIndex + 1);
+        int index = (outerPolygon.getPoints().indexOf(va) + 1) % outerPolygon.size();
+
+        Polygon visibleRegionOutside =
+          visiblePolygonRegionFromLineSegment(outerPolygon, boundingBox, index);
+
+        assert(visibleRegionInside.isClockwise() <= 0);
+        assert(visibleRegionOutside.isClockwise() <= 0);
+        assert(outerPolygon.isClockwise() <= 0);
+
 //        Collections.reverse(polyPoints);
 //        Collections.reverse(clonePoints);
 //        
@@ -155,6 +156,7 @@ public class RandomPolygonAlgorithmFactory
 //            visiblePolygonRegionFromLineSegment(polygon, boundingBox, polyPoints, clonePoints, vb, va, false);
 
         debug("visible region: " + visibleRegionInside.getPoints() + "\n");
+
         if (steps != null) {
           Scene scene1 = steps.newScene();
           scene1.addPolygon(polygon, true);
@@ -162,12 +164,13 @@ public class RandomPolygonAlgorithmFactory
           scene1.addPolygon(outerPolygon, Color.CYAN);
           scene1.save();
 
-          Scene scene = steps.newScene();
-          scene.addPolygon(boundingBox, false);
-          scene.addPolygon(polygon, true);
-          scene.addPolygon(visibleRegionInside, Color.GREEN);
-          scene.addPolygon(outerPolygon, Color.CYAN);
-          scene.save();
+          Scene scene2 = steps.newScene();
+          scene2.addPolygon(boundingBox, false);
+          scene2.addPolygon(polygon, true);
+          scene2.addPolygon(visibleRegionInside, Color.GREEN);
+          scene2.addPolygon(outerPolygon, Color.CYAN);
+          scene2.addPolygon(visibleRegionOutside, Color.GREEN.darker());
+          scene2.save();
         }
 
         // 2.c randomly select point Vc in P'
@@ -244,13 +247,22 @@ public class RandomPolygonAlgorithmFactory
      * @param p2
      * @return
      */
-    private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon, Polygon boundingBox, CircularList<RPAPoint> polyPoints, CircularList<RPAPoint> clonePoints, 
-        RPAPoint va, RPAPoint vb, boolean inside) {
-        
-      
+    private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon, Polygon boundingBox,
+        int randomIndex) {
+
+      CircularList<RPAPoint> polyPoints = new CircularList<RPAPoint>();
+      for (Point point : polygon.getPoints()) {
+        polyPoints.add(new RPAPoint(point));
+      }
+
+      @SuppressWarnings("unchecked")
+      CircularList<RPAPoint> clonePoints = (CircularList<RPAPoint>) polyPoints.clone();
+
+      RPAPoint vb = polyPoints.get(randomIndex);
+      RPAPoint va = polyPoints.get((randomIndex + 1) % polyPoints.size());
+
       debug("va, vb: " + va + vb + "\n");
-      
-      
+
       va.visVa = true;
       va.visVb = true;
       va.visVaIns = true;
@@ -547,7 +559,14 @@ public class RandomPolygonAlgorithmFactory
     	return vi;    	
     }
 
-    private Polygon outerPolygon(Polygon polygon, Polygon boundingBox, RPAPoint va, RPAPoint vb){
+    /**
+     * WICHTIG: erster Punkt vom Polygon ist va und letzter Punkt vom ist vb
+     */
+    private Polygon outerPolygon(Polygon polygon, Polygon boundingBox, int randomIndex){
+      List<Point> polyPoints = polygon.getPoints();
+
+      Point vb = polyPoints.get(randomIndex);
+      Point va = polyPoints.get((randomIndex + 1) % polyPoints.size());
 
       List<Point> bounds = new LinkedList<Point>(boundingBox.getPoints());
 
@@ -555,16 +574,25 @@ public class RandomPolygonAlgorithmFactory
       Ray rayVbVa = new Ray(vb, va);
 
       List<Point> left = collectVerticesUntilLastIntersection(polygon, rayVbVa);
-      Collections.reverse(polygon.getPoints());
+      Collections.reverse(polyPoints);
 
       List<Point> right = collectVerticesUntilLastIntersection(polygon, rayVaVb);
-      Collections.reverse(polygon.getPoints());
+      Collections.reverse(polyPoints);
+
+      debug("right: "+ right + "\nleft: " + left);
 
       Point[] isecLeft  = boundingBox.firstIntersection(rayVbVa),
               isecRight = boundingBox.firstIntersection(rayVaVb);
 
+      // add intersection points
       left.add(isecLeft[0]);
       right.add(isecRight[0]);
+
+      // remove checked boundaries
+      bounds.remove(isecLeft[1]);
+      bounds.remove(isecLeft[2]);
+      bounds.remove(isecRight[1]);
+      bounds.remove(isecRight[2]);
 
       // adding points of boundary box to new polygon
       Point leftPoint = null;
@@ -582,13 +610,6 @@ public class RandomPolygonAlgorithmFactory
         rightPoint = isecRight[2];
       }
 
-      // remove checked boundaries
-      bounds.remove(isecLeft[1]);
-      bounds.remove(isecLeft[2]);
-      bounds.remove(isecRight[1]);
-      bounds.remove(isecRight[2]);
-
-      // add boundaries
       left.add(leftPoint);
 
       if(!leftPoint.equals(rightPoint))
@@ -600,12 +621,14 @@ public class RandomPolygonAlgorithmFactory
       }
 
       Collections.reverse(left);
+
+      debug("right: "+ right + "\nleft: " + left);
       right.addAll(left);
       debug("outer Polygon: " + right);
 
       return new OrderedListPolygon(right);
     }
-    
+
     private List<Point> collectVerticesUntilLastIntersection(Polygon polygon, Ray ray) {
       List<Point> points = polygon.getPoints();
       int size = points.size();
@@ -628,12 +651,12 @@ public class RandomPolygonAlgorithmFactory
         list.add(curr);
 
         if(lastIsec[1] == curr){
-          list.add(lastIsec[0]);
+          list.add(lastIsec[2]);
           return list;
         }
 
         if(lastIsec[2] == curr){
-          list.add(lastIsec[0]);
+          list.add(lastIsec[1]);
           return list;
         }
       }
