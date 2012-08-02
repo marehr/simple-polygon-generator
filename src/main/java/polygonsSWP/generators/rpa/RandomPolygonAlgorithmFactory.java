@@ -11,6 +11,7 @@ import java.util.Map;
 import polygonsSWP.util.Random;
 
 import polygonsSWP.data.History;
+import polygonsSWP.data.HistoryScene;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
 import polygonsSWP.generators.IllegalParameterizationException;
@@ -134,41 +135,47 @@ public class RandomPolygonAlgorithmFactory
         //then the outer part
 
         // index von vb
-        int randomIndex = random.nextInt(polygon.size());
+        int indexVb = random.nextInt(polygon.size());
+        int indexVa = (indexVb+1) % polygon.size();
+        Point vb = polygon.getPoint(indexVb);
+        Point va = polygon.getPoint(indexVa);
 
+        // TODO: make va first point in visibleRegionInside and vb last point
         Polygon visibleRegionInside =
-            visiblePolygonRegionFromLineSegment(polygon, boundingBox, randomIndex);
+            visiblePolygonRegionFromLineSegment(polygon, boundingBox, indexVb, null);
 
-        Polygon outerPolygon = outerPolygon(polygon, boundingBox, randomIndex);
+        Polygon outerPolygon = outerPolygon(polygon, boundingBox, indexVb);
 
         // index von vb
         int index = outerPolygon.size() - 1;
-        Polygon visibleRegionOutside =
-          visiblePolygonRegionFromLineSegment(outerPolygon, boundingBox, index);
 
-        Polygon mergedPolygon = mergeInnerAndOuterRegion(visibleRegionInside, visibleRegionOutside, randomIndex);
+        Scene mergeInScene = null;
+        if(steps != null) {
+          mergeInScene = steps.newScene();
+          mergeInScene.addPolygon(polygon, true);
+        }
+
+        Polygon visibleRegionOutside =
+          visiblePolygonRegionFromLineSegment(outerPolygon, boundingBox, index, mergeInScene);
+
+        // TODO after: make va first point in visibleRegionInside and vb last point
+        // -> remove search for vb in mergeInnerAndOuterRegion
+        Polygon mergedPolygon = mergeInnerAndOuterRegion(visibleRegionInside, visibleRegionOutside, vb);
 
         assert(visibleRegionInside.isClockwise() <= 0);
         assert(visibleRegionOutside.isClockwise() <= 0);
         assert(outerPolygon.isClockwise() <= 0);
 
-
-
         debug("visible region: " + visibleRegionInside.getPoints() + "\n");
 
         if (steps != null) {
-          Scene scene1 = steps.newScene();
-          scene1.addPolygon(polygon, true);
-          scene1.addPolygon(boundingBox, false);
-          scene1.addPolygon(outerPolygon, Color.CYAN);
-          scene1.save();
-
           Scene scene2 = steps.newScene();
           scene2.addPolygon(boundingBox, false);
           scene2.addPolygon(polygon, true);
           scene2.addPolygon(visibleRegionInside, Color.GREEN);
-          scene2.addPolygon(outerPolygon, Color.CYAN);
+          scene2.addPolygon(outerPolygon, HistoryScene.POLYCOLOR.darker());
           scene2.addPolygon(visibleRegionOutside, Color.GREEN.darker());
+          scene2.addLineSegment(new LineSegment(va, vb), true);
           scene2.save();
 
           Scene scene3 = steps.newScene();
@@ -223,7 +230,7 @@ public class RandomPolygonAlgorithmFactory
         }
 
         // 2.d add line segments VaVc and VcVb (delete line segment VaVb)
-        polygonPoints.add((randomIndex + 1) % polygonPoints.size(), randomPoint);
+        polygonPoints.add((indexVb + 1) % polygonPoints.size(), randomPoint);
         debug("new polygon" + polygon.getPoints());
         debug("-----------------\n");
 
@@ -248,12 +255,13 @@ public class RandomPolygonAlgorithmFactory
      * 
      * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
      * @param polygon
+     * @param mergeInScene 
      * @param p1
      * @param p2
      * @return
      */
     private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon, Polygon boundingBox,
-        int randomIndex) {
+        int randomIndex, Scene mergeInScene) {
 
       CircularList<RPAPoint> polyPoints = new CircularList<RPAPoint>();
       for (Point point : polygon.getPoints()) {
@@ -278,7 +286,7 @@ public class RandomPolygonAlgorithmFactory
       vb.visVaIns = true;
       vb.visVbIns = true;
       vb.state = State.BOTH;
-      
+
       /*
        * b. intersect Line VaVb with clone, take first intersection on each side
        * of line, if existent, insert them into clone
@@ -286,12 +294,18 @@ public class RandomPolygonAlgorithmFactory
 
       LineSegment vaVb = new LineSegment(va, vb);
 
-      Scene scene = null;
+      Scene baseScene = null, scene = null;
       if (steps != null) {
+        Color fill = HistoryScene.POLYCOLOR;
+
+        baseScene = steps.newScene();
+        baseScene.mergeScene(mergeInScene);
+        baseScene.addPolygon(polygon, mergeInScene == null ? fill : fill.darker());
+        baseScene.addPolygon(boundingBox, false);
+        baseScene.addLineSegment(vaVb, true);
+
         scene = steps.newScene();
-        scene.addPolygon(boundingBox, false);
-        scene.addPolygon(polygon, true);
-        scene.addLineSegment(vaVb, true);
+        scene.mergeScene(baseScene);
       }
 
       Ray rayVaVb = new Ray(va, vb);
@@ -362,9 +376,8 @@ public class RandomPolygonAlgorithmFactory
 
         if (steps != null) {
           scene = steps.newScene();
-          scene.addPolygon(boundingBox, false);
-          scene.addPolygon(polygon, true);
-          scene.addLineSegment(vaVb, true);
+          scene.mergeScene(baseScene);
+
           if (vi.visVaIns && vi.visVbIns) scene.addPoint(vi, Color.GREEN);
           else if (vi.visVaIns && !vi.visVbIns) scene.addPoint(vi, Color.ORANGE);
           else if (!vi.visVaIns && vi.visVbIns) scene.addPoint(vi, Color.PINK);
@@ -394,9 +407,7 @@ public class RandomPolygonAlgorithmFactory
 
             if (steps != null) {
               scene = steps.newScene();
-              scene.addPolygon(boundingBox, false);
-              scene.addPolygon(polygon, true);
-              scene.addLineSegment(vaVb, true);
+              scene.mergeScene(baseScene);
 
               if (r1._base != r1._support) scene.addRay(r1, Color.YELLOW);
               if (r2._base != r2._support) scene.addRay(r2, Color.YELLOW);
@@ -464,9 +475,7 @@ public class RandomPolygonAlgorithmFactory
 
             if (steps != null) {
               scene = steps.newScene();
-              scene.addPolygon(boundingBox, false);
-              scene.addPolygon(polygon, true);
-              scene.addLineSegment(vaVb, true);
+              scene.mergeScene(baseScene);
 
               if (r1._base != r1._support) scene.addRay(r1, Color.YELLOW);
               if (r2._base != r2._support) scene.addRay(r2, Color.YELLOW);
@@ -564,12 +573,35 @@ public class RandomPolygonAlgorithmFactory
     	return vi;    	
     }
 
-    private Polygon mergeInnerAndOuterRegion(Polygon inner, Polygon outer, int indexVb) {
+    private Polygon mergeInnerAndOuterRegion(Polygon inner, Polygon outer, Point vb) {
       // TODO: remove duplicated boundary points by va and vb
       // TODO: make it really work
-      ArrayList<Point> poly = new ArrayList<Point>(inner.getPoints());
-      poly.addAll((indexVb + 1) % inner.size(), outer.getPoints());
-      return new OrderedListPolygon(poly);
+      int indexVb = inner.getPoints().indexOf(vb);
+      int indexVa = (indexVb + 1) % inner.size();
+
+//      Point vb = inner.getPoint(indexVb);
+//      Point va = inner.getPoint(indexVa);
+
+//      debug("----------------");
+//      debug("mergeInnerAndOuter!!");
+//      debug("indexVb: " + indexVb);
+//      debug("indexVa: " + indexVa);
+//      debug("vb: " + vb);
+//      debug("va: " + va);
+//      debug("inner: " + inner.getPoints());
+//      debug("outer: " + outer.getPoints());
+
+      // TODO: remove copying
+      ArrayList<Point> innerPoints = new ArrayList<Point>(inner.getPoints()),
+                       outerPoints = new ArrayList<Point>(outer.getPoints());
+
+      // NOTICE: outers first point is vb and last point is va
+      outerPoints.remove(0);
+      outerPoints.remove(outerPoints.size() - 1);
+
+      innerPoints.addAll(indexVa, outerPoints);
+      debug("poly: " + innerPoints);
+      return new OrderedListPolygon(innerPoints);
     }
 
     /**
@@ -648,9 +680,11 @@ public class RandomPolygonAlgorithmFactory
       int size = points.size();
 
       ArrayList<Point> list = new ArrayList<Point>(size);
+      list.add(ray._support);
 
       Point[] lastIsec = polygon.lastIntersection(ray);
 
+      // TODO: REMOVE COMMENT ist doch wrong :D
       // wenn der ray keine Polygon Ecke trifft,
       // dann treffen wir die BoundingBox als naechstes.
       // Um Kolinearitaet im OuterPolygon zu vermeiden, fuegen
@@ -663,8 +697,8 @@ public class RandomPolygonAlgorithmFactory
       int index = points.indexOf(ray._support);
 
       while(true) {
-        Point curr = points.get(index);
         index = (index + 1) % size;
+        Point curr = points.get(index);
 
         list.add(curr);
 
