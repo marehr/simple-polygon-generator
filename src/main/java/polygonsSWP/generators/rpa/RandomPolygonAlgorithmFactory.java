@@ -324,7 +324,9 @@ public class RandomPolygonAlgorithmFactory
       if (isec2 != null && !clonePoints.contains(isec2[0])) {
         insertTripleIntoPolygon(clonePoints, isec2);
         debug("inserting " + isec2[0]);
-        scene.addPoint(isec2[0], true);
+        if (scene != null) {
+          scene.addPoint(isec2[0], true);
+        }
       }
       debug("clone points after extension: " + clonePoints);
       if (scene != null) {
