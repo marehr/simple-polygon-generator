@@ -129,31 +129,30 @@ public class RandomPolygonAlgorithmFactory
         // 2.a select random line segment VaVb
         // (assumed that there will be less than 2^31-1 points)
 
-        int randomIndex = random.nextInt(polygon.size());
-
         // 2.b determine visible region to VaVb -> P'
         //first determine visible region inside polygon
         //then the outer part
+
+        // index von vb
+        int randomIndex = random.nextInt(polygon.size());
+
         Polygon visibleRegionInside =
             visiblePolygonRegionFromLineSegment(polygon, boundingBox, randomIndex);
 
         Polygon outerPolygon = outerPolygon(polygon, boundingBox, randomIndex);
 
-        Point va = polygon.getPointInRange(randomIndex + 1);
-        int index = (outerPolygon.getPoints().indexOf(va) + 1) % outerPolygon.size();
-
+        // index von vb
+        int index = outerPolygon.size() - 1;
         Polygon visibleRegionOutside =
           visiblePolygonRegionFromLineSegment(outerPolygon, boundingBox, index);
+
+        Polygon mergedPolygon = mergeInnerAndOuterRegion(visibleRegionInside, visibleRegionOutside, randomIndex);
 
         assert(visibleRegionInside.isClockwise() <= 0);
         assert(visibleRegionOutside.isClockwise() <= 0);
         assert(outerPolygon.isClockwise() <= 0);
 
-//        Collections.reverse(polyPoints);
-//        Collections.reverse(clonePoints);
-//        
-//        Polygon visibleRegionOutside = 
-//            visiblePolygonRegionFromLineSegment(polygon, boundingBox, polyPoints, clonePoints, vb, va, false);
+
 
         debug("visible region: " + visibleRegionInside.getPoints() + "\n");
 
@@ -171,6 +170,12 @@ public class RandomPolygonAlgorithmFactory
           scene2.addPolygon(outerPolygon, Color.CYAN);
           scene2.addPolygon(visibleRegionOutside, Color.GREEN.darker());
           scene2.save();
+
+          Scene scene3 = steps.newScene();
+          scene3.addPolygon(boundingBox, false);
+          scene3.addPolygon(polygon, true);
+          scene3.addPolygon(mergedPolygon, Color.GREEN);
+          scene3.save();
         }
 
         // 2.c randomly select point Vc in P'
@@ -559,6 +564,14 @@ public class RandomPolygonAlgorithmFactory
     	return vi;    	
     }
 
+    private Polygon mergeInnerAndOuterRegion(Polygon inner, Polygon outer, int indexVb) {
+      // TODO: remove duplicated boundary points by va and vb
+      // TODO: make it really work
+      ArrayList<Point> poly = new ArrayList<Point>(inner.getPoints());
+      poly.addAll((indexVb + 1) % inner.size(), outer.getPoints());
+      return new OrderedListPolygon(poly);
+    }
+
     /**
      * WICHTIG: erster Punkt vom Polygon ist va und letzter Punkt vom ist vb
      */
@@ -634,10 +647,14 @@ public class RandomPolygonAlgorithmFactory
       int size = points.size();
 
       ArrayList<Point> list = new ArrayList<Point>(size);
-      list.add(ray._support);
 
       Point[] lastIsec = polygon.lastIntersection(ray);
 
+      // wenn der ray keine Polygon Ecke trifft,
+      // dann treffen wir die BoundingBox als naechstes.
+      // Um Kolinearitaet im OuterPolygon zu vermeiden, fuegen
+      // wir hier NICHT ray._support hinzu, so dass der
+      // BoundingBox Schnittpunkt, dass neue va bzw. vb wird.
       if(lastIsec == null){
         return list;
       }
@@ -645,8 +662,8 @@ public class RandomPolygonAlgorithmFactory
       int index = points.indexOf(ray._support);
 
       while(true) {
-        index = (index + 1) % size;
         Point curr = points.get(index);
+        index = (index + 1) % size;
 
         list.add(curr);
 
