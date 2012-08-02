@@ -72,13 +72,13 @@ public class HistoryScene
   }
 
   //light blue for polygons
-  public final Color polyColor = new Color(0xa2cdfd);
+  public static final Color POLYCOLOR = new Color(0xa2cdfd);
 
   // red for lines (rays, linesegment...)
-  public final Color lineColor = new Color(0xae0000);
+  public static final Color LINECOLOR = new Color(0xae0000);
 
   // green for points
-  public final Color pointColor = new Color(0x007426);
+  public static final Color POINTCOLOR = new Color(0x007426);
 
   private LinkedList<Box<Polygon>> _polyList;
   private LinkedList<Box<Line>> _lineList;
@@ -264,7 +264,7 @@ public class HistoryScene
 
   @Override
   public Scene addPolygon(Polygon polygon, Boolean highlight) {
-    return addPolygon(polygon, highlight ? polyColor : null);
+    return addPolygon(polygon, highlight ? POLYCOLOR : null);
   }
 
   @Override
@@ -275,7 +275,7 @@ public class HistoryScene
 
   @Override
   public Scene addLine(Line line, Boolean highlight) {
-    return addLine(line, highlight ? lineColor : null);
+    return addLine(line, highlight ? LINECOLOR : null);
   }
 
   @Override
@@ -286,7 +286,7 @@ public class HistoryScene
 
   @Override
   public Scene addLineSegment(LineSegment linesegment, Boolean highlight) {
-    return addLineSegment(linesegment, highlight ? lineColor : null);
+    return addLineSegment(linesegment, highlight ? LINECOLOR : null);
   }
 
   @Override
@@ -297,7 +297,7 @@ public class HistoryScene
 
   @Override
   public Scene addRay(Ray ray, Boolean highlight) {
-    return addRay(ray, highlight ? lineColor : null);
+    return addRay(ray, highlight ? LINECOLOR : null);
   }
 
   @Override
@@ -314,12 +314,12 @@ public class HistoryScene
 
   @Override
   public Scene addPoint(Point point, Boolean highlight) {
-    return addPoint(point, highlight? pointColor : null);
+    return addPoint(point, highlight? POINTCOLOR : null);
   }
 
   @Override
   public Scene addPoints(List<Point> points, Boolean highlight) {
-    return addPoints(points, highlight? pointColor : null);
+    return addPoints(points, highlight? POINTCOLOR : null);
   }
 
   @Override

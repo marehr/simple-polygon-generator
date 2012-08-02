@@ -11,6 +11,7 @@ import java.util.Map;
 import polygonsSWP.util.Random;
 
 import polygonsSWP.data.History;
+import polygonsSWP.data.HistoryScene;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
 import polygonsSWP.generators.IllegalParameterizationException;
@@ -135,19 +136,27 @@ public class RandomPolygonAlgorithmFactory
 
         // index von vb
         int indexVb = random.nextInt(polygon.size());
+        int indexVa = (indexVb+1) % polygon.size();
         Point vb = polygon.getPoint(indexVb);
+        Point va = polygon.getPoint(indexVa);
 
         // TODO: make va first point in visibleRegionInside and vb last point
         Polygon visibleRegionInside =
-            visiblePolygonRegionFromLineSegment(polygon, boundingBox, indexVb);
+            visiblePolygonRegionFromLineSegment(polygon, boundingBox, indexVb, null);
 
         Polygon outerPolygon = outerPolygon(polygon, boundingBox, indexVb);
 
         // index von vb
         int index = outerPolygon.size() - 1;
 
+        Scene mergeInScene = null;
+        if(steps != null) {
+          mergeInScene = steps.newScene();
+          mergeInScene.addPolygon(polygon, true);
+        }
+
         Polygon visibleRegionOutside =
-          visiblePolygonRegionFromLineSegment(outerPolygon, boundingBox, index);
+          visiblePolygonRegionFromLineSegment(outerPolygon, boundingBox, index, mergeInScene);
 
         // TODO after: make va first point in visibleRegionInside and vb last point
         // -> remove search for vb in mergeInnerAndOuterRegion
@@ -160,18 +169,13 @@ public class RandomPolygonAlgorithmFactory
         debug("visible region: " + visibleRegionInside.getPoints() + "\n");
 
         if (steps != null) {
-          Scene scene1 = steps.newScene();
-          scene1.addPolygon(polygon, true);
-          scene1.addPolygon(boundingBox, false);
-          scene1.addPolygon(outerPolygon, Color.CYAN);
-          scene1.save();
-
           Scene scene2 = steps.newScene();
           scene2.addPolygon(boundingBox, false);
           scene2.addPolygon(polygon, true);
           scene2.addPolygon(visibleRegionInside, Color.GREEN);
-          scene2.addPolygon(outerPolygon, Color.CYAN);
+          scene2.addPolygon(outerPolygon, HistoryScene.POLYCOLOR.darker());
           scene2.addPolygon(visibleRegionOutside, Color.GREEN.darker());
+          scene2.addLineSegment(new LineSegment(va, vb), true);
           scene2.save();
 
           Scene scene3 = steps.newScene();
@@ -251,12 +255,13 @@ public class RandomPolygonAlgorithmFactory
      * 
      * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
      * @param polygon
+     * @param mergeInScene 
      * @param p1
      * @param p2
      * @return
      */
     private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon, Polygon boundingBox,
-        int randomIndex) {
+        int randomIndex, Scene mergeInScene) {
 
       CircularList<RPAPoint> polyPoints = new CircularList<RPAPoint>();
       for (Point point : polygon.getPoints()) {
@@ -281,7 +286,7 @@ public class RandomPolygonAlgorithmFactory
       vb.visVaIns = true;
       vb.visVbIns = true;
       vb.state = State.BOTH;
-      
+
       /*
        * b. intersect Line VaVb with clone, take first intersection on each side
        * of line, if existent, insert them into clone
@@ -289,12 +294,18 @@ public class RandomPolygonAlgorithmFactory
 
       LineSegment vaVb = new LineSegment(va, vb);
 
-      Scene scene = null;
+      Scene baseScene = null, scene = null;
       if (steps != null) {
+        Color fill = HistoryScene.POLYCOLOR;
+
+        baseScene = steps.newScene();
+        baseScene.mergeScene(mergeInScene);
+        baseScene.addPolygon(polygon, mergeInScene == null ? fill : fill.darker());
+        baseScene.addPolygon(boundingBox, false);
+        baseScene.addLineSegment(vaVb, true);
+
         scene = steps.newScene();
-        scene.addPolygon(boundingBox, false);
-        scene.addPolygon(polygon, true);
-        scene.addLineSegment(vaVb, true);
+        scene.mergeScene(baseScene);
       }
 
       Ray rayVaVb = new Ray(va, vb);
@@ -365,9 +376,8 @@ public class RandomPolygonAlgorithmFactory
 
         if (steps != null) {
           scene = steps.newScene();
-          scene.addPolygon(boundingBox, false);
-          scene.addPolygon(polygon, true);
-          scene.addLineSegment(vaVb, true);
+          scene.mergeScene(baseScene);
+
           if (vi.visVaIns && vi.visVbIns) scene.addPoint(vi, Color.GREEN);
           else if (vi.visVaIns && !vi.visVbIns) scene.addPoint(vi, Color.ORANGE);
           else if (!vi.visVaIns && vi.visVbIns) scene.addPoint(vi, Color.PINK);
@@ -397,9 +407,7 @@ public class RandomPolygonAlgorithmFactory
 
             if (steps != null) {
               scene = steps.newScene();
-              scene.addPolygon(boundingBox, false);
-              scene.addPolygon(polygon, true);
-              scene.addLineSegment(vaVb, true);
+              scene.mergeScene(baseScene);
 
               if (r1._base != r1._support) scene.addRay(r1, Color.YELLOW);
               if (r2._base != r2._support) scene.addRay(r2, Color.YELLOW);
@@ -467,9 +475,7 @@ public class RandomPolygonAlgorithmFactory
 
             if (steps != null) {
               scene = steps.newScene();
-              scene.addPolygon(boundingBox, false);
-              scene.addPolygon(polygon, true);
-              scene.addLineSegment(vaVb, true);
+              scene.mergeScene(baseScene);
 
               if (r1._base != r1._support) scene.addRay(r1, Color.YELLOW);
               if (r2._base != r2._support) scene.addRay(r2, Color.YELLOW);
