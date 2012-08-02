@@ -133,7 +133,7 @@ public class PolygonGenerationPanel
     historySceneMode = mode;
   }
 
-  public static int counter = 0, maxCounter = 1;
+  public static int counter = 1, maxCounter = 100;
 
   /**
    * Called by polygon generation worker upon successful 
