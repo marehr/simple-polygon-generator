@@ -647,9 +647,11 @@ public class RandomPolygonAlgorithmFactory
       int size = points.size();
 
       ArrayList<Point> list = new ArrayList<Point>(size);
+      list.add(ray._support);
 
       Point[] lastIsec = polygon.lastIntersection(ray);
 
+      // TODO: REMOVE COMMENT ist doch wrong :D
       // wenn der ray keine Polygon Ecke trifft,
       // dann treffen wir die BoundingBox als naechstes.
       // Um Kolinearitaet im OuterPolygon zu vermeiden, fuegen
@@ -662,8 +664,8 @@ public class RandomPolygonAlgorithmFactory
       int index = points.indexOf(ray._support);
 
       while(true) {
-        Point curr = points.get(index);
         index = (index + 1) % size;
+        Point curr = points.get(index);
 
         list.add(curr);
 
