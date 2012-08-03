@@ -37,8 +37,8 @@ $y_i = r * sin(winkel * i)$
 \subsubsection{Verschiebung}
 Eingabeparameter: 
 \begin{itemize}
-	\item simples Polygon(polygon)
 	\item Boundaries(boundary)
+	\item simples Polygon welches in den Boundaries ist(polygon)
 	\item maximale Geschwindigkeit(maxvelocity)
 	\item Anzahl der Durchläufe (iterations)
 \end{itemize}
@@ -46,7 +46,7 @@ Ausgabe:
 \begin{itemize}
 	\item Zufälliges Polygon
 \end{itemize}
-In diesem Teil wird jeder Punkt zufällig verschoben, die maximale Distanz pro Achse wird bestimmt durch den Eingabeparameter maxvelocity. Nach jeder Verschiebung von einem Punkt können folgende Zustände auftreten:
+In diesem Teil wird jeder Punkt zufällig verschoben, die maximale Distanz, die sich ein Punkt pro Achse bewegen kann, wird eingegrenzt durch den Eingabeparameter maxvelocity. Nach jeder Verschiebung von einem Punkt können folgende Zustände auftreten:
 \begin{enumerate}
 	\item Das Polygon ist simpel und in den Grenzen (Boundaries)
 	\item Das Polygon ist simpel aber außerhalb der Grenzen
@@ -76,7 +76,7 @@ for (int i=0; i < iterations; i++)
 In dem Velocity Virmani wird nach jedem Punkt getestet ob das Polygon noch simpel ist. Dies kann bei einer trivialen Implementierung des Tests mit $n^3$ zu sehr hohen Laufzeiten führen.
 Deshalb ist ein trivialer Test nach der Eigenschaft simpel nicht effizient.\smallskip \\ 
 Die Lösung für dieses Problem besteht darin nur die angrenzenden Linien des verschobenen Punktes mit allen anderen Linien auf Überschneidungen zu überprüfen. Eine komplette Überprüfung auf Simplizität ist nicht nötig.
-Der Algorithmus dafür wäre trivial sowie auch würde die Laufzeit für ein Test von $O(n^3)$ auf $O(n)$ sinken.
+Der Algorithmus dafür wäre trivial und würde die Laufzeit für einen Test von $O(n^3)$ auf $O(n)$ sinken.
 
 Vorraussetzung: Polygon muss vor der Verschiebung simpel sein
 Eingabeparameter: Polygon, der verschobene Punkt(u)
@@ -86,9 +86,9 @@ Es werden die beiden zugehörigen Kanten von dem Punkt u genommen. Diese beiden 
 \subsubsection{Eigenschaften}
 \begin{itemize}
 	\item Nichtdeterministisch\\
-	Das Programm ist nichtdeterministisch da es ein Zufallsgenerator nutzt
+	Das Programm ist nichtdeterministisch da es für die Verschiebung von Punkten einen Zufallsgenerator nutzt. Somit kann man davon ausgehen das bei gleicher Eingabe von Parametern nicht immer die gleiche Ausgabe entsteht (für maxvelocity > 0)
 	\item Komplexität: $O(iterations*n^2)$\\
-	Die Komplexität setzt sich zusammen aus der Anzahl der Iterationen, aus der Anzahl der Punkte durch die Iteriert wird um die Verschiebungen durchzuführen sowie nochmal durch die Anzahl der Punkte für die Überprüfung ob es noch simpel ist. Somit ergibt sich eine Laufzeit von $O(iterations*n*n) = O(iterations*n^2)$
+	Die Komplexität setzt sich zusammen aus der Anzahl der Iterationen, aus der Anzahl der Punkte durch welche iteriert wird um die Verschiebungen durchzuführen und nochmal durch die Anzahl der Punkte für den Test auf Simplizität. Somit ergibt sich eine Laufzeit von $O(iterations*n*n) = O(iterations*n^2)$
 	\item Terminiert\\
 	Der Algorithmus terminiert immer da die Anzahl der Schlaufendurchgänge begrenzt ist. Es gibt keinen Zustand im Algorithmus wo er verbleiben kann.
 \end{itemize}
