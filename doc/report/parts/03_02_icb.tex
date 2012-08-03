@@ -1,6 +1,18 @@
 \subsection{Incremental Construction \& Backtracking}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.3\textwidth]{img/icb14.eps}
+\end{center}
+\caption{Polygon mit 14 Punkten (IC\&B)}
+\label{fig:icb14}
+\end{figure}
+
 \emph{Incremental Construction \& Backtracking} (IC\&B) ist ein rekursiver Algorithmus zur Erzeugung von simplen Polygonen, implementiert nach einer Beschreibung von Martin Held in~\cite{held98polygons}. 
 \subsubsection{Algorithmus}
+Die Funktionsweise des Algorithmus ist verhältnismäßig komplex. Ausgehend von einem zufällig gewählten Startpunkt werden rekursiv alle Punkte der gegebenen Punktmenge zur Polygonkette hinzufügt. Zugleich wird in einer speziellen Datenstruktur aufgezeichnet, welche Verbindungen zwischen Punkten aufgrund der zuletzt hinzugefügten Kante des Polygons im weiteren Verlauf des Algorithmus nicht mehr gewählt werden können. Nach dem Hinzufügen eines Punktes zur Polygonkette wird überprüft, ob mit den verbleibenden Punkten ein simples Polygon konstruiert werden kann. Hierzu definiert Held in~\cite{held98polygons} drei Bedingungen, die einzeln und in Reihenfolge auf ihren Wahrheitswert getestet werden. Sollte eine der Bedingungen nicht zutreffen, wird der zuletzt hinzugefügte Punkt wieder entfernt und mit dem nächsten Punkt fortgefahren. Sind ausgehend von einer bestimmten partiellen Polygonkette alle verbleibenden Punkte auf ihre Tauglichkeit als folgender Punkt mit negativem Resultat getestet worden, muss ein weiterer Schritt zurückgegangen werden (\emph{Backtracking}), d.h. ein weiterer Punkt aus der Polygonkette entfernt werden. Für eine weiterführende Erklärung des Algorithmus, siehe~\cite{held98polygons}.
 
+\subsubsection{Eigenschaften \& Implementierungsdetails}
+Obgleich die Anzahl der Backtracking-Schritte durch die Verwendung der Kantenmenge auf ein Minimum beschränkt wird, kann es oftmals vorkommen, dass bereits in den ersten Rekursionsschritten des Algorithmus eine \enquote{ungünstige} Kante hinzugefügt wird. In solchen Fällen erfolgen häufig zunächst eine große Anzahl an Rekursions- und Backtrackingschritten, ehe die \enquote{ungünstige} Kante wieder aus der Polygonkette entfernt wird. Dies führt in Verbindung mit der rechenintensiven Pflege der Kantenmenge zu einer schnell wachsenden Laufzeit des Algorithmus. Im (theoretischen) \emph{worst-case scenario} würden $n!$ Schritt benötigt, entsprechend dem Ausprobieren jeder möglichen Permutation der Punktmenge. In der Praxis war es uns nicht möglich, Polygone mit mehr als 20 Punkten zu erzeugen.
 
-\subsubsection{Eigenschaften}
+Zusätzlich zur für den praktischen Einsatz ungeeignet hohen Laufzeit ist auch der Implementierungsaufwand des Algorithmus nicht zu unterschätzen. Vor allem die Pflege der Kantenmenge im Verlauf der Rekursion und des Backtracking ist durchaus komplex, sodass wir uns in der Implementierung der Einfachheit halber dafür entschieden, in jedem Rekursionsschritt eine Kopie der Kantenmenge anzulegen. Da der Speicherbedarf für die Kantenmenge zumindest quadratisch von der Anzahl der Punkte abhängt, steigt durch diese das asymptotische Wachstum des Speicherbedarfs des Algorithmus auf $\bigO(n^3)$. Aufgrund der geringen möglichen Punktanzahl fällt dieser Speicherbedarf jedoch nicht ins Gewicht.
