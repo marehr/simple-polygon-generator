@@ -15,7 +15,7 @@ Der Algorithmus besteht aus 3 Kernkomponenten:
 \begin{enumerate}
 	\item Die Generierung von einem regulären Polygon with n Punkten
 	\item Zufällige Verschiebungen der Eckpunkte
-	\item Überprüfen ob das Polygon noch simpel ist
+	\item Die Überprüfung ob das Polygon noch simpel ist
 \end{enumerate}
 
 \subsubsection{Generierung des regulären Polygons}
@@ -28,9 +28,9 @@ Ausgabe:
 \begin{itemize} 
 	\item Reguläres Polygon mit n Punkten
 \end{itemize}
-Hier wird ein reguläres Polygon generiert indem ein Kreis genommen wird auf welchem n Punkte gleichmäßig verteilt werden und diese dann verbunden werden. Dazu wird der gesamte Kreisradius genommen(PI*2) und durch die Anzahl der Punkte geteilt(n): $winkel = (PI * 2) / n$.\\ 
+Hier wird ein reguläres Polygon generiert indem man auf einem Kreis n Punkte gleichmäßig verteilt und diese dann miteinander verbindet. Um zu berechnen wo jeder einzelne Punkt gesetzt wird muss vorher der Abstand zwischen jedem Punkt berechnet werden. Dazu nimmt man den vollen Kreisradius (PI*2) und teilt diesen durch die Anzahl der Punkte(n): $winkel = (PI * 2) / n$.\\ 
 Das Ergebnis ist der Abstand, als Winkel, zwischen jedem einzelnen Punkt.
-Mit dem Radius zusammen kann man dann jeweiligen Koordinaten des regulären Polygons berechnen:\\
+Mit dem Radius zusammen kann man dann die jeweiligen Koordinaten des regulären Polygons berechnen:\\
 $x_i = r * cos(winkel * i)$\\
 $y_i = r * sin(winkel * i)$
 
