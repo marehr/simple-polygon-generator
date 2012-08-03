@@ -28,4 +28,4 @@ Im ersten Schritt des Algorithmus werden die Punkte einer gegebenen Punktmenge z
 \end{figure}
 
 \subsubsection{Eigenschaften}
-Die Laufzeit des Algorithmus wird in der Arbeit von Martin Held mit $\bigO(n^4)$ klassifiziert. Die resultierenden Polygone wirken sehr zufällig und weisen (im Gegensatz bspw. zu \emph{Steady Growth}) keinerlei vorherrschende \enquote{Kantenrichtung} auf.
+Laut Held wächst das theoretische Maximum der zur Entfernung aller Schnitte notwendigen 2-Opt moves kubisch mit der Anzahl der gegebenen Punkte, in der Praxis sei die Anzahl der durchgeführten 2-Opt moves jedoch eher quadratisch in Abhängigkeit von $n$. In Verbund mit der von uns implementierten, naiven Polygon-Schnitt-Suche (in $\bigO(n^2)$) erhalten wir ein theoretisches asymptotisches Wachstum der Laufzeit von $\bigO(n^4)$. Da die einzelnen Schritte des Algorithmus jedoch wenig rechenintensiv sind, eignet sich \emph{2-Opt Moves} durchaus zur Konstruktion simpler Polygone mit bis zu 2000 Punkten. Die resultierenden Polygone wirken zudem sehr zufällig und weisen (im Gegensatz bspw. zu \emph{Steady Growth}) keinerlei vorherrschende \enquote{Kantenrichtung} auf.
