@@ -146,13 +146,18 @@ public class OrderedListPolygon
     List<Integer[]> retval = new ArrayList<Integer[]>();
     int size = _coords.size();
     Point[] isect = new Point[1];
+    
+    LineSegment a = new LineSegment(new Point(0,0),new Point(0,0));
+    LineSegment b = new LineSegment(new Point(0,0),new Point(0,0));
+    
     for (int i = 0; i < size - 1; i++) {
-      LineSegment a = new LineSegment(_coords.get(i), _coords.get(i + 1));
+      a._a = _coords.get(i);
+      a._b = _coords.get(i + 1);
 
       // Then test the remaining line segments for intersections
       for (int j = i + 1; j < size; j++) {
-        LineSegment b =
-            new LineSegment(_coords.get(j), _coords.get((j + 1) % size));
+        b._a = _coords.get(j);
+        b._b = _coords.get((j + 1) % size);
 
         isect = a.intersect(b);
         if (isect != null) {

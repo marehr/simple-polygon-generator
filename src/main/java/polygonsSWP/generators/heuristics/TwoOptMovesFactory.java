@@ -81,6 +81,8 @@ public class TwoOptMovesFactory
       }
 
       Integer[] intersection = null;
+      List<Point> op = null;
+      List<Point> np = null;
       while(!doStop && (intersection = p.findRandomIntersection()) != null) {
         // Step 3: Replace intersection (vi,vi+1),(vj,vj+1) 
         // with (vj+1,vi+1),(vj,vi)
@@ -88,8 +90,8 @@ public class TwoOptMovesFactory
         int vi = intersection[0];
         int vj = intersection[1];
         
-        List<Point> op = p.getPoints();
-        List<Point> np = new ArrayList<Point>(op.size());
+        op = p.getPoints();
+        np = new ArrayList<Point>(op.size());
         
         if(steps != null){
           steps.newScene().addPolygon(p, true).addLineSegment(

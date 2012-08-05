@@ -266,6 +266,11 @@ public class GeneratorUtils
     // des Polygons war
     return points[1] == null && points[2] == null;
   }
+  
+  public static void memUsage()
+  {
+	  System.out.println("[MemoryUsage] " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()));
+  }
 
   /**
    * Checks if line segments of given polygon intersect with line segment ab.
