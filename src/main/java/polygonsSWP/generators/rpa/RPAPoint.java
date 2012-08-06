@@ -5,18 +5,37 @@ import polygonsSWP.geometry.Point;
 public class RPAPoint
   extends Point
 {
-  public RPAPoint(double _x, double _y) {
-    super(_x, _y);
-    state = State.NEW;
-  }
   
   public RPAPoint(Point point){
     super(point.x, point.y);
-    state = State.OLD;
+    visVa = false;
+    visVb = false;
+    visVaIns = false;
+    visVbIns = false;
+    state = State.NEW;
   }
-
-  public enum State {OLD, NEW, DEL}
+  
+  public enum State {NEW, IN, OUT, DEL, BOTH}
+  
+  
+  
+  public boolean visVa;
+  public boolean visVb;
+  public boolean visVaIns;
+  public boolean visVbIns;
   
   public State state;
+
+  public void setState() {
+    if (!visVa || !visVb) {
+      state = State.DEL;
+    }
+    else if(visVaIns && visVbIns) {
+      state = State.IN;
+    }
+    else {
+      state = State.OUT;
+    }
+  }
   
 }

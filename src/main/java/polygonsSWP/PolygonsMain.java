@@ -34,9 +34,8 @@ public class PolygonsMain
    * This is the place to add new PolygonGenerators.
    */
   private static PolygonGeneratorFactory[] factories = {
-      new RandomPolygonAlgorithmFactory(),
       new SpacePartitioningFactory(), new PermuteAndRejectFactory(),
-      new TwoOptMovesFactory(),
+      new TwoOptMovesFactory(), new RandomPolygonAlgorithmFactory(),
       new IncrementalConstructionAndBacktrackingFactory(),
       new ConvexHullGeneratorFactory(), new VelocityVirmaniFactory(),
       new SteadyGrowthFactory(), new TwoPeasantsGeneratorFactory() };
@@ -63,7 +62,7 @@ public class PolygonsMain
 
     }
     else {
-      Random.pseudoRandom(true, 1322691L);
+      Random.pseudoRandom(false, 1322691L);
 
       String output = clp.getOutputPath();
       String database = clp.getDatabase();

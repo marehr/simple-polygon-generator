@@ -174,14 +174,14 @@ public class GeneratorUtilsTest
     polyognPoints.add(new Point(3,2));
     polyognPoints.add(new Point(0,2));
     Polygon testPolygon = new OrderedListPolygon(polyognPoints);
-    assertTrue(GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(new Point(0,0), new Point(0,2), testPolygon));
-    assertFalse(GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(new Point(0,0), new Point(3,0), testPolygon));
+    assertTrue(GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(testPolygon, new Point(0,0), new Point(0,2)));
+    assertFalse(GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(testPolygon, new Point(0,0), new Point(3,0)));
     
     polyognPoints.clear();
     polyognPoints.add(new Point(372.568,276.651));
     polyognPoints.add(new Point(520.4,469.238));
     polyognPoints.add(new Point(463.044,268.042));
     testPolygon = new OrderedListPolygon(polyognPoints);
-    assertTrue(GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(new Point(0,0), new Point(0,2), testPolygon));
+    assertTrue(GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(testPolygon, new Point(0,0), new Point(0,2)));
   }
 }
