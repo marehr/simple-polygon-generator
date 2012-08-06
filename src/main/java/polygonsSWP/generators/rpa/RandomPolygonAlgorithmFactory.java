@@ -8,6 +8,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+
+import org.apache.bcel.generic.NEW;
+import org.apache.xalan.xsltc.compiler.sym;
+
 import polygonsSWP.util.Random;
 
 import polygonsSWP.data.History;
@@ -58,9 +62,10 @@ public class RandomPolygonAlgorithmFactory
     if (n == null)
       throw new IllegalParameterizationException("Number of points not set.",
           Parameters.n);
-    
-    if(n<3){throw new IllegalParameterizationException("n must be greater or equal 3");}
-    
+
+    if (n < 3) { throw new IllegalParameterizationException(
+        "n must be greater or equal 3"); }
+
     Integer size = (Integer) params.get(Parameters.size);
     if (size == null)
       throw new IllegalParameterizationException(
@@ -69,11 +74,12 @@ public class RandomPolygonAlgorithmFactory
     return new RandomPolygonAlgorithm(n, size, steps, stats);
   }
 
-  private static void debug(Object str){
+  private static void debug(Object str) {
     int c = PolygonGenerationPanel.counter;
-    if(c != 0) return;
+    if (c != 0) return;
     System.out.println(str);
   }
+
 
   private static class RandomPolygonAlgorithm
     implements PolygonGenerator
@@ -96,13 +102,13 @@ public class RandomPolygonAlgorithmFactory
     public Polygon generate() {
 
       Random random = Random.create();
-      
+
       // create bounding box
       OrderedListPolygon boundingBox = new OrderedListPolygon();
-      boundingBox.addPoint(new Point(0,0));
-      boundingBox.addPoint(new Point(_size,0));
-      boundingBox.addPoint(new Point(_size,_size));
-      boundingBox.addPoint(new Point(0,_size));
+      boundingBox.addPoint(new Point(0, 0));
+      boundingBox.addPoint(new Point(_size, 0));
+      boundingBox.addPoint(new Point(_size, _size));
+      boundingBox.addPoint(new Point(0, _size));
 
       // 1. generate 3 rand points -> polygon P
       OrderedListPolygon polygon =
@@ -131,40 +137,46 @@ public class RandomPolygonAlgorithmFactory
         // (assumed that there will be less than 2^31-1 points)
 
         // 2.b determine visible region to VaVb -> P'
-        //first determine visible region inside polygon
-        //then the outer part
+        // first determine visible region inside polygon
+        // then the outer part
 
         // index von vb
         int indexVb = random.nextInt(polygon.size());
-        int indexVa = (indexVb+1) % polygon.size();
+        int indexVa = (indexVb + 1) % polygon.size();
         Point vb = polygon.getPoint(indexVb);
         Point va = polygon.getPoint(indexVa);
 
         // TODO: make va first point in visibleRegionInside and vb last point
         Polygon visibleRegionInside =
-            visiblePolygonRegionFromLineSegment(polygon, boundingBox, indexVb, null);
+            visiblePolygonRegionFromLineSegment(polygon, boundingBox, indexVb,
+                null);
 
-        Polygon outerPolygon = outerPolygon(polygon, boundingBox, indexVb);
+        Polygon outerPolygon =
+            generateOuterPolygon(polygon, boundingBox, indexVb);
 
         // index von vb
         int index = outerPolygon.size() - 1;
 
         Scene mergeInScene = null;
-        if(steps != null) {
+        if (steps != null) {
           mergeInScene = steps.newScene();
           mergeInScene.addPolygon(polygon, true);
         }
 
         Polygon visibleRegionOutside =
-          visiblePolygonRegionFromLineSegment(outerPolygon, boundingBox, index, mergeInScene);
+            visiblePolygonRegionFromLineSegment(outerPolygon, boundingBox,
+                index, mergeInScene);
 
-        // TODO after: make va first point in visibleRegionInside and vb last point
+        // TODO after: make va first point in visibleRegionInside and vb last
+        // point
         // -> remove search for vb in mergeInnerAndOuterRegion
-        Polygon mergedPolygon = mergeInnerAndOuterRegion(visibleRegionInside, visibleRegionOutside, vb);
+        Polygon mergedPolygon =
+            mergeInnerAndOuterRegion(visibleRegionInside, visibleRegionOutside,
+                vb);
 
-        assert(visibleRegionInside.isClockwise() <= 0);
-        assert(visibleRegionOutside.isClockwise() <= 0);
-        assert(outerPolygon.isClockwise() <= 0);
+        assert (visibleRegionInside.isClockwise() <= 0);
+        assert (visibleRegionOutside.isClockwise() <= 0);
+        assert (outerPolygon.isClockwise() <= 0);
 
         debug("visible region: " + visibleRegionInside.getPoints() + "\n");
 
@@ -255,13 +267,13 @@ public class RandomPolygonAlgorithmFactory
      * 
      * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
      * @param polygon
-     * @param mergeInScene 
+     * @param mergeInScene
      * @param p1
      * @param p2
      * @return
      */
-    private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon, Polygon boundingBox,
-        int randomIndex, Scene mergeInScene) {
+    private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon,
+        Polygon boundingBox, int randomIndex, Scene mergeInScene) {
 
       CircularList<RPAPoint> polyPoints = new CircularList<RPAPoint>();
       for (Point point : polygon.getPoints()) {
@@ -269,11 +281,12 @@ public class RandomPolygonAlgorithmFactory
       }
 
       @SuppressWarnings("unchecked")
-      CircularList<RPAPoint> clonePoints = (CircularList<RPAPoint>) polyPoints.clone();
+      CircularList<RPAPoint> clonePoints =
+          (CircularList<RPAPoint>) polyPoints.clone();
 
       RPAPoint vb = polyPoints.get(randomIndex);
       RPAPoint va = polyPoints.get((randomIndex + 1) % polyPoints.size());
-      
+
       debug("va, vb: " + va + vb + "\n");
 
       va.visVa = true;
@@ -300,7 +313,8 @@ public class RandomPolygonAlgorithmFactory
 
         baseScene = steps.newScene();
         baseScene.mergeScene(mergeInScene);
-        baseScene.addPolygon(polygon, mergeInScene == null ? fill : fill.darker());
+        baseScene.addPolygon(polygon,
+            mergeInScene == null ? fill : fill.darker());
         baseScene.addPolygon(boundingBox, false);
         baseScene.addLineSegment(vaVb, true);
 
@@ -315,14 +329,14 @@ public class RandomPolygonAlgorithmFactory
       debug("extending vavb");
       // if vx/vy exists and is no point of polygon
       if (isec1 != null && !clonePoints.contains(isec1[0])) {
-        insertTripleIntoPolygon(clonePoints, isec1);
+        insertIntersectionIntoPolgon(clonePoints, isec1);
         debug("inserting " + isec1[0]);
         if (scene != null) {
           scene.addPoint(isec1[0], true);
         }
       }
       if (isec2 != null && !clonePoints.contains(isec2[0])) {
-        insertTripleIntoPolygon(clonePoints, isec2);
+        insertIntersectionIntoPolgon(clonePoints, isec2);
         debug("inserting " + isec2[0]);
         if (scene != null) {
           scene.addPoint(isec2[0], true);
@@ -345,12 +359,10 @@ public class RandomPolygonAlgorithmFactory
       ListIterator<RPAPoint> polygonIter =
           polyPoints.listIterator(polyPoints.indexOf(va));
       RPAPoint prev = lastVisible;
-      
+
       int k = 0;
 
       while (!clonePoints.get(cloneIter.nextIndex()).equals(va)) {
-        
-
 
         // get new vi
         RPAPoint vi;
@@ -364,9 +376,8 @@ public class RandomPolygonAlgorithmFactory
         debug("vb: " + vb + ", va: " + va + ", vi: " + vi);
 
         // visibility of vi form va and vb
-        
+
         vi = checkVisibility(polygon, vi, va, vb);
-            
 
         // test visibility of previous element of polygon (not clone).
 
@@ -386,12 +397,14 @@ public class RandomPolygonAlgorithmFactory
           else scene.addPoint(vi, Color.RED);
 
           if (prev.visVaIns && prev.visVbIns) scene.addPoint(prev, Color.GREEN);
-          else if (prev.visVaIns && !prev.visVbIns) scene.addPoint(prev, Color.ORANGE);
-          else if (!prev.visVaIns && prev.visVbIns) scene.addPoint(prev, Color.PINK);
+          else if (prev.visVaIns && !prev.visVbIns) scene.addPoint(prev,
+              Color.ORANGE);
+          else if (!prev.visVaIns && prev.visVbIns) scene.addPoint(prev,
+              Color.PINK);
           else scene.addPoint(prev, Color.RED);
           scene.save();
         }
-        
+
         if (vi.state == State.IN || vi.state == State.BOTH) {
           debug("visible from va and vb");
           // case 1 viPrev visible from va and vb
@@ -411,53 +424,45 @@ public class RandomPolygonAlgorithmFactory
               scene = steps.newScene();
               scene.mergeScene(baseScene);
 
-              if (r1._base != r1._support) scene.addRay(r1, Color.YELLOW);
-              if (r2._base != r2._support) scene.addRay(r2, Color.YELLOW);
-              if (r3._base != r3._support) scene.addRay(r3, Color.YELLOW);
-              if (r4._base != r4._support) scene.addRay(r4, Color.YELLOW);
+              if (!r1._base.equals(r1._support))
+                scene.addRay(r1, Color.YELLOW);
+              if (!r2._base.equals(r2._support))
+                scene.addRay(r2, Color.YELLOW);
+              if (!r3._base.equals(r3._support))
+                scene.addRay(r3, Color.YELLOW);
+              if (!r4._base.equals(r4._support))
+                scene.addRay(r4, Color.YELLOW);
+            }
+            RPAPoint p1 =
+                shootRayAndInsertIntersection(polygon, clonePoints, r1, va, vb);
+            RPAPoint p2 =
+                shootRayAndInsertIntersection(polygon, clonePoints, r2, va, vb);
+            RPAPoint p3 =
+                shootRayAndInsertIntersection(polygon, clonePoints, r3, va, vb);
+            RPAPoint p4 =
+                shootRayAndInsertIntersection(polygon, clonePoints, r4, va, vb);
+
+            if (p1 != null) {
+              lastVisible = p1;
+              debug("inserted p1: " + p1);
+              if (steps != null) scene.addPoint(p1, Color.GREEN);
+            }
+            if (p2 != null) {
+              lastVisible = p2;
+              debug("inserted p2: " + p2);
+              if (steps != null) scene.addPoint(p2, Color.GREEN);
+            }
+            if (p3 != null) {
+              lastVisible = p3;
+              debug("inserted p3: " + p3);
+              if (steps != null) scene.addPoint(p3, Color.GREEN);
+            }
+            if (p4 != null) {
+              lastVisible = p4;
+              debug("inserted p4: " + p4);
+              if (steps != null) scene.addPoint(p4, Color.GREEN);
             }
 
-            Point[] u1 = polygon.firstIntersection(r1);
-            Point[] u2 = polygon.firstIntersection(r2);
-            Point[] u3 = polygon.firstIntersection(r3);
-            Point[] u4 = polygon.firstIntersection(r4);
-
-            if (u1 != null &&
-                isVertexVisibleFromInside(polygon,
-                    va, u1[0]) &&
-                isVertexVisibleFromInside(polygon,
-                    vb, u1[0]) && !clonePoints.contains(u1[0])) {
-              insertTripleIntoPolygon(clonePoints, u1);
-              debug("inserting: " + u1[0]);
-              if (steps != null) scene.addPoint(u1[0], Color.GREEN);
-            }
-            if (u2 != null &&
-                isVertexVisibleFromInside(polygon,
-                    va, u2[0]) &&
-                isVertexVisibleFromInside(polygon,
-                    vb, u2[0]) && !clonePoints.contains(u2[0])) {
-              insertTripleIntoPolygon(clonePoints, u2);
-              debug("inserting: " + u2[0]);
-              if (steps != null) scene.addPoint(u2[0], Color.GREEN);
-            }
-            if (u3 != null &&
-                isVertexVisibleFromInside(polygon,
-                    va, u3[0]) &&
-                isVertexVisibleFromInside(polygon,
-                    vb, u3[0]) && !clonePoints.contains(u3[0])) {
-              insertTripleIntoPolygon(clonePoints, u3);
-              debug("inserting: " + u3[0]);
-              if (steps != null) scene.addPoint(u3[0], Color.GREEN);
-            }
-            if (u4 != null &&
-                isVertexVisibleFromInside(polygon,
-                    va, u4[0]) &&
-                isVertexVisibleFromInside(polygon,
-                    vb, u4[0]) && !clonePoints.contains(u4[0])) {
-              insertTripleIntoPolygon(clonePoints, u4);
-              debug("inserting: " + u4[0]);
-              if (steps != null) scene.addPoint(u4[0], Color.GREEN);
-            }
             lastVisible = vi;
 
             if (steps != null) {
@@ -468,7 +473,7 @@ public class RandomPolygonAlgorithmFactory
           // case 3+4 viPrev visible to one of va and vb
           else if (prev.visVaIns || prev.visVbIns) {
             debug("case 3,4: viPrev from va/vb visible, 2 intersections");
-            Point vx;
+            RPAPoint vx;
             if (prev.visVaIns) vx = vb;
             else vx = va;
 
@@ -483,36 +488,20 @@ public class RandomPolygonAlgorithmFactory
               if (r2._base != r2._support) scene.addRay(r2, Color.YELLOW);
             }
 
-            Point[] u1 = polygon.firstIntersection(r1);
-            Point[] u2 = polygon.firstIntersection(r2);
-            
-            if (u1 != null)
-              debug("intersection 2 rays u1[0]: " + u1[0] + ", visible from va: " + isVertexVisibleFromInside(polygon, va, u1[0]) + ", visible from vb: " + isVertexVisibleFromInside(polygon, vb, u1[0]) + ", not in clonePoints: " + !clonePoints.contains(u1[0]));
-            if (u2!=null)
-              debug("intersection 2 rays u2[0]: " + u2[0]);
+            RPAPoint p1 =
+                shootRayAndInsertIntersection(polygon, clonePoints, r1, va, vb);
+            RPAPoint p2 =
+                shootRayAndInsertIntersection(polygon, clonePoints, r2, va, vb);
 
-            debug("gobba1");
-            if (u1 != null &&
-                isVertexVisibleFromInside(polygon, va, u1[0]) &&
-                isVertexVisibleFromInside(polygon, vb, u1[0]) && 
-                !clonePoints.contains(u1[0])) {
-              debug("gobba2");
-              insertTripleIntoPolygon(clonePoints, u1);
-              lastVisible = new RPAPoint(u1[0]);
-              debug(clonePoints.indexOf(lastVisible));
-              debug("state of inserted point" + lastVisible.state);
-              debug("inserting: " + u1[0] + " , also last visible");
-              if (steps != null) scene.addPoint(u1[0], Color.GREEN);
+            if (p1 != null) {
+              lastVisible = p1;
+              debug("inserted p1: " + p1);
+              if (steps != null) scene.addPoint(p1, Color.GREEN);
             }
-            if (u2 != null &&
-                isVertexVisibleFromInside(polygon,
-                    va, u2[0]) &&
-                isVertexVisibleFromInside(polygon,
-                    vb, u2[0]) && !clonePoints.contains(u2[0])) {
-              insertTripleIntoPolygon(clonePoints, u2);
-              lastVisible = new RPAPoint(u2[0]);
-              debug("inserting: " + u2[0] + " , also last visible");
-              if (steps != null) scene.addPoint(u2[0], Color.GREEN);
+            if (p2 != null) {
+              lastVisible = p2;
+              debug("inserted p2: " + p2);
+              if (steps != null) scene.addPoint(p2, Color.GREEN);
             }
 
             if (steps != null) {
@@ -529,12 +518,57 @@ public class RandomPolygonAlgorithmFactory
       List<Point> visibleRegionPoints = new ArrayList<Point>();
       for (int i = 0; i < clonePoints.size(); i++) {
         RPAPoint current = clonePoints.get(i);
-        if (current.state == State.IN || current.state == State.BOTH || current.state == State.NEW) visibleRegionPoints.add(current);
+        if (current.state == State.IN || current.state == State.BOTH ||
+            current.state == State.NEW) visibleRegionPoints.add(current);
       }
       return new OrderedListPolygon(visibleRegionPoints);
     }
-    
-    
+
+    private RPAPoint shootRayAndInsertIntersection(Polygon polygon,
+        List<RPAPoint> clonePoints, Ray ray, RPAPoint va, RPAPoint vb) {
+
+      Point[] isec = polygon.firstIntersection(ray);
+
+      if (isec == null) {
+        debug("isec null");
+        return null;
+      }
+
+      if (!isVertexVisibleFromInside(polygon, va, isec[0])) {
+        debug("not visible from va: " + isec[0] + ", edge isec is on: " +
+            isec[1] + ", " + isec[2]);
+        return null;
+      }
+      if (!isVertexVisibleFromInside(polygon, vb, isec[0])) {
+        debug("no visible from vb: " + isec[0] + ", edge isec is on: " +
+            isec[1] + ", " + isec[2]);
+        return null;
+      }
+
+      if (clonePoints.contains(isec[0])) return null;
+
+      if (!clonePoints.contains(isec[1]) || !clonePoints.contains(isec[2])) { return null; }
+
+      int supportIndex = clonePoints.indexOf(new RPAPoint(ray._support));
+      int index1 = clonePoints.indexOf(new RPAPoint(isec[1]));
+      int index2 = clonePoints.indexOf(new RPAPoint(isec[2]));
+
+      if ((supportIndex - index1) % clonePoints.size() < (supportIndex - index2) %
+          clonePoints.size()) {
+        if (MathUtils.checkOrientation(isec[1], isec[2], ray._support) > -1)
+          debug("right of edge");
+        return null;
+      }
+      else {
+        if (MathUtils.checkOrientation(isec[2], isec[1], ray._support) > -1) {
+          debug("right of edge");
+          return null;
+        }
+      }
+      debug("inserting" + isec[0]);
+      return insertIntersectionIntoPolgon(clonePoints, isec);
+    }
+
     /**
      * Inserts point triple[0] between triple[1] and triple[2]. If there are
      * already points between triple[1] and triple[2], triple[0] is inserted
@@ -543,105 +577,97 @@ public class RandomPolygonAlgorithmFactory
      * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
      * @param clonePoints List<RPAPoints> representing the current clone RPA
      *          works on.
-     * @param triple
-     * @return true if inserting triple[0] was successful, false otherwise 
+     * @param isec
+     * @return true if inserting triple[0] was successful, false otherwise
      */
-    private boolean insertTripleIntoPolygon(List<RPAPoint> clonePoints,
-        Point[] triple) {
-      if (!(clonePoints.contains(triple[1]) || !clonePoints.contains(triple[2]))) return false;
+    private RPAPoint insertIntersectionIntoPolgon(List<RPAPoint> clonePoints,
+        Point[] isec) {
+      if (!(clonePoints.contains(isec[1]) || !clonePoints.contains(isec[2]))) return null;
       else {
-        
+
         // find out which index is the lowest
         int index1 = -1;
         int index2 = -1;
-        
-        int tempnIdex1 = clonePoints.indexOf(triple[1]);
-        int tempnIdex2 = clonePoints.indexOf(triple[2]);
-        
+
+        int tempnIdex1 = clonePoints.indexOf(isec[1]);
+        int tempnIdex2 = clonePoints.indexOf(isec[2]);
+
         if (tempnIdex1 < tempnIdex2) {
           index1 = tempnIdex1;
           index2 = tempnIdex2;
-        } else {
+        }
+        else {
           index1 = tempnIdex2;
           index2 = tempnIdex1;
         }
-        
+
         // calculate number of points between triple[1] and triple[2]
         // first cc-wise, second c-wise
         // take the shorter path
-        
+
         int size = clonePoints.size();
-        
+
         if ((size - index1) - (size - index2) <= index1 + (size - 4)) {
           // path from triple[1] to triple[2] cc-wise shorter
           RPAPoint curr = clonePoints.get(index1);
           ListIterator<RPAPoint> iter = clonePoints.listIterator(index1);
           RPAPoint next = iter.next();
-          while(curr != clonePoints.get(index2)){
-            if(new LineSegment(curr, next).containsPoint(triple[0])){
-              clonePoints.add(clonePoints.indexOf(next), new RPAPoint(triple[0]));
-              return true;
+          while (curr != clonePoints.get(index2)) {
+            if (new LineSegment(curr, next).containsPoint(isec[0])) {
+              RPAPoint newPoint = new RPAPoint(isec[0]);
+              clonePoints.add(clonePoints.indexOf(next), newPoint);
+              return newPoint;
             }
             curr = next;
             next = iter.next();
           }
-        } else {
+        }
+        else {
           // path from triple[1] to triple[2] c-wise shorter
           RPAPoint curr = clonePoints.get(index1);
           ListIterator<RPAPoint> iter = clonePoints.listIterator(index1);
           RPAPoint next = iter.previous();
-          while(curr != clonePoints.get(index2)){
-            if(new LineSegment(curr, next).containsPoint(triple[0])){
-              clonePoints.add(clonePoints.indexOf(curr), new RPAPoint(triple[0]));
-              return true;
+          while (curr != clonePoints.get(index2)) {
+            if (new LineSegment(curr, next).containsPoint(isec[0])) {
+              RPAPoint newPoint = new RPAPoint(isec[0]);
+              clonePoints.add(clonePoints.indexOf(curr), newPoint);
+              return newPoint;
             }
             curr = next;
             next = iter.previous();
           }
         }
       }
-      return false;
-    }
-    
-    
-    private RPAPoint checkVisibility(Polygon polygon, RPAPoint vi, RPAPoint va, RPAPoint vb){
-      if(vi.state != State.NEW)
-        return vi;
-      
-    	vi.visVa = GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(polygon, va, vi);
-    	vi.visVb = GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(polygon, vb, vi);
-    	
-    	if (vi.visVa)
-        vi.visVaIns = isVertexVisibleFromInside(polygon, va, vi);
-    	if (vi.visVb)
-    	  vi.visVbIns = isVertexVisibleFromInside(polygon, vb, vi);
-    	
-    	vi.setState();
-    	
-    	return vi;    	
+      return null;
     }
 
-    private Polygon mergeInnerAndOuterRegion(Polygon inner, Polygon outer, Point vb) {
-      // TODO: remove duplicated boundary points by va and vb
-      // TODO: make it really work
+    private RPAPoint checkVisibility(Polygon polygon, RPAPoint vi, RPAPoint va,
+        RPAPoint vb) {
+      if (vi.state != State.NEW) return vi;
+
+      vi.visVa =
+          GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(polygon,
+              va, vi);
+      vi.visVb =
+          GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(polygon,
+              vb, vi);
+
+      if (vi.visVa) vi.visVaIns = isVertexVisibleFromInside(polygon, va, vi);
+      if (vi.visVb) vi.visVbIns = isVertexVisibleFromInside(polygon, vb, vi);
+
+      vi.setState();
+
+      return vi;
+    }
+
+    private Polygon mergeInnerAndOuterRegion(Polygon inner, Polygon outer,
+        Point vb) {
       int indexVb = inner.getPoints().indexOf(vb);
       int indexVa = (indexVb + 1) % inner.size();
 
-//      Point vb = inner.getPoint(indexVb);
-//      Point va = inner.getPoint(indexVa);
-
-//      debug("----------------");
-//      debug("mergeInnerAndOuter!!");
-//      debug("indexVb: " + indexVb);
-//      debug("indexVa: " + indexVa);
-//      debug("vb: " + vb);
-//      debug("va: " + va);
-//      debug("inner: " + inner.getPoints());
-//      debug("outer: " + outer.getPoints());
-
       // TODO: remove copying
-      ArrayList<Point> innerPoints = new ArrayList<Point>(inner.getPoints()),
-                       outerPoints = new ArrayList<Point>(outer.getPoints());
+      ArrayList<Point> innerPoints = new ArrayList<Point>(inner.getPoints()), outerPoints =
+          new ArrayList<Point>(outer.getPoints());
 
       // NOTICE: outers first point is vb and last point is va
       outerPoints.remove(0);
@@ -655,7 +681,8 @@ public class RandomPolygonAlgorithmFactory
     /**
      * WICHTIG: erster Punkt vom Polygon ist va und letzter Punkt vom ist vb
      */
-    private Polygon outerPolygon(Polygon polygon, Polygon boundingBox, int randomIndex){
+    private Polygon generateOuterPolygon(Polygon polygon, Polygon boundingBox,
+        int randomIndex) {
       List<Point> polyPoints = polygon.getPoints();
 
       Point vb = polyPoints.get(randomIndex);
@@ -669,23 +696,25 @@ public class RandomPolygonAlgorithmFactory
       Point[] isecPolygonLeft = polygon.lastIntersection(rayVbVa);
       Point[] isecPolygonRight = polygon.lastIntersection(rayVaVb);
 
-      Point[] isecBoundaryLeft  = boundingBox.firstIntersection(rayVbVa),
-              isecBoundaryRight = boundingBox.firstIntersection(rayVaVb);
+      Point[] isecBoundaryLeft = boundingBox.firstIntersection(rayVbVa), isecBoundaryRight =
+          boundingBox.firstIntersection(rayVaVb);
 
-      List<Point> left = collectVerticesUntilLastIntersection(polygon, va, isecPolygonLeft, isecPolygonRight, isecBoundaryLeft, isecBoundaryRight);
+      List<Point> left =
+          collectVerticesUntilLastIntersection(polygon, va, isecPolygonLeft,
+              isecPolygonRight, isecBoundaryLeft, isecBoundaryRight);
       Collections.reverse(polyPoints);
 
-      List<Point> right = collectVerticesUntilLastIntersection(polygon, vb, isecPolygonRight, isecPolygonLeft, isecBoundaryRight, isecBoundaryLeft);
+      List<Point> right =
+          collectVerticesUntilLastIntersection(polygon, vb, isecPolygonRight,
+              isecPolygonLeft, isecBoundaryRight, isecBoundaryLeft);
       Collections.reverse(polyPoints);
 
       int isLeft = 1;
-      if(left.get(left.size() -1 ) == isecBoundaryRight[0]){
+      if (left.get(left.size() - 1) == isecBoundaryRight[0]) {
         isLeft = -1;
       }
 
-      debug("right: "+ right + "\nleft: " + left);
-
-      // add intersection points
+      debug("right: " + right + "\nleft: " + left);
 
       // remove checked boundaries
       bounds.remove(isecBoundaryLeft[1]);
@@ -697,31 +726,34 @@ public class RandomPolygonAlgorithmFactory
       Point leftPoint = null;
       Point rightPoint = null;
 
-      if (isLeft * MathUtils.checkOrientation(va, vb, isecBoundaryLeft[1]) > 0){
+      if (isLeft * MathUtils.checkOrientation(va, vb, isecBoundaryLeft[1]) > 0) {
         leftPoint = isecBoundaryLeft[1];
-      } else {
+      }
+      else {
         leftPoint = isecBoundaryLeft[2];
       }
 
-      if (isLeft * MathUtils.checkOrientation(va, vb, isecBoundaryRight[1]) > 0){
+      if (isLeft * MathUtils.checkOrientation(va, vb, isecBoundaryRight[1]) > 0) {
         rightPoint = isecBoundaryRight[1];
-      } else {
+      }
+      else {
         rightPoint = isecBoundaryRight[2];
       }
 
       left.add(isLeft == 1 ? leftPoint : rightPoint);
 
-      if(!leftPoint.equals(rightPoint))
+      if (!leftPoint.equals(rightPoint))
         right.add(isLeft == 1 ? rightPoint : leftPoint);
 
       // if one boundary is still unchecked, check it now
-      if(bounds.size() > 0 && isLeft * MathUtils.checkOrientation(va, vb, bounds.get(0)) > 0) {
+      if (bounds.size() > 0 &&
+          isLeft * MathUtils.checkOrientation(va, vb, bounds.get(0)) > 0) {
         left.add(bounds.get(0));
       }
 
       Collections.reverse(left);
 
-      debug("right: "+ right + "\nleft: " + left);
+      debug("right: " + right + "\nleft: " + left);
       right.addAll(left);
       debug("outer Polygon: " + right);
 
@@ -729,8 +761,7 @@ public class RandomPolygonAlgorithmFactory
     }
 
     private List<Point> collectVerticesUntilLastIntersection(Polygon polygon,
-        Point startPoint,
-        Point[] isecPolygonLeft, Point[] isecPolygonRight,
+        Point startPoint, Point[] isecPolygonLeft, Point[] isecPolygonRight,
         Point[] isecBoundaryLeft, Point[] isecBoundaryRight) {
 
       List<Point> points = polygon.getPoints();
@@ -739,57 +770,50 @@ public class RandomPolygonAlgorithmFactory
       ArrayList<Point> list = new ArrayList<Point>(size);
       list.add(startPoint);
 
-      // TODO: REMOVE COMMENT ist doch wrong :D
-      // wenn der ray keine Polygon Ecke trifft,
-      // dann treffen wir die BoundingBox als naechstes.
-      // Um Kolinearitaet im OuterPolygon zu vermeiden, fuegen
-      // wir hier NICHT startPoint hinzu, so dass der
-      // BoundingBox Schnittpunkt, dass neue va bzw. vb wird.
-      if(isecPolygonLeft == null){
+      if (isecPolygonLeft == null) {
         list.add(isecBoundaryLeft[0]);
         return list;
       }
 
       int index = points.indexOf(startPoint);
 
-      while(true) {
+      while (true) {
         index = (index + 1) % size;
         Point curr = points.get(index);
 
         list.add(curr);
 
-        if(isecPolygonLeft[1] == curr){
-          //list.add(isecPolygonLeft[2]);
+        if (isecPolygonLeft[1] == curr) {
+          // list.add(isecPolygonLeft[2]);
           list.add(isecPolygonLeft[0]);
           list.add(isecBoundaryLeft[0]);
           return list;
         }
 
-        if(isecPolygonLeft[2] == curr){
-          //list.add(isecPolygonLeft[1]);
+        if (isecPolygonLeft[2] == curr) {
+          // list.add(isecPolygonLeft[1]);
           list.add(isecPolygonLeft[0]);
           list.add(isecBoundaryLeft[0]);
           return list;
         }
 
-        if(isecPolygonRight == null) continue;
+        if (isecPolygonRight == null) continue;
 
-        if(isecPolygonRight[1] == curr){
-          //list.add(isecPolygonRight[2]);
+        if (isecPolygonRight[1] == curr) {
+          // list.add(isecPolygonRight[2]);
           list.add(isecPolygonRight[0]);
           list.add(isecBoundaryRight[0]);
           return list;
         }
 
-        if(isecPolygonRight[2] == curr){
-          //list.add(isecPolygonRight[1]);
+        if (isecPolygonRight[2] == curr) {
+          // list.add(isecPolygonRight[1]);
           list.add(isecPolygonRight[0]);
           list.add(isecBoundaryRight[0]);
           return list;
         }
       }
     }
-    
 
     /**
      * Determines if one vertex of a polygon can 'see' another point on that
@@ -812,8 +836,8 @@ public class RandomPolygonAlgorithmFactory
 
       // Test for intersections with polygon.
       boolean visible =
-          GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(polygon, p1,
-              p2);
+          GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(polygon,
+              p1, p2);
       debug("test for sight: " + visible);
 
       if (visible) {
@@ -828,13 +852,13 @@ public class RandomPolygonAlgorithmFactory
         double angle1 = innerCuttingAngle(next, p1, prev);
         double angle2 = innerCuttingAngle(next, p1, p2);
         if (MathUtils.doubleCompare(angle1, angle2) >= 0) {
-          debug("test for cutting angle: " + angle1 + " >= " +
-              angle2 + " => inside");
+          debug("test for cutting angle: " + angle1 + " >= " + angle2 +
+              " => inside");
           return true;
         }
         else {
-          debug("test for cutting angle: " + angle1 + " < " +
-              angle2 + " => outside");
+          debug("test for cutting angle: " + angle1 + " < " + angle2 +
+              " => outside");
         }
 
       }
