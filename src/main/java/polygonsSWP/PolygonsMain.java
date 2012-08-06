@@ -62,7 +62,7 @@ public class PolygonsMain
 
     }
     else {
-      Random.pseudoRandom(true, 1322691L);
+      Random.pseudoRandom(false, 1322691L);
 
       String output = clp.getOutputPath();
       String database = clp.getDatabase();

@@ -1,11 +1,8 @@
 package polygonsSWP.generators.rpa;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-
-import polygonsSWP.geometry.Point;
 
 public class CircularList <E>
   extends ArrayList <E>

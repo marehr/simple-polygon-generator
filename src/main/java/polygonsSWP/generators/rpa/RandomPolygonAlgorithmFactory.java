@@ -1,16 +1,12 @@
 package polygonsSWP.generators.rpa;
 
 import java.awt.Color;
-import java.beans.Visibility;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-
-import org.apache.bcel.generic.NEW;
-import org.apache.xalan.xsltc.compiler.sym;
 
 import polygonsSWP.util.Random;
 
@@ -524,6 +520,22 @@ public class RandomPolygonAlgorithmFactory
       return new OrderedListPolygon(visibleRegionPoints);
     }
 
+    /**
+     * Intersects given ray and polygon. If there exists an intersection not
+     * already in the polygon, test for visibility from va and vb. If the
+     * intersection is visible for Va and Vb through the inside of the polygon,
+     * insert the intersection. Sort out Intersections with rays from outside
+     * polygon.
+     * 
+     * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+     * @param polygon Original polygon before current iteration.
+     * @param clonePoints List currently worked on.
+     * @param ray
+     * @param va Second point of currently selected edge.
+     * @param vb First point of currently selected edge.
+     * @return {@link RPAPoint} if inserted new Point into clonePoints, else
+     *         null.
+     */
     private RPAPoint shootRayAndInsertIntersection(Polygon polygon,
         List<RPAPoint> clonePoints, Ray ray, RPAPoint va, RPAPoint vb) {
 
@@ -553,6 +565,7 @@ public class RandomPolygonAlgorithmFactory
       int index1 = clonePoints.indexOf(new RPAPoint(isec[1]));
       int index2 = clonePoints.indexOf(new RPAPoint(isec[2]));
 
+      // sort out intersections with ray from outside of polygon.
       if ((supportIndex - index1) % clonePoints.size() < (supportIndex - index2) %
           clonePoints.size()) {
         if (MathUtils.checkOrientation(isec[1], isec[2], ray._support) > -1)
@@ -582,65 +595,75 @@ public class RandomPolygonAlgorithmFactory
      */
     private RPAPoint insertIntersectionIntoPolgon(List<RPAPoint> clonePoints,
         Point[] isec) {
-      if (!(clonePoints.contains(isec[1]) || !clonePoints.contains(isec[2]))) return null;
+      if (!(clonePoints.contains(isec[1]) || !clonePoints.contains(isec[2])))
+        return null;
+
+      // find out which index is the lowest
+      int index1 = -1;
+      int index2 = -1;
+
+      int tempnIdex1 = clonePoints.indexOf(isec[1]);
+      int tempnIdex2 = clonePoints.indexOf(isec[2]);
+
+      if (tempnIdex1 < tempnIdex2) {
+        index1 = tempnIdex1;
+        index2 = tempnIdex2;
+      }
       else {
+        index1 = tempnIdex2;
+        index2 = tempnIdex1;
+      }
 
-        // find out which index is the lowest
-        int index1 = -1;
-        int index2 = -1;
+      // calculate number of points between triple[1] and triple[2]
+      // first cc-wise, second c-wise
+      // take the shorter path
 
-        int tempnIdex1 = clonePoints.indexOf(isec[1]);
-        int tempnIdex2 = clonePoints.indexOf(isec[2]);
+      int size = clonePoints.size();
 
-        if (tempnIdex1 < tempnIdex2) {
-          index1 = tempnIdex1;
-          index2 = tempnIdex2;
-        }
-        else {
-          index1 = tempnIdex2;
-          index2 = tempnIdex1;
-        }
-
-        // calculate number of points between triple[1] and triple[2]
-        // first cc-wise, second c-wise
-        // take the shorter path
-
-        int size = clonePoints.size();
-
-        if ((size - index1) - (size - index2) <= index1 + (size - 4)) {
-          // path from triple[1] to triple[2] cc-wise shorter
-          RPAPoint curr = clonePoints.get(index1);
-          ListIterator<RPAPoint> iter = clonePoints.listIterator(index1);
-          RPAPoint next = iter.next();
-          while (curr != clonePoints.get(index2)) {
-            if (new LineSegment(curr, next).containsPoint(isec[0])) {
-              RPAPoint newPoint = new RPAPoint(isec[0]);
-              clonePoints.add(clonePoints.indexOf(next), newPoint);
-              return newPoint;
-            }
-            curr = next;
-            next = iter.next();
+      if ((size - index1) - (size - index2) <= index1 + (size - index2)) {
+        // path from triple[1] to triple[2] cc-wise shorter
+        RPAPoint curr = clonePoints.get(index1);
+        ListIterator<RPAPoint> iter = clonePoints.listIterator(index1);
+        RPAPoint next = iter.next();
+        while (curr != clonePoints.get(index2)) {
+          if (new LineSegment(curr, next).containsPoint(isec[0])) {
+            RPAPoint newPoint = new RPAPoint(isec[0]);
+            clonePoints.add(clonePoints.indexOf(next), newPoint);
+            return newPoint;
           }
+          curr = next;
+          next = iter.next();
         }
-        else {
-          // path from triple[1] to triple[2] c-wise shorter
-          RPAPoint curr = clonePoints.get(index1);
-          ListIterator<RPAPoint> iter = clonePoints.listIterator(index1);
-          RPAPoint next = iter.previous();
-          while (curr != clonePoints.get(index2)) {
-            if (new LineSegment(curr, next).containsPoint(isec[0])) {
-              RPAPoint newPoint = new RPAPoint(isec[0]);
-              clonePoints.add(clonePoints.indexOf(curr), newPoint);
-              return newPoint;
-            }
-            curr = next;
-            next = iter.previous();
+      }
+      else {
+        // path from triple[1] to triple[2] c-wise shorter
+        RPAPoint curr = clonePoints.get(index1);
+        ListIterator<RPAPoint> iter = clonePoints.listIterator(index1);
+        RPAPoint next = iter.previous();
+        while (curr != clonePoints.get(index2)) {
+          if (new LineSegment(curr, next).containsPoint(isec[0])) {
+            RPAPoint newPoint = new RPAPoint(isec[0]);
+            clonePoints.add(clonePoints.indexOf(curr), newPoint);
+            return newPoint;
           }
+          curr = next;
+          next = iter.previous();
         }
       }
       return null;
     }
 
+    /**
+     * Checks if RPAPoint is simple visible and visible from inside from
+     * currently selected edge. Sets related attribute and state of RPAPoint.
+     * 
+     * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+     * @param polygon
+     * @param vi
+     * @param va Second point of currently selected edge.
+     * @param vb First point of currently selected edge.
+     * @return vi with set visibility attributes and state.
+     */
     private RPAPoint checkVisibility(Polygon polygon, RPAPoint vi, RPAPoint va,
         RPAPoint vb) {
       if (vi.state != State.NEW) return vi;
