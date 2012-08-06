@@ -56,7 +56,7 @@ In diesem Teil wird jeder Punkt zufällig verschoben, die maximale Distanz, die 
 Sollte es vorkommen das der Zustand nicht Punkt 1 enspricht (simpel und in den Grenzen), so wird die Verschiebung rückgängig gemacht und für diesen Punkt im Polygon ändert sich nichts.
 Dieser gesamte Prozess wird \enquote{iterations}-oft ausgeführt sodass es wirklich zufällig wird.
 
-\paragraph{Pseudocode}
+\subsubsection{Pseudocode}
 
 \begin{code}[mathescape=true]
 for (int i=0; i < iterations; i++)
@@ -76,7 +76,7 @@ for (int i=0; i < iterations; i++)
 In dem Velocity Virmani wird nach jedem Punkt getestet ob das Polygon noch simpel ist. Dies kann bei einer trivialen Implementierung des Tests mit $n^3$ zu sehr hohen Laufzeiten führen.
 Deshalb ist ein trivialer Test nach der Eigenschaft simpel nicht effizient.\smallskip \\ 
 Die Lösung für dieses Problem besteht darin nur die angrenzenden Linien des verschobenen Punktes mit allen anderen Linien auf Überschneidungen zu überprüfen. Eine komplette Überprüfung auf Simplizität ist nicht nötig.
-Der Algorithmus dafür wäre trivial und würde die Laufzeit für einen Test von $O(n^3)$ auf $O(n)$ sinken.
+Der Algorithmus dafür wäre trivial und würde die Laufzeit für einen Test von $\bigO(n^3)$ auf $\bigO(n)$ sinken.
 
 Vorraussetzung: Polygon muss vor der Verschiebung simpel sein
 Eingabeparameter: Polygon, der verschobene Punkt(u)
@@ -87,8 +87,8 @@ Es werden die beiden zugehörigen Kanten von dem Punkt u genommen. Diese beiden 
 \begin{itemize}
 	\item Nichtdeterministisch\\
 	Das Programm ist nichtdeterministisch da es für die Verschiebung von Punkten einen Zufallsgenerator nutzt. Somit kann man davon ausgehen das bei gleicher Eingabe von Parametern nicht immer die gleiche Ausgabe entsteht (für $maxvelocity > 0$)
-	\item Komplexität: $O(iterations*n^2)$\\
-	Die Komplexität setzt sich zusammen aus der Anzahl der Iterationen, aus der Anzahl der Punkte durch welche iteriert wird um die Verschiebungen durchzuführen und nochmal durch die Anzahl der Punkte für den Test auf Simplizität. Somit ergibt sich eine Laufzeit von $O(iterations*n*n) = O(iterations*n^2)$
+	\item Komplexität: $\bigO(iterations*n^2)$\\
+	Die Komplexität setzt sich zusammen aus der Anzahl der Iterationen, aus der Anzahl der Punkte durch welche iteriert wird um die Verschiebungen durchzuführen und nochmal durch die Anzahl der Punkte für den Test auf Simplizität. Somit ergibt sich eine Laufzeit von $\bigO(iterations*n*n) = \bigO(iterations*n^2)$
 	\item Terminiert\\
 	Der Algorithmus terminiert immer da die Anzahl der Schlaufendurchgänge begrenzt ist. Es gibt keinen Zustand im Algorithmus wo er verbleiben kann.
 \end{itemize}
