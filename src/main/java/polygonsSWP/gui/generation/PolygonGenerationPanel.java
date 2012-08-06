@@ -11,8 +11,6 @@ import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import org.apache.bcel.verifier.exc.StaticCodeConstraintException;
-
 import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.generators.PolygonGenerator;
@@ -133,8 +131,6 @@ public class PolygonGenerationPanel
     historySceneMode = mode;
   }
 
-  public static int counter = 1, maxCounter = 10000;
-
   /**
    * Called by polygon generation worker upon successful 
    * polygon generation. :)
@@ -146,15 +142,6 @@ public class PolygonGenerationPanel
     b_generate_polygon.setText("Generate");
     t = null;
     emitPolygonGenerated(polygon);
-
-    if(counter >= maxCounter -1) return;
-
-    try {
-      Thread.sleep(200);
-    } catch (InterruptedException e) {
-    }
-    System.out.println((++counter) + "-te: started");
-    runGenerator();
   }
   
   @Override
