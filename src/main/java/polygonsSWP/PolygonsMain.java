@@ -34,9 +34,8 @@ public class PolygonsMain
    * This is the place to add new PolygonGenerators.
    */
   private static PolygonGeneratorFactory[] factories = {
-      new RandomPolygonAlgorithmFactory(),
       new SpacePartitioningFactory(), new PermuteAndRejectFactory(),
-      new TwoOptMovesFactory(),
+      new TwoOptMovesFactory(), new RandomPolygonAlgorithmFactory(),
       new IncrementalConstructionAndBacktrackingFactory(),
       new ConvexHullGeneratorFactory(), new VelocityVirmaniFactory(),
       new SteadyGrowthFactory(), new TwoPeasantsGeneratorFactory() };
