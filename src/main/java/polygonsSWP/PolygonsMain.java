@@ -181,7 +181,7 @@ public class PolygonsMain
           .create();
 
       Option threads = OptionBuilder
-          .withLongOpt("points")
+          .withLongOpt("threads")
           .withArgName("Number of threads")
           .withDescription("The number of threads to create (Default: " + defaultThreads + ")")
           .hasArg()
