@@ -29,7 +29,12 @@ import polygonsSWP.gui.generation.PolygonGenerationPanel;
 import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
 
-
+/**
+ * Random Polygon Algorithm
+ *
+ * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+ */
 public class RandomPolygonAlgorithmFactory
   implements PolygonGeneratorFactory
 {
@@ -126,9 +131,12 @@ public class RandomPolygonAlgorithmFactory
 
       // 2. n-3 times:
       for (int i = 0; i < _n - 3; i++) {
+
         debug("main loop:" + i);
+
         // test if algorithm should be canceled
         if (dostop) break;
+
         // 2.a select random line segment VaVb
         // (assumed that there will be less than 2^31-1 points)
 
@@ -136,13 +144,10 @@ public class RandomPolygonAlgorithmFactory
         // first determine visible region inside polygon
         // then the outer part
 
-        // index von vb
+        // index of vb
         int indexVb = random.nextInt(polygon.size());
         int indexVa = (indexVb + 1) % polygon.size();
-        Point vb = polygon.getPoint(indexVb);
-        Point va = polygon.getPoint(indexVa);
 
-        // TODO: make va first point in visibleRegionInside and vb last point
         Polygon visibleRegionInside =
             visiblePolygonRegionFromLineSegment(polygon, boundingBox, indexVb,
                 null);
@@ -150,25 +155,20 @@ public class RandomPolygonAlgorithmFactory
         Polygon outerPolygon =
             generateOuterPolygon(polygon, boundingBox, indexVb);
 
-        // index von vb
-        int index = outerPolygon.size() - 1;
-
         Scene mergeInScene = null;
         if (steps != null) {
           mergeInScene = steps.newScene();
           mergeInScene.addPolygon(polygon, true);
         }
 
+        // index of vb in outer polygon
+        int indexVbOuter = outerPolygon.size() - 1;
+
         Polygon visibleRegionOutside =
             visiblePolygonRegionFromLineSegment(outerPolygon, boundingBox,
-                index, mergeInScene);
+                indexVbOuter, mergeInScene);
 
-        // TODO after: make va first point in visibleRegionInside and vb last
-        // point
-        // -> remove search for vb in mergeInnerAndOuterRegion
-        Polygon mergedPolygon =
-            mergeInnerAndOuterRegion(visibleRegionInside, visibleRegionOutside,
-                vb);
+        Polygon mergedPolygon = mergeInnerAndOuterRegion(visibleRegionInside, visibleRegionOutside);
 
         assert (visibleRegionInside.isClockwise() <= 0);
         assert (visibleRegionOutside.isClockwise() <= 0);
@@ -177,6 +177,9 @@ public class RandomPolygonAlgorithmFactory
         debug("visible region: " + visibleRegionInside.getPoints() + "\n");
 
         if (steps != null) {
+          Point vb = polygon.getPoint(indexVb);
+          Point va = polygon.getPoint(indexVa);
+
           Scene scene2 = steps.newScene();
           scene2.addPolygon(boundingBox, false);
           scene2.addPolygon(polygon, true);
@@ -269,19 +272,20 @@ public class RandomPolygonAlgorithmFactory
      * @return
      */
     private Polygon visiblePolygonRegionFromLineSegment(Polygon polygon,
-        Polygon boundingBox, int randomIndex, Scene mergeInScene) {
+        Polygon boundingBox, int indexVb, Scene mergeInScene) {
 
       CircularList<RPAPoint> polyPoints = new CircularList<RPAPoint>();
-      for (Point point : polygon.getPoints()) {
-        polyPoints.add(new RPAPoint(point));
+
+      for (int i = indexVb + 1, end = i + polygon.size(); i < end; ++i){
+        polyPoints.add(new RPAPoint(polygon.getPointInRange(i)));
       }
 
       @SuppressWarnings("unchecked")
       CircularList<RPAPoint> clonePoints =
           (CircularList<RPAPoint>) polyPoints.clone();
 
-      RPAPoint vb = polyPoints.get(randomIndex);
-      RPAPoint va = polyPoints.get((randomIndex + 1) % polyPoints.size());
+      RPAPoint vb = polyPoints.get(polyPoints.size() - 1);
+      RPAPoint va = polyPoints.get(0);
 
       debug("va, vb: " + va + vb + "\n");
 
@@ -683,33 +687,44 @@ public class RandomPolygonAlgorithmFactory
       return vi;
     }
 
-    private Polygon mergeInnerAndOuterRegion(Polygon inner, Polygon outer,
-        Point vb) {
-      int indexVb = inner.getPoints().indexOf(vb);
-      int indexVa = (indexVb + 1) % inner.size();
-
-      // TODO: remove copying
-      ArrayList<Point> innerPoints = new ArrayList<Point>(inner.getPoints()), outerPoints =
-          new ArrayList<Point>(outer.getPoints());
+    /**
+     * Merges the inner and outer visible region to one visible region
+     *
+     * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+     * @param {@link Polygon} inner
+     * @param {@link Polygon} outer
+     * @return {@link Polygon} 
+     */
+    private Polygon mergeInnerAndOuterRegion(Polygon inner, Polygon outer) {
+      List<Point> innerPoints = inner.getPoints(),
+                  outerPoints = outer.getPoints();
 
       // NOTICE: outers first point is vb and last point is va
       outerPoints.remove(0);
       outerPoints.remove(outerPoints.size() - 1);
 
-      innerPoints.addAll(indexVa, outerPoints);
-      debug("poly: " + innerPoints);
+      innerPoints.addAll(outerPoints);
       return new OrderedListPolygon(innerPoints);
     }
 
     /**
-     * WICHTIG: erster Punkt vom Polygon ist va und letzter Punkt vom ist vb
+     * Returns the outer region by intersecting the polygon with the line
+     * va to vb and the bounding box
+     *
+     * NOTICE: the first point of the generated polygon is va and the last is vb
+     *
+     * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+     * @param {@link Polygon} polygon
+     * @param {@link Polygon} boundingBox
+     * @param int indexVb
+     * @return {@link Polygon} the outer polygon
      */
     private Polygon generateOuterPolygon(Polygon polygon, Polygon boundingBox,
-        int randomIndex) {
+        int indexVb) {
       List<Point> polyPoints = polygon.getPoints();
 
-      Point vb = polyPoints.get(randomIndex);
-      Point va = polyPoints.get((randomIndex + 1) % polyPoints.size());
+      Point vb = polyPoints.get(indexVb);
+      Point va = polyPoints.get((indexVb + 1) % polyPoints.size());
 
       List<Point> bounds = new LinkedList<Point>(boundingBox.getPoints());
 
@@ -783,6 +798,22 @@ public class RandomPolygonAlgorithmFactory
       return new OrderedListPolygon(right);
     }
 
+    /**
+     * Helper method for generateOuterPolygon
+     *
+     * This method goes from a given startPoint in CCW order and collects all 
+     * edges of the polygon until it finds one of intersection points on the
+     * boundary
+     *
+     * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+     * @param polygon
+     * @param startPoint
+     * @param isecPolygonLeft
+     * @param isecPolygonRight
+     * @param isecBoundaryLeft
+     * @param isecBoundaryRight
+     * @return {@link List}
+     */
     private List<Point> collectVerticesUntilLastIntersection(Polygon polygon,
         Point startPoint, Point[] isecPolygonLeft, Point[] isecPolygonRight,
         Point[] isecBoundaryLeft, Point[] isecBoundaryRight) {
@@ -807,14 +838,12 @@ public class RandomPolygonAlgorithmFactory
         list.add(curr);
 
         if (isecPolygonLeft[1] == curr) {
-          // list.add(isecPolygonLeft[2]);
           list.add(isecPolygonLeft[0]);
           list.add(isecBoundaryLeft[0]);
           return list;
         }
 
         if (isecPolygonLeft[2] == curr) {
-          // list.add(isecPolygonLeft[1]);
           list.add(isecPolygonLeft[0]);
           list.add(isecBoundaryLeft[0]);
           return list;
@@ -823,14 +852,12 @@ public class RandomPolygonAlgorithmFactory
         if (isecPolygonRight == null) continue;
 
         if (isecPolygonRight[1] == curr) {
-          // list.add(isecPolygonRight[2]);
           list.add(isecPolygonRight[0]);
           list.add(isecBoundaryRight[0]);
           return list;
         }
 
         if (isecPolygonRight[2] == curr) {
-          // list.add(isecPolygonRight[1]);
           list.add(isecPolygonRight[0]);
           list.add(isecBoundaryRight[0]);
           return list;
