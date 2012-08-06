@@ -235,8 +235,8 @@ public class PolygonsMain
           .create();
       
       Option boundingbox = OptionBuilder
-          .withLongOpt("size")
-          .withArgName("size")
+          .withLongOpt("boundingbox")
+          .withArgName("boundingbox")
           .withDescription("Length of the sides of the surrounding bounding square (default: " + defaultBoundingBox + ")")
           .hasArg()
           .withType(Integer.class)
