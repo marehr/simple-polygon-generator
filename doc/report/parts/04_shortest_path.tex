@@ -5,19 +5,19 @@ Unsere Implementierung des Shortest-Path Algorithmus basiert auf dem Paper \enqu
 
 \subsection{Algorithmus}
 
-Allgemein benutzt der Algorithmus ein Tripel aus drei Punkten (p,q1,q2) um durch das Polygon zu navigieren. Es gilt, dass der Punkt p ein Punkt des Shortest-Path ist und das Polygon hinter q1, q2 den Zielpunkt (t) enthält.\\
+Allgemein benutzt der Algorithmus ein Tripel aus drei Punkten ($p$,$q_1$,$q_2$) um durch das Polygon zu navigieren. Es gilt, dass der Punkt $p$ ein Punkt des Shortest-Path ist und das Polygon hinter $q_1$, $q_2$ den Zielpunkt ($t$) enthält.\\
 Um dies zu erreichen wird zu Beginn das Polygon in Trapeze unterteilt. Vom Startpunkt aus wird ein Dreieck zu jeweils zwei benachbarten Eckpunkten des Trapezes aufgespannt und geprüft, ob das dahinter liegende Polygon den Zielpunkt enthält. Der triviale Fall, in dem sich der Zielpunkt im gleichen Trapez befindet wie der Startpunkt wird natürlich zu beginn überprüft.\\
-Ausgehend von dem Trapez in dem der Startpunkt liegt wird das Polygon so reduziert, dass sich der Zielpunkt immer noch innerhalb des Polygons befindet. Um den nächsten Punkt des Shortest-Path zu finden wird die Krümmung von p,q1,succ(q1) bzw p,q2,pred(q2) betrachtet.
+Ausgehend von dem Trapez in dem der Startpunkt liegt wird das Polygon so reduziert, dass sich der Zielpunkt immer noch innerhalb des Polygons befindet. Um den nächsten Punkt des Shortest-Path zu finden wird die Krümmung von $p$,$q_1$,\texttt{succ}($q_1$) bzw $p$,$q_2$,\texttt{pred}($q_2$) betrachtet.
 
 \subsection{Implementierung}
 
 Bei der Implementierung konnten wir uns größten Teils an die Vorgaben des Paper halten. Allerdings mussten wir feststellen, dass sich das Unterteilen des Polygons in Trapeze als schwieriger herausstellte als zunächst angenommen. Schließlich entschieden wir uns auf die Unterteilung zu verzichten und stattdessen in einen etwas einfacheren Ansatz zu verwenden.\\
-Die Initialisierung des Starttripel funktioniert folgender Maßen:
+Die Initialisierung des Starttripel funktioniert folgendermaßen:
 
 \begin{enumerate}
 \item Finde alle Eckpunkte des Polygons, die direkt vom Startpunkt aus sichtbar sind.
-\item Erzeuge von je zwei Eckpunkten und dem Startpunkt ein Subpolygon und überprüfe ob t darin liegt.
-\item Falls t in dem Polygon liegt ist die Startkonfiguration gefunden. Andernfalls untersuche die nächsten zwei Punkte
+\item Erzeuge von je zwei Eckpunkten und dem Startpunkt ein Subpolygon und überprüfe ob $t$ darin liegt.
+\item Falls $t$ in dem Polygon liegt ist die Startkonfiguration gefunden. Andernfalls untersuche die nächsten zwei Punkte
 \end{enumerate}
 
 \subsection{Laufzeit}
