@@ -1,6 +1,7 @@
 package polygonsSWP.generators.rpa;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 
 public class CircularList <E>
@@ -99,6 +100,15 @@ public class CircularList <E>
     @Override
     public void set(E arg0) {
       _list.set(_index, arg0);
+    }
+  }
+  
+  public CircularList(){}
+  
+  public CircularList(List<E> elements){
+    CircularIterator<E> circIter = (CircularIterator<E>)this.listIterator();
+    for (E e : elements) {
+      circIter.add(e);
     }
   }
   

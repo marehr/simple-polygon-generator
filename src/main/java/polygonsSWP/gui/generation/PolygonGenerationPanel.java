@@ -138,6 +138,7 @@ public class PolygonGenerationPanel
   @Override
   public void onFinished(Polygon polygon) {
 //    stats.stop();
+
     b_generate_polygon.setText("Generate");
     t = null;
     emitPolygonGenerated(polygon);

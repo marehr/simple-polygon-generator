@@ -354,7 +354,42 @@ public abstract class Polygon
     Collections.sort(isecs, isecComparator);
     
     for (Point[] points : isecs) {
-      if(points[0] != null && points[0] != r._support)
+      if(points[0] != null && !points[0].equals(r._support))
+        return points;
+    }
+    
+    return null;
+  }
+  
+  public Point[] lastIntersection(final Ray r) {
+    List<Point[]> isecs = intersect(r, false);
+
+    Comparator<Point[]> isecComparator = new Comparator<Point[]>() {
+
+      @Override
+      public int compare(Point[] isec1, Point[] isec2) {
+        if (isec1[0] != null && isec2[0] == null)
+          return -1;
+        else if (isec1[0] == null && isec2[0] != null)
+          return 1;
+        else if (isec1[0] == null && isec2[0] == null)
+          return 0;
+        
+        else if(isec1[0].distanceTo(r._base) < isec2[0].distanceTo(r._base))
+          return -1;
+        else if(isec1[0].distanceTo(r._base) > isec2[0].distanceTo(r._base))
+          return 1;
+        else 
+          return 0;
+      }
+    };
+    
+    Collections.sort(isecs, isecComparator);
+    
+    for (int i = isecs.size() - 1; i >= 0; --i) {
+      Point[] points = isecs.get(i);
+
+      if(points[0] != null && !points[0].equals(r._support))
         return points;
     }
     

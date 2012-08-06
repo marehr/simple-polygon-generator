@@ -277,13 +277,13 @@ public class GeneratorUtils
    * Colliniars, vertices of Polygon and end points don't count as intersections.
    * 
    * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+   * @param polygon
    * @param a
    * @param b
-   * @param polygon
    * @return
    */
-  public static boolean isPolygonVertexVisibleNoBlockingColliniears(Point a,
-      Point b, Polygon polygon) {
+  public static boolean isPolygonVertexVisibleNoBlockingColliniears(Polygon polygon,
+      Point a, Point b) {
 
     List<Point[]> intersections =
         polygon.intersect(new LineSegment(a, b), false);

@@ -716,7 +716,7 @@ public class OrderedListPolygon
     if (_triangles != null) return _triangles;
 
     assert size() >= 3;
-    assert (isSimple());
+    //assert (isSimple());
     if(isClockwise() != -1) reverse();
     assert (isClockwise() == -1);
 
