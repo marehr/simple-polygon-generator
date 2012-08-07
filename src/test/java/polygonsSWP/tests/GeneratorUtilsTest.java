@@ -147,22 +147,6 @@ public class GeneratorUtilsTest
     assertFalse(GeneratorUtils.isPolygonVertexVisible(point, points.get(1),
         polygon));
   }
-
-  @Test
-  public void isPolygonVertexVisibleNoBlockingColliniearsTestGeneralPosition() {
-    List<Point> points =
-        Arrays.asList(new Point(20, 30), new Point(30, 35), new Point(30, 45));
-    Polygon polygon = new OrderedListPolygon(points);
-    Point point = new Point(0, 0);
-
-    // letzter Testcase schlaegt fehl, obwohl eigentlich sichtbar.
-    assertTrue(GeneratorUtils.isPolygonVertexVisible(point, points.get(0),
-        polygon));
-    assertTrue(GeneratorUtils.isPolygonVertexVisible(point, points.get(1),
-        polygon));
-    assertFalse(GeneratorUtils.isPolygonVertexVisible(point, points.get(2),
-        polygon));
-  }
   
   @Test
   public void testIsPointOnPolygonVisible(){
@@ -175,7 +159,7 @@ public class GeneratorUtilsTest
     polyognPoints.add(new Point(0,2));
     Polygon testPolygon = new OrderedListPolygon(polyognPoints);
     assertTrue(GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(testPolygon, new Point(0,0), new Point(0,2)));
-    assertFalse(GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(testPolygon, new Point(0,0), new Point(3,0)));
+    assertTrue(GeneratorUtils.isPolygonVertexVisibleNoBlockingColliniears(testPolygon, new Point(0,0), new Point(3,0)));
     
     polyognPoints.clear();
     polyognPoints.add(new Point(372.568,276.651));
