@@ -31,10 +31,35 @@ Wir präsentieren hier den Zeitplan des Projekts in Form eines GANTT-Diagramms, 
 
 \begin{figure}[h]
 \begin{center}
-\begin{PstGanttChart}[yunit=2,ChartUnitIntervalName=Month,TaskUnitIntervalValue=30,TaskUnitType=Month,ChartShowIntervals]{3}{4}
-\PstGanttTask[TaskInsideLabel={Task 1}]{0}{1}
-\PstGanttTask[TaskInsideLabel={Task 2},TaskUnitType=Day]{24}{40} % 40 days starting at day 24
-\PstGanttTask[TaskInsideLabel={Task 3}]{2}{2}
+\bfseries\fontsize{5}{5}\selectfont
+\newpsstyle{TaskStyleA}{fillstyle=solid,fillcolor=red}
+\begin{PstGanttChart}[%	
+	yunit=1.0,
+	xunit=0.68,
+	ChartUnitIntervalName=KW,
+	ChartUnitBasicIntervalName=KW,
+%    ChartModulo,
+    ChartModuloValue=52,
+    TaskUnitIntervalValue=14,
+    TaskUnitType=KW,
+    ChartStartInterval=43,
+    ChartShowIntervals]{15}{15}
+\psset{TaskStyle=TaskStyleA}
+\PstGanttTask[TaskInsideLabel={PolygonGenerator interface}]{0}{4}
+\PstGanttTask[TaskInsideLabel={Data structures scratch}]{0}{4}
+\PstGanttTask[TaskInsideLabel={GUI scratch}]{0}{4}
+\PstGanttTask[TaskInsideLabel={Data structures done}]{1}{3}
+\PstGanttTask[TaskInsideLabel={First polygon algorithms}]{1}{4}
+\PstGanttTask[TaskInsideLabel={ShortestPathGenerator interface}]{1}{4}
+\PstGanttTask[TaskInsideLabel={All polygon algorithms}]{3}{4}
+\PstGanttTask[TaskInsideLabel={Shortest path algorithm}]{3}{4}
+\PstGanttTask[TaskInsideLabel={GUI}]{3}{4}
+\PstGanttTask[TaskInsideLabel={History data structure}]{6}{4}
+\PstGanttTask[TaskInsideLabel={Step-by-step visualisation}]{6}{4}
+\PstGanttTask[TaskInsideLabel={Statistics backend}]{6}{4}
+\PstGanttTask[TaskInsideLabel={Improved GUI}]{10}{3}
+\PstGanttTask[TaskInsideLabel={Statistics visualisation}]{10}{3}
+\PstGanttTask[TaskInsideLabel={Cleanup for release}]{12}{3}
 \end{PstGanttChart}
 \end{center}
 \label{fig:gantt}
