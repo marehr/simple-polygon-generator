@@ -12,6 +12,10 @@ All dependencies will be downloaded automatically.
 
 $ ./run.sh [options]
 
+or
+
+$ mvn exec:java
+
 == Hacking with Eclipse ==
 
 To integrate the project in eclipse, one has two options:
@@ -26,4 +30,7 @@ $ mvn eclipse:eclipse
 
 == Packaging ==
 
+The following command will produce the release tarball in target/polygonsSWP-release.tar.gz.
+
 $ mvn package
+

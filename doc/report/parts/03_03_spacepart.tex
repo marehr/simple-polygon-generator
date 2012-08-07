@@ -1,7 +1,15 @@
 
 \subsection{Space Partitioning}
 
-``Space Partioning'' ist einer der mehreren im Paper ``RPG - Heuristics for the
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.3\textwidth]{img/spacepart200.eps}
+\end{center}
+\caption{Polygon mit 200 Punkten (Space Partitioning)}
+\label{fig:icb14}
+\end{figure}
+
+``Space Partitioning'' ist einer der mehreren im Paper ``RPG - Heuristics for the
 Generation of Random Polygons'' von T.Auer und M. Held~\cite{held98polygons}
 beschriebenen Algorithmen zur Generierung von einfachen Polygonen.
 
@@ -17,7 +25,7 @@ Wie oben schon beschrieben ist ``Space Partitioning'' ein Divide \& Conquer Algo
 der in der Betrachtung und Umsetzung die Allgemeine Lage voraussetzt. \\
 
 \noindent
-Space Partioning besteht im wesentlichen aus drei Schritten:
+Space Partitioning besteht im wesentlichen aus drei Schritten:
 \begin{itemize}
   \item[1.] Die Berechnung einer Geraden $l$, die den Rand der Halbebenen repr"asentiert
             und somit die Punktmenge in zwei eindeutige Partitionen teilt
@@ -27,17 +35,18 @@ Space Partioning besteht im wesentlichen aus drei Schritten:
 \end{itemize}
 
 \noindent
-Bevor die Rekursion im Space Partioning Algorithmus ausgef"uhrt werden
+Bevor die Rekursion im Space Partitioning Algorithmus ausgef"uhrt werden
 kann, muss diese gesondert initialisert werden, in dem wir einmalig zwei Punkte aus der
 Punktmenge zuf"allig ausw"ahlen und die Partition anhand der Geraden, die durch diese
 zwei gew"ahlten Punkte verl"auft, vornehmen. \\
 Der eigentliche Rekursionsschritt braucht dabei diese Anfangs- und Endpunkte, um eine
 neue Partitionsgerade zu konstruieren. \\
 In der Implementierung wurde darauf geachtet, dass die in der Rekursion erstellten
-Teilpolygone die Anfangs- bzw. Endpunkte an erster bzw. letzter Position in der
-Polyline zu stehen haben - je nachdem, ob es sich um das linke oder rechte Teilpolygon
+Teilpolygone die Anfangs- bzw. Endpunkte an erster bzw. letzter Position in dem 
+Polygonzug zu stehen haben - je nachdem, ob es sich um das linke oder rechte Teilpolygon
 handelt -, wodurch der Merge-Schritt nur an den Grenzen der Polylines Duplikate entfernen
 musste, um das Polygon zu erstellen.
+Au"serdem wurde auf eine CCW-Sortierung der Punkte geachtet.
 
 % Einbauen?
 %Wir k"onnen insgesamt folgende Beobachtung in einer Invariante ausdr"ucken:
@@ -47,7 +56,7 @@ musste, um das Polygon zu erstellen.
 % TODO:
 % die im Prozess der Konstruktion im Allgemeinen nicht einfach bleiben
 
-\begin{code}[caption={Space Partioning}, mathescape=true]
+\begin{code}[caption={Space Partitioning}, mathescape=true]
 choose two random points $s_f$ and $s_l$ and remove them
 
 left, right $\leftarrow$ partition points in the left/right side of the line $l(s_f, s_l)$
@@ -65,7 +74,7 @@ die Partitionierung mithilfe der Geraden $l$ (siehe Z. \ref{lst:space_line}) erf
 Diese Gerade $l$ wird durch einen zuf"allig gew"ahlten Anfangspunkt auf der Strecke
 $s_f$, $s_l$ und einem zuf"alligen Endpunkt aus der Punktmenge ``points'' definiert.
 
-\begin{code}[caption={Rekursion Space Partioning}, mathescape=true, escapeinside={@}{@}]
+\begin{code}[caption={Rekursion Space Partitioning}, mathescape=true, escapeinside={@}{@}]
 Space Partitioning(points, $s_f$, $s_l$)
 
   if points only contains $s_f$ and $s_l$
@@ -88,7 +97,7 @@ Space Partitioning(points, $s_f$, $s_l$)
 
 Die Laufzeitanalyse von ``Space Partitioning'' ist analog zur Laufzeitanalyse
 von Quicksort. Sei $n$ die Anzahl der vorgegebenen Punktmenge.
-Nach der Rekursionsbaum-Analysemethode werden in jeder Rekursionsebene 
+Nach der Rekursionsbaum Analysemethode werden in jeder Rekursionsebene 
 h"ochstens $\bigO(n)$ Operationen ausgef"uhrt (Die Punktmenge wird komplett
 unter den Rekursionaufrufen einer Rekursionsebene aufgeteilt).
 Wodurch die Laufzeit sich nur nach der Rekursionstiefe richtet.
@@ -99,8 +108,17 @@ $\bigO(n^2)$, aber in vielen F"allen eine sehr viele bessere $\bigO(n \log n)$
 Laufzeit.
 
 \subsubsection{Eigenschaften}
-
-* Laufzeit
-* Nicht Inclusive
-* Implementierung: Counter Clockwise
-* Schnellster implementierter Algorithmus
+Aufgrund des einfachen Divide \& Conquer Ansatzes und ausschlie"slichen Verwendung
+von Basis-Operationen, wie z.B. eines Orientierungstests, ist ``Space Partitioning''
+der schnellste implementierte Algorithmus dieses Projekts.
+Wodurch ``Space Partitioning'' sich f"ur Testpolygone mit gro"sen Punktmengen
+(100.000 Punkte in weniger als 10s) anbietet.
+Leider ist ``Space Partitioning'' nach T.Auer und M. Held~\cite{held98polygons} nicht inclusive, 
+dennoch geben sie in ihrem Paper an, dass
+bei 100.000 Durchl"aufen mit 10 Punkten ungef"ahr 10-20\% der
+generierten Polygone Duplikate von bereits generierten waren.
+Bei 100 Punkten und 100.000 Durchl"aufen wurde kein Polygon mehrfach erzeugt.
+Wodurch es, nach ihrere Einsch"atzung, bei gro"sen Punktmengen unwahrscheinlich ist,
+dass Polygone mehrfach generiert werden. Au"serdem konnten sie bei ihrerer Datenanalyse
+feststellen, dass man nicht erwarten sollte, dass die erzeugten Polygone gleichverteilt
+auftreten.

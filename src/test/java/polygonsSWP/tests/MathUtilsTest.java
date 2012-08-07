@@ -71,6 +71,8 @@ public class MathUtilsTest
    */
   @Test
   public void testTriangulatePolygon() {
+    System.out.println("--- test testTriangulatePolygon: ---");
+    
     // Create a triangle
     List<Point> pPoints = new ArrayList<Point>();
     pPoints.add(new Point(0, 2));
@@ -83,16 +85,19 @@ public class MathUtilsTest
     assertEquals(result.size(), 1);
     assertTrue(poly.equals(triangle));
 
-    triangle.addPoint(new Point(2, 2));
+    pPoints.add(new Point(2, 2));
+    triangle = new OrderedListPolygon(pPoints);
     result = triangle.triangulate();
     assertEquals(2, result.size());
 
-    triangle.addPoint(new Point(1, 3));
+    pPoints.add(new Point(1, 3));
+    triangle = new OrderedListPolygon(pPoints);
     result = triangle.triangulate();
     assertEquals(3, result.size());
 
-    triangle.deletePoint(new Point(1, 3));
-    triangle.addPoint(new Point(1, 1));
+    pPoints.remove(new Point(1, 3));
+    pPoints.add(new Point(1, 1));
+    triangle = new OrderedListPolygon(pPoints);
     result = triangle.triangulate();
     assertEquals(3, result.size());
     
