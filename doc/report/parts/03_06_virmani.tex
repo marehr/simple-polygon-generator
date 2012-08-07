@@ -56,9 +56,7 @@ In diesem Teil wird jeder Punkt zufällig verschoben, die maximale Distanz, die 
 Sollte es vorkommen das der Zustand nicht Punkt 1 enspricht (simpel und in den Grenzen), so wird die Verschiebung rückgängig gemacht und für diesen Punkt im Polygon ändert sich nichts.
 Dieser gesamte Prozess wird \enquote{iterations}-oft ausgeführt sodass es wirklich zufällig wird.
 
-\subsubsection{Pseudocode}
-
-\begin{code}[mathescape=true]
+\begin{code}[caption={Pseudocode},mathescape=true]
 for (int i=0; i < iterations; i++)
 {
 	foreach($p_i$ in polygon)
