@@ -197,7 +197,7 @@ public class PolygonsMain {
 					.withLongOpt("output")
 					.withArgName("Output path")
 					.withDescription(
-							"When specified, the generated polygons will be saved at this path with a fixed-digit trailing index number.")
+							"When specified, the generated polygons and statistics(if set) will be saved in this File.")
 					.hasArg().isRequired(false).withType(String.class).create();
 
 			Option statistics = OptionBuilder
