@@ -1,18 +1,13 @@
 \section{Manual}
 \label{sec:manual}
-\subsection{Dependencies \& Compilation}
-Das Framework nutzt verschiedene Bibliotheken zum Testen, Generieren von Vektorbildern, Datenbankzugriff und das parsen von der Eingabe. Wir nutzen Maven um diese effizient und sauber zu implementieren und die Vorraussetzung ist Java 1.6.
-\subsubsection{Dependancies}
+\subsection{Systemvorraussetzungen \& Kompilation}
+Das Framework nutzt verschiedene Bibliotheken zum Testen, Generieren von Vektorbildern, Datenbankzugriff und zur Parsierung von Kommandozeilenparametern. Wir nutzen Maven2 als \emph{build tool}, um diese Abhängigkeiten automatisiert aufzulösen. Die Kompilation wurde von uns ausschließlich unter GNU/Linux-Systemen getestet, jedoch sollte die Portierung nach Microsoft Windows leicht möglich sein. Vorraussetzungen für eine erfolgreiche Kompilation sind (in Klammern die Namen der Pakete bei Debian/Ubuntu-Systemen mit erfolgreich getesteten Versionsnummern):
 \begin{itemize}
-	\item junit\\
-	Unit-Testing unter Java
-	\item Batik SVG Toolkit\\
-	Genutzt um SVG zu generieren, anzuzeigen und zu manipulieren
-	\item SQLite4Java\\
-	Um in die Datenbank zu schreiben
-	\item Apache Commons CLI library\\
-	Um die Konsoleneingabe standartisiert zu parsen und zu verarbeiten. Vereinfacht das schreiben von der Usage.
+	\item Java 1.6 Development Kit (\texttt{openjdk-6-jdk}, Version \enquote{6b18-1.8.7-2~squeeze1})
+	\item Maven 2 (\texttt{maven2}, Version 2.2.1-5)
 \end{itemize}
+
+Weiterführende Informationen zur Kompilierung des Projekts finden sich in der beiliegenden \texttt{README}-Datei.
 
 \subsection{Grafische Oberfläche}
 Die Oberfläche ist dazu da Polygone zu generieren, den Shortest Path zu berechnen und diesen darzustellen.\\
@@ -23,10 +18,9 @@ Die Oberfläche ist dazu da Polygone zu generieren, den Shortest Path zu berechn
 \subsubsection{Funktionen}
 \begin{itemize}
 	\item Generierung von Polygonen
-	\item Visualisierung der Polygone
-	\item Manuelles setzen eines Polygons
-	\item Schritt für Schritt-Visualisierung von der Erstellung des Polygons
-	\item Zoomen und Bewegen in der Visualisierung des Polygons
+	\item Visualisierung der Polygon-Algorithmen
+	\item Manuelle Auswahl der Punktmenge eines Polygons
+	\item Zoomen und Bewegen
 	\item Anzeigen der Werte einzelner Polygone
 	\item Berechnung des Shortest-Path
 	\item Speichern des Polygons
@@ -34,9 +28,9 @@ Die Oberfläche ist dazu da Polygone zu generieren, den Shortest Path zu berechn
 
 \subsection{Kommandozeile}
 Mit der Kommandozeile ist es möglich mehrere Polygone und deren Statistiken gleichzeitig zu erzeugen und diese in eine Ausgabedatei zu schreiben. Zusätzlich ist es möglich die Anzahl der Threads zu bestimmen für optimales paralleles Berechnen. Damit ist es möglich viele verschiedene Polygone mit den gleichen Parametern zu erzeugen. Die Parameter werden im \enquote{GNU-Stil} angegeben.\\
-Um die Usage-Hilfe zu bekommen ruft man das Programm mit dem Parameter --help oder --usage auf. Folgender Block ist ein gekürzter Ausschnitt aus der Usage. Alle weiteren Parameter sind in der Usage näher erläutert.
+Um die Usage-Hilfe zu bekommen ruft man das Programm mit dem Parameter --help oder --usage auf. Listing~\ref{listing_usage} zeigt einen gekürzten Ausschnitt aus der Usage. Alle weiteren Parameter sind in der Usage näher erläutert.
 
-\begin{code}
+\begin{code}[caption={Usage der Kommandozeile},label=listing_usage]
 usage: run.sh [--algorithm <Algorithm>] [--boundingbox <boundingbox>]
        [--database <Database file>] [--help] [--number <Number of
        polygons>] [--output <Output path>] [--points <Number of points>]
@@ -62,4 +56,8 @@ batch-mode.
 [...]
 \end{code}
 
-Die Nutzung ist einfach gestaltet und selbsterklärend. Bei der Generierung von 10 Polygonen mittels SpacePartitioning, 25 Punkten, 200 radius und der Ausgabe in den Ordner out, wäre der Aufruf: \enquote{run.sh --algorithm 0 --points 25 --radius 200 --output out}. Alle weiteren Aufrufe sind equivalent von der Syntax.
+\begin{code}[caption={Beispiel-Ausführung},label=listing_usage_example]
+\$ run.sh --algorithm 0 --number 10 --points 25 --output out/polygon
+\end{code}
+
+Das Beispiel-Kommando in Listing~\ref{listing_usage_example} führt zur Generierung von 10 Polygonen mit je 25 Punkten mit Hilfe des \emph{Space Partitioning}-Algorithmus. Die erzeugten Polygone werden im Verzeichnis \texttt{out} unter dem Namen \texttt{polygon-01}, \texttt{polygon-02}, usw. gespeichert.
