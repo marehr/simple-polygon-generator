@@ -1,38 +1,81 @@
 \subsection{Random Polygon Algorithm} % (fold)
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.3\textwidth]{img/rpa200.eps}
+\end{center}
+\caption{Polygon mit 200 Punkten (Random Polygon Algorithm)}
+\label{fig:virmani200}
+\end{figure}
+
 \label{sub:random_polygon_algorithm}
-		dailey und whitfield neue methode für ngons
-			in polynomieller zeit
-			inclusive
 
-	\subsubsection{Algorithmus} % (fold)
-	\label{ssub:algorithmus}
+  Der \textit{Random Polygon Algorithm} (RPA) ist ein von Dailey und
+  Whitfield in~\cite{dailey08rpa} beschriebener Algorithmus zur Erzeugung
+  beliebiger Repräsentanten aus der Klasse aller einfachen Polygone.
 
-		pseudocode
-			fehler in der bestimmung ob punkte innen/aussen liegen
-			beschreibung eigener methode
+  \subsubsection{Algorithmus} % (fold)
+  \label{ssub:algorithmus}
 
-		bug
-			wahrscheinlich ungenauigkeit
-		
-	
-	% subsubsection algorithmus (end)
+    Der RPA arbeitet im Gegensatz zu den anderen hier aufgefürten
+    Algorithmen nicht auf einer gegebenen Punktmenge. Stattdessen werden
+    alle Punkte des erzeugten Polygons zur laufzeit berechnet und
+    eingefügt. Zur initialisierung werden zunächst drei beliebige Punkte
+    innerhalb der Boundingbox gewählt. Anschliessend werden für ein n-gon
+    die folgenden Schritte (n-3)-mal ausgeführt:
 
-	\subsubsection{Eigenschaften} % (fold)
-	\label{ssub:eigenschaften}
+    \begin{itemize}
+      \item Wähle eine zufällige Kante $V_aV_b$ des Polygons.
+      \item Bestimme die von dieser Kante sichtbare Region.
+      \item Wähle einen zufälligen Punkt $V_c$ innerhalb der 
+            erzeugten sichtbaren Region und füge diesn in das 
+            Polygon ein. Ersetze die Kante $V_aV_b$ durch die Kanten 
+            $V_aV_c$ und $V_cV_b$.
+    \end{itemize}
 
-		geschätzte komplexität
-			worst case $ O(n^2  \log n)$
-			aufgrund von fehler wohl mehr
+    Zur Bestimmung der sichtbaren Region wird als erstes die von der Kante AB
+    sichtbare Region innerhalb des Polygons ermittelt. Anschliessend wird die
+    von AB sichtbare Region ausserhalb des Polygons und innerhalb der
+    Boundingbox bestimmt und mit der inneren verbunden. Zur Erzeugung des
+    Punktes X wird die erhaltene Gesamtregion trianguliert und aus der
+    erhaltenen Menge von Dreiecken eins gewichtet nach der Größe zufällig
+    gewählt. Innerhalb dieses Dreiecks wird nun ein Punkt zufällig gewält und
+    als Punkt X in das Polygon eingefügt. Für eine detailierte Beschreibung
+    des Algorithmus siehe~\cite{dailey08rpa}.
+  
+  % subsubsection algorithmus (end)
 
+  \subsubsection{Eigenschaften \& Implementierungsdetails} % (fold)
+  \label{ssub:eigenschaften}
 
-		inclusiveness
-			angezweifelt
-			neue punkte werden immer nur innerhalb der visible region gewählt, welche sich innerhalb des vorher existierenden polygons befindet. demensprechend jedes erzeugte polygon konvexe hülle eines dreiecks (der anfänglich gewählten punkte)
+    Um den inneren und äußeren Teil der von $V_aV_b$ sichtbaren Region
+    aufzubauen ist es nötig zu bestimmen ob ein Punkt von $V_a$ und von $V_b$
+    aus sichtbar sind. Zudem werden sichtbare Punkte in von innen sichtbare
+    (d.h. die Sichtlinie befindet sich gänzlich innerhalb des Polygons) und
+    von aussen sichtbare (d.h. die Sichtlinie befindet sich gänzlich
+    ausserhalb des Polygons, jedoch innerhalb der Boundingbox) unterteilt.
+    In~\cite{dailey08rpa} wird hierzu ein einfacher Test auf Schnittpunkte mit
+    der Kante $V_aV_b$ vorgeschlagen, jedoch nicht beschrieben, mit welcher
+    weiteren Kante $V_aV_b$ geschnitten wird. Für einen Punkt $V_x$ ist es
+    jedoch mit einem Sichtbarkeitstest und zwei Winkeltest möglich zu
+    bestimmen, ob der Weg auf dem Polygon von $V_a$ bzw. $V_b$ zu $V_x$ links
+    oder rechts der Sichtlinie von $V_a$ bzw. $V_b$ zu $V_x$ liegt.
 
-			gegenbeispiel 20 deg rotiertes rechteck (aufgrund von einschränkung general position rotiert)
+    Die von Dailey und Whitfield in~\cite{dailey08rpa} abgeschätzte worst-case
+    Laufzeit des RPA beträgt $\bigO(n^3)$. Hierbei gehen sie von einer
+    Triangulierung in $\bigO(n \log n)$ aus. Der von uns verwendete Ear
+    Clipping Algorithmus erreicht jedoch nur eine Laufzeit von $\bigO(n^2)$,
+    so dass die worst-case Laufzeit des RPA insgesamt auf $\bigO(n^4)$ steigt.
+    Mit einem schnelleren, jedoch gleichzeitig wesentlich komplexeren
+    Triangulierungsalgorithmus wie dem von Seidel~\cite{seidel91asimple} wäre
+    die von Dailey und Whitfiel abgeschätzte Laufzeit auch mit der
+    vorliegenden Implementierung des RPA zu erreichen.
 
-			- > nicht inclusive
+    Von den von uns implementierten Algorithmen ist der RPA der einzige,
+    welcher Repräsentanten aus der Klasse aller einfachen Polygone erzeugt.
+    Der von Dailey und Whitfield hierzu geführete Beweis ist in
+    ~\cite{dailey08rpa} zu finden.
 
-	% subsubsection eigenschaften (end)
+  % subsubsection eigenschaften (end)
 
 % subsection random_polygon_algorithm (end)
