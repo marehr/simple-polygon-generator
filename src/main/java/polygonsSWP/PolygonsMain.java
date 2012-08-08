@@ -26,6 +26,7 @@ import polygonsSWP.generators.heuristics.SteadyGrowthFactory;
 import polygonsSWP.generators.heuristics.TwoOptMovesFactory;
 import polygonsSWP.generators.heuristics.VelocityVirmaniFactory;
 import polygonsSWP.generators.other.ConvexHullGeneratorFactory;
+import polygonsSWP.generators.other.EnumeratingPermuteAndRejectFactory;
 import polygonsSWP.generators.other.PermuteAndRejectFactory;
 import polygonsSWP.generators.other.TwoPeasantsGeneratorFactory;
 import polygonsSWP.generators.rpa.RandomPolygonAlgorithmFactory;
@@ -41,7 +42,8 @@ public class PolygonsMain {
 			new TwoOptMovesFactory(), new RandomPolygonAlgorithmFactory(),
 			new IncrementalConstructionAndBacktrackingFactory(),
 			new ConvexHullGeneratorFactory(), new VelocityVirmaniFactory(),
-			new SteadyGrowthFactory(), new TwoPeasantsGeneratorFactory() };
+			new SteadyGrowthFactory(), new TwoPeasantsGeneratorFactory(),
+			new EnumeratingPermuteAndRejectFactory()};
 
 	public static void main(String[] args) {
 		// Process command line.
