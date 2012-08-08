@@ -75,19 +75,19 @@
     Dieser gesamte Prozess wird \enquote{iterations}-oft ausgeführt sodass 
     es wirklich zufällig wird.
 
-    \begin{code}[caption={Pseudocode},mathescape=true]
-    for (int i=0; i < iterations; i++)
-    {
-      foreach($p_i$ in polygon)
-      {
-        move_point_randomly($p_i$, maxvelocity);
-        if(isSimple(polygon) && isInBound(polygon))
-          continue;
-        else
-          revert_move_point_randomly($p_i$);
-      }
-    }
-    \end{code}
+\begin{code}[caption={Pseudocode},mathescape=true]
+for (int i=0; i < iterations; i++)
+{
+  foreach($p_i$ in polygon)
+  {
+    move_point_randomly($p_i$, maxvelocity);
+    if(isSimple(polygon) && isInBound(polygon))
+      continue;
+    else
+      revert_move_point_randomly($p_i$);
+  }
+}
+\end{code}
 
   \subsubsection{Überprüfen ob das Polygon simpel ist}
     In dem Velocity Virmani wird nach jedem Punkt getestet ob das Polygon 

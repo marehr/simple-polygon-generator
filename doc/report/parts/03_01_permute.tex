@@ -20,17 +20,17 @@
     d.h. überschneidungsfrei ist. Falls nicht, wird das Polygon verworfen und
     von vorne begonnen.
 
-    \begin{code}[caption={Permute \& Reject},label=permutelisting,mathescape=true]
-      retry:
-      $P$ $\leftarrow$ given set of points
-      $p$ $\leftarrow$ remove random point from $P$
-      while ($P$ not empty)
-        $q$ $\leftarrow$ remove random point from $P$
-        draw edge from $p$ to $q$
-        $p$ $\leftarrow$ $q$
-      if resulting polygon is NOT simple
-        goto retry
-    \end{code}
+\begin{code}[caption={Permute \& Reject},label=permutelisting,mathescape=true]
+retry:
+$P$ $\leftarrow$ given set of points
+$p$ $\leftarrow$ remove random point from $P$
+while ($P$ not empty)
+  $q$ $\leftarrow$ remove random point from $P$
+  draw edge from $p$ to $q$
+  $p$ $\leftarrow$ $q$
+if resulting polygon is NOT simple
+  goto retry
+\end{code}
 
   \subsubsection{Eigenschaften}
 
