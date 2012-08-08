@@ -1,112 +1,167 @@
 \subsection{Velocity Virmani}
 
-\begin{figure}[h]
-\begin{center}
-\includegraphics[width=0.3\textwidth]{img/virmani200.eps}
-\end{center}
-\caption{Polygon mit 200 Punkten (Velocity Virmani)}
-\label{fig:virmani200}
-\end{figure}
+	\begin{figure}[h]
+		\begin{center}
+			\includegraphics[width=0.3\textwidth]{img/virmani200.eps}
+		\end{center}
+		\caption{Polygon mit 200 Punkten (Velocity Virmani)}
+		\label{fig:virmani200}
+	\end{figure}
 
-Der Algorithmus \enquote{Velocity Virmani} wurde am 25. Juli 1991 in dem Paper \enquote{Generating Random Polygons} von Joseph O'Rourke und Mandira Virmani veröffentlicht \cite{virmani91polygons}.\smallskip \\ 
-Er beschreibt einen Algorithmus zur Generierung zufälliger simpler Polygone mittels Verschiebungen von Punkten. In dem genannten Paper wurde dem Algorithmus kein Name gegeben, deshalb haben wir uns die Freiheit genommen und werden in unserer Ausarbeitung mit dem Namen \enquote{Velocity Virmani} oder \enquote{Virmani} darauf verweisen.
+	Der Algorithmus \enquote{Velocity Virmani} wurde am 25. Juli 1991 in dem 
+	Paper \enquote{Generating Random Polygons} von Joseph O'Rourke und Mandira 
+	Virmani veröffentlicht \cite{virmani91polygons}.\smallskip \\ 
+	Er beschreibt einen Algorithmus zur Generierung zufälliger simpler 
+	Polygone mittels Verschiebungen von Punkten. In dem genannten Paper wurde 
+	dem Algorithmus kein Name gegeben, deshalb haben wir uns die Freiheit 
+	genommen und werden in unserer Ausarbeitung mit dem Namen \enquote{
+	Velocity Virmani} oder \enquote{Virmani} darauf verweisen.
 
-Der Algorithmus besteht aus 3 Kernkomponenten:
-\begin{enumerate}
-	\item Die Generierung von einem regulären Polygon with n Punkten
-	\item Zufällige Verschiebungen der Eckpunkte
-	\item Die Überprüfung ob das Polygon noch simpel ist
-\end{enumerate}
+	Der Algorithmus besteht aus 3 Kernkomponenten:
+	\begin{enumerate}
+		\item Die Generierung von einem regulären Polygon with n Punkten
+		\item Zufällige Verschiebungen der Eckpunkte
+		\item Die Überprüfung ob das Polygon noch simpel ist
+	\end{enumerate}
 
-\subsubsection{Generierung des regulären Polygons}
-Eingabeparameter: 
-\begin{itemize}
-	\item Anzahl der Punkte(n)
-	\item Radius(r)
-\end{itemize}
-Ausgabe:
-\begin{itemize} 
-	\item Reguläres Polygon mit n Punkten
-\end{itemize}
-Hier wird ein reguläres Polygon generiert indem man auf einem Kreis n Punkte gleichmäßig verteilt und diese dann miteinander verbindet. Um zu berechnen wo jeder einzelne Punkt gesetzt wird muss vorher der Abstand zwischen jedem Punkt berechnet werden. Dazu nimmt man den vollen Kreisradius (PI*2) und teilt diesen durch die Anzahl der Punkte(n): $winkel = (PI * 2) / n$.\\ 
-Das Ergebnis ist der Abstand, als Winkel, zwischen jedem einzelnen Punkt.
-Mit dem Radius zusammen kann man dann die jeweiligen Koordinaten des regulären Polygons berechnen:\\
-$x_i = r * cos(winkel * i)$\\
-$y_i = r * sin(winkel * i)$
+	\subsubsection{Generierung des regulären Polygons}
+		Eingabeparameter: 
+		\begin{itemize}
+			\item Anzahl der Punkte(n)
+			\item Radius(r)
+		\end{itemize}
+		Ausgabe:
+		\begin{itemize} 
+			\item Reguläres Polygon mit n Punkten
+		\end{itemize}
+		Hier wird ein reguläres Polygon generiert indem man auf einem Kreis n 
+		Punkte gleichmäßig verteilt und diese dann miteinander verbindet. Um 
+		zu berechnen wo jeder einzelne Punkt gesetzt wird muss vorher der 
+		Abstand zwischen jedem Punkt berechnet werden. Dazu nimmt man den 
+		vollen Kreisradius (PI*2) und teilt diesen durch die Anzahl der Punkte(
+		n): $winkel = (PI * 2) / n$.\\ 
+		Das Ergebnis ist der Abstand, als Winkel, zwischen jedem einzelnen 
+		Punkt.
+		Mit dem Radius zusammen kann man dann die jeweiligen Koordinaten des 
+		regulären Polygons berechnen:\\
+		$x_i = r * cos(winkel * i)$\\
+		$y_i = r * sin(winkel * i)$
 
-\subsubsection{Verschiebung}
-Eingabeparameter: 
-\begin{itemize}
-	\item Boundaries(boundary)
-	\item simples Polygon welches in den Boundaries ist(polygon)
-	\item maximale Geschwindigkeit(maxvelocity)
-	\item Anzahl der Durchläufe (iterations)
-\end{itemize}
-Ausgabe:
-\begin{itemize}
-	\item Zufälliges Polygon
-\end{itemize}
-In diesem Teil wird jeder Punkt zufällig verschoben, die maximale Distanz, die sich ein Punkt pro Achse bewegen kann, wird eingegrenzt durch den Eingabeparameter maxvelocity. Nach jeder Verschiebung von einem Punkt können folgende Zustände auftreten:
-\begin{enumerate}
-	\item Das Polygon ist simpel und in den Grenzen (Boundaries)
-	\item Das Polygon ist simpel aber außerhalb der Grenzen
-	\item Das Polygon ist nicht simpel aber innerhalb der Grenzen
-	\item Das Polygon ist weder simpel noch in den Grenzen
-\end{enumerate}
-Sollte es vorkommen das der Zustand nicht Punkt 1 enspricht (simpel und in den Grenzen), so wird die Verschiebung rückgängig gemacht und für diesen Punkt im Polygon ändert sich nichts.
-Dieser gesamte Prozess wird \enquote{iterations}-oft ausgeführt sodass es wirklich zufällig wird.
+	\subsubsection{Verschiebung}
+		Eingabeparameter: 
+		\begin{itemize}
+			\item Boundaries(boundary)
+			\item simples Polygon welches in den Boundaries ist(polygon)
+			\item maximale Geschwindigkeit(maxvelocity)
+			\item Anzahl der Durchläufe (iterations)
+		\end{itemize}
+		Ausgabe:
+		\begin{itemize}
+			\item Zufälliges Polygon
+		\end{itemize}
+		In diesem Teil wird jeder Punkt zufällig verschoben, die maximale 
+		Distanz, die sich ein Punkt pro Achse bewegen kann, wird eingegrenzt 
+		durch den Eingabeparameter maxvelocity. Nach jeder Verschiebung von 
+		einem Punkt können folgende Zustände auftreten:
+		\begin{enumerate}
+			\item Das Polygon ist simpel und in den Grenzen (Boundaries)
+			\item Das Polygon ist simpel aber außerhalb der Grenzen
+			\item Das Polygon ist nicht simpel aber innerhalb der Grenzen
+			\item Das Polygon ist weder simpel noch in den Grenzen
+		\end{enumerate}
+		Sollte es vorkommen das der Zustand nicht Punkt 1 enspricht (simpel 
+		und in den Grenzen), so wird die Verschiebung rückgängig gemacht und 
+		für diesen Punkt im Polygon ändert sich nichts.
+		Dieser gesamte Prozess wird \enquote{iterations}-oft ausgeführt sodass 
+		es wirklich zufällig wird.
 
-\subsubsection{Pseudocode}
+		\begin{code}[caption={Pseudocode},mathescape=true]
+		for (int i=0; i < iterations; i++)
+		{
+			foreach($p_i$ in polygon)
+			{
+				move_point_randomly($p_i$, maxvelocity);
+				if(isSimple(polygon) && isInBound(polygon))
+					continue;
+				else
+					revert_move_point_randomly($p_i$);
+			}
+		}
+		\end{code}
 
-\begin{code}[mathescape=true]
-for (int i=0; i < iterations; i++)
-{
-	foreach($p_i$ in polygon)
-	{
-		move_point_randomly($p_i$, maxvelocity);
-		if(isSimple(polygon) && isInBound(polygon))
-			continue;
-		else
-			revert_move_point_randomly($p_i$);
-	}
-}
-\end{code}
+	\subsubsection{Überprüfen ob das Polygon simpel ist}
+		In dem Velocity Virmani wird nach jedem Punkt getestet ob das Polygon 
+		noch simpel ist. Dies kann bei einer trivialen Implementierung des 
+		Tests mit $n^3$ zu sehr hohen Laufzeiten führen.
+		Deshalb ist ein trivialer Test nach der Eigenschaft simpel nicht 
+		effizient.\smallskip \\ 
+		Die Lösung für dieses Problem besteht darin nur die angrenzenden 
+		Linien des verschobenen Punktes mit allen anderen Linien auf 
+		Überschneidungen zu überprüfen. Eine komplette Überprüfung auf 
+		Simplizität ist nicht nötig.
+		Der Algorithmus dafür wäre trivial und würde die Laufzeit für einen 
+		Test von $\bigO(n^3)$ auf $\bigO(n)$ sinken.
 
-\subsubsection{Überprüfen ob das Polygon simpel ist}
-In dem Velocity Virmani wird nach jedem Punkt getestet ob das Polygon noch simpel ist. Dies kann bei einer trivialen Implementierung des Tests mit $n^3$ zu sehr hohen Laufzeiten führen.
-Deshalb ist ein trivialer Test nach der Eigenschaft simpel nicht effizient.\smallskip \\ 
-Die Lösung für dieses Problem besteht darin nur die angrenzenden Linien des verschobenen Punktes mit allen anderen Linien auf Überschneidungen zu überprüfen. Eine komplette Überprüfung auf Simplizität ist nicht nötig.
-Der Algorithmus dafür wäre trivial und würde die Laufzeit für einen Test von $\bigO(n^3)$ auf $\bigO(n)$ sinken.
+		Vorraussetzung: Polygon muss vor der Verschiebung simpel sein
+		Eingabeparameter: Polygon, der verschobene Punkt(u)
+		Es werden die beiden zugehörigen Kanten von dem Punkt u genommen. 
+		Diese beiden Kanten werden mit den allen restlichen Kanten auf eine 
+		Schnittmenge überprüft. Sollte sich bei irgendeiner Kante eine 
+		Schnittmenge ergeben, so ist das Polygon nicht simpel und es muss 
+		nicht weiter getestet werden. Eine Ausnahme bilden jedoch die 
+		Endpunkte von den Kanten, jede Kante darf sich genau ein Endpunkt mit 
+		einer anderen Kante teilen.
 
-Vorraussetzung: Polygon muss vor der Verschiebung simpel sein
-Eingabeparameter: Polygon, der verschobene Punkt(u)
-Es werden die beiden zugehörigen Kanten von dem Punkt u genommen. Diese beiden Kanten werden mit den allen restlichen Kanten auf eine Schnittmenge überprüft. Sollte sich bei irgendeiner Kante eine Schnittmenge ergeben, so ist das Polygon nicht simpel und es muss nicht weiter getestet werden. Eine Ausnahme bilden jedoch die Endpunkte von den Kanten, jede Kante darf sich genau ein Endpunkt mit einer anderen Kante teilen.
+
+	\subsubsection{Eigenschaften}
+		\begin{itemize}
+			\item Nichtdeterministisch\\
+			Das Programm ist nichtdeterministisch da es für die Verschiebung 
+			von Punkten einen Zufallsgenerator nutzt. Somit kann man davon 
+			ausgehen das bei gleicher Eingabe von Parametern nicht immer die 
+			gleiche Ausgabe entsteht (für $maxvelocity > 0$)
+			\item Komplexität: $\bigO(iterations*n^2)$\\
+			Die Komplexität setzt sich zusammen aus der Anzahl der 
+			Iterationen, aus der Anzahl der Punkte durch welche iteriert wird 
+			um die Verschiebungen durchzuführen und nochmal durch die Anzahl 
+			der Punkte für den Test auf Simplizität. Somit ergibt sich eine 
+			Laufzeit von $\bigO(iterations*n*n) = \bigO(iterations*n^2)$
+			\item Terminiert\\
+			Der Algorithmus terminiert immer da die Anzahl der 
+			Schlaufendurchgänge begrenzt ist. Es gibt keinen Zustand im 
+			Algorithmus wo er verbleiben kann.
+		\end{itemize}
 
 
-\subsubsection{Eigenschaften}
-\begin{itemize}
-	\item Nichtdeterministisch\\
-	Das Programm ist nichtdeterministisch da es für die Verschiebung von Punkten einen Zufallsgenerator nutzt. Somit kann man davon ausgehen das bei gleicher Eingabe von Parametern nicht immer die gleiche Ausgabe entsteht (für $maxvelocity > 0$)
-	\item Komplexität: $\bigO(iterations*n^2)$\\
-	Die Komplexität setzt sich zusammen aus der Anzahl der Iterationen, aus der Anzahl der Punkte durch welche iteriert wird um die Verschiebungen durchzuführen und nochmal durch die Anzahl der Punkte für den Test auf Simplizität. Somit ergibt sich eine Laufzeit von $\bigO(iterations*n*n) = \bigO(iterations*n^2)$
-	\item Terminiert\\
-	Der Algorithmus terminiert immer da die Anzahl der Schlaufendurchgänge begrenzt ist. Es gibt keinen Zustand im Algorithmus wo er verbleiben kann.
-\end{itemize}
+	\subsubsection{Zufälligkeit der Polygone in Abhängigkeit von Parametern}
+		Der Algorithmus generiert zuverlässig zufällige Polygone bei der \
+		enquote{richtigen} Eingabe von Parametern. Folgende Parameter haben 
+		Abhängigkeiten untereinander welches die Zufälligkeit des Polygons 
+		beeinflussen:\\
+		\textit{maxvelocity <-> boundary box <-> radius <-> n}
 
-%TODO Überdenke diese Section und verkürze sie evtl.
-%velocity <-> boundary box <-> radius <-> n
-%velocity <-> radius
-%space per point: boundary box <-> n
-\subsubsection{Zufälligkeit der Polygone in Abhängigkeit von Parametern}
-Der Algorithmus generiert zuverlässig zufällige Polygone bei der \enquote{richtigen} Eingabe von Parametern. Folgende Parameter haben Abhängigkeiten untereinander welches die Zufälligkeit des Polygons beeinflussen:\\
-\textit{maxvelocity <-> boundary box <-> radius <-> n}
-
-Die maximale Verschiebung die ein Punkt haben kann, kann nicht größer der Boundary Box sein. Deshalb ist es nicht effektiv diese höher zu setzen da es dazu führt das viele Bewegungen rückgängig gemacht werden.
-Der Radius hat eine Abhängigkeit von der Boundary Box, da diese bestimmt wieviel Platz zum Wachsen, nach innen oder außen, vorhanden ist.\\
-Die Anzahl der Punkte haben eine Abhängigkeit zu dem Radius und damit auch zu der maximalen Bewegungsgeschwindigkeit und der Boundary Box weil eine große Menge an Punkten den Raum den man sich teilt einschränkt.
-\paragraph{Schlussfolgerung:}
-Alle erwähnten Parameter haben eine Abhängigkeit bezüglich des Raumes die es sich teilen. Die Parameter sollten so gewählt sein das die Punkte genug Platz zum wachsen haben, sowie aber auch nicht so gewählt werden das sie beliebig wachsen können. Ein Mittelmaß an Kollisionen für eine effektive Generierung an Polygonen ist erwünscht.
-Der einzige Parameter der keine Abhängigkeit zum Raum der Punkte hat, ist der Parameter iterations. Iterations bestimmt die Anzahl der Durchläufe von Bewegungen. Durch das hochsetzen dieses Parameters ist es möglich die Zufälligkeit eines Polygons zu erhöhen trotz schlecht gewählter Parameter. Jedoch ist dies nicht empfehlenswert da es die Laufzeit sehr stark erhöhen kann.  
+		Die maximale Verschiebung die ein Punkt haben kann, kann nicht größer 
+		der Boundary Box sein. Deshalb ist es nicht effektiv diese höher zu 
+		setzen da es dazu führt das viele Bewegungen rückgängig gemacht werden.
+		Der Radius hat eine Abhängigkeit von der Boundary Box, da diese 
+		bestimmt wieviel Platz zum Wachsen, nach innen oder außen, vorhanden 
+		ist.\\
+		Die Anzahl der Punkte haben eine Abhängigkeit zu dem Radius und damit 
+		auch zu der maximalen Bewegungsgeschwindigkeit und der Boundary Box 
+		weil eine große Menge an Punkten den Raum den man sich teilt 
+		einschränkt.
+		\paragraph{Schlussfolgerung:}
+		Alle erwähnten Parameter haben eine Abhängigkeit bezüglich des Raumes 
+		die es sich teilen. Die Parameter sollten so gewählt sein das die 
+		Punkte genug Platz zum wachsen haben, sowie aber auch nicht so gewählt 
+		werden das sie beliebig wachsen können. Ein Mittelmaß an Kollisionen 
+		für eine effektive Generierung an Polygonen ist erwünscht.
+		Der einzige Parameter der keine Abhängigkeit zum Raum der Punkte hat, 
+		ist der Parameter iterations. Iterations bestimmt die Anzahl der 
+		Durchläufe von Bewegungen. Durch das hochsetzen dieses Parameters ist 
+		es möglich die Zufälligkeit eines Polygons zu erhöhen trotz schlecht 
+		gewählter Parameter. Jedoch ist dies nicht empfehlenswert da es die 
+		Laufzeit sehr stark erhöhen kann.  
 
 %info Die sauberere schönere Erklärung auswählen
 %\begin{itemize}

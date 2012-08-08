@@ -22,32 +22,13 @@ import polygonsSWP.geometry.Polygon;
  */
 public class AlgorithmRunner
 {
-  public static boolean run(int runs, int threads, String databasepath, String output, PolygonGeneratorFactory factory, Map<Parameters, Object> params) {
-    // Create database if necessary:
-    DatabaseWriter dbw = null;
-    if(databasepath != null) {
-      dbw = new DatabaseWriter(databasepath);
-    }
-    
-    // Check if file already exists:
-    if(output != null && new File(output).exists()) {
-      System.err.println("Specified output file already exists.");
-      return false;
-    }
+  public static boolean run(int runs, int threads, OutputInterface out,PolygonGeneratorFactory factory, Map<Parameters, Object> params) {
     
     ExecutorService es = Executors.newFixedThreadPool(threads);
     try {
       
-      for (int i = 0; i < runs; i++) {
-        
-        // If the polygons should be saved, create filename.
-        String fn = null;
-        if(output != null) {
-          // TODO fixed digit
-          fn = output + "-" + i;
-        }
-        
-        es.execute(new PolygonGeneratorWorker(dbw, fn, factory, params));
+      for (int i = 0; i < runs; i++) {        
+        es.execute(new PolygonGeneratorWorker(out, factory, params));
       }
         
     
@@ -77,14 +58,12 @@ public class AlgorithmRunner
   {
     PolygonGenerator polygonGenerator;
     PolygonStatistics statistics;
-    DatabaseWriter dbw;
-    String output;
+    OutputInterface out;
     
 
-    public PolygonGeneratorWorker(DatabaseWriter dbw, String output, PolygonGeneratorFactory factory,
+    public PolygonGeneratorWorker(OutputInterface out, PolygonGeneratorFactory factory,
         Map<Parameters, Object> params) throws IllegalParameterizationException {
-      this.dbw = dbw;
-      this.output = output;
+      this.out = out;
       statistics = new PolygonStatistics();
       statistics.used_algorithm = factory.toString();
       statistics.number_of_points = (Integer) params.get(Parameters.n);
@@ -104,21 +83,10 @@ public class AlgorithmRunner
       statistics.timestamp = start;
       statistics.circumference = polygon.getCircumference();
       statistics.surface_area = polygon.getSurfaceArea();
-      if(dbw != null)
-        dbw.writeToDatabase(statistics);
       
-      if(output != null) {
-        BufferedWriter bf;
-        try {
-          bf = new BufferedWriter(new OutputStreamWriter(
-              new FileOutputStream(output)));
-          bf.write(polygon.toString());
-          bf.close();
-        }
-        catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-      }
+      //write here Statistics and polygon
+      
+      out.writeOut(polygon, statistics);
     }
 
   }
