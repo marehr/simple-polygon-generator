@@ -3,7 +3,9 @@
   In Tabelle~\ref{algo_table} findet sich eine Auflistung der in der
   entstandenen Softwarelösung implementierten Algorithmen. Die meisten dieser
   Algorithmen bedürfen einer vorgegebenen Punktmenge, aus welcher ein simples
-  Polygon konstruiert wird. Der \enquote{Random Polygon Algorithm} hingegen
+  Polygon (Liste von Punkten, entgegengesetzt des Uhrzeigersinns angeordnet, 
+  umgeben von einer Bounding Box) konstruiert wird. Der 
+  \enquote{Random Polygon Algorithm} hingegen
   erhält als initialie Punktmenge lediglich die Eckpunkte eines Dreiecks und
   erzeugt im gegebenen begrenzten Raum eine konfigurierbare Anzahl weiterer
   Punkte. Der Algorithmus von Virmani verändert als einziger Algorithmus die
@@ -14,8 +16,8 @@
   Laufzeitsfunktion der Algorithmen, in Abhängigkeit der Anzahl der Punkte $n$.
   In einigen Fällen lässt sich diese jedoch nicht bestimmen, bzw. beschreibt
   eine erwartete Laufzeit bei randomisierten Algorithmen (bspw. Permute \&
-  Reject). Da die Laufzeit einiger Hilfsfunktionen (z.B. Polygon-Gerade-
-  Schnittberechnung) in unserer Implementierung nicht ideal ist, weicht die
+  Reject). Da die Laufzeit einiger Hilfsfunktionen (z.B. Triangulierung) in 
+  unserer Implementierung nicht ideal ist, weicht die
   Laufzeit der Algorithmen in der Implementierung zum Teil von der erwarteten
   Laufzeit ab.
 
@@ -42,3 +44,5 @@
 
   Im Folgenden wird die Funktionsweise der einzelnen Algorithmen erläutert und
   auch besondere Eigenschaften der erzeugten Polygone dargestellt.
+
+  %TODO: zeiten und punktmengen auf fogendem system ....

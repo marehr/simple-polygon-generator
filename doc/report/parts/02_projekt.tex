@@ -10,7 +10,7 @@
     Das Hauptziel des Projekts war die Implementierung einer Reihe von
     Algorithmen, die der Erzeugung zufälliger einfacher Polygone dienen. Vom
     verantwortlichen Dozenten wurden dabei vier wissenschaftliche Artikel zur
-    Verfügung gestellt, in denen insgesamt 7 derartige Algorithmen beschrieben
+    Verfügung gestellt, in denen derartige Algorithmen beschrieben
     werden. Darüberhinaus sollte ein vom Dozenten mitentwickelter \emph
     {Shortest-Path}-Algorithmus~\cite{asano11shortestpath} implementiert werden,
     welcher in einem gegebenen Polygon die kürzeste Verbindung zwischen zwei
@@ -38,7 +38,7 @@
     die gewünschte Performanz als auch eine ausreichend umfangreiche
     Standardbibliothek bot. Aufgrund des begrenzten zeitlichen Rahmens des
     Projekts mussten jedoch einige Einschränkungen in Bezug auf die
-    mathematische Korrektheit der entwickelten Software getroffen werden.
+    algorithmische Robustheit der entwickelten Software getroffen werden.
     Zunächst ist hier die Entscheidung für die Verwendung von Gleitkomma- und
     gegen die (ausschließliche) Verwendung von Ganzzahlen zu nennen. Zwar
     ermöglichen Gleitkommazahlen die einfache und CPU-gestützte
@@ -46,7 +46,7 @@
     Gleitkommazahlen (bspw. 64 Bit bei Variablen des Typs \emph{double}) zu
     Rundungsungenauigkeiten kommen.
 
-    Eine weitere, mithin gravierendere Einschränkung ist der Verzicht auf einen
+    Unter Absprache mit dem verantwortlichen Dozenten verzichteten wir auf einen
     \emph{General Position}-Test (im Deutschen manchmal \enquote{allgemeine
     Lage}) vor Ausführung der Algorithmen. Eine Menge von Punkten in der Ebene
     befindet sich in \emph{general position}, wenn
@@ -58,7 +58,7 @@
     \end{enumerate}
 
     Manche Polygon-Algorithmen versagen, wenn eine dieser Eigenschaften,
-    insbesondere 2., für die gegebene Punktmenge nicht erfüllt ist. Zwar lässt
+    insbesondere 2., für die gegebene Punktmenge nicht erfüllt ist, so dass dies eine bedeutende Einschrenkung darstellt. Zwar lässt
     sich eine Punktmenge leicht auf GP überprüfen, jedoch ist dieser Test vor
     allem für große Punktmengen sehr rechenintensiv. Der von uns vorübergehend
     verwendete naive Algorithmus zum GP-Test wies ein asymptotisches Wachstum
@@ -128,8 +128,10 @@
             der in der vergangenen Woche erledigten Arbeit sowie der für die 
             folgende Woche geplanten Arbeitspakete. Schriftliche Protokolle 
             dienten der Information abwesender Teammitglieder.
-      \item Arbeitspakete werden stets in 2er-Teams bearbeitet, 
-            unter anderem um den Busfaktor\footnote{\url{http://en.wikipedia.org/wiki/Bus_factor}} zu erhöhen.
+      \item Arbeitspakete werden stets in 2er-Teams bearbeitet. Die Teampartner 
+            stellen sich gegenseitig erarbeiteteAlgorithmen vor und Reviewen 
+            geschrieben Code.
+      \item Testen der zentralen Komponenten.
       \item Unregelmäßig stattfindende \emph{coding sessions}.
     \end{itemize}
 
