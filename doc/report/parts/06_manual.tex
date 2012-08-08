@@ -1,34 +1,58 @@
 \section{Handbuch}
-\label{sec:manual}
-\subsection{Systemvorraussetzungen \& Kompilation}
-Das Framework nutzt verschiedene Bibliotheken zum Testen, Generieren von Vektorbildern, Datenbankzugriff und zur Parsierung von Kommandozeilenparametern. Wir nutzen Maven2 als \emph{build tool}, um diese Abhängigkeiten automatisiert aufzulösen. Die Kompilation wurde von uns ausschließlich unter GNU/Linux-Systemen getestet, jedoch sollte die Portierung nach Microsoft Windows leicht möglich sein. Vorraussetzungen für eine erfolgreiche Kompilation sind (in Klammern die Namen der Pakete bei Debian/Ubuntu-Systemen mit erfolgreich getesteten Versionsnummern):
-\begin{itemize}
-	\item Java 1.6 Development Kit (\texttt{openjdk-6-jdk}, Version \enquote{6b18-1.8.7-2~squeeze1})
-	\item Maven 2 (\texttt{maven2}, Version 2.2.1-5)
-\end{itemize}
+  \label{sec:manual}
 
-Weiterführende Informationen zur Kompilierung des Projekts finden sich in der beiliegenden \texttt{README}-Datei.
+  \subsection{Systemvorraussetzungen \& Kompilation}
 
-\subsection{Grafische Oberfläche}
-Die Oberfläche ist dazu da Polygone zu generieren, den Shortest Path zu berechnen und diesen darzustellen.\\
-\begin{center}
-\includegraphics[width=0.7\textwidth]{img/GUI.eps}
-\end{center}
+    Das Framework nutzt verschiedene Bibliotheken zum Testen, Generieren von
+    Vektorbildern, Datenbankzugriff und zur Parsierung von
+    Kommandozeilenparametern. Wir nutzen Maven2 als \emph{build tool}, um
+    diese Abhängigkeiten automatisiert aufzulösen. Die Kompilation wurde von
+    uns ausschließlich unter GNU/Linux-Systemen getestet, jedoch sollte die
+    Portierung nach Microsoft Windows leicht möglich sein. Vorraussetzungen
+    für eine erfolgreiche Kompilation sind (in Klammern die Namen der Pakete
+    bei Debian/Ubuntu-Systemen mit erfolgreich getesteten Versionsnummern):
 
-\subsubsection{Funktionen}
-\begin{itemize}
-	\item Generierung von Polygonen
-	\item Visualisierung der Polygon-Algorithmen
-	\item Manuelle Auswahl der Punktmenge eines Polygons
-	\item Zoomen und Bewegen
-	\item Anzeigen der Werte einzelner Polygone
-	\item Berechnung des Shortest-Path
-	\item Speichern des Polygons
-\end{itemize}
+    \begin{itemize}
+      \item Java 1.6 Development Kit (\texttt{openjdk-6-jdk}, 
+            Version \enquote{6b18-1.8.7-2~squeeze1})
+      \item Maven 2 (\texttt{maven2}, Version 2.2.1-5)
+    \end{itemize}
 
-\subsection{Kommandozeile}
-Mit der Kommandozeile ist es möglich mehrere Polygone und deren Statistiken gleichzeitig zu erzeugen und diese in eine Ausgabedatei zu schreiben. Zusätzlich ist es möglich die Anzahl der Threads zu bestimmen für optimales paralleles Berechnen. Damit ist es möglich viele verschiedene Polygone mit den gleichen Parametern zu erzeugen. Die Parameter werden im \enquote{GNU-Stil} angegeben.\\
-Um die Usage-Hilfe zu bekommen ruft man das Programm mit dem Parameter --help oder --usage auf. Listing~\ref{listing_usage} zeigt einen gekürzten Ausschnitt aus der Usage. Alle weiteren Parameter sind in der Usage näher erläutert.
+    Weiterführende Informationen zur Kompilierung des Projekts finden sich in
+    der beiliegenden \texttt{README}-Datei.
+
+  \subsection{Grafische Oberfläche}
+
+    Die Oberfläche ist dazu da Polygone zu generieren, den Shortest Path zu
+    berechnen und diesen darzustellen.\\
+
+    \begin{center}
+      \includegraphics[width=0.7\textwidth]{img/GUI.eps}
+    \end{center}
+
+    \subsubsection{Funktionen}
+
+      \begin{itemize}
+        \item Generierung von Polygonen
+        \item Visualisierung der Polygon-Algorithmen
+        \item Manuelle Auswahl der Punktmenge eines Polygons
+        \item Zoomen und Bewegen
+        \item Anzeigen der Werte einzelner Polygone
+        \item Berechnung des Shortest-Path
+        \item Speichern des Polygons
+      \end{itemize}
+
+  \subsection{Kommandozeile}
+
+    Mit der Kommandozeile ist es möglich mehrere Polygone und deren Statistiken
+    gleichzeitig zu erzeugen und diese in eine Ausgabedatei zu schreiben.
+    Zusätzlich ist es möglich die Anzahl der Threads zu bestimmen für optimales
+    paralleles Berechnen. Damit ist es möglich viele verschiedene Polygone mit
+    den gleichen Parametern zu erzeugen. Die Parameter werden im \enquote{GNU-
+    Stil} angegeben.\\ Um die Usage-Hilfe zu bekommen ruft man das Programm mit
+    dem Parameter --help oder --usage auf. Listing~\ref{listing_usage} zeigt
+    einen gekürzten Ausschnitt aus der Usage. Alle weiteren Parameter sind in
+    der Usage näher erläutert.
 
 \begin{code}[caption={Usage der Kommandozeile},label=listing_usage]
 usage: run.sh [--algorithm <Algorithm>] [--boundingbox <boundingbox>]
@@ -60,4 +84,8 @@ batch-mode.
 \$ run.sh --algorithm 0 --number 10 --points 25 --output out/polygon
 \end{code}
 
-Das Beispiel-Kommando in Listing~\ref{listing_usage_example} führt zur Generierung von 10 Polygonen mit je 25 Punkten mit Hilfe des \emph{Space Partitioning}-Algorithmus. Die erzeugten Polygone werden im Verzeichnis \texttt{out} unter dem Namen \texttt{polygon-01}, \texttt{polygon-02}, usw. gespeichert.
+    Das Beispiel-Kommando in Listing~\ref{listing_usage_example} führt zur
+    Generierung von 10 Polygonen mit je 25 Punkten mit Hilfe des \emph{Space
+    Partitioning}-Algorithmus. Die erzeugten Polygone werden im Verzeichnis
+    \texttt{out} unter dem Namen \texttt{polygon-01}, \texttt{polygon-02}, usw.
+    gespeichert.

@@ -1,23 +1,45 @@
 \section{Shortest Path}
 	%abbildung einfügen
 	
-Unsere Implementierung des Shortest-Path Algorithmus basiert auf dem Paper \enquote{Constant-Work-Space Algorithms For Geometric Problems} Asano et. al.~\cite{asano11shortestpath}.
+  Unsere Implementierung des Shortest-Path Algorithmus basiert auf dem Paper
+  \enquote{Constant-Work-Space Algorithms For Geometric Problems} Asano et.
+  al.~\cite{asano11shortestpath}.
 
-\subsection{Algorithmus}
+  \subsection{Algorithmus}
 
-Der Algorithmus benutzt ein Tripel aus drei Punkten ($p$,$q_1$,$q_2$) um durch das Polygon zu navigieren. Es gilt, dass der Punkt $p$ ein Punkt des Shortest-Path ist und das Polygon hinter $q_1$, $q_2$ den Zielpunkt ($t$) enthält.
-Um dies zu erreichen wird zu Beginn das Polygon in Trapeze unterteilt. Vom Startpunkt aus wird ein Dreieck zu jeweils zwei benachbarten Eckpunkten des Trapezes aufgespannt und geprüft, ob das dahinter liegende Polygon den Zielpunkt enthält. Der triviale Fall, in dem sich der Zielpunkt im gleichen Trapez befindet wie der Startpunkt wird zu Beginn überprüft.
-Ausgehend von dem Trapez in dem der Startpunkt liegt wird das Polygon so reduziert, dass sich der Zielpunkt immer noch innerhalb des Polygons befindet. Um den nächsten Punkt des Shortest-Path zu finden wird die Krümmung von $p$,$q_1$,\texttt{succ}($q_1$) bzw $p$,$q_2$,\texttt{pred}($q_2$) betrachtet, wobei \texttt{pred} und \texttt{succ} jeweils den Vorgänger und Nachfolger des jeweiligen Punktes in der Polygonkette bezeichnen.
+    Der Algorithmus benutzt ein Tripel aus drei Punkten ($p$,$q_1$,$q_2$) um
+    durch das Polygon zu navigieren. Es gilt, dass der Punkt $p$ ein Punkt des
+    Shortest-Path ist und das Polygon hinter $q_1$, $q_2$ den Zielpunkt ($t$)
+    enthält. Um dies zu erreichen wird zu Beginn das Polygon in Trapeze
+    unterteilt. Vom Startpunkt aus wird ein Dreieck zu jeweils zwei
+    benachbarten Eckpunkten des Trapezes aufgespannt und geprüft, ob das
+    dahinter liegende Polygon den Zielpunkt enthält. Der triviale Fall, in dem
+    sich der Zielpunkt im gleichen Trapez befindet wie der Startpunkt wird zu
+    Beginn überprüft. Ausgehend von dem Trapez in dem der Startpunkt liegt
+    wird das Polygon so reduziert, dass sich der Zielpunkt immer noch
+    innerhalb des Polygons befindet. Um den nächsten Punkt des Shortest-Path
+    zu finden wird die Krümmung von $p$,$q_1$,\texttt{succ}($q_1$) bzw
+    $p$,$q_2$,\texttt{pred}($q_2$) betrachtet, wobei \texttt{pred} und
+    \texttt{succ} jeweils den Vorgänger und Nachfolger des jeweiligen Punktes
+    in der Polygonkette bezeichnen.
 
-\subsection{Implementierung}
+  \subsection{Implementierung}
 
-Bei der Implementierung konnten wir uns größten Teils an die Vorgaben des Paper halten. Allerdings stellte sich das Unterteilen des Polygons in Trapeze als schwieriger heraus, als zunächst angenommen. Schließlich entschieden wir uns auf die Unterteilung zu verzichten und stattdessen einen etwas einfacheren Ansatz zu verwenden. Die Initialisierung des Starttripel funktioniert folgendermaßen:
+    Bei der Implementierung konnten wir uns größten Teils an die Vorgaben des
+    Paper halten. Allerdings stellte sich das Unterteilen des Polygons in
+    Trapeze als schwieriger heraus, als zunächst angenommen. Schließlich
+    entschieden wir uns auf die Unterteilung zu verzichten und stattdessen
+    einen etwas einfacheren Ansatz zu verwenden. Die Initialisierung des
+    Starttripel funktioniert folgendermaßen:
 
-\begin{enumerate}
-\item Finde alle Eckpunkte des Polygons, die direkt vom Startpunkt aus sichtbar sind.
-\item Erzeuge von je zwei Eckpunkten und dem Startpunkt ein Subpolygon und überprüfe ob $t$ darin liegt.
-\item Falls $t$ in dem Polygon liegt ist die Startkonfiguration gefunden, andernfalls untersuche die nächsten zwei Punkte.
-\end{enumerate}
+    \begin{enumerate}
+      \item Finde alle Eckpunkte des Polygons, die direkt vom Startpunkt aus 
+            sichtbar sind.
+      \item Erzeuge von je zwei Eckpunkten und dem Startpunkt ein Subpolygon 
+            und überprüfe ob $t$ darin liegt.
+      \item Falls $t$ in dem Polygon liegt ist die Startkonfiguration gefunden, 
+            andernfalls untersuche die nächsten zwei Punkte.
+    \end{enumerate}
 
-\subsection{Laufzeit}
-\subsection{Stastiken}
+  \subsection{Laufzeit}
+  \subsection{Stastiken}

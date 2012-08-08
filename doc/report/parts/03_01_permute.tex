@@ -1,28 +1,44 @@
 \subsection{Permute \& Reject}
 
-\begin{figure}[h]
-\begin{center}
-\includegraphics[width=0.3\textwidth]{img/permute16.eps}
-\end{center}
-\caption{Polygon mit 16 Punkten (Permute \& Reject)}
-\label{fig:permute16}
-\end{figure}
+  \begin{figure}[h]
+    \begin{center}
+      \includegraphics[width=0.3\textwidth]{img/permute16.eps}
+    \end{center}
+    \caption{Polygon mit 16 Punkten (Permute \& Reject)}
+    \label{fig:permute16}
+  \end{figure}
 
-\emph{Permute \& Reject} ist der einfachste in der Software enthaltenene Algorithmus zur Erzeugung von simplen Polygonen, implementiert nach einer Beschreibung von Martin Held in~\cite{held98polygons}.
-\subsubsection{Algorithmus}
-Der Algorithmus basiert auf der zufälligen Erzeugung von $n$ Kanten zwischen $n$ gegebenen Punkten, sodass von jedem Punkt zwei Kanten ausgehen. Anschließend wird überprüft, ob das entstandene Polygon \enquote{simpel}, d.h. überschneidungsfrei ist. Falls nicht, wird das Polygon verworfen und von vorne begonnen.
+  \emph{Permute \& Reject} ist der einfachste in der Software enthaltenene
+  Algorithmus zur Erzeugung von simplen Polygonen, implementiert nach einer
+  Beschreibung von Martin Held in~\cite{held98polygons}.
 
-\begin{code}[caption={Permute \& Reject},label=permutelisting,mathescape=true]
-retry:
-$P$ $\leftarrow$ given set of points
-$p$ $\leftarrow$ remove random point from $P$
-while ($P$ not empty)
-  $q$ $\leftarrow$ remove random point from $P$
-  draw edge from $p$ to $q$
-  $p$ $\leftarrow$ $q$
-if resulting polygon is NOT simple
-  goto retry
-\end{code}
+  \subsubsection{Algorithmus}
 
-\subsubsection{Eigenschaften}
-Ausgehend von einer beliebigen Punktmenge kann Permute \& Reject sämtliche möglichen Polygone erzeugen. Jedoch lässt die enorme Laufzeit des Algorithmus eine praktische Verwendung für Polygone mit vielen Punkten nicht zu. Eine -- wenn auch nicht scharfe -- obere Schranke für die Laufzeit lässt sich mit $\bigO(n!)$ beziffern, entsprechend dem Durchprobieren jeglicher möglichen Kombination von Punkten. In unseren Experimenten konnten wir kein Polygon mit mehr als 28 Punkten erzeugen.
+    Der Algorithmus basiert auf der zufälligen Erzeugung von $n$ Kanten zwischen
+    $n$ gegebenen Punkten, sodass von jedem Punkt zwei Kanten ausgehen.
+    Anschließend wird überprüft, ob das entstandene Polygon \enquote{simpel},
+    d.h. überschneidungsfrei ist. Falls nicht, wird das Polygon verworfen und
+    von vorne begonnen.
+
+    \begin{code}[caption={Permute \& Reject},label=permutelisting,mathescape=true]
+      retry:
+      $P$ $\leftarrow$ given set of points
+      $p$ $\leftarrow$ remove random point from $P$
+      while ($P$ not empty)
+        $q$ $\leftarrow$ remove random point from $P$
+        draw edge from $p$ to $q$
+        $p$ $\leftarrow$ $q$
+      if resulting polygon is NOT simple
+        goto retry
+    \end{code}
+
+  \subsubsection{Eigenschaften}
+
+    Ausgehend von einer beliebigen Punktmenge kann Permute \& Reject sämtliche
+    möglichen Polygone erzeugen. Jedoch lässt die enorme Laufzeit des
+    Algorithmus eine praktische Verwendung für Polygone mit vielen Punkten
+    nicht zu. Eine -- wenn auch nicht scharfe -- obere Schranke für die
+    Laufzeit lässt sich mit $\bigO(n!)$ beziffern, entsprechend dem
+    Durchprobieren jeglicher möglichen Kombination von Punkten. In unseren
+    Experimenten konnten wir kein Polygon mit mehr als 28 Punkten erzeugen.
+  

@@ -1,18 +1,52 @@
 \section{Zusammenfassung}
-In Summe lässt sich der Ausgang des Softwareprojekts als durchaus erfolgreich beschreiben. Die entstandene Softwarelösung eignet sich zur massenweisen Erzeugung von zufälligen einfachen Polygonen, mit deren Hilfe sich verschiedenen Algorithmen der algorithmischen Geometrie testen und evaluieren lassen. Die verschiedenen Algorithmen führen indes zu äußerst unterschiedlichen Ergebnissen, von den vertikalen Linien des \emph{Space Partitioning}- bis hin zu den eher kreisförmigen Polygonen des \emph{Velocity Virmani}-Algorithmus.Zugleich bietet die graphische Oberfläche, insbesondere die graphische Visualisierung der Erzeugung der Polygone, einen interessanten Einblick in die Funktionsweise der Algorithmen. 
 
-Im Laufe der Entwicklung konnten wir wertvolle Erfahrungen zu Teamarbeit und Prozesskoordination lernen. Obgleich die von uns eingesetzten Prozesselemente durchweg konsequent eingehalten wurden, lassen sich schlechte Designentscheidungen, doppelte Arbeit und Verzögerungen im Ablauf natürlich nicht vermeiden. Als besonders schwerwiegend ist hier die Entscheidung für die eigene Implementierung der generischen Polygon-Mathematik (und gegen ein entsprechendes Framework) zu bezeichnen. Zwar konnten wir uns so auf die tatsächlich benötigte Funktionalität (Schnitt-Test-Funktionen, Flächen-Berechnung, Orientierungstest, usw.) beschränken, jedoch konnten wir aufgrund des begrenzten Zeitraum oft nur naive Algorithmen einsetzen, sodass die Performanz der Algorithmen mitunter von langsamen Methoden im Framework dominiert wird. Beispielsweise erfolgt der Simplizitäts-Test beim Polygon (d.h., der Test auf Überschneidungs-Freiheit) in $\bigO(n^2)$, obwohl in der entsprechenden Fachliteratur effizientere Algorithmen beschrieben werden.
+  In Summe lässt sich der Ausgang des Softwareprojekts als durchaus
+  erfolgreich beschreiben. Die entstandene Softwarelösung eignet sich zur
+  massenweisen Erzeugung von zufälligen einfachen Polygonen, mit deren Hilfe
+  sich verschiedenen Algorithmen der algorithmischen Geometrie testen und
+  evaluieren lassen. Die verschiedenen Algorithmen führen indes zu äußerst
+  unterschiedlichen Ergebnissen, von den vertikalen Linien des \emph{Space
+  Partitioning}- bis hin zu den eher kreisförmigen Polygonen des
+  \emph{Velocity Virmani}-Algorithmus.Zugleich bietet die graphische
+  Oberfläche, insbesondere die graphische Visualisierung der Erzeugung der
+  Polygone, einen interessanten Einblick in die Funktionsweise der
+  Algorithmen.
 
-Eine weitere beispielhafte Fehlentscheidung im Entwicklungsprozess war der Versuch, einzig für die Initialisierung des \emph{Shortest Path}-Algorithmus einen Algorithmus zur Erzeugung einer Trapez-Zerlegung eines Polygons zu verwenden. Wir verwendeten hierbei vergleichsweise viele Arbeitsstunden zur Implementierung eines überaus komplexen Algorithmus nach Raimund Seidel~\cite{seidel91asimple}, scheiterten hierbei mehrfach und fanden schließlich heraus, dass für die Initialisierung des SP-Algorithmus keine vollständige Trapez-Zerlegung benötigt wird.
+  Im Laufe der Entwicklung konnten wir wertvolle Erfahrungen zu Teamarbeit und
+  Prozesskoordination lernen. Obgleich die von uns eingesetzten
+  Prozesselemente durchweg konsequent eingehalten wurden, lassen sich
+  schlechte Designentscheidungen, doppelte Arbeit und Verzögerungen im Ablauf
+  natürlich nicht vermeiden. Als besonders schwerwiegend ist hier die
+  Entscheidung für die eigene Implementierung der generischen Polygon-
+  Mathematik (und gegen ein entsprechendes Framework) zu bezeichnen. Zwar
+  konnten wir uns so auf die tatsächlich benötigte Funktionalität (Schnitt-
+  Test-Funktionen, Flächen-Berechnung, Orientierungstest, usw.) beschränken,
+  jedoch konnten wir aufgrund des begrenzten Zeitraum oft nur naive
+  Algorithmen einsetzen, sodass die Performanz der Algorithmen mitunter von
+  langsamen Methoden im Framework dominiert wird. Beispielsweise erfolgt der
+  Simplizitäts-Test beim Polygon (d.h., der Test auf Überschneidungs-Freiheit)
+  in $\bigO(n^2)$, obwohl in der entsprechenden Fachliteratur effizientere
+  Algorithmen beschrieben werden.
 
-...
+  Eine weitere beispielhafte Fehlentscheidung im Entwicklungsprozess war der
+  Versuch, einzig für die Initialisierung des \emph{Shortest Path}-Algorithmus
+  einen Algorithmus zur Erzeugung einer Trapez-Zerlegung eines Polygons zu
+  verwenden. Wir verwendeten hierbei vergleichsweise viele Arbeitsstunden zur
+  Implementierung eines überaus komplexen Algorithmus nach Raimund
+  Seidel~\cite{seidel91asimple}, scheiterten hierbei mehrfach und fanden
+  schließlich heraus, dass für die Initialisierung des SP-Algorithmus keine
+  vollständige Trapez-Zerlegung benötigt wird.
 
-\subsection{Lessons Learned}
+  ...
 
-\begin{lessonlearned}
-\emph{Malte} hat gelernt, dass österreicher Informatiker kluge Algorithmen entwickeln können -- in der Theorie.
-\end{lessonlearned}
+  \subsection{Lessons Learned}
 
-\begin{lessonlearned}
-\emph{Bugs} hat gelernt, dass der böse Jäger eigentlich ziemlich harmlos ist.
-\end{lessonlearned}
+  \begin{lessonlearned}
+    \emph{Malte} hat gelernt, dass österreicher Informatiker kluge 
+    Algorithmen entwickeln können -- in der Theorie.
+  \end{lessonlearned}
+
+  \begin{lessonlearned}
+    \emph{Bugs} hat gelernt, dass der böse Jäger eigentlich 
+    ziemlich harmlos ist.
+  \end{lessonlearned}

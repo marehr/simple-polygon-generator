@@ -1,78 +1,148 @@
 \section{Projektstruktur}
-Das Projekt \emph{Zufällige Polygone} wurde im Wintersemester 2011/2012 in einem Zeitraum von rund 4 Monaten durchgeführt. Im Folgenden werden wir zunächst die Ziele des Projekts darstellen, den zeitlichen Ablauf darlegen und abschließend den gewählten Entwicklungsprozess beschreiben.
 
-\subsection{Zielsetzung \& Einschränkungen}
-Das Hauptziel des Projekts war die Implementierung einer Reihe von Algorithmen, die der Erzeugung zufälliger einfacher Polygone dienen. Vom verantwortlichen Dozenten wurden dabei vier wissenschaftliche Artikel zur Verfügung gestellt, in denen insgesamt 7 derartige Algorithmen beschrieben werden. Darüberhinaus sollte ein vom Dozenten mitentwickelter \emph{Shortest-Path}-Algorithmus~\cite{asano11shortestpath} implementiert werden, welcher in einem gegebenen Polygon die kürzeste Verbindung zwischen zwei gewählten Punkten errechnet. Folgende weitergehenden Anforderungen an die zu entwickelnde Software waren gegeben:
-\begin{itemize}
-\item Massenweise (\emph{batch}) Erzeugung von zufälligen Polygonen per Kommandozeile
-\item Export eines oder vieler Polygone als CSV-Datei (\emph{comma-separated value})
-\item Grafische Oberfläche
-\begin{itemize}
-\item Auswahl und Konfiguration des Algorithmus
-\item Visualisierung der Funktionsweise des Algorithmus
-\item Auswahl der Punkte für den Shortest-Path-Algorithmus
-\item Visualisierung der Funktionsweise des Shortest-Path-Algorithmus
-\end{itemize}
-\item Statistische Analyse der Algorithmen hinsichtlich ihrer Laufzeit und den Eigenschaften der erzeugten Polygone
-\end{itemize}
+  Das Projekt \emph{Zufällige Polygone} wurde im Wintersemester 2011/2012 in
+  einem Zeitraum von rund 4 Monaten durchgeführt. Im Folgenden werden wir
+  zunächst die Ziele des Projekts darstellen, den zeitlichen Ablauf darlegen
+  und abschließend den gewählten Entwicklungsprozess beschreiben.
 
-Als Programmiersprache wählten wir \emph{Java}, da alle Projektmitglieder über Erfahrung in der Java-Programmierung verfügten und die Sprache sowohl die gewünschte Performanz als auch eine ausreichend umfangreiche Standardbibliothek bot. Aufgrund des begrenzten zeitlichen Rahmens des Projekts mussten jedoch einige Einschränkungen in Bezug auf die mathematische Korrektheit der entwickelten Software getroffen werden. Zunächst ist hier die Entscheidung für die Verwendung von Gleitkomma- und gegen die (ausschließliche) Verwendung von Ganzzahlen zu nennen. Zwar ermöglichen Gleitkommazahlen die einfache und CPU-gestützte Divisionsoperation, jedoch kann es durch die begrenzte Auflösung der Gleitkommazahlen (bspw. 64 Bit bei Variablen des Typs \emph{double}) zu Rundungsungenauigkeiten kommen. 
+  \subsection{Zielsetzung \& Einschränkungen}
 
-Eine weitere, mithin gravierendere Einschränkung ist der Verzicht auf einen \emph{General Position}-Test (im Deutschen manchmal \enquote{allgemeine Lage}) vor Ausführung der Algorithmen. Eine Menge von Punkten in der Ebene befindet sich in \emph{general position}, wenn
-\begin{enumerate}
-\item keine zwei Punkte identisch sind,
-\item keine drei Punkte auf einer Geraden liegen und
-\item keine 4 Punkte auf einem Kreis liegen.
-\end{enumerate}
-Manche Polygon-Algorithmen versagen, wenn eine dieser Eigenschaften, insbesondere 2., für die gegebene Punktmenge nicht erfüllt ist. Zwar lässt sich eine Punktmenge leicht auf GP überprüfen, jedoch ist dieser Test vor allem für große Punktmengen sehr rechenintensiv. Der von uns vorübergehend verwendete naive Algorithmus zum GP-Test wies ein asymptotisches Wachstum von $\bigO\left(n^3\right)$ auf, sodass die Laufzeit des GP-Tests bisweilen die Laufzeit des Algorithmus weit übertraf. Als Konsequenz hieraus verzichteten wir auf einen GP-Test, sodass eine nicht in GP befindlichen Punktmenge zu undefinierte Ergebnissen des Programms führen kann. Mit der Verwendung von 64-bit \emph{double}-Variablen zur Darstellung der $x$- und $y$-Koordinaten ist eine solche Situation jedoch äußerst unwahrscheinlich.
+    Das Hauptziel des Projekts war die Implementierung einer Reihe von
+    Algorithmen, die der Erzeugung zufälliger einfacher Polygone dienen. Vom
+    verantwortlichen Dozenten wurden dabei vier wissenschaftliche Artikel zur
+    Verfügung gestellt, in denen insgesamt 7 derartige Algorithmen beschrieben
+    werden. Darüberhinaus sollte ein vom Dozenten mitentwickelter \emph
+    {Shortest-Path}-Algorithmus~\cite{asano11shortestpath} implementiert werden,
+    welcher in einem gegebenen Polygon die kürzeste Verbindung zwischen zwei
+    gewählten Punkten errechnet. Folgende weitergehenden Anforderungen an die zu
+    entwickelnde Software waren gegeben:
 
-\subsection{Zeitplan}
-Wir präsentieren hier den Zeitplan des Projekts in Form eines GANTT-Diagramms, welches auch während der Projektarbeit Verwendung fand. Da das Diagramm laufend an den aktuellen Entwicklungsstand angepasst wurde, entspricht es nun nahezu exakt dem tatsächlichen zeitlichen Ablauf der Entwicklung.
+    \begin{itemize}
+      \item Massenweise (\emph{batch}) Erzeugung von zufälligen Polygonen 
+            per Kommandozeile
+      \item Export eines oder vieler Polygone als CSV-Datei 
+            (\emph{comma-separated value})
+      \item Grafische Oberfläche
+      \begin{itemize}
+        \item Auswahl und Konfiguration des Algorithmus
+        \item Visualisierung der Funktionsweise des Algorithmus
+        \item Auswahl der Punkte für den Shortest-Path-Algorithmus
+        \item Visualisierung der Funktionsweise des Shortest-Path-Algorithmus
+      \end{itemize}
+      \item Statistische Analyse der Algorithmen hinsichtlich ihrer Laufzeit 
+            und den Eigenschaften der erzeugten Polygone
+    \end{itemize}
 
-\begin{figure}[h]
-\begin{center}
-\bfseries\fontsize{5}{5}\selectfont
-\newpsstyle{TaskStyleA}{fillstyle=solid,fillcolor=red}
-\begin{PstGanttChart}[%	
-	yunit=1.0,
-	xunit=0.68,
-	ChartUnitIntervalName=KW,
-	ChartUnitBasicIntervalName=KW,
-%    ChartModulo,
-    ChartModuloValue=52,
-    TaskUnitIntervalValue=14,
-    TaskUnitType=KW,
-    ChartStartInterval=43,
-    ChartShowIntervals]{15}{15}
-\psset{TaskStyle=TaskStyleA}
-\PstGanttTask[TaskInsideLabel={PolygonGenerator interface}]{0}{4}
-\PstGanttTask[TaskInsideLabel={Data structures scratch}]{0}{4}
-\PstGanttTask[TaskInsideLabel={GUI scratch}]{0}{4}
-\PstGanttTask[TaskInsideLabel={Data structures done}]{1}{3}
-\PstGanttTask[TaskInsideLabel={First polygon algorithms}]{1}{4}
-\PstGanttTask[TaskInsideLabel={ShortestPathGenerator interface}]{1}{4}
-\PstGanttTask[TaskInsideLabel={All polygon algorithms}]{3}{4}
-\PstGanttTask[TaskInsideLabel={Shortest path algorithm}]{3}{4}
-\PstGanttTask[TaskInsideLabel={GUI}]{3}{4}
-\PstGanttTask[TaskInsideLabel={History data structure}]{6}{4}
-\PstGanttTask[TaskInsideLabel={Step-by-step visualisation}]{6}{4}
-\PstGanttTask[TaskInsideLabel={Statistics backend}]{6}{4}
-\PstGanttTask[TaskInsideLabel={Improved GUI}]{10}{3}
-\PstGanttTask[TaskInsideLabel={Statistics visualisation}]{10}{3}
-\PstGanttTask[TaskInsideLabel={Cleanup for release}]{12}{3}
-\end{PstGanttChart}
-\end{center}
-\label{fig:gantt}
-\end{figure}
+    Als Programmiersprache wählten wir \emph{Java}, da alle Projektmitglieder
+    über Erfahrung in der Java-Programmierung verfügten und die Sprache sowohl
+    die gewünschte Performanz als auch eine ausreichend umfangreiche
+    Standardbibliothek bot. Aufgrund des begrenzten zeitlichen Rahmens des
+    Projekts mussten jedoch einige Einschränkungen in Bezug auf die
+    mathematische Korrektheit der entwickelten Software getroffen werden.
+    Zunächst ist hier die Entscheidung für die Verwendung von Gleitkomma- und
+    gegen die (ausschließliche) Verwendung von Ganzzahlen zu nennen. Zwar
+    ermöglichen Gleitkommazahlen die einfache und CPU-gestützte
+    Divisionsoperation, jedoch kann es durch die begrenzte Auflösung der
+    Gleitkommazahlen (bspw. 64 Bit bei Variablen des Typs \emph{double}) zu
+    Rundungsungenauigkeiten kommen.
 
-\subsection{Entwicklungsprozess}
-Der von uns gewählte Entwicklungsprozess folgte keinem fest definierten Modell (bspw. SCRUM), beinhaltete jedoch einige prozessunterstützende Maßnahmen, die vor allem der kontinuierlichen Kommunikation innerhalb des Teams dienen sollten. Die folgenden Prozesselemente stellten sich als hilfreich heraus und wurden während der Projektarbeit konsequent beibehalten:
-\begin{itemize}
-\item Iterative Herangehensweise, stets lauffähige Version im Repository.
-\item Wöchentliche Team-Meetings zur Besprechung des aktuellen Stands, der in der vergangenen Woche erledigten Arbeit sowie der für die folgende Woche geplanten Arbeitspakete. Schriftliche Protokolle dienten der Information abwesender Teammitglieder.
-\item Arbeitspakete werden stets in 2er-Teams bearbeitet, unter anderem um den Busfaktor\footnote{\url{http://en.wikipedia.org/wiki/Bus_factor}} zu erhöhen.
-\item Unregelmäßig stattfindende \emph{coding sessions}.
-\end{itemize}
-Insbesondere der letztgenannte Punkt entwickelte sich im Laufe des Projekts zu einer wichtigen Maßnahme, um sowohl Verzögerungen im Zeitplan gering zu halten, als auch das Wissen über den geschriebenen Code möglichst gleichmäßig auf die Teammitglieder zu verteilen. Die \emph{coding sessions} wurden von allen Teammitgliedern als überaus produktiv empfunden, oftmals konnten an einem Tag eine ganze Reihe Arbeitspakete abgeschlossen werden. Zudem zeigten sich Fehler im Code oft erst, während mehrere, vorher unbeteiligte Teammitglieder den Code der anderen ausgiebig testeten.
+    Eine weitere, mithin gravierendere Einschränkung ist der Verzicht auf einen
+    \emph{General Position}-Test (im Deutschen manchmal \enquote{allgemeine
+    Lage}) vor Ausführung der Algorithmen. Eine Menge von Punkten in der Ebene
+    befindet sich in \emph{general position}, wenn
 
-Entscheidungen im Team wurden weitestgehend per Konsens geschlossen. Für den seltenen Fall einer Unstimmigkeit wurde zuvor Jannis Ihrig zum Projektleiter bestimmt. Der Projektleiter vertrat das Projekt zudem als Ansprechpartner gegenüber dem Dozenten.
+    \begin{enumerate}
+      \item keine zwei Punkte identisch sind,
+      \item keine drei Punkte auf einer Geraden liegen und
+      \item keine 4 Punkte auf einem Kreis liegen.
+    \end{enumerate}
+
+    Manche Polygon-Algorithmen versagen, wenn eine dieser Eigenschaften,
+    insbesondere 2., für die gegebene Punktmenge nicht erfüllt ist. Zwar lässt
+    sich eine Punktmenge leicht auf GP überprüfen, jedoch ist dieser Test vor
+    allem für große Punktmengen sehr rechenintensiv. Der von uns vorübergehend
+    verwendete naive Algorithmus zum GP-Test wies ein asymptotisches Wachstum
+    von $\bigO\left(n^3\right)$ auf, sodass die Laufzeit des GP-Tests bisweilen
+    die Laufzeit des Algorithmus weit übertraf. Als Konsequenz hieraus
+    verzichteten wir auf einen GP-Test, sodass eine nicht in GP befindlichen
+    Punktmenge zu undefinierte Ergebnissen des Programms führen kann. Mit der
+    Verwendung von 64-bit \emph{double}-Variablen zur Darstellung der $x$- und
+    $y$-Koordinaten ist eine solche Situation jedoch äußerst unwahrscheinlich.
+
+  \subsection{Zeitplan}
+
+    Wir präsentieren hier den Zeitplan des Projekts in Form eines GANTT-
+    Diagramms, welches auch während der Projektarbeit Verwendung fand. Da das
+    Diagramm laufend an den aktuellen Entwicklungsstand angepasst wurde,
+    entspricht es nun nahezu exakt dem tatsächlichen zeitlichen Ablauf der
+    Entwicklung.
+
+    \begin{figure}[h]
+    \begin{center}
+    \bfseries\fontsize{5}{5}\selectfont
+    \newpsstyle{TaskStyleA}{fillstyle=solid,fillcolor=red}
+    \begin{PstGanttChart}[% 
+        yunit=1.0,
+        xunit=0.68,
+        ChartUnitIntervalName=KW,
+        ChartUnitBasicIntervalName=KW,
+    %    ChartModulo,
+        ChartModuloValue=52,
+        TaskUnitIntervalValue=14,
+        TaskUnitType=KW,
+        ChartStartInterval=43,
+        ChartShowIntervals]{15}{15}
+    \psset{TaskStyle=TaskStyleA}
+    \PstGanttTask[TaskInsideLabel={PolygonGenerator interface}]{0}{4}
+    \PstGanttTask[TaskInsideLabel={Data structures scratch}]{0}{4}
+    \PstGanttTask[TaskInsideLabel={GUI scratch}]{0}{4}
+    \PstGanttTask[TaskInsideLabel={Data structures done}]{1}{3}
+    \PstGanttTask[TaskInsideLabel={First polygon algorithms}]{1}{4}
+    \PstGanttTask[TaskInsideLabel={ShortestPathGenerator interface}]{1}{4}
+    \PstGanttTask[TaskInsideLabel={All polygon algorithms}]{3}{4}
+    \PstGanttTask[TaskInsideLabel={Shortest path algorithm}]{3}{4}
+    \PstGanttTask[TaskInsideLabel={GUI}]{3}{4}
+    \PstGanttTask[TaskInsideLabel={History data structure}]{6}{4}
+    \PstGanttTask[TaskInsideLabel={Step-by-step visualisation}]{6}{4}
+    \PstGanttTask[TaskInsideLabel={Statistics backend}]{6}{4}
+    \PstGanttTask[TaskInsideLabel={Improved GUI}]{10}{3}
+    \PstGanttTask[TaskInsideLabel={Statistics visualisation}]{10}{3}
+    \PstGanttTask[TaskInsideLabel={Cleanup for release}]{12}{3}
+    \end{PstGanttChart}
+    \end{center}
+    \label{fig:gantt}
+    \end{figure}
+
+  \subsection{Entwicklungsprozess}
+
+    Der von uns gewählte Entwicklungsprozess folgte keinem fest definierten
+    Modell (bspw. SCRUM), beinhaltete jedoch einige prozessunterstützende
+    Maßnahmen, die vor allem der kontinuierlichen Kommunikation innerhalb des
+    Teams dienen sollten. Die folgenden Prozesselemente stellten sich als
+    hilfreich heraus und wurden während der Projektarbeit konsequent
+    beibehalten:
+
+    \begin{itemize}
+      \item Iterative Herangehensweise, stets lauffähige Version im Repository.
+      \item Wöchentliche Team-Meetings zur Besprechung des aktuellen Stands, 
+            der in der vergangenen Woche erledigten Arbeit sowie der für die 
+            folgende Woche geplanten Arbeitspakete. Schriftliche Protokolle 
+            dienten der Information abwesender Teammitglieder.
+      \item Arbeitspakete werden stets in 2er-Teams bearbeitet, 
+            unter anderem um den Busfaktor\footnote{\url{http://en.wikipedia.org/wiki/Bus_factor}} zu erhöhen.
+      \item Unregelmäßig stattfindende \emph{coding sessions}.
+    \end{itemize}
+
+    Insbesondere der letztgenannte Punkt entwickelte sich im Laufe des Projekts
+    zu einer wichtigen Maßnahme, um sowohl Verzögerungen im Zeitplan gering zu
+    halten, als auch das Wissen über den geschriebenen Code möglichst
+    gleichmäßig auf die Teammitglieder zu verteilen. Die \emph{coding sessions}
+    wurden von allen Teammitgliedern als überaus produktiv empfunden, oftmals
+    konnten an einem Tag eine ganze Reihe Arbeitspakete abgeschlossen werden.
+    Zudem zeigten sich Fehler im Code oft erst, während mehrere, vorher
+    unbeteiligte Teammitglieder den Code der anderen ausgiebig testeten.
+
+    Entscheidungen im Team wurden weitestgehend per Konsens geschlossen. Für den
+    seltenen Fall einer Unstimmigkeit wurde zuvor Jannis Ihrig zum Projektleiter
+    bestimmt. Der Projektleiter vertrat das Projekt zudem als Ansprechpartner
+    gegenüber dem Dozenten.
