@@ -79,6 +79,11 @@ public class EnumeratingPermuteAndRejectFactory
    *      This in combination with the above remarks ensures that we first find a 
    *      solution before testing any 'mirrored' polygon chains.
    * 
+   * REMARK: At the time of this writing, EP&R has still not succeeded in creating a
+   * 14-point polygon, whereas P&R already did 18. Although theoretically we established
+   * an upper bound for the runtime in EP&R, the used enumeration scheme may still yield
+   * worse expected runtimes than pure random permutation?
+   * 
    * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
    */
   private static class EnumeratingPermuteAndReject
