@@ -2,6 +2,8 @@ package polygonsSWP.generators.heuristics;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +16,8 @@ import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.OrderedListPolygon;
-import polygonsSWP.geometry.SteadyGrowthConvexHull;
+import polygonsSWP.geometry.SteadyGrowthConvexHull2;
+import polygonsSWP.geometry.Triangle;
 import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
@@ -165,7 +168,7 @@ public class SteadyGrowthFactory
     private Polygon generate0()
       throws InterruptedException {
 
-      SteadyGrowthConvexHull hull = initialize(), copy;
+      SteadyGrowthConvexHull2 hull = initialize(), copy;
       ArrayList<Point> polygon = new ArrayList<Point>(points.size());
       polygon.addAll(hull.getPoints());
 
@@ -179,14 +182,15 @@ public class SteadyGrowthFactory
         runs++;
 
         Point randomPoint = blacklist.getNextPoint();
-        copy = (SteadyGrowthConvexHull) hull.clone();
+        copy = (SteadyGrowthConvexHull2) hull.clone();
 
-        hull.addPoint(randomPoint);
+        int insertIndex = hull.addPointReturnAndInsertIndex(randomPoint);
 
         // sind jetzt irgendwelche punkte in der neuen konvexen huelle?
         // - wenn ja, dann akzeptieren wir den gewaehlten punkt nicht
         // - wenn nein, dann akzeptieren wir den punkt und machen weiter
-        Point containsPoint = containsAnyPoint(hull);
+        Point containsPoint = containsAnyPoint(hull, insertIndex);
+
         if (containsPoint != null) {
 
           /**
@@ -212,7 +216,7 @@ public class SteadyGrowthFactory
 
         // waehlen einen zufaelligen startpunkt aus
         int startIndex = rand.nextInt(polygon.size());
-        int insertIndex = getIndexOfVisibleEdge(polygon, randomPoint, startIndex);
+        insertIndex = getIndexOfVisibleEdge(polygon, randomPoint, startIndex);
 
         /**
          * VISUALISATION
@@ -274,10 +278,10 @@ public class SteadyGrowthFactory
       throw new RuntimeException("steady-growth: should not happen");
     }
 
-    private SteadyGrowthConvexHull initialize()
+    private SteadyGrowthConvexHull2 initialize()
       throws InterruptedException {
 
-      SteadyGrowthConvexHull hull;
+      SteadyGrowthConvexHull2 hull;
       do {
         if (doStop) throw new InterruptedException();
 
@@ -285,12 +289,12 @@ public class SteadyGrowthFactory
             GeneratorUtils.removeRandomPoint(points), c =
             GeneratorUtils.removeRandomPoint(points);
 
-        hull = new SteadyGrowthConvexHull();
+        hull = new SteadyGrowthConvexHull2();
         hull.addPoint(a);
         hull.addPoint(b);
         hull.addPoint(c);
 
-        Point containsPoint = containsAnyPoint(hull);
+        Point containsPoint = containsAnyPoint(hull, 0);
         if (containsPoint == null) {
 
           if (steps != null) {
@@ -315,14 +319,21 @@ public class SteadyGrowthFactory
       return hull;
     }
 
-    private Point containsAnyPoint(SteadyGrowthConvexHull hull) {
+    private Point containsAnyPoint(SteadyGrowthConvexHull2 hull, int insertIndex) {
+      if(insertIndex < 0) return null;
+      Triangle triangle = new Triangle(Arrays.asList(
+          hull.getPointInRange(insertIndex - 1),
+          hull.getPointInRange(insertIndex),
+          hull.getPointInRange(insertIndex + 1)
+      ));
+
       for (Point point : points) {
         // NOTE: Wenn ein Punkt genau auf dem Rand der Convexen Huelle
         // liegt, dann wird hier gesagt, dass die Convexe Huelle diesen
         // Punkt nicht beinhaltet, damit diese Funktion null zurueckgibt
         // und dieser Punkt akzeptiert wird, da die Convexe Huelle
         // diesen Punkt einfach verschluckt und sich dadurch nicht aendert.
-        if (hull.containsPoint(point, false)) return point;
+        if (triangle.containsPoint(point, false)) return point;
       }
 
       return null;
