@@ -9,18 +9,6 @@
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
 	
-	<dependencySets>
-		<dependencySet>
-			<scope>runtime</scope>
-			<unpack>false</unpack>
-			<outputDirectory>polygonsSWP/lib</outputDirectory>
-			<includes>
-				<include>*:dll*</include>
-				<include>*:so*</include>
-			</includes>
-		</dependencySet>
-	</dependencySets>
-	
 	<fileSets>
 		<fileSet>
 			<directory>src</directory>
@@ -44,6 +32,7 @@
 		<file>
 			<source>src/assembly/run.sh</source>
 			<outputDirectory>polygonsSWP/</outputDirectory>
+			<fileMode>0755</fileMode>
 		</file>
 		<file>
 			<source>polygons-coding-style.xml</source>
