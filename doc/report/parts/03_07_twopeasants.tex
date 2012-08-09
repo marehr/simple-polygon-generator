@@ -8,7 +8,7 @@
     \label{fig:twopeasants200}
   \end{figure}
 
-  \emph{Two Peasants} ist ein sehr einfacher Algorithmus ähnlich dem Algorithmus
+  \emph{Two Peasants} ist ein sehr einfacher Algorithmus ähnlich dem
   zur Erzeugung der konvexen Hülle einer Punktmenge, implementiert nach einer
   Beschreibung in~\cite{geometrylab}.
 
@@ -31,7 +31,7 @@
   Strecken als Verbindung zwischen aufeinanderfolgenden Punkten der Punktmenge.
   Der Algorithmus ähnelt der natürlichen Vorgehensweise eines Menschen, der
   versucht aus einer gegebenen Punktmenge ein simples Polygon zu konstruieren
-  (vgl.~\cite{geometrylab}). Die Laufzeit des Algorithmus wird dominiert von der
+  (vgl.~\cite{geometrylab}). Die Laufzeit des Algorithmus wird von der
   Laufzeit des gewählten Sortieralgorithmus (bspw. im Normalfall $\bigO(n \log
-  n)$), das Verbinden der sortierten Punkte zu einem Polygon erfolgt
+  n)$)dominiert. Das Verbinden der sortierten Punkte zu einem Polygon erfolgt
   anschließend in linearer Zeit.

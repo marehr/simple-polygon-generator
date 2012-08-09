@@ -9,9 +9,8 @@
     \label{fig:icb14}
   \end{figure}
 
-  ``Space Partitioning'' ist einer der mehreren im Paper ``RPG - Heuristics
-  for the   Generation of Random Polygons'' von T.Auer und M.
-  Held~\cite{held98polygons}   beschriebenen Algorithmen zur Generierung von
+  \enquote{Space Partitioning} ist einer der von T. Auer und M. Held 
+  in~\cite{held98polygons} beschriebenen Algorithmen zur Generierung von
   einfachen Polygonen.
 
 
@@ -23,7 +22,8 @@
 
   \subsubsection{Algorithmus}
 
-    Wie oben schon beschrieben ist ``Space Partitioning'' ein Divide \& Conquer
+    Wie oben schon beschrieben ist \enquote{Space Partitioning} ein 
+    Divide \& Conquer
     Algorithmus, der in der Betrachtung und Umsetzung die Allgemeine Lage
     voraussetzt. \\
 
@@ -102,15 +102,15 @@ Space Partitioning(points, $s_f$, $s_l$)
 
   \subsubsection{Laufzeit}
 
-    Die Laufzeitanalyse von ``Space Partitioning'' ist analog zur
+    Die Laufzeitanalyse von \enquote{Space Partitioning} ist analog zur
     Laufzeitanalyse von Quicksort. Sei $n$ die Anzahl der vorgegebenen
     Punktmenge. Nach der Rekursionsbaum Analysemethode werden in jeder
     Rekursionsebene  h"ochstens $\bigO(n)$ Operationen ausgef"uhrt (Die
     Punktmenge wird komplett unter den Rekursionaufrufen einer Rekursionsebene
     aufgeteilt). Wodurch die Laufzeit sich nur nach der Rekursionstiefe richtet.
     Bei halbwegs gleicher Aufteilung der Partitionen sind nur $\bigO(\log n)$
-    Rekursionsebenen n"otig, wo hingegen im worst-case $\bigO(n)$ n"otig sind.
-    \\ Damit hat ``Space Partitioning'' eine worst-case Laufzeit von
+    Rekursionsebenen, im worst-case $\bigO(n)$ hingegen n"otig.
+    \\ Damit hat \enquote{Space Partitioning} eine worst-case Laufzeit von
     $\bigO(n^2)$, aber in vielen F"allen eine sehr viele bessere $\bigO(n \log
     n)$ Laufzeit.
 
@@ -118,8 +118,8 @@ Space Partitioning(points, $s_f$, $s_l$)
 
     Aufgrund des einfachen Divide \& Conquer Ansatzes und ausschlie"slichen
     Verwendung von Basis-Operationen, wie z.B. eines Orientierungstests, ist
-    ``Space Partitioning'' der schnellste implementierte Algorithmus dieses
-    Projekts. Wodurch ``Space Partitioning'' sich f"ur Testpolygone mit gro"sen
+    \enquote{Space Partitioning} der schnellste implementierte Algorithmus dieses
+    Projekts. Wodurch \enquote{Space Partitioning} sich f"ur Testpolygone mit gro"sen
     Punktmengen (100.000 Punkte in weniger als 10s) anbietet. Leider ist ``Space
     Partitioning'' nach T.Auer und M. Held~\cite{held98polygons} nicht
     inclusive,  dennoch geben sie in ihrem Paper an, dass bei 100.000

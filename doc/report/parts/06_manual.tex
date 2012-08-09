@@ -5,11 +5,11 @@
 
     Das Framework nutzt verschiedene Bibliotheken zum Testen, Generieren von
     Vektorbildern, Datenbankzugriff und zur Parsierung von
-    Kommandozeilenparametern. Wir nutzen Maven2 als \emph{build tool}, um
-    diese Abhängigkeiten automatisiert aufzulösen. Die Kompilation wurde von
+    Kommandozeilenparametern. Wir bedienen uns Maven2 als \emph{build tool}, um
+    diese Abhängigkeiten automatisiert aufzulösen. Das Kompilieren wurde von
     uns ausschließlich unter GNU/Linux-Systemen getestet, jedoch sollte die
     Portierung nach Microsoft Windows leicht möglich sein. Vorraussetzungen
-    für eine erfolgreiche Kompilation sind (in Klammern die Namen der Pakete
+    für einen erfolgreichen Kompiliervorgang sind (in Klammern die Namen der Pakete
     bei Debian/Ubuntu-Systemen mit erfolgreich getesteten Versionsnummern):
 
     \begin{itemize}
@@ -23,8 +23,8 @@
 
   \subsection{Grafische Oberfläche}
 
-    Die Oberfläche ist dazu da Polygone zu generieren, den Shortest Path zu
-    berechnen und diesen darzustellen.\\
+    Die Oberfläche ermöglicht es Polygone zu generieren, Kürzeste Wege zwischen
+    zwei Punkten zu berechnen und diese darzustellen.\\
 
     \begin{center}
       \includegraphics[width=0.7\textwidth]{img/GUI.eps}
@@ -37,15 +37,15 @@
         \item Visualisierung der Polygon-Algorithmen
         \item Manuelle Auswahl der Punktmenge eines Polygons
         \item Zoomen und Bewegen
-        \item Anzeigen der Werte einzelner Polygone
+        \item Anzeigen der Koordinaten einzelner Punkte
         \item Berechnung des Shortest-Path
-        \item Speichern des Polygons
+        \item Speichern eines Polygons im CSV- oder SVG-Format
       \end{itemize}
 
   \subsection{Kommandozeile}
 
     Mit der Kommandozeile ist es möglich mehrere Polygone und deren Statistiken
-    gleichzeitig zu erzeugen und diese in eine Ausgabedatei zu schreiben.
+    gleichzeitig zu erzeugen und diese in eine CSV-Datei zu schreiben.
     Zusätzlich ist es möglich die Anzahl der Threads zu bestimmen für optimales
     paralleles Berechnen. Damit ist es möglich viele verschiedene Polygone mit
     den gleichen Parametern zu erzeugen. Die Parameter werden im \enquote{GNU-
