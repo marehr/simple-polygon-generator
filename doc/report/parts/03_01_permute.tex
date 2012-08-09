@@ -37,8 +37,33 @@ if resulting polygon is NOT simple
     Ausgehend von einer beliebigen Punktmenge kann Permute \& Reject sämtliche
     möglichen Polygone erzeugen. Jedoch lässt die enorme Laufzeit des
     Algorithmus eine praktische Verwendung für Polygone mit vielen Punkten
-    nicht zu. Eine -- wenn auch nicht scharfe -- obere Schranke für die
-    Laufzeit lässt sich mit $\bigO(n!)$ beziffern, entsprechend dem
-    Durchprobieren jeglicher möglichen Kombination von Punkten. In unseren
-    Experimenten konnten wir kein Polygon mit mehr als 28 Punkten erzeugen.
+    nicht zu. Die Laufzeit ist direkt abhängig von der Anzahl der benötigten 
+    \enquote{Versuche}, d.h. der Anzahl der erzeugten Permutationen und der
+    Tests auf Schnittfreiheit der resultierenden Polygone. Da die Implementierung
+    keinerlei \emph{blacklisting} betreibt, ist es möglich, dass bereits
+    getestete Permutationen erneut erzeugt werden, sodass die Laufzeit theoretisch
+    nicht beschränkt ist. In unseren Experimenten konnten wir kein Polygon mit mehr
+    als 28 Punkten erzeugen.
+
+    Die erwartete Laufzeit des Algorithmus ist abhängig von der Anzahl der \enquote{gutartigen} 
+    Permutationen in der Menge aller Permutationen der Punktmenge ($n!$ Permutationen). 
+    Im \emph{worst case} liegen alle Punkte der gegebenen Punktmenge
+    auf der konvexen Hülle der Menge (bspw. bilden die Punkte eine nahezu regelmäßiges
+    Vieleck). In diesem Fall gibt es nur eine gültige geometrische Lösung, die allerdings
+    durch $2n$ Permutationen ausgedrückt werden kann, da jeder Punkt Startpunkt der Polygonkette
+    sein kann und jede gültige Polygonkette auch eine exakte Umkehrung besitzt, die ebenfalls
+    das selbe einfache Polygon beschreibt. Für den \emph{worst case} lässt sich hieraus 
+    folglich eine erwartete Anzahl von $\frac{n!}{2n}$ Iterationen für den Algorithmus ableiten.
+
+  \subsubsection{Enumerating Permute \& Reject}
+
+    Um die Laufzeit des Algorithmus auch tatsächlich zu beschränken, implementierten wir
+    eine zweite Version, die auf einer einfachen Aufzählung aller möglichen Permutationen
+    der Punktmenge beruht. Dieser neue, \emph{Enumerating Permute \& Reject} genannte Algorithmus
+    benötigt im oben beschriebenen schlechtesten Fall nicht mehr als $\frac{n!}{2n}$ Iterationen.
+    Zu unserem Bedauern mussten wir jedoch feststellen, dass der Algorithmus ab einer gewissen
+    Punktanzahl in der Regel deutlich größere Laufzeiten aufweist als \emph{Permute \& Reject}.
+    Wir vermuten, dass dies aus der Wahl der Steinhaus-Johnson-Trotter-Algorithmus zur iterativen 
+    Erzeugung der Permutationen resultiert, da die Permutationen hier stets nur an einer Stelle
+    verändert werden.
   
