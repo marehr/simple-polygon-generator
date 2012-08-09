@@ -1,22 +1,30 @@
 \section{Zusammenfassung}
 
-  In Summe lässt sich der Ausgang des Softwareprojekts als durchaus
-  erfolgreich beschreiben. Die entstandene Softwarelösung eignet sich zur
+  Nach Abschluss des Softwareprojekts lasst sich feststellen das wir insgesamt 
+  die uns gestellten Ziele erreicht haben.
+  Die entstandene Softwarelösung eignet sich zur
   massenweisen Erzeugung von zufälligen einfachen Polygonen, mit deren Hilfe
   sich verschiedenen Algorithmen der algorithmischen Geometrie testen und
   evaluieren lassen. Die verschiedenen Algorithmen führen indes zu äußerst
   unterschiedlichen Ergebnissen, von den vertikalen Linien des \emph{Space
   Partitioning}- bis hin zu den eher kreisförmigen Polygonen des
-  \emph{Velocity Virmani}-Algorithmus.Zugleich bietet die graphische
+  \emph{Velocity Virmani}-Algorithmus. Zugleich bietet die graphische
   Oberfläche, insbesondere die graphische Visualisierung der Erzeugung der
   Polygone, einen interessanten Einblick in die Funktionsweise der
   Algorithmen.
 
   Im Laufe der Entwicklung konnten wir wertvolle Erfahrungen zu Teamarbeit und
-  Prozesskoordination lernen. Obgleich die von uns eingesetzten
-  Prozesselemente durchweg konsequent eingehalten wurden, lassen sich
-  schlechte Designentscheidungen, doppelte Arbeit und Verzögerungen im Ablauf
-  natürlich nicht vermeiden. Als besonders schwerwiegend ist hier die
+  Prozesskoordination lernen. Hinsichtlich des Entwicklugsprozesses wurden die
+  von uns festgelegt Vorgehensweise überwiegend konsequent eingehalten. Vorallem
+  die Organisation in einer Gruppe von sechs Personen stellte sich als
+  Herausvorderung heraus. Die meisten unserer Entscheidungen wurden im Konsens
+  getroffen, wodurch zwar die Erfahrung aller Mitglieder in die Softwarelösung
+  einfliessen konnte, jedoch gleichzeitig zu langen Entscheidungsprozessen und
+  einer teils inkonsistenten Umsetzung führte. Dies und die teils schwierige
+  Koordination voneinander abhängiger Aufgaben bedingte einige Verzögerungen,
+  der anfänglich aufgestellte Zeitplan wurde jedoch grob eingehalten.
+
+  Als Fehlentscheidung ist hier die
   Entscheidung für die eigene Implementierung der generischen Polygon-
   Mathematik (und gegen ein entsprechendes Framework) zu bezeichnen. Zwar
   konnten wir uns so auf die tatsächlich benötigte Funktionalität (Schnitt-
@@ -28,16 +36,22 @@
   in $\bigO(n^2)$, obwohl in der entsprechenden Fachliteratur effizientere
   Algorithmen beschrieben werden.
 
-  Eine weitere beispielhafte Fehlentscheidung im Entwicklungsprozess war der
-  Versuch, einzig für die Initialisierung des \emph{Shortest Path}-Algorithmus
+  Gleichzeitig stellten sich in den gegebenen Papers beschriebene Details und
+  Abhängigkeiten zu den Algorithmen in der Implementierung mitunter als äussert
+  schwierig heraus. Als beispilehafte Fehlentscheidung ist hierbei der Versuch
+  zu nennen, einzig für die Initialisierung des \emph{Shortest Path}-Algorithmus
   einen Algorithmus zur Erzeugung einer Trapez-Zerlegung eines Polygons zu
   verwenden. Wir verwendeten hierbei vergleichsweise viele Arbeitsstunden zur
   Implementierung eines überaus komplexen Algorithmus nach Raimund
   Seidel~\cite{seidel91asimple}, scheiterten hierbei mehrfach und fanden
   schließlich heraus, dass für die Initialisierung des SP-Algorithmus keine
-  vollständige Trapez-Zerlegung benötigt wird.
+  vollständige Trapez-Zerlegung benötigt wird. Hierfür verwendete Zeit hätte
+  sinnvoller für eine höhere Testabdeckung verwendet werden können, um die
+  Robustheit der Software zu steigern.
 
-  ...
+  bla weil ziele erreicht und tolle sachen hinsichtlich der entwicklung gelernt
+  -> In Summe lässt sich der Ausgang des Softwareprojekts jedoch als durchaus
+  erfolgreich bewerten.
 
   \subsection{Lessons Learned}
 
