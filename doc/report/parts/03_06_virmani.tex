@@ -138,7 +138,7 @@ for (int i=0; i < iterations; i++)
     gewählter Parametermenge.
     Folgende Parameter stehen in Abhängigkeit zueinander und beeinflussen die 
     Zufälligkeit des Generierten Polygons:\\
-    \textit{maxvelocity $leftrightarrow$ boundary box $leftrightarrow$ radius $leftrightarrow$ n}
+    \textit{maxvelocity $\leftrightarrow$ boundary box $\leftrightarrow$ radius $\leftrightarrow$ n}
 
     Die maximale Verschiebung für Punkte sollte kleiner als die Kanten der 
     Bounding Box gewählt werden. Anderenfalls entstehen gehäuft Kollisionen 
@@ -156,8 +156,8 @@ for (int i=0; i < iterations; i++)
     Punkte genug Platz zum wachsen haben, sowie aber auch nicht so gewählt 
     werden das sie beliebig wachsen können. Ein Mittelmaß an Kollisionen 
     für eine effektive Generierung an Polygonen ist erwünscht.
-    Der einzige Parameter der keine Abhängigkeit in Bezug auf die Bounding Box, 
-    ist iterations, welcher die Verschiebungen pro Punkt bestimmt.
+    Der einzige Parameter der keine Abhängigkeit zu dem Raum der Punkte hat, 
+    ist iterations, welcher die Menge der Verschiebungen pro Punkt bestimmt.
     Durch das Hochsetzen dieses Parameters ist 
     es möglich die Zufälligkeit eines Polygons trotz schlecht gewählter 
     Parameter zu erhöhen. 
