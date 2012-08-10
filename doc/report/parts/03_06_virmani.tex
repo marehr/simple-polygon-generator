@@ -51,7 +51,7 @@
     Eingabeparameter: 
     \begin{itemize}
       \item Boundaries(boundary)
-      \item simples Polygon welches in den Boundaries ist(polygon)
+      \item einfaches Polygon welches in den Boundaries ist(polygon)
       \item maximale Geschwindigkeit(maxvelocity)
       \item Anzahl der Durchläufe (iterations)
     \end{itemize}
@@ -64,12 +64,12 @@
     durch den Eingabeparameter maxvelocity. Nach jeder Verschiebung von 
     einem Punkt können folgende Zustände auftreten:
     \begin{enumerate}
-      \item Das Polygon ist simpel und in den Grenzen (Boundaries).
-      \item Das Polygon ist simpel aber außerhalb der Grenzen.
-      \item Das Polygon ist nicht simpel aber innerhalb der Grenzen.
-      \item Das Polygon ist weder simpel noch in den Grenzen.
+      \item Das Polygon ist einfach und in den Grenzen (Boundaries).
+      \item Das Polygon ist einfach aber außerhalb der Grenzen.
+      \item Das Polygon ist nicht einfach aber innerhalb der Grenzen.
+      \item Das Polygon ist weder einfach noch in den Grenzen.
     \end{enumerate}
-    Sollte es vorkommen das der Zustand nicht Punkt 1 enspricht (simpel 
+    Sollte es vorkommen das der Zustand nicht Punkt 1 enspricht (einfach 
     und in den Grenzen), so wird die Verschiebung rückgängig gemacht und 
     für diesen Punkt im Polygon ändert sich nichts.
     Dieser gesamte Prozess wird \enquote{iterations}-oft ausgeführt sodass 
@@ -89,16 +89,16 @@ for (int i=0; i < iterations; i++)
 }
 \end{code}
 
-  \subsubsection{Überprüfen ob das Polygon simpel ist}
+  \subsubsection{Überprüfen ob das Polygon einfach ist}
     In dem Velocity Virmani wird nach jedem Punkt getestet ob das Polygon 
-    noch simpel ist. Dies kann bei einer trivialen Implementierung des 
+    noch einfach ist. Dies kann bei einer trivialen Implementierung des 
     Tests mit \bigO($n^3$) zu sehr hohen Laufzeiten führen.
-    Deshalb ist ein trivialer Test nach der Eigenschaft simpel nicht 
+    Deshalb ist ein trivialer Test nach der Eigenschaft einfach nicht 
     effizient.\smallskip \\ 
     Die Lösung für dieses Problem besteht darin nur die angrenzenden 
     Linien des verschobenen Punktes mit allen anderen Linien auf 
     Überschneidungen zu überprüfen. Eine komplette Überprüfung auf 
-    Simplizität ist nicht nötig.
+    Einfachheit ist nicht nötig.
     Der Algorithmus dafür wäre trivial und würde die Laufzeit für einen 
     Test von $\bigO(n^3)$ auf $\bigO(n)$ sinken.
 
@@ -107,7 +107,7 @@ for (int i=0; i < iterations; i++)
     Es werden die beiden vom Punkt u ausgehenden Kanten gewählt. 
     Diese werden mit den der Menge der restlichen Kanten geschnitte.
     Sollte hierbei die Schnittmenge nicht leer sein,
-    so ist das Polygon nicht simpel und es muss 
+    so ist das Polygon nicht einfach und es muss 
     nicht weiter getestet werden. Eine Ausnahme bilden jedoch die 
     Endpunkte von den Kanten, jede Kante darf sich genau ein Endpunkt mit 
     einer anderen Kante teilen.
@@ -124,7 +124,7 @@ for (int i=0; i < iterations; i++)
       Die Komplexität setzt sich zusammen aus der Anzahl der 
       Iterationen, aus der Anzahl der Punkte durch welche iteriert wird 
       um die Verschiebungen durchzuführen und nochmal durch die Anzahl 
-      der Punkte für den Test auf Simplizität. Somit ergibt sich eine 
+      der Punkte für den Test auf Einfachheit. Somit ergibt sich eine 
       Laufzeit von $\bigO(iterations*n*n) = \bigO(iterations*n^2)$
       \item Terminiert\\
       Der Algorithmus terminiert immer da die Anzahl der 
