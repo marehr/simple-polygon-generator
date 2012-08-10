@@ -5,7 +5,7 @@ public interface HistorySceneModeListener
 {
   /**
    * Event emitted when the histor scene mode was switched.
-   * mode can be CREATE_AND_SHOW, CREATE and DISABLE
+   * mode can be CREATE_AND_SHOW, CREATE, LAST_SHOW  or DISABLE
    * 
    * @param mode the mode switched to
    */

@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import polygonsSWP.data.History;
+import polygonsSWP.data.LastHistory;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.generators.PolygonGenerator;
 import polygonsSWP.generators.PolygonGeneratorFactory;
@@ -167,6 +168,9 @@ public class PolygonGenerationPanel
 
     if(historySceneMode.shouldHistoryBeCreated())
       steps = new History(boundingBox);
+
+    if(historySceneMode.onlyShowLastScene())
+      steps = new LastHistory(boundingBox);
 
     params = new HashMap<Parameters, Object>();
     stats = new PolygonStatistics();
