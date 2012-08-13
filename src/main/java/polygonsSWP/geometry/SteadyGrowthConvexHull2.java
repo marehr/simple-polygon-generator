@@ -1,13 +1,8 @@
 package polygonsSWP.geometry;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
 
 import polygonsSWP.util.MathUtils;
 
@@ -16,25 +11,8 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
 {
 
   public static int seqSearches = 0;
-  public static int binSearches = 0;
+
   public SteadyGrowthConvexHull2() {
-    /**logger.addHandler(new Handler() {
-      
-      @Override
-      public void publish(LogRecord record) {
-        System.out.println(record.getMessage());
-      }
-      
-      @Override
-      public void flush() {
-      }
-      
-      @Override
-      public void close() throws SecurityException {
-      }
-    });
-    logger.setLevel(Level.FINE);*/
-    //logger.setLevel(Level.OFF);
   }
 
   private ArrayList<Point> points = new ArrayList<Point>();
@@ -94,8 +72,6 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
     return State.UNDEFINED;
   }
 
-//  Logger logger = Logger.getAnonymousLogger();
-
   private boolean updateCollinears(Point base, int[] supports, int lastIndex, int curr){
     if(lastIndex == 0) return true;
 
@@ -154,9 +130,6 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
     Point[] oldPoints = points.toArray(new Point[points.size()]),
             newPoints = new Point[newSize];
 
-//    logger.log(Level.FINE, "distance: " + distance);
-//    logger.log(Level.FINE, "newSize: " + newSize);
-
     int srcFrom = 0, srcTo = leftSupport, length = 0,
         dstStart = 0, newIndex = leftSupport + 1;
 
@@ -180,12 +153,6 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
 
     length = srcTo - srcFrom + 1;
 
-//    logger.log(Level.FINE, "length: " + length);
-//    logger.log(Level.FINE, "srcFrom: " + srcFrom);
-//    logger.log(Level.FINE, "srcTo: " + srcTo);
-//    logger.log(Level.FINE, "destStart: " + dstStart);
-//    logger.log(Level.FINE, "newIndex: " + newIndex);
-
     System.arraycopy(oldPoints, srcFrom, newPoints, dstStart, length);
     newPoints[newIndex] = base;
 
@@ -193,8 +160,6 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
       newPoints[newPoints.length - 1] = oldPoints[0];
       newSize--;
     }
-
-//    logger.log(Level.FINE, "new hull: " + Arrays.asList(newPoints));
 
     // wir haben schon alle kopiert
     if(length + 1 == newSize) {
@@ -207,15 +172,7 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
     srcFrom  = rightSupport;
     srcTo    = oldPoints.length - 1;
 
-//    logger.log(Level.FINE, "length: " + length);
-//    logger.log(Level.FINE, "srcFrom: " + srcFrom);
-//    logger.log(Level.FINE, "srcTo: " + srcTo);
-//    logger.log(Level.FINE, "destStart: " + dstStart);
-//    logger.log(Level.FINE, "newIndex: " + newIndex);
-
     System.arraycopy(oldPoints, srcFrom, newPoints, dstStart, srcTo - srcFrom + 1);
-
-//    logger.log(Level.FINE, "new hull: " + Arrays.asList(newPoints));
 
     points.clear();
     Collections.addAll(points, newPoints);
@@ -232,23 +189,8 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
       int index = point.compareTo(points.get(0)) < 0 ? 0 : 1;
       points.add(index, point);
 
-//      logger.log(Level.FINE, points.toString());
       return index;
     }
-
-//    logger.log(Level.FINE,"\n<><><><><><><><><><><><><><><><>");
-//    logger.log(Level.FINE,"minXIndex: " + minXIndex);
-//    logger.log(Level.FINE,"maxXIndex: " + maxXIndex);
-//    logger.log(Level.FINE,"minYIndex: " + minYIndex);
-//    logger.log(Level.FINE,"maxYIndex: " + maxYIndex);
-//    logger.log(Level.FINE,"minX: " + points.get(minXIndex));
-//    logger.log(Level.FINE,"maxX: " + points.get(maxXIndex));
-//    logger.log(Level.FINE,"minY: " + points.get(minYIndex));
-//    logger.log(Level.FINE,"maxY: " + points.get(maxYIndex));
-
-//    logger.log(Level.FINE,"\n<><><><><><><><><><><><><><><><>");
-//    logger.log(Level.FINE,"base: " + point);
-//    logger.log(Level.FINE,"points: " + points);
 
     int[] supports = getSupports(point);
     Point leftSupport  = points.get(supports[0]),
@@ -264,11 +206,6 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
       leftSupport  = rightSupport;
       rightSupport = tmp1;
     }
-
-//    logger.log(Level.FINE,"leftSupportIndex: " + supports[0]);
-//    logger.log(Level.FINE,"rightSupportIndex: " + supports[1]);
-//    logger.log(Level.FINE,"leftSupport: " + leftSupport);
-//    logger.log(Level.FINE,"rightSupport: " + rightSupport);
 
     int newIndex = splice(supports[0], supports[1], point);
 
@@ -321,41 +258,4 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
     throw new UnsupportedOperationException();
   }
 
-  public static void main(String[] args) {
-    SteadyGrowthConvexHull2 hull = new SteadyGrowthConvexHull2();
-
-    List<Point> points = hull.getPoints();
-    points.addAll(Arrays.asList(
-      new Point (330.698,19.73), new Point (374.22,319.351), new Point (403.635,525.373), new Point (401.405,558.494), new Point (370.454,439.91), new Point (364.079,381.414), new Point (354.978,289.581), new Point (346.337,195.225), new Point (331.085,25.187)
-    ));
-
-//    hull.logger.setLevel(Level.FINE);
-
-//    hull.logger.setLevel(Level.ALL);
-    hull.addPoint(new Point(594.598, 172.175));
-
-//    hull.logger.setLevel(Level.OFF);
-//    hull.addPoint(new Point(9, 9));
-//    hull.addPoint(new Point(7.9, 7.9));
-//    hull.addPoint(new Point(14, 6));
-//    hull.addPoint(new Point(8, 2));
-//    hull.addPoint(new Point(5, 0.1));
-//    hull.addPoint(new Point(5, 4));
-//    hull.addPoint(new Point(-3, -3));
-//    hull.addPoint(new Point(1.1, 5));
-//    hull.addPoint(new Point(5, 8.125));
-//    hull.addPoint(new Point(2, 5.5));
-//
-//    // nicht in allgemeiner lage
-//    System.out.println("\nNICHT allgemeine LAGE");
-//    hull.addPoint(new Point(13, 2));
-//    hull.addPoint(new Point(7, 8));
-//    hull.addPoint(new Point(6, 9));
-//    hull.addPoint(new Point(10, 5));
-//    hull.addPoint(new Point(1, 5));
-//    hull.addPoint(new Point(5, 0));
-//    hull.addPoint(new Point(5, 8.5));
-//    hull.logger.setLevel(Level.FINEST);
-//    hull.addPoint(new Point(2, 6));
-  }
 }

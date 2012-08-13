@@ -209,24 +209,7 @@ public class SteadyGrowthFactory
         stats.rejections = rejections;
         stats.maximumRejections = maximumRejections;
         stats.initializeRejections = initializeRejections;
-
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-        System.out.println("iterations: " + runs);
-        System.out.println("rejections: " + rejections);
-        System.out.println("maximumRejections: " + maximumRejections);
-        System.out.println("initializeRejections: " + initializeRejections);
-        System.out.println("seq search: " + SteadyGrowthConvexHull2.seqSearches);
-        System.out.println("bin search: " + SteadyGrowthConvexHull2.binSearches);
-        System.out.println("ratio: " + (1.0 * SteadyGrowthConvexHull2.seqSearches / SteadyGrowthConvexHull2.binSearches));
-        System.out.println("lookup time: " + lookupTime);
-        System.out.println("lookups: " + lookupTimes);
-        System.out.println("ratio: " + (lookupTime / lookupTimes));
-        System.out.println("visible edge time: " + visibleEdgeTime);
-        System.out.println("visible edges: " + visibleEdgeTimes);
-        System.out.println("ratio: " + (visibleEdgeTime / visibleEdgeTimes));
-
         SteadyGrowthConvexHull2.seqSearches = 0;
-        SteadyGrowthConvexHull2.binSearches = 0;
       }
 
       return polygon;
@@ -314,7 +297,6 @@ public class SteadyGrowthFactory
 
           Polygon poly = new OrderedListPolygon(polygon);
           Scene scene = newScene(hull, POLYGON_HULL)
-          //.addPolygon(copy, POLYGON_HULL)
           .addPolygon(poly, true)
           .addLineSegment(new LineSegment(pk, pl), CHOOSEN_VISIBLE_EDGE)
           .addPoint(randomPoint, NEW_EDGE_POINT)
@@ -377,6 +359,8 @@ public class SteadyGrowthFactory
 
       blacklist.reset();
 
+      initializeRejections = rejections;
+
       return (SteadyGrowthConvexHull2) rets[0];
     }
 
@@ -402,21 +386,6 @@ public class SteadyGrowthFactory
           hull.getPointInRange(insertIndex),
           hull.getPointInRange(insertIndex + 1)
       );
-    }
-
-    private Point containsAnyPoint(Polygon triangle) {
-      if(triangle == null) return null;
-
-      for (Point point : points) {
-        // NOTE: Wenn ein Punkt genau auf dem Rand der Convexen Huelle
-        // liegt, dann wird hier gesagt, dass die Convexe Huelle diesen
-        // Punkt nicht beinhaltet, damit diese Funktion null zurueckgibt
-        // und dieser Punkt akzeptiert wird, da die Convexe Huelle
-        // diesen Punkt einfach verschluckt und sich dadurch nicht aendert.
-        if (triangle.containsPoint(point, false)) return point;
-      }
-
-      return null;
     }
 
     @Override
