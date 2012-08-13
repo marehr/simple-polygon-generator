@@ -319,7 +319,7 @@ public class ShortestPath
 	    Point [] tri = tri_list.get(i);
 	    if((tri[0] == null) && (tri[1].equals(q1) || tri[1].equals(newP)) && (tri[2].equals(q1) || tri[2].equals(newP)))
 	      return false;
-	  Te}
+	  }
 
     OrderedListPolygon reducedPolygon = new OrderedListPolygon();
     reducedPolygon.addPoint(q1);
