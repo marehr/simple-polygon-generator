@@ -23,13 +23,17 @@ import polygonsSWP.data.Scene;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 
-
 /**
  * Component for drawing our geometry objects. This one features drawing a
  * polygon as well as points plus zooming and dragging stuff around.
  * 
- * @author Sebastian Thobe <s.thobe@fu-berlin.de>
+ * (c) 2011-2012
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+ * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
  * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
+ * @author Kadir Tugan <kadir.tugan@gmail.com>
  */
 class PaintPanel
   extends JPanel

@@ -14,10 +14,14 @@ import polygonsSWP.util.MathUtils;
  * be ordered counter clockwise. Every method is implemented according to the
  * interface and documentation of OrderedListPolygon.
  * 
+ * (c) 2011-2012
  * @author Steve Dierker <dierker.steve@fu-berlin.de>
  * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+ * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+ * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
+ * @author Kadir Tugan <kadir.tugan@gmail.com>
  */
-
 public class Triangle
   extends Polygon
 {
@@ -95,7 +99,6 @@ public class Triangle
   }
 
   /**
-   * @author Steve Dierker <dierker.steve@fu-berlin.de>
    * @param middle
    * @param left
    * @param right
@@ -129,7 +132,6 @@ public class Triangle
    * Surface Area. It is assumed, that the given List of Polygons only contains
    * Triangles. TODO: still safe although surface areas calculated as doubles?
    * 
-   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @param triangles
    * @return
    */

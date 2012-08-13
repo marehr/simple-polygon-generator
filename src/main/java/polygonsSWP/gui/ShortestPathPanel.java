@@ -26,12 +26,16 @@ import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
 import polygonsSWP.gui.generation.ShortestPathGenerationListener;
 import polygonsSWP.shortestpath.ShortestPathGenerator;
 
-
 /**
  * Panel which controls the shortest path calculation.
  * 
- * @author Sebastian Thobe <s.thobe@fu-berlin.de>
+ * (c) 2011-2012
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+ * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
  * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
+ * @author Kadir Tugan <kadir.tugan@gmail.com>
  */
 class ShortestPathPanel
   extends JPanel

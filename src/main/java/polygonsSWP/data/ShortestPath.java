@@ -17,7 +17,14 @@ import polygonsSWP.util.MathUtils;
  * no the start, end and every point on the path. So the path is saved in an
  * ordered list starting with start and always ending on the end point.
  *
- **/
+ * (c) 2011-2012
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+ * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+ * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
+ * @author Kadir Tugan <kadir.tugan@gmail.com>
+ */
 public class ShortestPath
 {
   private ArrayList<Point> _path = new ArrayList<Point>();
