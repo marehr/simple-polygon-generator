@@ -15,7 +15,7 @@ import polygonsSWP.geometry.LineSegment;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.OrderedListPolygon;
-import polygonsSWP.geometry.SteadyGrowthConvexHull2;
+import polygonsSWP.geometry.SteadyGrowthConvexHull;
 import polygonsSWP.geometry.Triangle;
 import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
@@ -209,23 +209,37 @@ public class SteadyGrowthFactory
         stats.rejections = rejections;
         stats.maximumRejections = maximumRejections;
         stats.initializeRejections = initializeRejections;
-        SteadyGrowthConvexHull2.seqSearches = 0;
+
+//        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+//        System.out.println("iterations: " + runs);
+//        System.out.println("rejections: " + rejections);
+//        System.out.println("maximumRejections: " + maximumRejections);
+//        System.out.println("initializeRejections: " + initializeRejections);
+//        System.out.println("seq search: " + SteadyGrowthConvexHull.seqSearches);
+//        System.out.println("lookup time: " + lookupTime);
+//        System.out.println("lookups: " + lookupTimes);
+//        System.out.println("ratio: " + (lookupTime / lookupTimes));
+//        System.out.println("visible edge time: " + visibleEdgeTime);
+//        System.out.println("visible edges: " + visibleEdgeTimes);
+//        System.out.println("ratio: " + (visibleEdgeTime / visibleEdgeTimes));
+
+        SteadyGrowthConvexHull.seqSearches = 0;
       }
 
       return polygon;
     }
 
     private Object[] getNextPointAndHull(
-        List<Point> polygon, SteadyGrowthConvexHull2 hull, BlackList blacklist) {
+        List<Point> polygon, SteadyGrowthConvexHull hull, BlackList blacklist) {
 
-      SteadyGrowthConvexHull2 copy = (SteadyGrowthConvexHull2) hull.clone();
+      SteadyGrowthConvexHull copy = (SteadyGrowthConvexHull) hull.clone();
 
       int rejected = 0;
       Point randomPoint = null;
 
       while(blacklist.size > 0){
         hull = copy;
-        copy = (SteadyGrowthConvexHull2) hull.clone();
+        copy = (SteadyGrowthConvexHull) hull.clone();
 
         randomPoint = blacklist.nextRandom();
 
@@ -263,7 +277,7 @@ public class SteadyGrowthFactory
 
       BlackList blacklist = new BlackList(points);
 
-      SteadyGrowthConvexHull2 hull = initialize(blacklist);
+      SteadyGrowthConvexHull hull = initialize(blacklist);
 
       ArrayList<Point> polygon = new ArrayList<Point>(points.size());
       polygon.addAll(hull.getPoints());
@@ -278,7 +292,7 @@ public class SteadyGrowthFactory
         lookupTime = System.nanoTime() - start;
         lookupTimes++;
 
-        hull = (SteadyGrowthConvexHull2) rets[0];
+        hull = (SteadyGrowthConvexHull) rets[0];
         Point randomPoint = (Point)rets[1];
 
         // waehlen einen zufaelligen startpunkt aus
@@ -343,10 +357,10 @@ public class SteadyGrowthFactory
       throw new RuntimeException("steady-growth: should not happen");
     }
 
-    private SteadyGrowthConvexHull2 initialize(BlackList blacklist)
+    private SteadyGrowthConvexHull initialize(BlackList blacklist)
       throws InterruptedException {
 
-      SteadyGrowthConvexHull2 hull = new SteadyGrowthConvexHull2();
+      SteadyGrowthConvexHull hull = new SteadyGrowthConvexHull();
 
       // select randomly the first two points
       Point a = blacklist.nextRandomAndRemove(),
@@ -361,7 +375,7 @@ public class SteadyGrowthFactory
 
       initializeRejections = rejections;
 
-      return (SteadyGrowthConvexHull2) rets[0];
+      return (SteadyGrowthConvexHull) rets[0];
     }
 
     private void blacklistPoints(Polygon triangle, BlackList blackList) {
