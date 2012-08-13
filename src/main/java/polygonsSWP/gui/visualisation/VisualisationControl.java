@@ -243,6 +243,8 @@ class VisualisationControl implements HistoryListener, HistorySceneModeListener
   }
   
   synchronized private void emitCurrentScene() {
+    if(sceneIdx < 0) sceneIdx = 0;
+
     for(VisualisationControlListener vcl : observers)
       vcl.onNewScene(history.getScenes().get(sceneIdx));
   }
