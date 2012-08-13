@@ -44,10 +44,6 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
   public Polygon clone() {
     SteadyGrowthConvexHull2 hull = new SteadyGrowthConvexHull2();
     hull.points = (ArrayList<Point>) this.points.clone();
-    hull.minXIndex = minXIndex;
-    hull.maxXIndex = maxXIndex;
-    hull.minYIndex = minYIndex;
-    hull.maxYIndex = maxYIndex;
     return hull;
   }
 
@@ -98,7 +94,6 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
     return State.UNDEFINED;
   }
 
-  int minXIndex, maxXIndex, minYIndex, maxYIndex = 0;
 //  Logger logger = Logger.getAnonymousLogger();
 
   private boolean updateCollinears(Point base, int[] supports, int lastIndex, int curr){
@@ -148,168 +143,8 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
     return supports;
   }
 
-  private int[] supportsByBinSearch(int[] supports, Point base, boolean left){
-    int low  = maxXIndex;
-    int high = maxXIndex;
-    int mid  = minXIndex;
-    int offset = 0;
-    int size = points.size();
-
-    Point leftBoundary = points.get(minXIndex),
-          rightBoundary = points.get(maxXIndex);
-
-//    logger.log(Level.FINEST,"base: " + base);
-//    logger.log(Level.FINEST,"leftBoundary: " + leftBoundary);
-//    logger.log(Level.FINEST,"rightBoundary: " + rightBoundary);
-//    logger.log(Level.FINEST,"within: " + (leftBoundary.x <= base.x && base.x <= rightBoundary.x));
-
-    // base lies in x - boundary box
-    if(leftBoundary.x <= base.x && base.x <= rightBoundary.x) {
-      offset = minYIndex;
-      low = high = (maxYIndex + size - offset) % size;
-      mid = 0;
-    }
-
-    int insertIndex = 0;
-    if(supports[0] != -1)
-      insertIndex++;
-
-    while (low <= high){
-      if(mid == low && low == high) break;
-
-      int realMid = (mid + offset) % size;
-
-      State state = getState(realMid, base);
-      int next = (mid + 1) % size;
-      int prev = (mid + size - 1) % size;
-
-//      logger.log(Level.FINEST,"\n~~~~~~~~~~~~~~~~~~~");
-//      logger.log(Level.FINEST,"offset: " + offset);
-//      logger.log(Level.FINEST,"Low: " + low);
-//      logger.log(Level.FINEST,"High: " + high);
-//      logger.log(Level.FINEST,"Mid: " + mid);
-//      logger.log(Level.FINEST,"realMid: " + realMid);
-//      logger.log(Level.FINEST,"Left?: " + (left ? "YES":"NO"));
-//      logger.log(Level.FINEST,"State: " + state);
-
-      if (state == State.REFLEX && left || state == State.CONCAVE && !left){
-//        logger.log(Level.FINEST,"Case1: ");
-//        logger.log(Level.FINEST,"GOTO LEFT");
-        low = next;
-      } else if (state == State.CONCAVE && left || state == State.REFLEX && !left) {
-//        logger.log(Level.FINEST,"Case2: ");
-//        logger.log(Level.FINEST,"GOTO RIGHT");
-        high = prev;
-      } else {
-//        logger.log(Level.FINEST,"Support: ");
-
-        boolean insert = updateCollinears(base, supports, insertIndex, realMid);
-
-        if(insert) {
-          supports[insertIndex++] = realMid;
-        }
-
-        if(insertIndex == 2) break;
-
-        if(left){
-          low = next;
-//          logger.log(Level.FINEST,"GOTO LEFT");
-        } else {
-          high = prev;
-//          logger.log(Level.FINEST,"GOTO RIGHT");
-        }
-      }
-
-      mid = (low + high) >>> 1;
-//      logger.log(Level.FINEST,"NEW LOW: " + low);
-//      logger.log(Level.FINEST,"NEW HIGH: " + high);
-//      logger.log(Level.FINEST,"NEW MID: " + mid);
-
-    }
-
-    return supports;
-  }
-
   private int[] getSupports(Point base){
-    binSearches++;
-//    logger.log(Level.FINER,"================= LEFT ===================== \n");
-
-    int[] supports = supportsByBinSearch(new int[]{-1, -1}, base, true);
-//    logger.log(Level.FINER,"\n==> left: " + supports[0] + ", right: "+ supports[1]);
-
-    if(supports[0] == supports[1] && supports[0] > -1) {
-//      logger.warning("supports are equal.1: " + supports[0]);
-    }
-
-    // first binSearch found both supports
-    if(supports[1] != -1) return supports;
-
-//    logger.log(Level.FINER,"================= RIGHT ===================== \n");
-    supports = supportsByBinSearch(supports, base, false);
-//    logger.log(Level.FINER,"\n==> left: " + supports[0] + ", right: "+ supports[1]);
-
-    if(supports[0] == supports[1] && supports[0] > -1) {
-//      logger.warning("supports are equal.2: " + supports[0]);
-    }
-
-    // second binSearch found both supports
-    if(supports[1] != -1) return supports;
-
-    if(supports[0] == -1 || supports[1] == -1){
-//      logger.log(Level.FINE,"Support by Seq. search.");
-      return supportsBySeqSearch(base);
-    }
-
-    return supports;
-  }
-
-  private void updateBoundaries(Point base, int newIndex, int distance, 
-                                int leftSupport, int rightSupport,
-                                boolean insertFromLeft, boolean insertFromRight){
-
-    Point maxX = points.get(maxXIndex),
-          minY = points.get(minYIndex),
-          maxY = points.get(maxYIndex);
-
-    int offset = insertFromLeft ? 1 : 2;
-
-//    logger.log(Level.FINE, "\n~~~ SETBOUNDARY - start");
-
-    // minXIndex = 0, immer!
-    if(base.compareTo(maxX) > 0) {
-      maxXIndex = newIndex;
-//      logger.log(Level.FINE, "setMaxX.1: " + maxXIndex);
-    } else if(leftSupport < maxXIndex) {
-      maxXIndex -= distance - offset;
-//      logger.log(Level.FINE, "setMaxX.2: " + maxXIndex);
-    } else if(insertFromRight) {
-      maxXIndex -= rightSupport - 1;
-//      logger.log(Level.FINE, "setMaxX.3: " + maxXIndex);
-    }
-
-    if(base.compareToByY(minY) < 0) {
-      minYIndex = newIndex;
-//      logger.log(Level.FINE, "setMinY.1: " + minYIndex);
-    } else if(leftSupport < minYIndex) {
-      minYIndex -= distance - offset;
-//      logger.log(Level.FINE, "setMinY.2: " + minYIndex);
-    } else if(insertFromRight) {
-      minYIndex -= rightSupport - 1;
-//      logger.log(Level.FINE, "setMinY.3: " + minYIndex);
-    }
-
-    if(base.compareToByY(maxY) > 0) {
-      maxYIndex = newIndex;
-//      logger.log(Level.FINE, "setMaxY.1: " + maxYIndex);
-    } else if(leftSupport < maxYIndex) {
-      maxYIndex -= distance - offset;
-//      logger.log(Level.FINE, "setMaxY.2: " + maxYIndex);
-    } else if(insertFromRight) {
-      maxYIndex -= rightSupport - 1;
-//      logger.log(Level.FINE, "setMaxY.3: " + maxYIndex);
-    }
-
-//    logger.log(Level.FINE, "~~~ SETBOUNDARY - end\n");
+    return supportsBySeqSearch(base);
   }
 
   private int splice(int leftSupport, int rightSupport, Point base){
@@ -342,8 +177,6 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
       dstStart = 1;
       newIndex = 0;
     }
-
-    updateBoundaries(base, newIndex, distance, leftSupport, rightSupport, insertFromLeft, insertFromRight);
 
     length = srcTo - srcFrom + 1;
 
@@ -398,16 +231,6 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
     if(size() == 1) {
       int index = point.compareTo(points.get(0)) < 0 ? 0 : 1;
       points.add(index, point);
-
-      maxXIndex = 1;
-
-      if(points.get(0).compareToByY(points.get(1)) < 0){
-        minYIndex = 0;
-        maxYIndex = 1;
-      } else {
-        minYIndex = 1;
-        maxYIndex = 0;
-      }
 
 //      logger.log(Level.FINE, points.toString());
       return index;
@@ -507,11 +330,6 @@ public class SteadyGrowthConvexHull2 extends SteadyGrowthConvexHull
     ));
 
 //    hull.logger.setLevel(Level.FINE);
-
-    hull.minXIndex = points.indexOf(Collections.min(points));
-    hull.maxXIndex = points.indexOf(Collections.max(points));
-    hull.minYIndex = points.indexOf(Collections.min(points, Point.YCompare));
-    hull.maxYIndex = points.indexOf(Collections.max(points, Point.YCompare));
 
 //    hull.logger.setLevel(Level.ALL);
     hull.addPoint(new Point(594.598, 172.175));
