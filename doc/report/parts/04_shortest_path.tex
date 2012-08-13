@@ -28,7 +28,7 @@
     Bei der Implementierung konnten wir uns größten Teils an die Vorgaben des
     Paper halten. Allerdings stellte sich das Unterteilen des Polygons in
     Trapeze als schwieriger heraus, als zunächst angenommen. Schließlich
-    entschieden wir uns auf die Unterteilung zu verzichten und stattdessen
+    entschieden wir uns, auf die Unterteilung zu verzichten und stattdessen
     einen etwas einfacheren Ansatz zu verwenden. Die Initialisierung des
     Starttripel funktioniert folgendermaßen:
 
@@ -41,9 +41,10 @@
             andernfalls untersuche die nächsten zwei Punkte.
     \end{enumerate}
 
-    Unteranderem aus diesem Grund haben wir uns mehr darauf konzentriert eine
-    funktionierende Implementierung umzusetzten. Laufzeit und Speicherverbrauch
-    sind daher nicht optimal und es gibt sehr viel Optimierungspotential. Daher konnten konnten wir auch nicht dem ursprünglichen Anspruch von konstantem Speicherverbauch gerecht werden.
+    Unter anderem aus diesem Grund haben wir uns vorwiegend darauf konzentriert, eine
+    funktionierende Implementierung umzusetzen. Laufzeit und Speicherverbrauch
+    sind daher nicht optimal und es gibt sehr viel Optimierungspotential. Daher konnten 
+    wir auch nicht dem ursprünglichen Anspruch von konstantem Speicherverbauch gerecht werden.
 
 \newpage
   \subsection{Laufzeit}
@@ -82,7 +83,7 @@
   \begin{itemize}
   \item Reduzierung des Polygons: $O(n)$\\
         Die Polygon Punktliste wird so umgestellt, dass sich ($q_1$) am Anfang der
-        Liste befindet ($O(1)$). Es werden schrittweise Punktweise hinzugefügt bis
+        Liste befindet ($O(1)$). Es werden schrittweise Punkte hinzugefügt, bis
         der Punkt ($q_2$) gefunden wird ($O(n)$). Das Polygon kann jetzt mit dem
         Hinzufügen von ($q_2$) und ($p$) geschlossen werden.
   \item Schnitt von Polygon und Strahl: $O(n)$\\
@@ -94,7 +95,7 @@
   Der Speicherverbrauch lässt sich mit $O(n^2)$ abschätzen. Dies lässt sich zum
   einen dadruch erklären, dass wir den Algorithmus in Java implementiert haben
   und so praktisch keine Einfluss auf die Speicherverwaltung nehmen können. Zum
-  anderen haben wir, um Code Duplizierung zu vermeiden, die meisten Funktionen
+  anderen haben wir, um Code-Duplizierung zu vermeiden, die meisten Funktionen
   ausgelagert um sie auch in anderen Methoden benutzten zu können. Dabei haben wir
   meist keine Speicherbereiche mit übergeben, welches natürlich einen stark
   erhöhten Speicherverbauch mit sich bringt. Mit ein wenig Optimierung sollte man
