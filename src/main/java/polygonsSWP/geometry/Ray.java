@@ -5,7 +5,15 @@ import polygonsSWP.util.intersections.IntersectionUtils;
 import polygonsSWP.util.intersections.LineSegmentIntersectionMode;
 import polygonsSWP.util.intersections.RayIntersectionMode;
 
-
+/**
+ * (c) 2011-2012
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+ * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+ * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
+ * @author Kadir Tugan <kadir.tugan@gmail.com>
+ */
 public class Ray
 {
   public Point _base;
@@ -19,7 +27,6 @@ public class Ray
   /**
    * Check if given Point is in this ray.
    * 
-   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @param p
    * @return
    */
@@ -44,7 +51,6 @@ public class Ray
   /**
    * Get intersection between this ray and a lineSegment if existing.
    * 
-   * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
    * @param l LineSegment to intersect with.
    * @return null, array of length 0 (if collinear), array containing the
    *         intersection otherwise.

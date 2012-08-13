@@ -2,10 +2,11 @@ package polygonsSWP.generators.heuristics;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.NoSuchElementException;
 
 import polygonsSWP.generators.IllegalParameterizationException;
 import polygonsSWP.generators.PolygonGenerator;
@@ -15,13 +16,23 @@ import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
 import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.SteadyGrowthConvexHull;
+import polygonsSWP.geometry.Triangle;
 import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
 import polygonsSWP.data.Scene;
 import polygonsSWP.util.GeneratorUtils;
 import polygonsSWP.util.MathUtils;
+import polygonsSWP.util.Random;
 
-
+/**
+ * (c) 2011-2012
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+ * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+ * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
+ * @author Kadir Tugan <kadir.tugan@gmail.com>
+ */
 public class SteadyGrowthFactory
   implements PolygonGeneratorFactory
 {
@@ -65,6 +76,10 @@ public class SteadyGrowthFactory
     private int maximumRejections = 0;
     private int rejections = 0;
     private int runs = 0;
+    private long lookupTime = 0;
+    private int lookupTimes = 0;
+    private long visibleEdgeTime = 0;
+    private int visibleEdgeTimes = 0;
 
     private final Color OLD_HULL = Color.LIGHT_GRAY;
     private final Color POLYGON_HULL = new Color(0xDCDCDC);
@@ -94,9 +109,10 @@ public class SteadyGrowthFactory
       return scene.addPolygon(polygon, color);
     }
 
-    private class BlackList{
+    private class BlackList implements Iterable<Point>{
       public int size;
       public ArrayList<Point> points;
+
       private Random rand = new Random();
 
       public BlackList(ArrayList<Point> points){
@@ -108,17 +124,37 @@ public class SteadyGrowthFactory
         size = points.size();
       }
 
-      public Point getNextPoint(){
+      public Point nextRandomAndRemove(){
+        nextRandom();
+        return remove();
+      }
+
+      public Point nextRandom(){
         int nextIndex = rand.nextInt(size);
+
         swap(nextIndex, size - 1);
         swap(points.size() - 1, size - 1);
-
         size--;
+
         return points.get(points.size() - 1);
       }
 
+      private void blacklist(int index) {
+        swap(index, size - 1);
+        swap(points.size() - 2, size - 1);
+        size--;
+      }
+
+      public List<Point> avaiblePoints(){
+        if(size <= 0) return null;
+
+        return points.subList(0 , size);
+      }
+
       public List<Point> blacklistedPoints(){
-        return points.subList(size , points.size() - 1);
+        if(size >= points.size()) return null;
+
+        return points.subList(size , points.size());
       }
 
       public void swap(int i, int j){
@@ -127,9 +163,33 @@ public class SteadyGrowthFactory
 
       public Point remove(){
         Point a = points.remove(points.size() - 1);
-        reset();
         return a;
       }
+
+      @Override
+      public Iterator<Point> iterator() {
+        return new Iterator<Point>() {
+          public int curr = -1;
+
+          @Override
+          public boolean hasNext() {
+            return size > 0 && curr < size - 1;
+          }
+
+          @Override
+          public Point next() {
+            if(!hasNext()) throw new NoSuchElementException();
+            Point a = points.get(++curr);
+            return a;
+          }
+
+          @Override
+          public void remove() {
+            blacklist(curr--);
+          }
+        };
+      }
+
     }
 
     @Override
@@ -157,62 +217,98 @@ public class SteadyGrowthFactory
         stats.rejections = rejections;
         stats.maximumRejections = maximumRejections;
         stats.initializeRejections = initializeRejections;
+
+//        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+//        System.out.println("iterations: " + runs);
+//        System.out.println("rejections: " + rejections);
+//        System.out.println("maximumRejections: " + maximumRejections);
+//        System.out.println("initializeRejections: " + initializeRejections);
+//        System.out.println("seq search: " + SteadyGrowthConvexHull.seqSearches);
+//        System.out.println("lookup time: " + lookupTime);
+//        System.out.println("lookups: " + lookupTimes);
+//        System.out.println("ratio: " + (lookupTime / lookupTimes));
+//        System.out.println("visible edge time: " + visibleEdgeTime);
+//        System.out.println("visible edges: " + visibleEdgeTimes);
+//        System.out.println("ratio: " + (visibleEdgeTime / visibleEdgeTimes));
+
+        SteadyGrowthConvexHull.seqSearches = 0;
       }
 
       return polygon;
     }
 
+    private Object[] getNextPointAndHull(
+        List<Point> polygon, SteadyGrowthConvexHull hull, BlackList blacklist) {
+
+      SteadyGrowthConvexHull copy = (SteadyGrowthConvexHull) hull.clone();
+
+      int rejected = 0;
+      Point randomPoint = null;
+
+      while(blacklist.size > 0){
+        hull = copy;
+        copy = (SteadyGrowthConvexHull) hull.clone();
+
+        randomPoint = blacklist.nextRandom();
+
+        int insertIndex = hull.addPointReturnAndInsertIndex(randomPoint);
+        Triangle triangle = constructTriangle(hull, insertIndex);
+        blacklistPoints(triangle, blacklist);
+
+        /**
+         * VISUALISATION
+         */
+        if( steps != null ) {
+          Polygon poly = new OrderedListPolygon(polygon);
+          newScene(hull, OLD_HULL)
+          .addPolygon(copy, POLYGON_HULL)
+          .addPolygon(poly, true)
+          //.addPoints(blacklist.blacklistedPoints(), BLACKLISTED_POINTS)
+          .addPoints(blacklist.avaiblePoints(), POINT_IN_HULL)
+          .addPoint(randomPoint, NEW_EDGE_POINT)
+          .save();
+        }
+
+        rejections++;
+        rejected++;
+      }
+      blacklist.remove();
+      blacklist.reset();
+
+      maximumRejections = Math.max(rejected, maximumRejections);
+
+      return new Object[]{hull, randomPoint};
+    }
+
     private Polygon generate0()
       throws InterruptedException {
 
-      SteadyGrowthConvexHull hull = initialize(), copy;
-      ArrayList<Point> polygon = new ArrayList<Point>(points.size());
-      polygon.addAll(hull.getPoints());
-
       BlackList blacklist = new BlackList(points);
 
-      int rejected = 0;
+      SteadyGrowthConvexHull hull = initialize(blacklist);
+
+      ArrayList<Point> polygon = new ArrayList<Point>(points.size());
+      polygon.addAll(hull.getPoints());
 
       while (points.size() > 0) {
         if (doStop) throw new InterruptedException();
 
         runs++;
 
-        Point randomPoint = blacklist.getNextPoint();
-        copy = (SteadyGrowthConvexHull) hull.clone();
+        long start = System.nanoTime();
+        Object[] rets = getNextPointAndHull(polygon, hull, blacklist);
+        lookupTime = System.nanoTime() - start;
+        lookupTimes++;
 
-        hull.addPoint(randomPoint);
-
-        // sind jetzt irgendwelche punkte in der neuen konvexen huelle?
-        // - wenn ja, dann akzeptieren wir den gewaehlten punkt nicht
-        // - wenn nein, dann akzeptieren wir den punkt und machen weiter
-        Point containsPoint = containsAnyPoint(hull);
-        if (containsPoint != null) {
-
-          /**
-           * VISUALISATION
-           */
-          if( steps != null ) {
-            Polygon poly = new OrderedListPolygon(polygon);
-            newScene(hull, OLD_HULL)
-            .addPolygon(copy, POLYGON_HULL)
-            .addPolygon(poly, true)
-            .addPoint(randomPoint, NEW_EDGE_POINT)
-            .addPoint(containsPoint, POINT_IN_HULL)
-            .addPoints(blacklist.blacklistedPoints(), BLACKLISTED_POINTS)
-            .save();
-          }
-
-          rejections++;
-          rejected++;
-
-          hull = copy;
-          continue;
-        }
+        hull = (SteadyGrowthConvexHull) rets[0];
+        Point randomPoint = (Point)rets[1];
 
         // waehlen einen zufaelligen startpunkt aus
+        start = System.nanoTime();
         int startIndex = rand.nextInt(polygon.size());
         int insertIndex = getIndexOfVisibleEdge(polygon, randomPoint, startIndex);
+        visibleEdgeTime = System.nanoTime() - start;
+        visibleEdgeTimes++;
 
         /**
          * VISUALISATION
@@ -222,32 +318,27 @@ public class SteadyGrowthFactory
                 pl = polygon.get(insertIndex);
 
           Polygon poly = new OrderedListPolygon(polygon);
-          Scene scene = newScene(hull, OLD_HULL)
-          .addPolygon(copy, POLYGON_HULL)
+          Scene scene = newScene(hull, POLYGON_HULL)
           .addPolygon(poly, true)
           .addLineSegment(new LineSegment(pk, pl), CHOOSEN_VISIBLE_EDGE)
           .addPoint(randomPoint, NEW_EDGE_POINT)
           .addPoints(blacklist.blacklistedPoints(), BLACKLISTED_POINTS);
 
-          int i = insertIndex;
+//          int i = insertIndex;
           // zeichne alle waehlbaren kanten
-          do{
-            i = getIndexOfVisibleEdge(polygon, randomPoint, i);
-            if(insertIndex == i) break;
-
-            pk = polygon.get(MathUtils.modulo(i - 1, polygon.size()));
-            pl = polygon.get(i);
-            scene.addLineSegment(new LineSegment(pk, pl), VISIBLE_EDGE);
-          } while(true);
+//          do{
+//            i = getIndexOfVisibleEdge(polygon, randomPoint, i);
+//            if(insertIndex == i) break;
+//
+//            pk = polygon.get(MathUtils.modulo(i - 1, polygon.size()));
+//            pl = polygon.get(i);
+//            scene.addLineSegment(new LineSegment(pk, pl), VISIBLE_EDGE);
+//          } while(true);
 
           scene.save();
         }
 
-        blacklist.remove();
         polygon.add(insertIndex, randomPoint);
-
-        maximumRejections = Math.max(rejected, maximumRejections);
-        rejected = 0;
       }
 
       return new OrderedListPolygon(polygon);
@@ -274,58 +365,49 @@ public class SteadyGrowthFactory
       throw new RuntimeException("steady-growth: should not happen");
     }
 
-    private SteadyGrowthConvexHull initialize()
+    private SteadyGrowthConvexHull initialize(BlackList blacklist)
       throws InterruptedException {
 
-      SteadyGrowthConvexHull hull;
-      do {
-        if (doStop) throw new InterruptedException();
+      SteadyGrowthConvexHull hull = new SteadyGrowthConvexHull();
 
-        Point a = GeneratorUtils.removeRandomPoint(points), b =
-            GeneratorUtils.removeRandomPoint(points), c =
-            GeneratorUtils.removeRandomPoint(points);
+      // select randomly the first two points
+      Point a = blacklist.nextRandomAndRemove(),
+            b = blacklist.nextRandomAndRemove();
 
-        hull = new SteadyGrowthConvexHull();
-        hull.addPoint(a);
-        hull.addPoint(b);
-        hull.addPoint(c);
+      hull.addPoint(a);
+      hull.addPoint(b);
 
-        Point containsPoint = containsAnyPoint(hull);
-        if (containsPoint == null) {
+      Object[] rets = getNextPointAndHull(hull.getPoints(), hull, blacklist);
 
-          if (steps != null) {
-            newScene(hull, VALID_HULL).save();
-          }
+      blacklist.reset();
 
-          break;
-        }
+      initializeRejections = rejections;
 
-        if (steps != null) {
-          newScene(hull).addPoint(containsPoint, POINT_IN_HULL).save();
-        }
-
-        initializeRejections++;
-
-        points.add(a);
-        points.add(b);
-        points.add(c);
-      }
-      while (true);
-
-      return hull;
+      return (SteadyGrowthConvexHull) rets[0];
     }
 
-    private Point containsAnyPoint(SteadyGrowthConvexHull hull) {
-      for (Point point : points) {
-        // NOTE: Wenn ein Punkt genau auf dem Rand der Convexen Huelle
-        // liegt, dann wird hier gesagt, dass die Convexe Huelle diesen
-        // Punkt nicht beinhaltet, damit diese Funktion null zurueckgibt
-        // und dieser Punkt akzeptiert wird, da die Convexe Huelle
-        // diesen Punkt einfach verschluckt und sich dadurch nicht aendert.
-        if (hull.containsPoint(point, false)) return point;
-      }
+    private void blacklistPoints(Polygon triangle, BlackList blackList) {
+      if(triangle == null) return;
 
-      return null;
+      Iterator<Point> iter = blackList.iterator();
+
+      while (iter.hasNext()) {
+        Point point = iter.next();
+
+        if(triangle.containsPoint(point, true)) continue;
+
+        iter.remove();
+      }
+    }
+
+    private Triangle constructTriangle(Polygon hull, int insertIndex){
+      if(insertIndex < 0) return null;
+
+      return new Triangle(
+          hull.getPointInRange(insertIndex - 1),
+          hull.getPointInRange(insertIndex),
+          hull.getPointInRange(insertIndex + 1)
+      );
     }
 
     @Override

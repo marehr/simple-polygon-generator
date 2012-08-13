@@ -1,12 +1,10 @@
 package polygonsSWP.data;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import polygonsSWP.data.listener.HistoryListener;
-
 
 /**
  * (c) 2011-2012
@@ -17,14 +15,13 @@ import polygonsSWP.data.listener.HistoryListener;
  * @author Sebastian Thobe <s.thobe@fu-berlin.de>
  * @author Kadir Tugan <kadir.tugan@gmail.com>
  */
-public class History
+public class LastHistory extends History
 {
-  private List<Scene> sceneList = Collections.synchronizedList(new ArrayList<Scene>());
-  HistoryListener listener = null;
-  int boundingBox;
+  private volatile Scene lastScene = null;
+  private HistoryListener listener = null;
 
-  public History(int boundingBox){
-    this.boundingBox = boundingBox;
+  public LastHistory(int boundingBox) {
+    super(boundingBox);
   }
 
   public Scene newScene() {
@@ -36,22 +33,23 @@ public class History
   }
 
   public void addScene(Scene newScene) {
-    sceneList.add(newScene);
+    lastScene = newScene;
 
     if(listener != null)
-      listener.onHistorySave(this, newScene);
+      listener.onHistorySave(this, lastScene);
   }
 
   public List<Scene> getScenes() {
-    return sceneList;
+    if(lastScene == null) return Arrays.asList();
+    return Arrays.asList(lastScene);
   }
 
   public Iterator<Scene> getSceneIterator() {
-    return sceneList.iterator();
+    return getScenes().iterator();
   }
 
   public void clear() {
-    sceneList.clear();
+    lastScene = null;
   }
 
 }

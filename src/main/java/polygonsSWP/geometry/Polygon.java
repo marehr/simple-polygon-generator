@@ -17,8 +17,13 @@ import polygonsSWP.util.intersections.RayIntersectionMode;
  * Polygon interface for simple _and_ complex polygons. Subclasses should never
  * assume they contain a simple polygon.
  * 
- * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * (c) 2011-2012
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
  * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+ * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
+ * @author Kadir Tugan <kadir.tugan@gmail.com>
  */
 public abstract class Polygon
   implements Cloneable

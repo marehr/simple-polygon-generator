@@ -16,8 +16,15 @@ import polygonsSWP.util.MathUtils;
  * shortest path needs an polygon to which it is associated and that it needs to
  * no the start, end and every point on the path. So the path is saved in an
  * ordered list starting with start and always ending on the end point.
- *  
- **/
+ *
+ * (c) 2011-2012
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+ * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+ * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
+ * @author Kadir Tugan <kadir.tugan@gmail.com>
+ */
 public class ShortestPath
 {
   private ArrayList<Point> _path = new ArrayList<Point>();
@@ -28,14 +35,14 @@ public class ShortestPath
   private Point _end = null;
   private OrderedListPolygon _org_polygon;
   private boolean debug = false;
-  
+
   /**
    * Generates an empty shortest path for polygon.
-   * 
+   *
    * @param polygon Polygon in which is shortest path.
    * @param start Start point of path.
    * @param end End point of path.
-   * @param history 
+   * @param history
    */
   public ShortestPath(Polygon polygon, Point start, Point end, History history) {
       _polygon = (OrderedListPolygon) polygon;
@@ -48,7 +55,7 @@ public class ShortestPath
 
   /**
    * Adds a new point to the path. Its always in front of the end point.
-   * 
+   *
    * @param p Next point on path.
    */
   public void addPointToPath(Point p) {
@@ -57,7 +64,7 @@ public class ShortestPath
 
   /**
    * Adds point on position.
-   * 
+   *
    * @param p Point.
    * @param i Position.
    */
@@ -67,7 +74,7 @@ public class ShortestPath
 
   /**
    * Deletes point on path.
-   * 
+   *
    * @param p Point to delete.
    */
   public void deletePointOnPath(Point p) {
@@ -76,7 +83,7 @@ public class ShortestPath
 
   /**
    * Returns path.
-   * 
+   *
    * @return Ordered list with points.
    */
   public ArrayList<Point> getPath() {
@@ -92,21 +99,21 @@ public class ShortestPath
   }
 
   public List<Point> generateShortestPath() {
-    
+
 	if(debug){
 		puts("Startpoint " + _start.x + " | " + _start.y);
 		puts("Endpoint " + _path.get(_path.size()-1).x + " | " + _path.get(_path.size()-1).y);
 		puts("Starting with Polygon:");
 		puts(_polygon);
 	}
-	
+
 	// We need a polygon with counter clockwise orientation!
-	
-	if(_polygon.isClockwise() == 1) 
+
+	if(_polygon.isClockwise() == 1)
 	  _polygon.reverse();
-	
+
 	init(_polygon);
-    
+
     while (!existsDirectConnection()) {
 	  if(debug){
 		  puts("-------------------");
@@ -116,60 +123,60 @@ public class ShortestPath
 	  }
 	  parray = makeStep(parray[0], parray[1], parray[2]);
     }
-    
+
     return _path;
   }
-  
+
   /*
    *  Initialize the wedge s,q1,q2 that t lies in the subpolygon
    */
   private void init(OrderedListPolygon p) {
-	
-	List<Point> list = p.getPoints();
-	List<Point> visiblePoints = new LinkedList<Point>();
-	
-	if(debug){
-	  puts("Init q1 ,q2 ...");
-	  puts("Visible points:");
-	}
-	
-	for(Point point : list)
-	{
-	  List<Point[]> intersects = _polygon.intersect(new LineSegment(_start,point));
-	  if(intersects.size() > 1)
-	    continue;
-		
-	  if(intersects.size() > 0)
-	  {
-	    if(intersects.get(0)[0] != null)
-		{
-	      visiblePoints.add(intersects.get(0)[0]);
-	      if(debug){puts(intersects.get(0)[0].x + " " + intersects.get(0)[0].y);}
-		}			
-	  }		
-	}
-		
-	parray[0] = _start;
-		
-	for(int i=0;i < visiblePoints.size();i++)
-	{
-	  parray[0] = _start;
-	  parray[1] = visiblePoints.get(i);
-	  parray[2] = visiblePoints.get((i+1) % visiblePoints.size());
-	  if(reducePolygon(parray[0], parray[1], parray[2], false) != null)
-	  {
-		if(debug){
-		  puts("Correct init:");
-		  puts("q1= " + pto_s(parray[1]));
-		  puts("q2= " + pto_s(parray[2]));
-		}
-		break;
+
+	  List<Point> list = p.getPoints();
+	  List<Point> visiblePoints = new LinkedList<Point>();
+
+	  if(debug){
+	    puts("Init q1 ,q2 ...");
+	    puts("Visible points:");
 	  }
-	}
+
+	  for(Point point : list)
+	  {
+	    List<Point[]> intersects = _polygon.intersect(new LineSegment(_start,point));
+	    if(intersects.size() > 1)
+	      continue;
+
+	    if(intersects.size() > 0)
+	    {
+	      if(intersects.get(0)[0] != null)
+		    {
+	        visiblePoints.add(intersects.get(0)[0]);
+	        if(debug){puts(intersects.get(0)[0].x + " " + intersects.get(0)[0].y);}
+		    }
+	    }
+	  }
+
+	  parray[0] = _start;
+
+	  for(int i=0;i < visiblePoints.size();i++)
+	  {
+	    parray[0] = _start;
+	    parray[1] = visiblePoints.get(i);
+	    parray[2] = visiblePoints.get((i+1) % visiblePoints.size());
+	    if(reducePolygon(parray[0], parray[1], parray[2], false) != null)
+	    {
+		    if(debug){
+		      puts("Correct init:");
+		      puts("q1= " + pto_s(parray[1]));
+		      puts("q2= " + pto_s(parray[2]));
+		    }
+		    break;
+	    }
+	  }
   }
-  
+
   private boolean existsDirectConnection() {
-	  
+
     List<Point[]> list = _polygon.intersect(new LineSegment(parray[0], _path.get(_path.size() - 1)));
 	if(list.size() == 0)
 	{
@@ -188,7 +195,7 @@ public class ShortestPath
 
   /*
    * This function analyzes the current situation and decides how to reduce the polygon
-   * @return new triple of points  
+   * @return new triple of points
    */
   private Point[] makeStep(Point p, Point q1, Point q2) {
     reducePolygon(p, q1, q2,true);
@@ -278,10 +285,10 @@ public class ShortestPath
     Ray ray = new Ray(p,q1);
 	Point newP = null;
 	List<Point[]> res = _polygon.intersect(ray);
-		   
+
 	if(res.size() == 2)
 	  return res.get(1)[0];
-	  
+
 	if(res.size() > 0)
 	{
 	  Point tri [] = res.get(res.size()-1);
@@ -289,7 +296,7 @@ public class ShortestPath
 	    return tri[0];
 	  else if((tri[0] != null) && (tri[1] == null) && (tri[2] == null))
 	    return tri[0];
-	  else 
+	  else
 	  {
 	    for(int i = res.size()-1; i >= 0;i--)
 		{
@@ -306,21 +313,21 @@ public class ShortestPath
 	  }
 	  return newP;
   }
-  
+
   /**
    * Reduce the polygon and
    * @return if we are moving towards t
    * **/
 
   private boolean tLiesInSubPolygon(Point q1, Point newP) {
-	List<Point []> tri_list =_polygon.intersect(new LineSegment(q1, newP));
-	for(int i = 0;i < tri_list.size() ;i++)
-	{
-	  Point [] tri = tri_list.get(i);
-	  if((tri[0] == null) && (tri[1].equals(q1) || tri[1].equals(newP)) && (tri[2].equals(q1) || tri[2].equals(newP)))
-	    return false;
-	}
-	
+	  List<Point []> tri_list =_polygon.intersect(new LineSegment(q1, newP));
+	  for(int i = 0;i < tri_list.size() ;i++)
+	  {
+	    Point [] tri = tri_list.get(i);
+	    if((tri[0] == null) && (tri[1].equals(q1) || tri[1].equals(newP)) && (tri[2].equals(q1) || tri[2].equals(newP)))
+	      return false;
+	  }
+
     OrderedListPolygon reducedPolygon = new OrderedListPolygon();
     reducedPolygon.addPoint(q1);
     List<Point> plist = _polygon.getPoints();
@@ -353,8 +360,8 @@ public class ShortestPath
     int index = getIndexOfPoint(q1, list);
     if (index == 0) {
       return list;
-    } 
-    else 
+    }
+    else
     {
       List<Point> tmp = new ArrayList<Point>();
 	  tmp.addAll(list.subList(index, list.size()));
@@ -363,13 +370,13 @@ public class ShortestPath
     }
 
   }
-  
+
   /**
    * Reduce the polygon
    * @param force: if true the current polygon will be overwritten by the reduced one
    * **/
   private OrderedListPolygon reducePolygon(Point p, Point q1, Point q2, boolean force){
-    
+
 	if(debug){
 	  puts("--------------------");
 	  puts("Reducing polygon");
@@ -377,7 +384,7 @@ public class ShortestPath
 	  puts("q1= " + pto_s(q1));
 	  puts("q2= " + pto_s(q2));
     }
-	
+
 	boolean correct = false;
     OrderedListPolygon reducedPolygon = new OrderedListPolygon();
     List<Point> plist = _polygon.getPoints();
@@ -448,7 +455,7 @@ public class ShortestPath
     	if(debug){puts("Polygon has not been reduced correctly");}
         return false;
     }
-    
+
   }
 
   /*
@@ -457,7 +464,7 @@ public class ShortestPath
   private Point getLastPoint() {
     return _path.get(_path.size() - 1);
   }
-  
+
   private void puts(Polygon p)
   {
 	for(Point o : p.getPoints())
@@ -465,23 +472,23 @@ public class ShortestPath
 	  System.out.println(o.x + " | " + o.y);
 	}
   }
-  
+
   private void puts(String s)
   {
     System.out.println(s);
   }
-  
+
   private void puts(List<Point> l)
   {
 	for(Point p : l)
 	  puts(p.x + "|" + p.y + " ; ");
-	
+
 	puts("");
   }
-  
+
   private String pto_s(Point p)
   {
     return Double.toString(p.x) + "|" + Double.toString(p.y);
   }
-  
+
 }
