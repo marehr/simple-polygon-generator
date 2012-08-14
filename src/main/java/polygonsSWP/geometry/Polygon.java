@@ -235,7 +235,6 @@ public abstract class Polygon
    * <http://geosoft.no/software/geometry/Geometry.java.html> Added a test to
    * check if Point is on line.
    * 
-   * @author Steve Dierker <dierker.steve@fu-berlin.de>
    * @param p Point to be checked if it is in polygon
    * @param onLine whether a point lying on an edge is counted as in or out of
    *          polygon

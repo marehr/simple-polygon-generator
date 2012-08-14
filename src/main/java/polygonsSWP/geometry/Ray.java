@@ -76,16 +76,6 @@ public class Ray
         new RayIntersectionMode(true), new RayIntersectionMode(includeEndPoint));
   }
 
-  /**
-   * Extends this ray to a line.
-   * 
-   * @return a line matching this ray and extending into the other direction as
-   *         well.
-   */
-  public Line extendToLine() {
-    return new Line(_base, _support);
-  }
-
   public Ray clone() {
     return new Ray(_base.clone(), _support.clone());
   }
