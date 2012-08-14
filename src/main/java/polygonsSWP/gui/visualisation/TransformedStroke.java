@@ -4,12 +4,19 @@ import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 
-
 /**
  * A implementation of {@link Stroke} which transforms another Stroke with an
  * {@link AffineTransform} before stroking with it. Found here:
  * http://stackoverflow
  * .com/questions/5046088/affinetransform-without-transforming-stroke
+ * 
+ * (c) 2011-2012
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+ * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+ * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
+ * @author Kadir Tugan <kadir.tugan@gmail.com>
  */
 public class TransformedStroke
   implements Stroke

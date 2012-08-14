@@ -10,7 +10,13 @@ import polygonsSWP.util.MathUtils;
  * Implementation of point object. Just abstracts x and y coordinates to one
  * object.
  * 
+ * (c) 2011-2012
  * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+ * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+ * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
+ * @author Kadir Tugan <kadir.tugan@gmail.com>
  */
 public class Point
   implements Comparable<Point>
@@ -87,7 +93,26 @@ public class Point
    * @return
    */
   public double distanceTo(Point p) {
-    return Math.sqrt(Math.pow(this.x - p.x, 2) + Math.pow(this.y - p.y, 2));
+    double x = this.x - p.x,
+           y = this.y - p.y;
+    return Math.sqrt(x * x + y * y);
+  }
+
+  /**
+   * Calculates the squared distance between two points.
+   *
+   * NOTE: this is not a metric its just to compare two or more distances
+   * from a base point
+   *
+   * @see http://en.wikipedia.org/wiki/Euclidean_distance#Squared_Euclidean_Distance
+   * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+   * @param p
+   * @return
+   */
+  public double squaredDistanceTo(Point p) {
+    double x = this.x - p.x,
+           y = this.y - p.y;
+    return x * x + y * y;
   }
 
   /**

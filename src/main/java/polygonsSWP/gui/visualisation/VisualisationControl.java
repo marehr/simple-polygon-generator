@@ -19,8 +19,13 @@ import polygonsSWP.gui.generation.HistorySceneModeListener;
  * Controls the step-by-step visualisation of the generator run. Provides play,
  * pause, step forward/backward controls.
  * 
- * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * (c) 2011-2012
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
  * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+ * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
+ * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
+ * @author Kadir Tugan <kadir.tugan@gmail.com>
  */
 class VisualisationControl implements HistoryListener, HistorySceneModeListener
 {
@@ -243,6 +248,8 @@ class VisualisationControl implements HistoryListener, HistorySceneModeListener
   }
   
   synchronized private void emitCurrentScene() {
+    if(sceneIdx < 0) sceneIdx = 0;
+
     for(VisualisationControlListener vcl : observers)
       vcl.onNewScene(history.getScenes().get(sceneIdx));
   }

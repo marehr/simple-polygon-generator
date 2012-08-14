@@ -1,6 +1,6 @@
 \section{Shortest Path}
 	%abbildung einfügen
-	
+
   Unsere Implementierung des Shortest-Path Algorithmus basiert auf dem Paper
   \enquote{Constant-Work-Space Algorithms For Geometric Problems} Asano et.
   al.~\cite{asano11shortestpath}.
@@ -28,17 +28,83 @@
     Bei der Implementierung konnten wir uns größten Teils an die Vorgaben des
     Paper halten. Allerdings stellte sich das Unterteilen des Polygons in
     Trapeze als schwieriger heraus, als zunächst angenommen. Schließlich
-    entschieden wir uns auf die Unterteilung zu verzichten und stattdessen
+    entschieden wir uns, auf die Unterteilung zu verzichten und stattdessen
     einen etwas einfacheren Ansatz zu verwenden. Die Initialisierung des
     Starttripel funktioniert folgendermaßen:
 
     \begin{enumerate}
-      \item Finde alle Eckpunkte des Polygons, die direkt vom Startpunkt aus 
+      \item Finde alle Eckpunkte des Polygons, die direkt vom Startpunkt aus
             sichtbar sind.
-      \item Erzeuge von je zwei Eckpunkten und dem Startpunkt ein Subpolygon 
+      \item Erzeuge von je zwei Eckpunkten und dem Startpunkt ein Subpolygon
             und überprüfe ob $t$ darin liegt.
-      \item Falls $t$ in dem Polygon liegt ist die Startkonfiguration gefunden, 
+      \item Falls $t$ in dem Polygon liegt ist die Startkonfiguration gefunden,
             andernfalls untersuche die nächsten zwei Punkte.
     \end{enumerate}
 
+    Unter anderem aus diesem Grund haben wir uns vorwiegend darauf konzentriert, eine
+    funktionierende Implementierung umzusetzen. Laufzeit und Speicherverbrauch
+    sind daher nicht optimal und es gibt sehr viel Optimierungspotential. Daher konnten 
+    wir auch nicht dem ursprünglichen Anspruch von konstantem Speicherverbauch gerecht werden.
+
+\newpage
   \subsection{Laufzeit}
+
+  Die Laufzeit der Implementierung lässt sich mit $O(5n^2)$ abschätzen:
+
+  \begin{itemize}
+  \item Initialisierung des Tripel: $O(2n^2)$
+        \begin{itemize}
+        \item Berechnung der vom Startpunkt aus sichtbaren Punkte: $O(n^2)$\\
+        Um zu überprüfen, welche Punkte vom Startpunkt aus sichtbar sind
+        werden alle Streckenabschnitte jeweils vom Startpunkt bis zu einem
+        Eckpunkt des Polygons mit jeder Kante des Polygons geschnitten.
+        \item Überprüfung der Initialisierung des Tripel: $O(n^2)$\\
+        Für jeden Tupel von sichtbaren Punkten wird das Polygon reduziert
+        (weitere Erklärungen unten) und anschließend geprüft ob $t$ darin liegt.
+        \end{itemize}
+  \item Nach der Initialisierung wird solange der Zielpunkt nicht sichtbar ist
+        der nächste Schritt berechnet: $n \cdot O(3n) = O(3n^2)$
+        \begin{itemize}
+        \item Überprüfung, ob der Zielpunkt sichtbar ist: $O(n)$\\
+        Die Strecke ($p,t$) wird mit jeder Kante des Polygons geschnitten wird.
+        \item Berechnung des nächsten Schrittes: $O(2n)$
+          \begin{itemize}
+          \item Zuerst wird das Polygon reduziert: $O(n)$
+          \item Die Krümmung der nächsten Kante des Polygons berechenen: $O(1)$
+          \item Der Schnittpunkt zwischen dem Stahl (abhängig von der vorher
+          berechneten Krümmung) und Polygon wird berechnet: $O(n)$
+          \item Das neue Tripel wird zurückgegeben: $O(1)$
+          \end{itemize}
+        \end{itemize}
+  \end{itemize}
+
+  Weitere Erklärungen:
+
+  \begin{itemize}
+  \item Reduzierung des Polygons: $O(n)$\\
+        Die Polygon Punktliste wird so umgestellt, dass sich ($q_1$) am Anfang der
+        Liste befindet ($O(1)$). Es werden schrittweise Punkte hinzugefügt, bis
+        der Punkt ($q_2$) gefunden wird ($O(n)$). Das Polygon kann jetzt mit dem
+        Hinzufügen von ($q_2$) und ($p$) geschlossen werden.
+  \item Schnitt von Polygon und Strahl: $O(n)$\\
+        Der Strahl wird mit jeder Kante des Polygons geschnitten
+  \end{itemize}
+
+  \subsection{Speicherverbrauch}
+
+  Der Speicherverbrauch lässt sich mit $O(n^2)$ abschätzen. Dies lässt sich zum
+  einen dadruch erklären, dass wir den Algorithmus in Java implementiert haben
+  und so praktisch keine Einfluss auf die Speicherverwaltung nehmen können. Zum
+  anderen haben wir, um Code-Duplizierung zu vermeiden, die meisten Funktionen
+  ausgelagert um sie auch in anderen Methoden benutzten zu können. Dabei haben wir
+  meist keine Speicherbereiche mit übergeben, welches natürlich einen stark
+  erhöhten Speicherverbauch mit sich bringt. Mit ein wenig Optimierung sollte man
+  aber auch unserse Implementierung mit einem Speicherverbrauch von $O(n)$
+  realisieren können. Wenn man den originalen konstanten Speicherverbrauch
+  erreichen möchte sollte man die Programmiersprache C verwenden.
+
+
+
+
+
+

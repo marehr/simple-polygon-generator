@@ -1,7 +1,6 @@
 package polygonsSWP.gui.visualisation;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -16,18 +15,14 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.filechooser.FileFilter;
 
 import polygonsSWP.data.History;
 import polygonsSWP.data.PolygonStatistics;
-import polygonsSWP.data.Scene;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
-import polygonsSWP.geometry.OrderedListPolygon;
 import polygonsSWP.geometry.Point;
 import polygonsSWP.geometry.Polygon;
-import polygonsSWP.geometry.Trapezoid;
 import polygonsSWP.gui.GUIModeListener;
 import polygonsSWP.gui.generation.HistorySceneChooser.HistorySceneMode;
 import polygonsSWP.gui.generation.HistorySceneModeListener;
@@ -35,11 +30,17 @@ import polygonsSWP.gui.generation.PointGenerationModeListener;
 import polygonsSWP.gui.generation.PolygonGenerationPanelListener;
 import polygonsSWP.gui.generation.ShortestPathGenerationListener;
 
-
 /**
- * TODO: describe me
+ * This is the right panel of the main window, showing the polygon
+ * as well as the visualization controls.
  * 
+ * (c) 2011-2012
+ * @author Steve Dierker <dierker.steve@fu-berlin.de>
+ * @author Marcel Ehrhardt <marehr@zedat.fu-berlin.de>
+ * @author Jannis Ihrig <jannis.ihrig@fu-berlin.de>
  * @author Malte Rohde <malte.rohde@inf.fu-berlin.de>
+ * @author Sebastian Thobe <s.thobe@fu-berlin.de>
+ * @author Kadir Tugan <kadir.tugan@gmail.com>
  */
 public class PolygonView
   extends JPanel
