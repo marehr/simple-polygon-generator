@@ -22,6 +22,7 @@
 \usepackage{pst-gantt} % For GANTT chart.
 \usepackage{subfigure} % For placing figures next to each other.
 \usepackage{wrapfig} % for wraping text around a image
+\usepackage{eso-pic} % for \addtoshipoutpicture
 
 % Keine Ahnung warum, aber "`bla"' funktioniert bei mir nicht.
 \newcommand{\enquote}[1]{\glqq{}#1\grqq{}}
@@ -81,26 +82,38 @@ pdfauthor={Steve Dierker, Marcel Ehrhardt, Jannis Ihrig, Malte Rohde, Sebastian 
    \lstset{language=C,#1}}
   {\endminipage}
 
+
+
+
 % Konfiguration der Titelseite:
+\newcommand\fulogo{%
+   \put(0,0){%
+      \parbox[b][\paperheight]{\paperwidth}{%
+         \vspace{1.5cm}
+         \begin{center}
+         \includegraphics[width=0.7\textwidth,keepaspectratio]{img/fulogo.eps}%
+         \end{center}
+         \vfill{}
+      }
+   }
+}
 \title{
-{\normalsize Softwareprojekt über Anwendung effizienter Algorithmen\\Freie Universität Berlin\\Wintersemester 2011/12}
+{\vspace{1.4cm}\normalsize Softwareprojekt über Anwendung effizienter Algorithmen\\Dozent: Prof. Dr. Günter Rote\\Freie Universität Berlin\\Wintersemester 2011/12}
 \\[4ex] 
 {\Large Abschlussbericht zum Softwareprojekt\\ \enquote{Zufällige Polygone und kürzeste Wege}}
-\\[6ex]
+\\[1.5cm]
 \includegraphics[width=0.4\textwidth]{img/polygons}
-\\[2.5cm]}
+\\[1.5cm]}
 \author{Steve Dierker \and Marcel Ehrhardt \and Jannis Ihrig \and Malte Rohde \and Sebastian Thobe \and Kadir Tugan}
 
 \date{
-\vspace{1.0cm}
-Dozent: Prof. Dr. Günter Rote\\
 \vspace{1.0cm}
 \today{}
 }
 
 \begin{document}
-
 \begin{titlepage}
+\AddToShipoutPicture*{\fulogo}
 \pagenumbering{alph}
 \maketitle
 \thispagestyle{empty}
