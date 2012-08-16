@@ -14,4 +14,5 @@ import polygonsSWP.geometry.Polygon;
  */
 public interface PolygonLog {	
 	public void writeOut(Polygon polygon, PolygonStatistics statistics);
+	public void close();
 }

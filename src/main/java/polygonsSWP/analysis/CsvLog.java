@@ -83,4 +83,8 @@ public class CsvLog implements PolygonLog
 			file.flush();
 		}
 	}
+	
+	public void close() {
+	  file.close();
+	}
 }
