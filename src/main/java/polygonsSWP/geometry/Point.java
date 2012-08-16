@@ -57,11 +57,6 @@ public class Point
     this((double) _x, (double) _y);
   }
 
-  public Point(long _x, long _y) {
-    // TODO remove
-    assert (false);
-  }
-
   public Point(double _x, double _y) {
     x = _x;
     y = _y;
