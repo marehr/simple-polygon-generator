@@ -99,8 +99,8 @@ public class PolygonsMain
       return;
     }
 
-    boolean header = !clp.getHeader();
-    boolean statistics = !clp.getStatistics();
+    boolean header = !clp.getNoHeader();
+    boolean statistics = !clp.getNoStatistics();
     int number = clp.getNumber();
     int threads = clp.getThreads();
     String output = clp.getOutputPath();
@@ -324,13 +324,13 @@ public class PolygonsMain
       return getIntValue("size", defaultBoundingBox);
     }
 
-    public boolean getStatistics() {
-      if (cl.hasOption("statistics")) return true;
+    public boolean getNoStatistics() {
+      if (cl.hasOption("no-statistics")) return true;
       return false;
     }
 
-    public boolean getHeader() {
-      if (cl.hasOption("header")) return true;
+    public boolean getNoHeader() {
+      if (cl.hasOption("no-header")) return true;
       return false;
     }
 
