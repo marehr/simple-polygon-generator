@@ -25,10 +25,32 @@ public class DatabaseLog
   
   
   public DatabaseLog(String database) throws Exception {
-    con = new SQLiteConnection(new File(database));
+    File db = new File(database);
+    boolean create_table = !db.exists();
+    
+    con = new SQLiteConnection(db);
     con.open();
     
-    queue = new SQLiteQueue(new File(database));
+    if(create_table) {
+      con.exec("CREATE TABLE Statistic (" +
+          "id integer primary key autoincrement," +
+          "used_algorithm integer," +
+          "number_of_points integer," +
+          "surface_area decimal," +
+          "circumference decimal," +
+          "timestamp integer," +
+          "time_for_creating_polygon," +
+          "iterations integer," +
+          "rejections integer," +
+          "count_of_backtracks integer," +
+          "radius decimal," +
+          "avg_velocity_without_collisions decimal," +
+          "initializeRejections integer," +
+          "maximumRejections integer" +
+          ")");
+    }
+    
+    queue = new SQLiteQueue(db);
     queue.start();
   }
   

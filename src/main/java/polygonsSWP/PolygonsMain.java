@@ -18,6 +18,7 @@ import org.apache.commons.cli.ParseException;
 
 import polygonsSWP.analysis.AlgorithmRunner;
 import polygonsSWP.analysis.CsvLog;
+import polygonsSWP.analysis.DatabaseLog;
 import polygonsSWP.analysis.PolygonLog;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
@@ -109,7 +110,7 @@ public class PolygonsMain
     
     PolygonLog log = null;
     if(database != null) {
-    
+      log = new DatabaseLog(database);
     } else {
       String output = clp.getOutputPath();
       OutputStream os = (output != null) ? new FileOutputStream(new File(output)) : System.out;

@@ -87,7 +87,6 @@ public class AlgorithmRunner
       statistics.surface_area = polygon.getSurfaceArea();
       
       //write here Statistics and polygon
-      
       out.writeOut(polygon, statistics);
     }
 
