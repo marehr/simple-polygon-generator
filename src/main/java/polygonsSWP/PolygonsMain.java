@@ -1,6 +1,8 @@
 package polygonsSWP;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,9 +17,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import polygonsSWP.analysis.AlgorithmRunner;
-import polygonsSWP.analysis.ConsoleWriter;
-import polygonsSWP.analysis.DataWriter;
-import polygonsSWP.analysis.OutputInterface;
+import polygonsSWP.analysis.CsvLog;
+import polygonsSWP.analysis.PolygonLog;
 import polygonsSWP.generators.PolygonGeneratorFactory;
 import polygonsSWP.generators.PolygonGeneratorFactory.Parameters;
 import polygonsSWP.generators.heuristics.IncrementalConstructionAndBacktrackingFactory;
@@ -55,7 +56,7 @@ public class PolygonsMain
       new SteadyGrowthFactory(), new TwoPeasantsGeneratorFactory(),
       new EnumeratingPermuteAndRejectFactory() };
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     // Process command line.
     CommandLineParser clp = new CommandLineParser();
     if (!clp.parseCommandLine(args)) {
@@ -103,22 +104,16 @@ public class PolygonsMain
     boolean statistics = !clp.getNoStatistics();
     int number = clp.getNumber();
     int threads = clp.getThreads();
-    String output = clp.getOutputPath();
+    String database = clp.getDatabase();
     PolygonGeneratorFactory factory = factories[clp.getAlgorithm()];
-    OutputInterface out = null;
-    if (output == null) {
-      out = new ConsoleWriter(header, statistics);
-    }
-    else {
-      try {
-        out = new DataWriter(output, header, statistics);
-      }
-      catch (IOException exc) {
-        // TODO test ob die datei schon vorhanden ist oder nicht oder was
-        // ähnliches ;)
-        System.err.println("Error reading or writing output file.");
-        return;
-      }
+    
+    PolygonLog log = null;
+    if(database != null) {
+    
+    } else {
+      String output = clp.getOutputPath();
+      OutputStream os = (output != null) ? new FileOutputStream(new File(output)) : System.out;
+      log = new CsvLog(os, header, statistics);
     }
 
     // Construct parameter map.
@@ -138,7 +133,7 @@ public class PolygonsMain
       }
     }
 
-    AlgorithmRunner.run(number, threads, out, factory, params);
+    AlgorithmRunner.run(number, threads, log, factory, params);
   }
 
   private static class CommandLineParser
@@ -160,7 +155,7 @@ public class PolygonsMain
       HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp(
           "run.sh",
-          "-\nUse with no arguments to show GUI, use --output to start batch-mode.\n-",
+          "-\nUse with no arguments to show GUI.\n--database will override --output, if neither is given, csv output will be directed to console.-\n",
           opts,
           "\nExample:\n$ ./run.sh --number 1000 --points 500 --output polygon.csv",
           true);
@@ -209,6 +204,11 @@ public class PolygonsMain
           OptionBuilder.withLongOpt("output").withArgName("Output path").withDescription(
               "When specified, the generated polygons (and statistics) will be saved in this File.").hasArg().isRequired(
               false).withType(String.class).create();
+      
+      Option database =
+          OptionBuilder.withLongOpt("database").withArgName("Database path").withDescription(
+              "When specified, the generated polygons (and statistics) will be saved in this Database.").hasArg().isRequired(
+              false).withType(String.class).create();
 
       Option statistics =
           OptionBuilder.withLongOpt("no-statistics").withArgName(
@@ -251,6 +251,7 @@ public class PolygonsMain
       opts.addOption(number);
       opts.addOption(threads);
       opts.addOption(output);
+      opts.addOption(database);
       opts.addOption(statistics);
       opts.addOption(header);
       opts.addOption(runs);
@@ -272,6 +273,10 @@ public class PolygonsMain
       return true;
     }
 
+    public String getDatabase() {
+      return cl.getOptionValue("database");
+    }
+    
     public String getOutputPath() {
       return cl.getOptionValue("output");
     }

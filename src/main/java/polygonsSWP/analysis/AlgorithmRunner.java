@@ -24,7 +24,7 @@ import polygonsSWP.geometry.Polygon;
  */
 public class AlgorithmRunner
 {
-  public static boolean run(int runs, int threads, OutputInterface out,PolygonGeneratorFactory factory, Map<Parameters, Object> params) {
+  public static boolean run(int runs, int threads, PolygonLog out, PolygonGeneratorFactory factory, Map<Parameters, Object> params) {
     
     ExecutorService es = Executors.newFixedThreadPool(threads);
     try {
@@ -60,10 +60,10 @@ public class AlgorithmRunner
   {
     PolygonGenerator polygonGenerator;
     PolygonStatistics statistics;
-    OutputInterface out;
+    PolygonLog out;
     
 
-    public PolygonGeneratorWorker(OutputInterface out, PolygonGeneratorFactory factory,
+    public PolygonGeneratorWorker(PolygonLog out, PolygonGeneratorFactory factory,
         Map<Parameters, Object> params) throws IllegalParameterizationException {
       this.out = out;
       statistics = new PolygonStatistics();
