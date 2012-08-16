@@ -12,7 +12,7 @@ All dependencies will be downloaded automatically.
 
 $ ./run.sh [options]
 
-or
+or (in source/ directory)
 
 $ mvn exec:java
 
