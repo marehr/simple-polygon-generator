@@ -1,3 +1,3 @@
 #!/bin/sh
 
-java -jar polygonsSWP-bin.jar "$@"
+java -Djava.library.path=lib -jar polygonsSWP-bin.jar "$@"
