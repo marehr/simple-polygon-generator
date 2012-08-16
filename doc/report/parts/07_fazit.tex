@@ -1,110 +1,105 @@
 \section{Zusammenfassung}
 
-  Nach Abschluss des Softwareprojekts lässt sich feststellen, dass wir insgesamt 
-  die uns gestellten Ziele erreicht haben.
-  Die entstandene Softwarelösung eignet sich zur
-  massenweisen Erzeugung von zufälligen einfachen Polygonen, mit deren Hilfe
-  sich verschiedenen Algorithmen der algorithmischen Geometrie testen und
-  evaluieren lassen. Die verschiedenen Algorithmen führen indes zu äußerst
-  unterschiedlichen Ergebnissen, von den vertikalen Linien des \emph{Space
-  Partitioning}- bis hin zu den eher kreisförmigen Polygonen des
-  \emph{Velocity Virmani}-Algorithmus. Zugleich bietet die graphische
-  Oberfläche, insbesondere die graphische Visualisierung der Erzeugung der
-  Polygone, einen interessanten Einblick in die Funktionsweise der
-  Algorithmen.
-
-  Im Laufe der Entwicklung konnten wir wertvolle Erfahrungen zu Teamarbeit und
-  Prozesskoordination sammeln. Hinsichtlich des Entwicklungsprozesses wurden die
-  von uns festgelegte Vorgehensweise überwiegend konsequent eingehalten. Vor 
-  allem
-  die Organisation in einer Gruppe von sechs Personen stellte sich als
-  Herausforderung heraus. Die meisten unserer Entscheidungen wurden im Konsens
-  getroffen, wodurch zwar die Erfahrung aller Mitglieder in die Softwarelösung
-  einfließen konnte, jedoch führte dies mitunter zu langen 
-  Entscheidungsprozessen und
-  einer teils inkonsistenten Umsetzung. Dies und die teils schwierige
-  Koordination voneinander abhängiger Aufgaben bedingte einige Verzögerungen,
-  der anfänglich aufgestellte Zeitplan wurde jedoch grob eingehalten.
-
-  Als Fehlentscheidung ist hier die
-  Entscheidung für die eigene Implementierung der generischen Polygon-
-  Mathematik (und gegen ein entsprechendes Framework) zu bezeichnen. Zwar
-  konnten wir uns so auf die tatsächlich benötigte Funktionalität (Schnitt-
-  Test-Funktionen, Flächen-Berechnung, Orientierungstest, usw.) beschränken,
-  jedoch konnten wir aufgrund des begrenzten Zeitraums oft nur naive
-  Algorithmen einsetzen, sodass die Performanz der Algorithmen mitunter von
-  langsamen Methoden im Framework dominiert wird. Beispielsweise erfolgt der
-  Simplizitäts-Test beim Polygon (der Test auf Überschneidungs-Freiheit)
-  in $\bigO(n^2)$, obwohl in der entsprechenden Fachliteratur effizientere
-  Algorithmen beschrieben werden.
-
-  Gleichzeitig stellten sich in den gegebenen Papers beschriebene Details und
-  Abhängigkeiten zu den Algorithmen in der Implementierung mitunter als äussert
-  schwierig heraus. Als beispielhafte Fehlentscheidung ist hierbei der Versuch
-  zu nennen, einzig für die Initialisierung des \emph{Shortest Path}-Algorithmus
-  einen Algorithmus zur Erzeugung einer Trapez-Zerlegung eines Polygons 
-  einzusetzen. Wir ver(sch)wendeten vergleichsweise viele Arbeitsstunden zur
-  Implementierung eines überaus komplexen Algorithmus nach Raimund
-  Seidel~\cite{seidel91asimple}, scheiterten hierbei mehrfach und fanden
-  schließlich heraus, dass für die Initialisierung des SP-Algorithmus keine
-  vollständige Trapez-Zerlegung benötigt wird. Die hierfür aufgebrachte Zeit 
-  hätte sinnvoller in eine höhere Testabdeckung investiert werden können, um die
-  Robustheit der Software zu steigern.
-
-  Da jedoch alle Ziele erreicht und interessante Erfahrungen gemacht wurden,
-  lässt sich der Ausgang des Softwareprojekts in Summe als durchaus erfolgreich
-  bewerten.
-
   \subsection{Lessons Learned}
+  
+    Da in der ersten Phase des Projekts die Hauptaufgabe aus dem Lesen und
+    Verstehen der Paper bestand, sammelten wir im Zusammenhang hiermit zunächst
+    die meisten Erfahrungen. Um ein tieferes Verständnis der vorgestellten
+    Algorithmen zu erlangen, war es teils nicht ausreichend seine Beschreibung
+    einmal gründlich durchzuarbeiten. Zum Verständnis der wichtigen Details ist
+    war es hilfreich das Paper erneut aus einem anderen Blickwinkel zu
+    betrachten oder zu versuchen einem Kollegen die Funktionsweise im Detail zu
+    erklähren.
 
-  Da in der ersten Phase des Projekts die Hauptaufgabe aus dem Lesen und
-  Verstehen der Paper bestand, sammelten wir im Zusammenhang hiermit zunächst
-  die meisten Erfahrungen. Um ein tieferes Verständnis der vorgestellten
-  Algorithmen zu erlangen, war es teils nicht ausreichend seine Beschreibung
-  einmal gründlich durchzuarbeiten. Zum Verständnis der wichtigen Details ist
-  war es hilfreich das Paper erneut aus einem anderen Blickwinkel zu betrachten
-  oder zu versuchen einem Kollegen die Funktionsweise im Detail zu erklähren.
-  (lehrreich: Tieferes verständnis oft nach nachvollziehen noch nicht erreicht)
+    Überraschend war der hohe Aufwand bei der umsetzung oft einfach scheinender
+    Details der Algorithmen. Im entsprechenden Paper oft nur mit einem Satz
+    erwähnt konnten sie bei der Implementierung komplexe und zeitaufwendige
+    Probleme darstellen. Daraus lernten wir, auch bei schon erfolgreicher
+    teilweiser Umsetzung die Arbeit bis zur tatsächlichen Fertigstellung der
+    Software nicht zu unterschätzen. Gleichzeitig ergab sich hieraus die
+    Erkenntnis, dass das schreiben eines leicht verständlichen Papers keine
+    Einfachheit ist und wahrscheinlich einiger Übung bedarf.
 
-  Überraschend war auch der hohe Aufwand bei der umsetzung oft einfach
-  scheinender Details der Algorithmen (Wörtliche umschreibung macht es sich oft
-  viel zu einfach). Im entsprechenden Paper oft nur mit einem Satz erwähnt
-  konnten sie bei der Implementierung schwere Probleme darstellen. Daraus
-  lernten wir, auch bei schon erfolgreicher teilweiser Umsetzung die Arbeit bis
-  zur tatsächlichen Fertigstellung der Software nicht zu unterschätzen.
-  Gleichzeitig ergab sich hieraus die Erkenntnis, dass das schreiben eines
-  leicht verständlichen Papers keine Einfachheit ist und wahrscheinlich einiger
-  Übung bedarf.
+    Eine weite und wichtige Erfahrung stellte die Organisation in der Gruppe von
+    sechs Personen dar. Mit Abschluss des Projekts stellten wir fest, dass die
+    oft im Konses erfolgten entscheidungen oft richtig waren, dem Gesamtentwurf
+    teils jedoch entgegen standen. So kann der Projektleiters wesentlich
+    deutlicher als tonangebende Figur auftreten, vorallem in der Entwurfsphase
+    des Projekts um das Softwaredesign konsistenter zu halten. Hierzu bedarf es
+    jedoch wahrscheinlich eines Projektleiters welcher bereits größere Erfahrung
+    im Design eigener Software und in der Koordinierung von Gruppen besitzt.
 
-  Eine weite und wichtige Erfahrung stellte die Organisation in der Gruppe von
-  sechs Personen dar. Mit Abschluss des Projekts stellten wir fest, dass die oft
-  im Konses erfolgten entscheidungen oft richtig waren, dem Gesamtentwurf teils
-  jedoch entgegen standen. So kann der Projektleiters wesentlich deutlicher als
-  tonangebende Figur auftreten, vorallem in der Entwurfsphase des Projekts um
-  das Softwaredesign konsistenter zu halten. Hierzu bedarf es jedoch
-  wahrscheinlich eines Projektleiters welcher bereits grössere Erfahrung im
-  Design eigener Software besitzt.
+    Bei der von uns als Projektverwaltung und Bugtracker eingesetzten Software
+    Redmine zeigte sich, dass wir den benötigten Zeitraum zur Erlernung und
+    Gewöhnung unterschätzt hatten. Solche Hilfsmittel können die Arbeit
+    beschleunigen und erleichtern sowie die Kommunikation vereinfachen.
+    Gleichzeitig stellten wir fest, dass die verwendtete Projektverwaltung bei
+    inkonsequenter Benutzung schnell zu Mehraufwand und
+    Kommunikationsschwierigkeiten führte, da Absprachen auf mehreren Wegen
+    getroffen wurden. Wir stimmeten überein das der zur Planungsphase
+    festgelegte Kommunikationsweg auch in hektischen Situationen eingehalten
+    werden sollte. Nur wenn sich dieser als gänzlich ungeeignet herausstellt,
+    sollte eine vollkommen neue Arbeitsweise festgelegt werden.
 
-  Bei von uns verwendeten Hilfsmitteln wie einem Bugtracker zeigte es sich
-  teils, dass wir den Zeitraum zur Erlernung und Gewöhnung unterschätzt hatten.
-  Solche Hilfsmittel können die Arbeit erleichtern, beschleunigen und die
-  Kommunikation vereinfachen (wie bereist gelistete und beschriebene bugs).
-  Gleichzeitig können sie bei nur teils inkonsequenter benutzung schon zu
-  mehraufwand und kommunikationsschwierigkeiten führen (dank mehrerer Kanäle und
-  unterschiedlichen absprachen).
+    Letztendlich unterschätzten wir leicht die Bedeutung einer hohen
+    Testabdeckung, zumindest für die Kernkomponenten der Software. Wie wir
+    später feststellten hätten wir mit frühem, gründlichen Testen, vorallem der
+    geomerischen Objekte, späterer Fehlersuche aus dem Weg gehen können. Die für
+    Tests verwendete Zeit wäre im Rückblick teils wesentlich geringer gewesen.
 
-  Letztendlich unterschätzten wir leicht die Bedeutung einer hohen
-  Testabdeckung, zumindest für die Kernkomponenten der Software. Wie wir später
-  feststellten hätten wir mit frühem, gründlichen Testen, vorallem der
-  geomerischen Objekte, späterer Fehlersuche aus dem Weg gehen können. Die für
-  Tests verwendete Zeit wäre im Rückblick teils wesentlich geringer gewesen.
+  \subsection{Fazit}
 
-  \begin{lessonlearned}
-    \emph{Malte} hat gelernt, dass österreicher Informatiker kluge 
-    Algorithmen entwickeln können -- in der Theorie.
-  \end{lessonlearned}
+    Nach Abschluss des Softwareprojekts lässt sich feststellen, dass wir
+    insgesamt die uns gestellten Ziele erreicht haben. Die entstandene
+    Softwarelösung eignet sich zur massenweisen Erzeugung von zufälligen
+    einfachen Polygonen, mit deren Hilfe sich verschiedenen Algorithmen der
+    algorithmischen Geometrie testen und evaluieren lassen. Die verschiedenen
+    Algorithmen führen indes zu äußerst unterschiedlichen Ergebnissen, von den
+    vertikalen Linien des \emph{Space Partitioning}- bis hin zu den eher
+    kreisförmigen Polygonen des \emph{Velocity Virmani}-Algorithmus. Zugleich
+    bietet die graphische Oberfläche, insbesondere die graphische Visualisierung
+    der Erzeugung der Polygone, einen interessanten Einblick in die
+    Funktionsweise der Algorithmen.
 
-  \begin{lessonlearned}
-    \emph{Bugs} hat gelernt, dass der böse Jäger eigentlich 
-    ziemlich harmlos ist.
-  \end{lessonlearned}
+    Im Laufe der Entwicklung konnten wir wertvolle Erfahrungen zu Teamarbeit und
+    Prozesskoordination sammeln. Hinsichtlich des Entwicklungsprozesses wurden
+    die von uns festgelegte Vorgehensweise überwiegend konsequent eingehalten.
+    Vor allem die Organisation in einer Gruppe von sechs Personen stellte sich
+    als Herausforderung heraus. Die meisten unserer Entscheidungen wurden im
+    Konsens getroffen, wodurch zwar die Erfahrung aller Mitglieder in die
+    Softwarelösung einfließen konnte, jedoch führte dies mitunter zu langen
+    Entscheidungsprozessen und einer teils inkonsistenten Umsetzung. Dies und
+    die teils schwierige Koordination voneinander abhängiger Aufgaben bedingte
+    einige Verzögerungen, der anfänglich aufgestellte Zeitplan wurde jedoch grob
+    eingehalten.
+
+    Als Fehlentscheidung ist hier die Entscheidung für die eigene
+    Implementierung der generischen Polygon- Mathematik (und gegen ein
+    entsprechendes Framework) zu bezeichnen. Zwar konnten wir uns so auf die
+    tatsächlich benötigte Funktionalität (Schnitt- Test-Funktionen,
+    Flächen-Berechnung, Orientierungstest, usw.) beschränken, jedoch konnten wir
+    aufgrund des begrenzten Zeitraums oft nur naive Algorithmen einsetzen,
+    sodass die Performanz der Algorithmen mitunter von langsamen Methoden im
+    Framework dominiert wird. Beispielsweise erfolgt der Simplizitäts-Test beim
+    Polygon (der Test auf Überschneidungs-Freiheit) in $\bigO(n^2)$, obwohl in
+    der entsprechenden Fachliteratur effizientere Algorithmen beschrieben
+    werden.
+
+    Gleichzeitig stellten sich in den gegebenen Papers beschriebene Details und
+    Abhängigkeiten zu den Algorithmen in der Implementierung mitunter als
+    äussert schwierig heraus. Als beispielhafte Fehlentscheidung ist hierbei der
+    Versuch zu nennen, einzig für die Initialisierung des \emph{Shortest
+    Path}-Algorithmus einen Algorithmus zur Erzeugung einer Trapez-Zerlegung
+    eines Polygons einzusetzen. Wir ver(sch)wendeten vergleichsweise viele
+    Arbeitsstunden zur Implementierung eines überaus komplexen Algorithmus nach
+    Raimund Seidel~\cite{seidel91asimple}, scheiterten hierbei mehrfach und
+    fanden schließlich heraus, dass für die Initialisierung des SP-Algorithmus
+    keine vollständige Trapez-Zerlegung benötigt wird. Die hierfür aufgebrachte
+    Zeit hätte sinnvoller in eine höhere Testabdeckung investiert werden können,
+    um die Robustheit der Software zu steigern.
+
+    Da jedoch alle Ziele erreicht und interessante Erfahrungen gemacht wurden,
+    lässt sich der Ausgang des Softwareprojekts in Summe als durchaus
+    erfolgreich bewerten.
+
+
