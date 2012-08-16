@@ -157,7 +157,7 @@ public class PolygonsMain
       HelpFormatter formatter = new HelpFormatter();
       formatter.printHelp(
           "run.sh",
-          "-\nUse with no arguments to show GUI.\n--database will override --output, if neither is given, csv output will be directed to console.-\n",
+          "-\nUse with no arguments to show GUI.\n--database will override --output, if neither is given, csv output will be directed to console.\n--database will only save statistics!\n-\n",
           opts,
           "\nExample:\n$ ./run.sh --number 1000 --points 500 --output polygon.csv",
           true);
@@ -215,11 +215,11 @@ public class PolygonsMain
       Option statistics =
           OptionBuilder.withLongOpt("no-statistics").withArgName(
               "No statistics").withDescription(
-              "Do not include statistics into output.").isRequired(false).create();
+              "Do not include statistics into output (only with --output).").isRequired(false).create();
 
       Option header =
           OptionBuilder.withLongOpt("no-header").withArgName("No header").withDescription(
-              "Do not include a header in the output,").isRequired(false).create();
+              "Do not include a header in the output (only with --output).").isRequired(false).create();
 
       Option runs =
           OptionBuilder.withLongOpt("runs").withArgName("number of runs").withDescription(
