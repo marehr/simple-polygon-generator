@@ -76,19 +76,19 @@ public class SteadyGrowthFactory
     private int maximumRejections = 0;
     private int rejections = 0;
     private int runs = 0;
-    private long lookupTime = 0;
-    private int lookupTimes = 0;
-    private long visibleEdgeTime = 0;
-    private int visibleEdgeTimes = 0;
+//    private long lookupTime = 0;
+//    private int lookupTimes = 0;
+//    private long visibleEdgeTime = 0;
+//    private int visibleEdgeTimes = 0;
 
     private final Color OLD_HULL = Color.LIGHT_GRAY;
     private final Color POLYGON_HULL = new Color(0xDCDCDC);
-    private final Color VISIBLE_EDGE = Color.MAGENTA;
+//    private final Color VISIBLE_EDGE = Color.MAGENTA;
     private final Color CHOOSEN_VISIBLE_EDGE = new Color(0xE0115F);
     private final Color POINT_IN_HULL = Color.RED;
     private final Color BLACKLISTED_POINTS = Color.CYAN;
     private final Color NEW_EDGE_POINT = Color.GREEN;
-    private final Color VALID_HULL = Color.GREEN;
+//    private final Color VALID_HULL = Color.GREEN;
 
     public SteadyGrowth(List<Point> points, History steps,
         PolygonStatistics stats) {
@@ -295,20 +295,20 @@ public class SteadyGrowthFactory
 
         runs++;
 
-        long start = System.nanoTime();
+//        long start = System.nanoTime();
         Object[] rets = getNextPointAndHull(polygon, hull, blacklist);
-        lookupTime = System.nanoTime() - start;
-        lookupTimes++;
+//        lookupTime = System.nanoTime() - start;
+//        lookupTimes++;
 
         hull = (SteadyGrowthConvexHull) rets[0];
         Point randomPoint = (Point)rets[1];
 
         // waehlen einen zufaelligen startpunkt aus
-        start = System.nanoTime();
+//        start = System.nanoTime();
         int startIndex = rand.nextInt(polygon.size());
         int insertIndex = getIndexOfVisibleEdge(polygon, randomPoint, startIndex);
-        visibleEdgeTime = System.nanoTime() - start;
-        visibleEdgeTimes++;
+//        visibleEdgeTime = System.nanoTime() - start;
+//        visibleEdgeTimes++;
 
         /**
          * VISUALISATION
