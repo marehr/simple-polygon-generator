@@ -135,6 +135,7 @@ public class PolygonsMain
     }
 
     AlgorithmRunner.run(number, threads, log, factory, params);
+    log.close();
   }
 
   private static class CommandLineParser
