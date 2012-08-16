@@ -45,25 +45,27 @@
   \subsection{Kommandozeile}
 
     Mit der Kommandozeile ist es möglich mehrere Polygone und deren Statistiken
-    gleichzeitig zu erzeugen und diese in eine CSV-Datei zu schreiben.
+    gleichzeitig zu erzeugen und diese auf der Kommandozeile auszugeben oder in
+    eine CSV-Datei bzw. Sqlite Datenbank zu schreiben.
     Zusätzlich ist es möglich die Anzahl der Threads zu bestimmen für optimales
     paralleles Berechnen. Damit ist es möglich viele verschiedene Polygone mit
     den gleichen Parametern zu erzeugen. Die Parameter werden im \enquote{GNU-
-    Stil} angegeben.\\ Um die Usage-Hilfe zu bekommen ruft man das Programm mit
+    Stil} angegeben.\\ Um die Usage-Hilfe anzuzeigen, ruft man das Programm mit
     dem Parameter --help oder --usage auf. Listing~\ref{listing_usage} zeigt
     einen gekürzten Ausschnitt aus der Usage. Alle weiteren Parameter sind in
     der Usage näher erläutert.
 
 \begin{code}[caption={Usage der Kommandozeile},label=listing_usage]
 usage: run.sh [--algorithm <Algorithm>] [--boundingbox <boundingbox>]
-       [--database <Database file>] [--help] [--number <Number of
-       polygons>] [--output <Output path>] [--points <Number of points>]
-       [--radius <circle radius>] [--runs <number of runs>] [--threads
-       <Number of threads>] [--usage] [--velocity <velocity>]
+       [--database <Database path>] [--help] [--no-header]
+       [--no-statistics] [--number <Number of polygons>] [--output <Output
+       path>] [--points <Number of points>] [--radius <circle radius>]
+       [--runs <number of runs>] [--threads <Number of threads>] [--usage]
+       [--velocity <velocity>]
 -
-Use with no arguments to show GUI, use --output and/or --database to start
-batch-mode.
--
+Use with no arguments to show GUI.
+--database will override --output, if neither is given, csv output will be
+directed to console.-
     --algorithm <Algorithm>         The algorithm to execute, specified by
                                     ID (Default: 0). Available algorithms:
                                     [0] SpacePartitioning
@@ -76,16 +78,73 @@ batch-mode.
                                     [6] Velocity Virmani
                                     [7] SteadyGrowth
                                     [8] TwoPeasants
+                                    [9] Enumerating Permute & Reject
 
 [...]
 \end{code}
 
 \begin{code}[caption={Beispiel-Ausführung},label=listing_usage_example]
-\$ run.sh --algorithm 0 --number 10 --points 25 --output out/polygon
+\$ run.sh --algorithm 0 --number 10 --points 25 --output out
 \end{code}
 
     Das Beispiel-Kommando in Listing~\ref{listing_usage_example} führt zur
     Generierung von 10 Polygonen mit je 25 Punkten mit Hilfe des \emph{Space
-    Partitioning}-Algorithmus. Die erzeugten Polygone werden im Verzeichnis
-    \texttt{out} unter dem Namen \texttt{polygon-01}, \texttt{polygon-02}, usw.
-    gespeichert.
+    Partitioning}-Algorithmus. Die erzeugten Polygone werden mitsamt der
+    generierten Meta-Daten in die Datei out geschrieben.
+
+  \subsection{Ausgabe}
+    Ohne angabe weiterer Optionen werden generierte Polygone samt ihrer
+    Meta-Daten auf Kommandozeile im CSV-Format ausgegeben. In der ersten Zeile
+    sthet hierbei der Header für die entsprechenden Spalten der Ausgabe.
+
+    \begin{itemize}
+      \item \emph{polygon}\\
+        Die Punkte des erzeugten Polygons als gegen den Uhrzeigersinn geordnete 
+        Liste.
+      \item \emph{used\_algorithm}\\
+        Der zur Erzeugung des Polygons verwendete Algorithmus.
+      \item \emph{number\_of\_points}\\
+        Die Anzahl der Punkte im Polygon.
+      \item \emph{surface\_area}\\
+        Der Flächeninhalt des Polygons.
+      \item \emph{circumference}\\
+        Der Umfang des Polygons.
+      \item \emph{timestamp}\\
+        Unix-timestamp zur Erzeugungszeit des Polygons.
+      \item \emph{time\_for\_creating\_polygon}\\
+        Zur Generierung benötigte Zeit.
+      \item \emph{iterations}\\
+        Permute \& Reject: Die Anzahl der zu Erzeugung des Polygons benötigten 
+        Durchläufe, d.h. es wurden iterations-1 Polygone als nicht einfache 
+        Polygone zurückgewiesen.\\
+        Velocity: Gleicht dem gleichnamigen Parameter.
+      \item \emph{rejections}\\
+        %TODO: kadir
+        Velocity:
+      \item \emph{count\_of\_backtracks}\\
+        Incremental Construction and Backtracking: Die Anzahl der 
+        durchgeführten Backtracks.
+      \item \emph{radius}\\
+        Velocity: Gleicht dem gleichnamigen Parameter.
+      \item \emph{avg\_velocity\_without\_collisions}\\
+        %TODO: kadir
+        Velocity:
+      \item \emph{initializeRejections}\\
+        %TODO: kadir
+        Velocity:
+      \item \emph{maximumRejections}\\
+        %TODO: kadir
+        Velocity:
+    \end{itemize}
+
+    Die meisten Algorthmen generieren nur einen Teil der möglichen Meta-Daten.
+    In diesem Fall wird \enquote{null} in die entsprechende Spalte eingetragen.
+    Unter Angabe von \emph{--no-header} entfällt der Header als erste Zeile,
+    durch \emph{--no-statistics} werden ausschliesslich die erzeugten Polygone
+    ausgegeben, die Meta-Daten entfallen.
+
+    Die Option \emph{--database <Database path>} bewirkt, dass die Ausgabe in
+    eine Sqlite-Datenbank ensprechend des angegebenen Pfads geschrieben wird.
+    Hierbei werden ausschliesslich die Meta-Daten gespeichert, um eine
+    statistische Auswertung zu ermöglichen. Die erzeugte Tabelle entspricht der
+    üblichen ausgabe, die Option \emph{--no-header} wird nicht beachtet.

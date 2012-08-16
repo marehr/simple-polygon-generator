@@ -1,46 +1,6 @@
 \section{Statistiken}
   \subsection{Erzeugung von Daten}
 
-    Zur Erzeugung von Daten steht ein Kommandozeileninterface zur Verf"ugung,
-    welches einem alle zur Verf"ugung stehenden Parameter durch einen Aufruf
-    mit --help oder --usage ausgibt. Siehe Listing~\ref{listing_usage}\\
-    Die einzelnen Parameter werden im \enquote{GNU-Stil} angegeben und haben
-    folgende Bedeutung:
-    \begin{itemize}
-      \item algorithm\\
-        Dieser Parameter spezifiziert den Algorithmus der zum Generieren
-        der Polygon verwendet werden soll.
-      \item boundingbox\\
-        Dieser Paremeter spezifiziert die l"ange der Kanten des umgebenden 
-        Quadrates.
-      \item number\\
-        Dieser Parameter spezifiziert die Anzahl der Polygone die mit den 
-        angegebenen Parametern generiert werden sollen.
-      \item points\\
-        Dieser Parameter spezifiziert die Anzahl an Punkten die ein
-        jedes Polygon das generiert wird enthalten soll.
-      \item radius\\
-        Dieser Parameter betrifft nur Virmani's Velocity und spezifiziert den
-        Radius des Kreises an dem die Punkte initial platziert werden.
-      \item runs\\
-        Dieser Parameter betrifft nur Virmani's Velocity und spezifiziert die
-        Anzahl der Wiederholungen pro Durchlauf.
-      \item threads\\
-        Dieser Parameter spezifiziert die Anzahl der Threads auf die die 
-        Generierung aufgeteilt werden soll.
-      \item output\\
-        Dieser Parameter spezifiziert die Zieldatei, falls keine Angegeben wurde
-        wird auf \enquote{stdout} ausgegeben.
-      \item no-header\\
-        Dieser Parameter spezifiziert ob die Bezeichnung der Spalten mit in die
-        Ausgabe geschrieben werden soll.
-      \item no-statistics\\
-        Dieser Parameter schreibt nur den Header in die Ausgabe.
-    \end{itemize}
-    Da die Angabe der Parameter je nach Art der gezielten Auswertung stark
-    variieren kann empfehlen wir die Verwendung einer Scriptsprache um den
-    Aufruf des Programms an die Bed"urfnisse der eigenen Untersuchung 
-    anzupassen.\\
     Wir haben in unserem Fall diese Scripte f"ur die am Ende des Kapitels 
     angeh"angten Statistiken verwendet.\\
     \begin{code}[caption={Script zur Datenerzeugung},label=listing_datacreation]
