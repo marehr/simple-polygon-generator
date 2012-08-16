@@ -62,8 +62,8 @@ public class SteadyGrowthConvexHullTest {
 
     SteadyGrowthConvexHull hull  = new SteadyGrowthConvexHull();
     List<Point> points = Arrays.asList(
-                  new Point(1, 1), new Point(1, 2),
-                  new Point(1, 3), new Point(1, 4),
+                  new Point(1, 1), new Point(2, 2),
+                  new Point(2, 3), new Point(1, 4),
                   new Point(4, 1), new Point(4, 4)
                 ),
                 expectedHull= new ArrayList<Point>();
@@ -99,45 +99,6 @@ public class SteadyGrowthConvexHullTest {
     assertFalse("shouldn't contain", hull.containsPoint(new Point(0, 0), true));
 
     System.out.println("testContainsPoint - end\n\n");
-  }
-
-  @Test
-  public void notInGeneralPosition(){
-    System.out.println("notInGeneralPosition - start");
-
-    SteadyGrowthConvexHull assignedHull  = new SteadyGrowthConvexHull();
-    ArrayList<Point> points = new ArrayList<Point>(),
-                expectedHull= new ArrayList<Point>();
-
-    points.add(new Point(1, 1));
-    expectedHull.add(new Point(1, 1));
-    points.add(new Point(4, 1));
-    expectedHull.add(new Point(4, 1));
-    points.add(new Point(4, 4));
-    expectedHull.add(new Point(4, 4));
-    points.add(new Point(1, 4));
-    expectedHull.add(new Point(1, 4));
-
-    points.add(new Point(1, 2));
-    points.add(new Point(2, 1));
-    points.add(new Point(2, 4));
-    points.add(new Point(4, 2));
-
-
-    Collections.shuffle(points);
-
-    for (Point point : points) {
-      assignedHull.addPoint(point);
-    }
-    System.out.println("hull: " + assignedHull.getPoints());
-
-    Object[] expecteds = expectedHull.toArray(),
-    actuals = assignedHull.getPoints().toArray();
-
-    System.out.println("expected: " + expectedHull);
-    System.out.println("assigned: " + assignedHull.getPoints());
-
-    assertArrayEquals(expecteds, actuals);
   }
 
   @Test

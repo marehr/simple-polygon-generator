@@ -204,6 +204,7 @@ public class SteadyGrowthConvexHull extends Polygon
     Point leftSupport  = points.get(supports[0]),
           rightSupport = points.get(supports[1]);
 
+
     // point has to lie on the right side of the line leftSupport nad rightSupport
     if(MathUtils.checkOrientation(leftSupport, rightSupport, point) >= 0){
       int tmp = supports[0];
