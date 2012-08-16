@@ -44,6 +44,7 @@
 		<file>
 			<source>src/assembly/run.sh</source>
 			<outputDirectory>polygonsSWP/</outputDirectory>
+			<fileMode>0755</fileMode>
 		</file>
 		<file>
 			<source>polygons-coding-style.xml</source>
