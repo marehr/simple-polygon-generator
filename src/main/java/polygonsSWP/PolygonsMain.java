@@ -328,7 +328,7 @@ public class PolygonsMain
     }
 
     public int getBoundingBox() {
-      return getIntValue("size", defaultBoundingBox);
+      return getIntValue("boundingbox", defaultBoundingBox);
     }
 
     public boolean getNoStatistics() {
